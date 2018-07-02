@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 
 
-HQ = '../../../PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
-GEO = '../../../PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
-MAP1 = '../../../PCNO/CSV/chicago/Maps/map1.csv'
+HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
+GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
+MAP1 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map1.csv'
 
 def read_geo():
     '''

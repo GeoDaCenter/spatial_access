@@ -6,7 +6,7 @@ import SERVICE_ADDRESS_CLEANER as sac
 from SERVICE_STANDARDIZE_NAME import stdname
 
 
-GEO = '../../../PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
+GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
 
 
 def merger():

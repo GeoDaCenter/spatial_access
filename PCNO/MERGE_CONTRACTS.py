@@ -6,9 +6,9 @@ from datetime import datetime as dt
 # FNAMES is a list of tuples. There is one tuple per original dataset. The tuple
 # consists of the original filename, the output filename, and a label that will
 # be used to identify the records in that dataset.
-FNAMES = [tuple(('../../../PCNO/CSV/chicago/originals/Cook County contracts.csv','COOK')),
-          tuple(('../../../PCNO/CSV/chicago/originals/City of Chicago contracts delegates blanks.csv','CHI')),
-          tuple(('../../../PCNO/CSV/chicago/originals/IL State Contracts w Keep column.csv', 'IL'))]
+FNAMES = [tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/Cook County contracts.csv','COOK')),
+          tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/City of Chicago contracts delegates blanks.csv','CHI')),
+          tuple(('../../../rcc-uchicago/PCNO/chicago/originals/IL State Contracts w Keep column.csv', 'IL'))]
 
 # CLEANER contains non-printing characters that will be cleaned out of strings.
 CLEANER = ['\n','\r','\t']

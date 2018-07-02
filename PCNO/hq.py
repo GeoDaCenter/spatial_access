@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 
 
-PREHQ = '../../../PCNO/CSV/chicago/prehq_contracts.csv'
-HQ = '../../../PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
-DEDUPED = '../../../PCNO/Geo/deduped_contract_results.csv'
-ADDR_OUT = '../../../PCNO/CSV/chicago/map1_addresses_for_geocoding.csv'
+PREHQ = '../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv'
+HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
+DEDUPED = '../../../rcc-uchicago/PCNO/Geo/deduped_contract_results.csv'
+ADDR_OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/map1_addresses_for_geocoding.csv'
 
 
 def read_deduplicated():

@@ -8,13 +8,13 @@ import ADDRESS_CLEANER as ac
 from STANDARDIZE_NAME import standardize_name as stdname
 
 
-COOK_ADDR = '../../../PCNO/CSV/chicago/CookCtyAddresses-for_geocoding.csv'
-IL_ADDR = '../../../PCNO/CSV/chicago/il_vendors_by_hand.csv'
-IRS = '../../../PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
-PB = '../../../PCNO/Matching/originals/pb_programs.json'
-WCHI = '../../../PCNO/Matching/originals/WestChicagoResources_Apr2017f1.csv'
-DFSS = '../../../PCNO/Matching/originals/Family_and_Support_Services_Delegate_Agencies.csv'
-MC = '../../../PCNO/Matching/originals/TalenE_UC_AllChi.xlsx'
+COOK_ADDR = '../../../rcc-uchicago/PCNO/CSV/chicago/CookCtyAddresses-for_geocoding.csv'
+IL_ADDR = '../../../rcc-uchicago/PCNO/CSV/chicago/il_vendors_by_hand.csv'
+IRS = '../../../rcc-uchicago/PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
+PB = '../../../rcc-uchicago/PCNO/Matching/originals/pb_programs.json'
+WCHI = '../../../rcc-uchicago/PCNO/Matching/originals/WestChicagoResources_Apr2017f1.csv'
+DFSS = '../../../rcc-uchicago/PCNO/Matching/originals/Family_and_Support_Services_Delegate_Agencies.csv'
+MC = '../../../rcc-uchicago/PCNO/Matching/originals/TalenE_UC_AllChi.xlsx'
 MC_2009_2015 = '2009-2015 data'
 MC_2016 = '2016 data'
 

@@ -16,8 +16,8 @@ JWSIM_THRESH = .9
 MIN_DOLLARS = .01
 
 # File shortcuts
-HQ = '../../../PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
-OUT = '../../../PCNO/CSV/chicago/prehq_contracts.csv'
+HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
+OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv'
 
 
 def read_contracts():
