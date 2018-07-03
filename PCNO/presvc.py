@@ -1,3 +1,4 @@
+import UTILS as u
 import numpy as np
 import pandas as pd
 import ADDRESS_CLEANER as ac
@@ -63,6 +64,8 @@ def clean_df(df):
     only records in IL. Returns a dataframe.
     '''
 
+    print('\nStandardizing names and cleaning addresses')
+
     df['Name'] = df['Name'].apply(stdname)
 
     df = sac.full_cleaning(df)
@@ -70,6 +73,95 @@ def clean_df(df):
     df = df[df['State'] == 'IL']
 
     return df.reset_index(drop=True)
+
+
+def filler(df,targets,type,keys1,keys2):
+    '''
+    Attempts to fill in missing values in the targets list from elsewhere in the
+    dataset. The column names in keys1 should be the values on which two records
+    must match exactly in order to fill in a missing value. The column names in
+    keys2 are the ones that must be considered (in addition to the columns in
+    keys1) when dropping duplicates from the dataframe. The type is the function
+    (not a string) that should be applied to the columns in the target list.
+    Returns a dataframe.
+    '''
+
+    bigkeys = keys1 + keys2
+
+    # Make a copy of df but only keep the target columns plus those in keys1
+    values = df.loc[:,targets + keys1]
+
+    # For every column in the list of targets, change the type as specified
+    # If the type is not string, replace the emptry string with np.NaN first
+    for col in targets:
+        if type == str:
+            values.loc[:,col] = values.loc[:,col].astype(type)
+        else:
+            values.loc[:,col] = values.loc[:,col].replace('',np.NaN).astype(type)
+
+    # Drop null values in the target values, then sort the values by the targets
+    values = values.dropna(subset=targets)
+    values = values.sort_values(by=targets,ascending=False)
+
+    # Drop duplicates (considering only the columns in keys1); keep the first
+    # row and drop subsequent duplicates
+    values = values.drop_duplicates(subset=keys1,keep='first')
+
+    # Drop the columns in the list of targets, then drop duplicates (considering
+    # only the columns in keys1 + keys2); finally, merge in values with a left
+    # merge so that all rows in df are retained (this fills in all the target
+    # vals present in values)
+    df = df.drop(targets,axis=1).drop_duplicates(subset=bigkeys).merge(values,how='left')
+
+    return df.reset_index(drop=True)
+
+
+def read_geo():
+    '''
+    Reads in the geocoded addresses from Map 1 (HQ addresses). Drops the Match
+    Score column. Renames the Latitude and Longitude columns. Cleans the Zip
+    column. Returns a dataframe.
+    '''
+
+    df = pd.read_csv(GEO)
+    df = df.drop('Match Score',axis=1)
+
+    #df = df.rename(columns={'Latitude':'Lat','Longitude':'Lon'},index=str)
+    df = df.rename(columns={'Zip':'ZipCode'},index=str)
+
+    df['ZipCode'] = df['ZipCode'].apply(u.fix_zip)
+
+    return df
+
+
+def try_fill(df):
+    '''
+    Fills in missing zip codes and coordinates as best as possible. Copies in
+    values from elsewhere in the dataset and from the geocoded HQ addresses.
+    Returns a dataframe.
+    '''
+
+    # Fill in missing zip codes as best as possible
+    #df = fill_zips(df)
+    targetsZ = ['ZipCode']
+    keys1Z = ['Address','City','State']
+    keys2Z = ['Name','Longitude','Latitude']
+    df = filler(df,targetsZ,str,keys1Z,keys2Z)
+
+    # Fill in missing longitude and latitude coordinates as best as possible
+    #df = fill_coords(df)
+    targetsL = ['Longitude','Latitude']
+    keys1L = ['Address','City','State','ZipCode']
+    keys2L = ['Name']
+    df = filler(df,targetsL,float,keys1L,keys2L)
+
+    # Read in the geocoded HQ addresses and fill in zip codes and coordinates as
+    # best as possible
+    geo = read_geo()
+    subset = ['Address','City','State']
+    df = u.merge_coalesce(df.reset_index(drop=True),geo,subset)
+
+    return df
 
 
 def id_geocoded(df):
@@ -97,77 +189,6 @@ def id_geocoded(df):
     return geo.reset_index(drop=True)
 
 
-def fill_zips(df):
-    '''
-    Fills ins blank zip codes if the same address has a known zip code in a
-    different record. In the case that the same address has 2+ different zip
-    codes across records, retains the highest-numbered zip. Returns a dataframe.
-    '''
-
-    zipc = 'ZipCode'
-    subset = ['Address','City','State']
-
-    # Make a copy of df but only keep the columns 'ZipCode' plus those in subset
-    zips = df.loc[:,(subset + [zipc])]
-
-    # Replace empty zips with np.NaN
-    zips[zipc] = zips[zipc].replace('',np.NaN)
-
-    # Drop null values in the zip column; sort with higher-numbered zips first
-    zips = zips.dropna(subset=[zipc])
-    zips = zips.sort_values(by=zipc,ascending=False)
-
-    # Considering only the columns in subset, drop subsequent duplicates
-    zips = zips.drop_duplicates(subset=subset,keep='first')
-
-    # Drop the ZipCode column, then drop duplicates (considering only the col)
-    # Merge zips into df using a left join, which fills in zips for records
-    # based on matching on the columns in subset
-
-    print(df.columns)
-    df = df.drop(['ZipCode'],axis=1).drop_duplicates(subset=subset + ['Name',\
-           'Longitude','Latitude']).merge(zips,how='left')
-
-    return df.reset_index(drop=True)
-
-
-def fill_coords(df):
-    '''
-    Fills in longitude and latitude coordinates for addresses that have them. In
-    the case of a tie, takes the record with the highest value for longitude.
-    Returns a dataframe.
-    '''
-
-    subset = ['Address','City','ZipCode','State','Longitude','Latitude']
-
-    coords = df.loc[:,subset]
-
-    for col in subset[-2:]:
-        df[col] = df[col].replace('',np.NaN).apply(float)
-
-    coords = coords.dropna(subset=subset[-2:])
-    coords = coords.sort_values(by=subset[-2:],ascending=False)
-
-    coords = coords.drop_duplicates(subset=subset[:-2],keep='first')
-
-    df = df.drop(subset[-2:],axis=1).drop_duplicates(subset=subset[:-2] + ['Name']).merge(coords,how='left')
-
-    return df.reset_index(drop=True)
-
-
-def thinner(df):
-    '''
-    '''
-
-    # Fill in missing zip codes as best as possible
-    df = fill_zips(df)
-
-    # Fill in missing longitude and latitude coordinates as best as possible
-    df = fill_coords(df)
-
-    return df
-
-
 if __name__ == '__main__':
 
     #'''
@@ -175,9 +196,8 @@ if __name__ == '__main__':
     cleaned = clean_df(merged)
     #cleaned.to_csv('SVC_AGENCIES.csv',index=False)
 
-
-    thin = thinner(cleaned)
-    geo = id_geocoded(thin)
+    filled = try_fill(cleaned)
+    #geo_ID = id_geocoded(thin)
     #'''
 
     print()
