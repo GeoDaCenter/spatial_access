@@ -30,11 +30,11 @@ def cart_prod(df1,df2):
 
     k = 'key'
 
-    # In each df, create a column with the same name and all the same values
-    df1[k] = 0
-    df2[k] = 0
+    # In each df, create a key column with all the same values
+    df1 = df1.assign(key=0)
+    df2 = df2.assign(key=0)
 
-    print('\nTaking a Cartesian product')
+    print('Taking a Cartesian product')
 
     # Take the Cartesian product of the two dataframes
     prod = pd.merge(df1,df2,on=k)
