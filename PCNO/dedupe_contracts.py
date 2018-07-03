@@ -32,19 +32,20 @@ TO EXECUTE A SAMPLE RUN:
 '''
 
 
-INPUT = '../CSV/chicago/MERGED_chi_cook_il_FULL_VARS.csv'
+INPUT = '../../../rcc-uchicago/PCNO/CSV/chicago/MERGED_chi_cook_il_FULL_VARS.csv'
 
-def sub_job(index, data, subset, threshold, completion):
+def sub_job(index, data, subset, threshold, completion, fieldname):
     '''
     The job for a single thread. Iterates through the names and tries
     to find a match. If it does, writes to temp csv.
     '''
-    primary = data['VendorName']
+
+    primary = data[fieldname]
     already_examined = set([])
     if completion:
         print("~{} percent done with matching".format(completion))
     for sub_index, sub_data in subset.iterrows():
-        secondary = sub_data['VendorName']
+        secondary = sub_data[fieldname]
         if index != sub_index and secondary not in already_examined:
             jw_score = distance.get_jaro_distance(primary, secondary, winkler=True)
             if jw_score >= threshold and jw_score < 1:
@@ -64,17 +65,17 @@ class Worker(Thread):
 
     def run(self):
        while True:
-           index, data, subset, threshold, completion = self.queue.get()
-           sub_job(index, data, subset, threshold, completion)
+           index, data, subset, threshold, completion, fieldname = self.queue.get()
+           sub_job(index, data, subset, threshold, completion, fieldname)
            self.queue.task_done()
 
 
-def load_data(filename=INPUT,seed=345, subset=False):
+def load_data(filename=INPUT, fieldname='Vendor Name', seed=345, subset=False):
     '''
     Load the csv of uncleaned contracts into a dataframe.
     '''
     df = pd.read_csv(filename)
-    df = df.sort_values(by='VendorName',axis=0,inplace=False)
+    df = df.sort_values(by=fieldname,axis=0,inplace=False)
     if subset:
         print('==================================================')
         print('WARNING: YOU ARE WORKING WITH A SUBSET OF THE DATA')
@@ -87,7 +88,7 @@ def load_data(filename=INPUT,seed=345, subset=False):
     return df
 
 
-def apply_matches(df, actual_matches, conflicts):
+def apply_matches(df, fieldname, actual_matches, conflicts):
     '''
     Use the actual matches input to apply standardization.
     '''
@@ -120,14 +121,14 @@ def apply_matches(df, actual_matches, conflicts):
 
     for key, value in actual_matches.items():
         for index, data in df.iterrows():
-            if data['VendorName'] in value:
-                old_name = data['VendorName']
-                df.loc[index, 'VendorName'] = key
+            if data[fieldname] in value:
+                old_name = data[fieldname]
+                df.loc[index, fieldname] = key
                 print("changed {} to {}".format(old_name, key))
     return df
 
 
-def generate_matches(df, threshold):
+def generate_matches(df, fieldname, threshold):
     no_cores = multiprocessing.cpu_count() - 1
     if no_cores >= 10:
         no_cores -= 6
@@ -150,18 +151,18 @@ def generate_matches(df, threshold):
             completion = round(counter / len_df * 100)
         else:
             completion = None
-        primary = data['VendorName']
+        primary = data[fieldname]
         counter += 1
         if primary not in already_examined:
             subset = df[counter:]
-            queue.put((index, data, subset, threshold, completion))
+            queue.put((index, data, subset, threshold, completion, fieldname))
             already_examined.add(primary)
     queue.join()
 
     return
 
 
-def match_records(df, rejected=None):
+def match_records(df, fieldname, rejected=None):
     '''
     Create a new data frame with a column displaying possible
     matching records.
@@ -185,14 +186,14 @@ def match_records(df, rejected=None):
             except:
                 threshold = ''
     for index, data in df.iterrows():
-        primary = data['VendorName']
-        df.loc[index, 'VendorName'] = standardize_name(primary)
+        primary = data[fieldname]
+        df.loc[index, fieldname] = standardize_name(primary)
     if rejected:
         pass
         rejected_a = set([(i[0], i[1]) for i in rejected])
         rejected_b = set([(i[1], i[0]) for i in rejected])
     else:
-        generate_matches(df, threshold)
+        generate_matches(df, fieldname, threshold)
 
     potential_matches = set([])
     with open('dedupe_working_data.csv', 'r') as f:
@@ -276,13 +277,13 @@ def match_records(df, rejected=None):
             for key, item in actual_matches.items():
                 actual_matches[key] = set(item)
 
-    df = apply_matches(df, actual_matches, conflicts)
+    df = apply_matches(df, fieldname, actual_matches, conflicts)
     os.remove('dedupe_working_data.csv')
 
     return df
 
 
-def recover_dat(filename=INPUT, sample=False):
+def recover_dat(filename=INPUT, fieldname = 'Vendor Name', sample=False):
     if os.path.exists('dedupe_recovery_data'):
         pass
     else:
@@ -293,15 +294,15 @@ def recover_dat(filename=INPUT, sample=False):
 
     if filename:
         if sample:
-            df = load_data(filename, 12345, 300)
+            df = load_data(filename, fieldname, 12345, 300)
         else:
-            df = load_data(filename)
+            df = load_data(filename, fieldname)
     else:
         if sample:
-            df = load_data(seed=12345,subset=300)
+            df = load_data(fieldname=fieldname,seed=12345,subset=300)
         else:
             df = load_data()
-    df = apply_matches(df, actual_matches, conflicts)
+    df = apply_matches(df, fieldname, actual_matches, conflicts)
 
     return df
 
@@ -347,43 +348,43 @@ def write_data(df, filename='deduped_contract_results.csv'):
 
     return
 
-def assign_id(df):
+def assign_id(df,fieldname):
     '''
     Assign a unique ID to each vendor in the dataset.
     '''
     df['CSDS_Vendor_ID'] = ''
-    df = df.sort_values(by='VendorName',axis=0,inplace=False)
+    df = df.sort_values(by=fieldname,axis=0,inplace=False)
     prev_names = {}
     counter = 0
     for i, data in df.iterrows():
-            if df.loc[i,'VendorName'] in prev_names.keys():
-                df.loc[i, 'CSDS_Vendor_ID'] = prev_names[df.loc[i,'VendorName']]
+            if df.loc[i,fieldname] in prev_names.keys():
+                df.loc[i, 'CSDS_Vendor_ID'] = prev_names[df.loc[i,fieldname]]
             else:
                 counter += 1
                 id_string = 'vendor_{}'.format(counter)
                 df.loc[i, 'CSDS_Vendor_ID'] = id_string
-                prev_names[df.loc[i,'VendorName']] = id_string
+                prev_names[df.loc[i,fieldname]] = id_string
     return df
 
-def sample_run(seed=12345, recovery_df=None):
+def sample_run(fieldname='Vendor Name',seed=12345, recovery_df=None):
     '''
     Runs the full process through a subset of the data as a demonstration.
     '''
-    df = load_data(INPUT, seed, 300)
+    df = load_data(INPUT, fieldname, seed, 300)
     df = match_records(df)
     df = assign_id(df)
     write_data(df,'sample_deduped_contract_results.csv')
 
 
-def main(filename):
+def main(filename,fieldname):
     if os.path.exists('dedupe_recovery_data'):
         pass
     else:
         os.mkdir('dedupe_recovery_data')
     if filename:
-        df = load_data(filename)
-    df = match_records(df)
-    df = assign_id(df)
+        df = load_data(filename,fieldname)
+    df = match_records(df,fieldname)
+    df = assign_id(df,fieldname)
     write_data(df)
 
 def recovery(filename):
@@ -408,8 +409,12 @@ if __name__ == '__main__':
     for i in range(0,len(sys.argv)):
         if sys.argv[i] == '-f':
             filename = sys.argv[i + 1]
+        if sys.argv[i] == '-l':
+            fieldname = sys.argv[i + 1]
+    if not fieldname:
+        fieldname = 'Vendor Name'
     if '-r' in sys.argv:
         print('Launching in recovery mode')
         recovery(filename)
     else:
-        main(filename)
+        main(filename,fieldname)
