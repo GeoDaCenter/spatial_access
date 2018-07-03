@@ -8,7 +8,7 @@ from datetime import datetime as dt
 # be used to identify the records in that dataset.
 FNAMES = [tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/Cook County contracts.csv','COOK')),
           tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/City of Chicago contracts delegates blanks.csv','CHI')),
-          tuple(('../../../rcc-uchicago/PCNO/chicago/originals/IL State Contracts w Keep column.csv', 'IL'))]
+          tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/IL State Contracts w Keep column.csv', 'IL'))]
 
 # CLEANER contains non-printing characters that will be cleaned out of strings.
 CLEANER = ['\n','\r','\t']
@@ -89,7 +89,7 @@ def process_dataset(fname_tuple):
         cv['Start Date'] = date_fixer
         cv['End Date'] = date_fixer
 
-        print('Reading IL')
+        print('Reading IL contracts')
         df = pd.read_csv(fnamein, names = cn, converters = cv, skiprows = 1)
 
     else:
@@ -101,13 +101,13 @@ def process_dataset(fname_tuple):
         cv['Link'] = link_cleaner
         cv['Contract PDF'] = link_cleaner
 
-        print('Reading {}'.format(label))
+        print('Reading {} contracts'.format(label))
 
         # Read in the file and use the converters dictionary
         df = pd.read_csv(fnamein, converters = cv)
 
     # Omit when the 'Keep' column is not equal to 'y' or 'Y'; drop duplicates
-    df = df[df.Keep.str.strip().str.upper() == 'Y']
+    df = df[df['Keep'].str.strip().str.upper() == 'Y']
     df = df.drop_duplicates()
 
     # Keep only contracts with a start date on or since the begin date.
@@ -130,12 +130,13 @@ def trimmer(df,label):
     dataframe.
     '''
 
+    # Define a list of columns that will be retained
     keep = ['CSDS_Contract_ID','ContractNumber','Description','Agency/Department',
             'VendorName','VendorID','Amount','StartDate','EndDate',
             'Category/ProcurementType','Link/ContractPDF',
             'Address1','Address2','City','State','ZipCode']
 
-
+    # Define a list of column names, depending on the dataset
     if label == 'COOK':
         cn = {'Contract Number':'ContractNumber','Vendor Number':'VendorID',
               'Lead Department':'Agency/Department','Start Date':'StartDate',
@@ -153,24 +154,31 @@ def trimmer(df,label):
               'Contract PDF':'Link/ContractPDF'}
 
     elif label == 'IL':
-
-        amounts = ['Current Contract Amount','Planned Contract Amount',
-                   'Current Expended Amount']
-
-        descriptions = ['Award Description','Type Description','Class Description']
-
-        df['Amount'] = df[amounts].max(axis=1).apply(str)
-        df['Description'] = df[descriptions].apply(lambda x: ' || '.join(x), axis=1)
-
-        df = df.drop(amounts + descriptions, axis=1)
-
         cn = {'Agency':'Agency/Department','Contract Number':'ContractNumber',
         'Vendor Name':'VendorName','Start Date':'StartDate',
         'End Date':'EndDate'}
 
+        # Define a list of the names of the amounts columns
+        amounts = ['Current Contract Amount','Planned Contract Amount',
+                   'Current Expended Amount']
 
+        # Create an Amount column, taking the maximum of the three columns
+        df['Amount'] = df[amounts].max(axis=1).apply(str)
+
+        # Define a list of the names of the descriptions columns
+        descs = ['Award Description','Type Description','Class Description']
+
+        # Create a Descriptions column by joining the three together
+        df['Description'] = df[descs].apply(lambda x: ' || '.join(x), axis=1)
+
+        # Drop the original amounts and descriptions columns
+        df = df.drop(amounts + descs, axis=1)
+
+    # Rename the columns using the new column names as set above
     df = df.rename(columns=cn,index=str)
 
+    # For every column we need, if it does not exist in the dataframe, create it
+    # and assign the empty string as the value
     for col in keep:
         if col not in df.columns:
             df[col] = ''
