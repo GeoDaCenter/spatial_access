@@ -1,6 +1,7 @@
 import UTILS as u
 import numpy as np
 import pandas as pd
+import MATCH_NAMES as mn
 import ADDRESS_CLEANER as ac
 import IMPORT_ADDRESSES as ad
 import SERVICE_ADDRESS_CLEANER as sac
@@ -8,6 +9,7 @@ from SERVICE_STANDARDIZE_NAME import stdname
 
 
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
+OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 
 
 def merger():
@@ -141,6 +143,8 @@ def try_fill(df):
     Returns a dataframe.
     '''
 
+    print('\nFilling in missing zip codes and coordinates as best as possible')
+
     # Fill in missing zip codes as best as possible
     #df = fill_zips(df)
     targetsZ = ['ZipCode']
@@ -166,7 +170,9 @@ def try_fill(df):
 
 def id_geocoded(df):
     '''
-
+    Need to figure out what parts of this function to cannibalize LATER ON.
+    Once the service addresses are merged into the contracts, THEN they should
+    get a unique CSDS_Address_ID. For now, ignore everything in this function.
     '''
 
     keep = ['Longitude','Latitude','Address','City','Zip','State']
@@ -189,29 +195,43 @@ def id_geocoded(df):
     return geo.reset_index(drop=True)
 
 
+def just_names(df):
+    '''
+    Reduces the dataframe to unique entries in the Name column. Returns a
+    dataframe.
+    '''
+
+    names = df['Name'].drop_duplicates().reset_index(drop=True)
+
+    return names.to_frame()
+
+
 if __name__ == '__main__':
 
     #'''
     merged = merger()
     cleaned = clean_df(merged)
-    #cleaned.to_csv('SVC_AGENCIES.csv',index=False)
-
     filled = try_fill(cleaned)
-    #geo_ID = id_geocoded(thin)
-    #'''
+
+    filled.to_csv(OUT,index=False)
+
+    names = just_names(filled)
+    names.to_csv('../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies_names.csv',index=False)
 
     print()
 
-
+    #jws = disambiguate_names(filled,'Name','CSDS_Org_ID')
     '''
-    -Copy Long,Lat in for identical addresses
-    -Boil down to single line per identical record
+    -Copy Long,Lat in for identical addresses DONE
+    -Boil down to single line per identical record DONE
+    -Deduplicate based on name (and address????)
+        -Logan's module?
+        -Dedupe?
+        -Cartesian product and JWSim?
 
-    -Deduplicate based on name and address
-    -Assign an address ID to each unique address
     -If there's a geocoded address, copy the coordinates to matching addresses
-    -Geocode the rest of the addresses
-    -Merge the coordinates back in
 
     -Then:  Record Linkage to HQ addresses
+        -Assign an address ID to each unique address that is for a linked service agency
+        -Geocode the rest of the addresses
     '''

@@ -61,7 +61,7 @@ def merge_coalesce(df1,df2,keys,suffix='_R'):
     return df.replace(np.NaN,'')
 
 
-def rename_cols(df,cols,suffix):
+def rename_cols(df,cols,suffix='_R'):
     '''
     Adds a specified suffix to the names of specified columns. Returns a
     dataframe.
