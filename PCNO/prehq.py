@@ -48,6 +48,8 @@ def clean_amounts(df):
     with amounts below the MIN_DOLLARS threshold. Returns a dataframe.
     '''
 
+    print('Cleaning amounts')
+
     # Shortcut
     a = 'Amount'
 
@@ -63,6 +65,8 @@ def import_addresses(dataset):
     Reads in one of three address datasets (specified with a string). Returns a
     dataframe.
     '''
+
+    print('Reading in {} addresses'.format(dataset.upper()))
 
     if dataset == 'cook':
         df = ad.read_cook_addr()
@@ -82,49 +86,6 @@ def import_addresses(dataset):
     return df
 
 
-def merge_coalesce(df1,df2,keys,suffix='R'):
-    '''
-    Merges two dataframes with overlapping columns that do not match. Copies the
-    values from the second dataframe into the first dataframe. Returns a
-    dataframe.
-    '''
-
-    cols = [x for x in df2.columns if x not in keys]
-    df2 = rename_cols(df2,cols,suffix)
-
-    df = pd.merge(df1,df2,how='left')
-    df = df.replace('',np.NaN)
-
-    # Coalesce values on the repeated columns
-    # The repeated columns are the ones where col is in df1.columns and
-    # (col + SUFFIX) is in df2.columns
-    coal = [x for x in df1.columns if x + suffix in df2.columns]
-
-    for col in coal:
-        df[col] = df[col].combine_first(df[col + suffix])
-
-    # Drop the extra columns
-    drop = [x for x in df2.columns if x.endswith(suffix)]
-    df = df.drop(drop,axis=1)
-
-    # Replace np.NaN with the empty string
-    return df.replace(np.NaN,'')
-
-
-def rename_cols(df,cols,suffix):
-    '''
-    Adds a specified suffix to the names of specified columns. Returns a
-    dataframe.
-    '''
-
-    new = [x + suffix for x in cols]
-    cn = dict(zip(cols,new))
-
-    df = df.rename(columns=cn,index=str)
-
-    return df
-
-
 def jwsim_contracts_irs(contracts,irs,suffix):
     '''
     Takes the contracts and IRS dataframes and returns a dataframe of records
@@ -132,7 +93,7 @@ def jwsim_contracts_irs(contracts,irs,suffix):
     '''
 
     # Rename the columns in IRS:
-    irs = rename_cols(irs,irs.columns,suffix)
+    irs = u.rename_cols(irs,irs.columns,suffix)
 
     # Restrict the contracts df to just those from IL
     contracts = contracts[contracts.CSDS_Contract_ID.str.startswith('IL')]
@@ -141,7 +102,7 @@ def jwsim_contracts_irs(contracts,irs,suffix):
     prod = mn.cart_prod(contracts,irs)
     prod = prod.replace(np.NaN,'')
 
-    print('\nCalculating Jaro-Winkler similarity on vendor names')
+    print('Calculating Jaro-Winkler similarity on vendor names')
 
     # Compute the Jaro-Winkler similarity on the VendorName cols
     col1 = 'VendorName'
@@ -161,7 +122,7 @@ def coalesce_matches(contracts,jwsim,suffix):
 
     keys = ['CSDS_Contract_ID']
 
-    df = merge_coalesce(contracts,jwsim,keys,suffix)
+    df = u.merge_coalesce(contracts,jwsim,keys,suffix)
 
     return df
 
@@ -208,17 +169,20 @@ def preprocess_contracts():
     contracts = clean_amounts(contracts)
     cook = import_addresses('cook')
 
-    merged = merge_coalesce(contracts,cook,'VendorName')
+    print('Coalescing COOK matches')
+    merged = u.merge_coalesce(contracts,cook,'VendorName')
     merged['VendorName'] = merged['VendorName'].apply(stdname)
 
     irs = import_addresses('irs')
 
     sfx = '_IRS'
     jwsim = jwsim_contracts_irs(merged,irs,sfx)
+    print('Coalescing IRS matches')
     coalesced = coalesce_matches(merged,jwsim,sfx)
 
     il = import_addresses('il')
-    df = merge_coalesce(coalesced,il,'VendorName')
+    print('Coalescing IL matches')
+    df = u.merge_coalesce(coalesced,il,'VendorName')
 
     return df
 
