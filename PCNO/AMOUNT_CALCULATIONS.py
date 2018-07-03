@@ -32,11 +32,11 @@ def drop_low(df,thresh=.01):
 
     a = 'Amount'
 
-    # Drop NAs from the Amount column
-    df = df.dropna(subset=[a])
+    # Drop NAs from the Amount column; make a copy to avoid a warning
+    df = df.dropna(subset=[a]).copy()
 
     # Convert to float
-    df[a] = df[a].apply(float)
+    df[a] = df[a].astype(float)
 
     # Drop records with amounts below the threshold
     df = df[df[a] >= thresh]
