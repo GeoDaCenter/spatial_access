@@ -1,4 +1,5 @@
 import re
+import UTILS as u
 import numpy as np
 import pandas as pd
 
@@ -17,14 +18,19 @@ def read_deduplicated():
     Returns a dataframe.
     '''
 
+    # Read the file
     df = pd.read_csv(DEDUPED)
+
+    # Drop columns
     df = df.drop(['Address2','Unnamed: 0'],axis=1)
+
+    # Rename columns
     df = df.rename(columns={'Address1':'Address','ZipCode':'Zip'},index=str)
 
-    # Fix ZipCodes
-    df['Zip'] = df['Zip'].apply(lambda x: re.sub(r'\.0$','',str(x)))
-    df['Zip'] = df['Zip'].apply(lambda x: re.sub(r'-[0-9]{4}$','',x))
+    # Fix zip codes
+    df['Zip'] = df['Zip'].apply(u.fix_zip)
 
+    # Replace instances of 'INVALID' with the empty string
     df = df.replace('INVALID','')
 
     return df
@@ -41,14 +47,15 @@ def best_address(df):
     vdr = 'CSDS_Vendor_ID'
 
     # Get the number of times each address appears for each vendor ID
-    counts = df.groupby(vdr)['Address'].value_counts()#nunique()
+    counts = df.groupby(vdr)['Address'].value_counts()
     counts.name = 'AddressFrequency'
     counts = counts.to_frame().reset_index()
     counts = counts.sort_values(by=['AddressFrequency'],ascending=False)
 
     # Get the max number of times an address appears for each vendor ID
     max_count = counts.groupby([vdr,'Address']).max()
-    max_count = max_count.rename(columns={'AddressFrequency':'MostCommonAddressAppears#'},index=str)
+    cn = {'AddressFrequency':'MostCommonAddressAppears#'}
+    max_count = max_count.rename(columns=cn,index=str)
     max_count = max_count.reset_index()
 
     # Merge the dataframes so that we keep only the most common values
@@ -91,7 +98,7 @@ def apply_hq_address(results,best_addr):
     cols = ['Address','City','State','Zip']
 
     # Drop the columns in cols, then drop duplicates; copy to a new dataframe
-    df = results.drop(cols,axis=1).drop_duplicates()
+    df = results.drop(cols,axis=1).drop_duplicates().reset_index(drop=True)
 
     # Merge in the best addresses (inner so that it only keeps records for which
     # there is a headquarter address)
@@ -106,9 +113,10 @@ def just_addresses(best_addr):
     to just addresses. Returns a dataframe.
     '''
 
-    df = best_addr.drop('CSDS_Vendor_ID',axis=1).drop_duplicates()
+    df = best_addr.drop('CSDS_Vendor_ID',axis=1)
 
-    return df
+    return df.drop_duplicates().reset_index(drop=True)
+
 
 if __name__ == '__main__':
 
