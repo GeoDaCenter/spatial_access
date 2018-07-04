@@ -8,6 +8,7 @@ PREHQ = '../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv'
 HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 DEDUPED = '../../../rcc-uchicago/PCNO/Geo/deduped_contract_results.csv'
 ADDR_OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/map1_addresses_for_geocoding.csv'
+AGENCIES = '../../../rcc-uchicago/PCNO/CSV/chicago/hq_agencies_names.csv'
 
 
 def read_deduplicated():
@@ -67,12 +68,13 @@ def best_address(df):
     merger = merger.groupby(vdr).first()
     merger = merger.reset_index()
 
-    # Merge the addresses back in on a left join to drop the vendors with no
+    # Merge the addresses back in on an inner join to drop the vendors with no
     # address information at all
     df = df.merge(merger,how='inner')
 
-    # Keep only these fields and drop duplicates
-    df = df[['CSDS_Vendor_ID','Address','City','State','Zip']].drop_duplicates()
+    # Keep only these fields and drop duplicates based on just the ID
+    df = df[['CSDS_Vendor_ID','Address','City','State','Zip']]
+    df = df.drop_duplicates(subset='CSDS_Vendor_ID')
 
     # Drop records with no address, then reset index
     df = df.dropna(subset=['Address'])
@@ -118,6 +120,17 @@ def just_addresses(best_addr):
     return df.drop_duplicates().reset_index(drop=True)
 
 
+def just_names(df):
+    '''
+    Reduces the dataframe to unique entries in the VendorName column. Returns a
+    dataframe.
+    '''
+
+    names = df[['VendorName','CSDS_Vendor_ID']].drop_duplicates().reset_index(drop=True)
+
+    return names
+
+
 if __name__ == '__main__':
 
     results = read_deduplicated()
@@ -129,3 +142,6 @@ if __name__ == '__main__':
 
     addresses = just_addresses(best_addr)
     addresses.to_csv(ADDR_OUT,index=False)
+
+    names = just_names(merged)
+    names.to_csv(AGENCIES,index=False)
