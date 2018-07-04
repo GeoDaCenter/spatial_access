@@ -10,19 +10,29 @@ SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 THRESH = 0.34
 
 
+def linker():
+    '''
+    '''
+
+    link = read_deduplicated()
+    link1 = link.rename(columns={'VendorName':'VendorName_LINK1'},index=str)
+    link2 = u.rename_cols(link,['VendorName','CSDS_Vendor_ID'],'_LINK2')
+
+    df = link1.merge(link2,how='left')
+    df = df[df['CSDS_Vendor_ID'] != df['CSDS_Vendor_ID_LINK2']].reset_index(drop=True)
+
+    return df
+
+
 def merger():
     '''
     '''
 
-    deduped = read_deduplicated()
+    link = linker()
     hq = read_hq()
     svc = read_svc()
 
-    merged = hq.merge(deduped,how='left')
-
-    #svc = svc.rename(columns={},index=str)
-
-    #merged = merged.merge(svc,how='left')
+    merged = hq.merge(link,how='left').merge(svc,how='left')
 
     return merged
 
@@ -35,11 +45,14 @@ def read_hq():
 
     return df
 
+
 def read_svc():
     '''
     '''
 
     df = pd.read_csv(SVC,converters={'ZipCode':str})
+    df = u.rename_cols(df,[x for x in df.columns if x != 'CSDS_Svc_ID'],'_SVC')
+    df = df.rename(columns={'CSDS_Svc_ID':'CSDS_Vendor_ID_LINK2'},index=str)
 
     return df
 
@@ -48,35 +61,11 @@ def read_deduplicated():
     '''
     '''
 
-    df = pd.read_csv(DEDUPED,converters={'ClusterID':str})
+    df = pd.read_csv(DEDUPED,converters={'ClusterID':int})
 
     df = df[df['LinkScore'] >= THRESH]
 
     df = df.drop(['LinkScore','SourceFile'],axis=1)
-
-    df = u.rename_cols(df,['ClusterID','VendorName'],suffix='_LINK')
-
-    return df
-
-
-def merge_addresses(hq):
-    '''
-    '''
-
-    amounts = agg_funds(hq)
-    min_hq = minimize_hq(hq)
-
-    df = min_hq.merge(amounts,how='left')
-
-    return df
-
-
-def minimize_hq(hq):
-    '''
-    '''
-
-    df = hq[['VendorName','CSDS_Vendor_ID','Address','City','State','Zip',
-             'AddressID']].drop_duplicates().reset_index(drop=True)
 
     return df
 
@@ -90,6 +79,18 @@ def agg_funds(hq):
     return agg
 
 
+def count_svc_addr(df):
+    '''
+    '''
+
+    counts = df.groupby('ClusterID')['CSDS_Vendor_ID_LINK2'].value_counts()
+    counts.name = 'WhatThisCounts'
+    return counts
+
+
+    return df
+
+
 if __name__ == '__main__':
 
     merged = merger()
@@ -101,4 +102,20 @@ if __name__ == '__main__':
 
     '''
     $/agency @ service addresses
+
+
+
+    CONTRACTAGENCIES [VendorName] LINK [Name] SERVICEAGENCIES
+
+
+
+    *******
+    Problem:  Single locations are defined by multiple unique address strings, all the cleaning notwithstanding
+    *******
+    Options:
+    -Geocode everything, then do float comparisons on the coordinates (or drop some that are within some tolerance of others)
+    -Split up addresses with re and try to compare them
+    -Split up addresses with the Usaddress library and try to compare them
+    -Deduplicate with Logan's module (concatenate all to a single field first)
+    -Deduplicate with the Dedupe library (I'll need to write a script that requires the CSDS_Agency_ID to match)
     '''
