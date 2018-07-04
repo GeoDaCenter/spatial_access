@@ -13,7 +13,7 @@ def read_geo():
     '''
 
     df = pd.read_csv(GEO)
-    df = df.drop('Match Score',axis=1)
+    df = df.drop(['Match Score','AddressID'],axis=1)
 
     return df
 
