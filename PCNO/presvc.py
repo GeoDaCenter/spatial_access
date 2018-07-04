@@ -201,9 +201,24 @@ def just_names(df):
     dataframe.
     '''
 
-    names = df['Name'].drop_duplicates().reset_index(drop=True)
+    names = df[['Name']].drop_duplicates().reset_index(drop=True)
 
-    return names.to_frame()
+    names = names.rename(columns={'Name':'VendorName'},index=str)
+
+    names = names.assign(CSDS_Svc_ID=['SvcAg_' + str(x + 1) for x in range(len(names))])
+
+    return names
+
+
+def merge_ids(df,names):
+    '''
+    '''
+
+    names = names.rename(columns={'VendorName':'Name'},index=str)
+
+    df = df.merge(names,how='left')
+
+    return df
 
 
 if __name__ == '__main__':
@@ -213,10 +228,11 @@ if __name__ == '__main__':
     cleaned = clean_df(merged)
     filled = try_fill(cleaned)
 
-    filled.to_csv(OUT,index=False)
-
     names = just_names(filled)
     names.to_csv('../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies_names.csv',index=False)
+
+    identified = merge_ids(filled,names)
+    identified.to_csv(OUT,index=False)
 
     print()
 
