@@ -73,23 +73,29 @@ def pairwise_comparison(string1,string2):
     so and False if not.
     '''
 
+    #What about the city, state, and zip? Should those be concatenated and considered, too?
+
+    # Parse the addresses into dictionaries
     s1_dicto = add.tag(string1)[0]
     s2_dicto = add.tag(string2)[0]
 
+    # Set a flag to its default value
     same = True
+
+    # This will hold the names of fields that need to be fixed
     fix = []
 
+    # Allow '123 Central' and '123 Central Avenue' to match, but mark for fixing
+    # This first statement is in case the street type is in the second string
+    # but not in the first
     if 'StreetNamePostType' not in s1_dicto.keys() and 'StreetNamePostType' in \
         s2_dicto.keys():
         fix.append('StreetNamePostType')
 
-    for key, value1 in s1_dicto.items():
-        '''
-        What if the key from the first dicto isn't in the second dicto?
-        Should the address number be held to a different standard?
-        What about the city, state, and zip? Should those be concatenated and considered, too?
 
-        '''
+    for key, value1 in s1_dicto.items():
+        # If string1 has street type and string2 doesn't, mark for fixing; but
+        # if string2 does and they don't match, mark for fixing
         if key == 'StreetNamePostType':
             if key in s2_dicto.keys():
                 if value1 != s2_dicto[key]:
@@ -97,26 +103,35 @@ def pairwise_comparison(string1,string2):
             else:
                 fix.append(key)
             continue
+        # The component is also present in string2, assign its value to value2
         if key in s2_dicto.keys():
             value2 = s2_dicto[key]
+        # Otherwise, mark for fixing and start again with the next key
         else:
             fix.append(key)
             continue
+        # AddressNumber must match exactly; if not, mark as False and exit loop
         if key == 'AddressNumber':
             if value1 == value2:
                 continue
             else:
                 same = False
                 break
+        # If non-AddressNumber values match, continue
         elif value1 == value2:
             continue
+        # Otherwise, check if one is a substring of the other and if so, mark
+        # for fixing
         elif is_substring(value1,value2):
             fix.append(key)
             continue
+        # If they don't match, mark as False and exit loop
         else:
             same = False
             break
 
+    # If either dictionary has a single key and the shorter one is not a
+    # substring of the other, then mark as False
     if len(s1_dicto) == 1 and not is_substring(string1,string2):
         same = False
     elif len(s2_dicto) == 1 and not is_substring(string2,string1):
@@ -127,6 +142,7 @@ def pairwise_comparison(string1,string2):
 
 def ns(string):
     '''
+    Removes all the spaces from a string. Returns a string.
     '''
 
     ns_string = string.replace(' ','')
@@ -136,6 +152,8 @@ def ns(string):
 
 def is_substring(string1,string2):
     '''
+    Evaluates whether either string is a substring of the other. If not, removes
+    spaces from both strings and then checks. Returns a boolean.
     '''
 
     if not re.findall(string1,string2):
