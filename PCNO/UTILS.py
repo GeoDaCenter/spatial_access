@@ -32,7 +32,7 @@ def fix_zip(zipcode):
     return zip_string
 
 
-def merge_coalesce(df1,df2,keys,suffix='_R'):
+def merge_coalesce(df1,df2,keys,suffix='_R',how='left'):
     '''
     Merges two dataframes with overlapping columns that do not match. Copies the
     values from the second dataframe into the first dataframe. Returns a
@@ -42,7 +42,7 @@ def merge_coalesce(df1,df2,keys,suffix='_R'):
     cols = [x for x in df2.columns if x not in keys]
     df2 = rename_cols(df2,cols,suffix)
 
-    df = pd.merge(df1,df2,how='left')
+    df = pd.merge(df1,df2,how=how)
     df = df.replace('',np.NaN)
 
     # Coalesce values on the repeated columns
