@@ -1,4 +1,5 @@
 import re
+import pandas as pd
 import itertools as it
 import usaddress as add
 
@@ -9,17 +10,27 @@ def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
 
     sorter = df[target].str.len().sort_values(ascending=False).index
     df = df.reindex(sorter)
+    #df = df.sort_values(by=key)
+    #df = df.assign(ID=df[key])
 
     #key = [key]
 
-    minimized_df = df[[key,target]].drop_duplicates().dropna().loc[:,[key,target]]
+    minimized_df = df[[key,target]].drop_duplicates().dropna()#.loc[:,[key,target]]
+    minimized_df[target + '_Original'] = minimized_df[target]
     #print(minimized_df)
     unique_keys = list(df[key].unique())
+
+    new_df_exists = False
 
     for uKey in unique_keys:
         local_df = minimized_df[minimized_df[key] == uKey]
         if len(local_df) > 1:
             local_df2 = iter_df(local_df.copy().drop_duplicates().reset_index(drop=True),target)
+            if new_df_exists:
+                new_df = pd.concat([new_df,local_df2])
+            else:
+                new_df = local_df2
+                new_df_exists = True
             if local_df2[key].max() == '134': # is next
                 print(local_df)
                 print(local_df2)
@@ -27,8 +38,19 @@ def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
 
     # Need to merge changes back into the original df
 
+    new_df = new_df.rename(columns={target:target + '_Fixed',target + '_Original':target},index=str)
+    #minimized_df = minimized_df.rename(columns={target + '_Original':target},index=str)
+    print('\nnew_df:')
+    for col in new_df.columns:
+        print(col)
+    print('\nminimized_df:')
+    for col in minimized_df.columns:
+        print(col)
+    merged = minimized_df.merge(new_df,on=[key,target],how='left')
 
-    return df
+    # Need to add an ID to the original so that I can merge the fixed values back in
+
+    return merged.drop(target,axis=1)
 
 
 def iter_df(df,field):
