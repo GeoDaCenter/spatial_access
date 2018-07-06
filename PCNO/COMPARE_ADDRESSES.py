@@ -1,4 +1,5 @@
 import re
+import UTILS as u
 import pandas as pd
 import itertools as it
 import usaddress as add
@@ -8,17 +9,15 @@ def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
     '''
     '''
 
+    print('\nFixing duplicate addresses')
+
     sorter = df[target].str.len().sort_values(ascending=False).index
     df = df.reindex(sorter)
-    #df = df.sort_values(by=key)
-    #df = df.assign(ID=df[key])
 
-    #key = [key]
-
-    minimized_df = df[[key,target]].drop_duplicates().dropna()#.loc[:,[key,target]]
+    minimized_df = df[[key,target]].drop_duplicates().dropna()
     minimized_df[target + '_Original'] = minimized_df[target]
-    #print(minimized_df)
-    unique_keys = list(df[key].unique())
+
+    unique_keys = list(minimized_df[key].unique())
 
     new_df_exists = False
 
@@ -31,26 +30,22 @@ def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
             else:
                 new_df = local_df2
                 new_df_exists = True
-            if local_df2[key].max() == '134': # is next
-                print(local_df)
-                print(local_df2)
-                print('---------------------------------------------------------------')
 
-    # Need to merge changes back into the original df
+    print('Coalescing fixed addresses')
 
-    new_df = new_df.rename(columns={target:target + '_Fixed',target + '_Original':target},index=str)
-    #minimized_df = minimized_df.rename(columns={target + '_Original':target},index=str)
-    print('\nnew_df:')
-    for col in new_df.columns:
-        print(col)
-    print('\nminimized_df:')
-    for col in minimized_df.columns:
-        print(col)
-    merged = minimized_df.merge(new_df,on=[key,target],how='left')
+    new_cols = {target:target + '_COAL',target + '_Original':target}
+    new_df = new_df.rename(columns=new_cols,index=str)
 
-    # Need to add an ID to the original so that I can merge the fixed values back in
+    min_cols = {target + '_Original':target + '_COAL'}
+    minimized_df = minimized_df.rename(columns=min_cols,index=str)
 
-    return merged.drop(target,axis=1)
+    # Coalesce with the dfs in this order so that we keep the new values
+    merged = u.merge_coalesce(new_df,minimized_df,[key,target],how='right')
+
+    df = df.merge(merged,how='left').drop(target,axis=1)
+    df = df.rename(columns={target + '_COAL':target},index=str)
+
+    return df
 
 
 def iter_df(df,field):
