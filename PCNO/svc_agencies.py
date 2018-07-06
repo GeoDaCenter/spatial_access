@@ -61,7 +61,7 @@ def read_deduplicated():
     '''
     '''
 
-    df = pd.read_csv(DEDUPED,converters={'ClusterID':int})
+    df = pd.read_csv(DEDUPED,converters={'ClusterID':str})
 
     df = df[df['LinkScore'] >= THRESH]
 
