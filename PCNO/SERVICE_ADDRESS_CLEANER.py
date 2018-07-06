@@ -16,6 +16,12 @@ def address_cleaner(string):
                'UNDISCLOSED LOCATION- NORTHSIDE','MULTIPLE LOCATIONS CHICAGO',
                'DV SHELTER']
 
+    if re.findall(r'ST\.? LOUIS',string):
+        string = re.sub(r'ST\.? LOUIS', 'SAINT LOUIS',string)
+
+    if re.findall(r' S\.[A-Z]+',string):
+        string = re.sub(r' S.',' SOUTH ',string)
+
     for item in blocked:
         if string == item:
             return ''
@@ -71,10 +77,12 @@ def address_cleaner(string):
     # Hard-coded clean-up for strings ending in an ampersand
     string = string.strip(' &')
 
-    # This address is causing irremediable problems, so just take the first one
+    # These addresses are causing irremediable problems; hard-coding to solve
     if string == '4944 AND 4909 WEST HURON':
         #print(string)
         return '4944 WEST HURON'
+    if string == '9204 SOUTH COMMERCIAL AVENUE 401&402':
+        return '9204 SOUTH COMMERCIAL AVENUE'
 
     # If the address is supposed to end in a number (like a state/cty/US hwy),
     # return it. Else, clean it some more.
