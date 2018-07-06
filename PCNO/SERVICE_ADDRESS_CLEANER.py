@@ -71,6 +71,11 @@ def address_cleaner(string):
     # Hard-coded clean-up for strings ending in an ampersand
     string = string.strip(' &')
 
+    # This address is causing irremediable problems, so just take the first one
+    if string == '4944 AND 4909 WEST HURON':
+        #print(string)
+        return '4944 WEST HURON'
+
     # If the address is supposed to end in a number (like a state/cty/US hwy),
     # return it. Else, clean it some more.
     if re.findall(r' ROUTE [0-9]+$',string):
