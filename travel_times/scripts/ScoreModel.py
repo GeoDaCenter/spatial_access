@@ -5,14 +5,10 @@ from shapely.geometry import Point
 import matplotlib.patches as mpatches
 
 from matplotlib import mlab
-#import matplotlib as mplt
 import matplotlib as mpl
 from p2p import TransitMatrix
 import os.path, csv, math, sys, logging, json, time
 import copy
-#import matplotlib.pyplot as plt
-
-
 
 class ModelData(object):
     '''
@@ -34,6 +30,8 @@ class ModelData(object):
         self.cat2dests = {}
         self.near_nbr = {}
         self.n_dests_in_range = {}
+        self.time = {}
+        self.time_val2 = {}
         self.use_n_nearest = 10
 
         self.sources_nn = {}
@@ -59,6 +57,7 @@ class ModelData(object):
         self.valid_population = True
         self.valid_target = True
         self.valid_category = True
+        self.valid_lower_areal_unit = True
 
 
     def get_time(self, source, dest):
@@ -66,15 +65,9 @@ class ModelData(object):
         Return the time, in seconds, from source to dest.
         '''
         assert self.sp_matrix_good, 'load shortest path matrix before this step'
-        INF = np.NaN
-        #try:
+
         time = self.sp_matrix.get(source, dest)
 
-        #except:
-        #    time = -1
-        #    self.logger.warning('({},{}) is not a known source, dest pair'.format(source, dest))
-        if time < 0:
-            return INF
         return time
 
 
@@ -85,7 +78,6 @@ class ModelData(object):
         assert self.sources_good, 'load sources before this step'
 
         return self.sources.loc[source_id, 'population']
-
 
     def get_target(self, dest_id):
         '''
@@ -131,6 +123,7 @@ class ModelData(object):
         assert self.dests_good, 'load destinations before this step'
         self.logger.info('Processing... This could take a while')
 
+        #Calculate time to nearest neighbor (near_nbr) and number of destinations within buffer (n_dests_in_range) metrics.
         #pre map dest->category
         start_time = time.time()
         CAT = self.dests.columns.get_loc('category') + 1
@@ -155,20 +148,28 @@ class ModelData(object):
         already_added_b = set()
         near_nbr = {}
         n_dests_in_range = {}
+        time_val2 = {}
+        time_val={}
+
         for source_id in self.source_id_list:
             near_nbr[source_id] = copy.deepcopy(nearest_cat_template)
             n_dests_in_range[source_id] = copy.deepcopy(n_dests_in_range_template)
             for dest_id in self.dest_id_list:
                 time_val = self.get_time(source_id, dest_id)
                 cat = self.get_category(dest_id)
+                self.time_val = self.get_time(source_id, dest_id)
+                self.time_val2[source_id] = self.get_time(source_id, dest_id)
 
-                #update the closest dest for each category of this source
-                if near_nbr[source_id][cat] is None:
-                    near_nbr[source_id][cat] = time_val
-                elif time_val < near_nbr[source_id][cat]:
-                    near_nbr[source_id][cat] = time_val
+                #update the closest dest for each category of this source.
+                #Specify non negative values in order to disregard epsilon values.
+                if time_val>=0:
+                    if near_nbr[source_id][cat] is None:
+                        near_nbr[source_id][cat] = time_val
+                    elif time_val < near_nbr[source_id][cat]:
+                        near_nbr[source_id][cat] = time_val
 
-                if time_val < self.upper:
+                #Within upper limit buffer range (default is 30 minutes.)
+                if time_val <= self.upper and time_val>=0:
                     #increment the number of destinations in range of this source
                     n_dests_in_range[source_id][cat] += 1
 
@@ -182,14 +183,36 @@ class ModelData(object):
                     else:
                         self.dest2source[dest_id] = [(source_id, time_val)]
                         already_added_b.add(dest_id)
-
+                
+        #convert dictionaries to dataframes
         self.near_nbr = pd.DataFrame.from_dict(near_nbr, 
             orient='index')
-        #Get nearest neighbor facility in minutes
-        self.near_nbr =self.near_nbr/60
 
         self.n_dests_in_range = pd.DataFrame.from_dict(n_dests_in_range, 
             orient='index')
+
+        self.time_val2 = pd.DataFrame.from_dict(self.time_val2, orient='index')
+
+        #Rename column to 'time'
+        self.time_val2=self.time_val2.rename(columns={0:'time'})
+
+        #Find list within matrix with negative values.
+        #When constructing the matrix with p2p, the negative values (-999) are the edges on the border of the bounding box.
+        list_id=self.time_val2.index[self.time_val2['time'] <0].tolist()
+
+        #In final output of metrics, drop the negative values of time distance travel matrix
+        for i in list_id:
+            for j in self.n_dests_in_range.keys():
+                self.n_dests_in_range.at[i,j] = -9999
+        self.n_dests_in_range=self.n_dests_in_range.replace(-9999, np.nan)
+
+        for i in list_id:
+            for j in self.near_nbr.keys():
+                self.near_nbr.at[i,j] = -9999
+        self.near_nbr=self.near_nbr.replace(-9999, np.nan)
+
+        #Get nearest neighbor facility in minutes
+        self.near_nbr =self.near_nbr/60
 
         self.processed_good = True
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
@@ -220,6 +243,8 @@ class ModelData(object):
             for category in self.limit_categories:
                 self.near_nbr[category][self.near_nbr[category] > self.upper] = self.upper
                 x = self.near_nbr[category]
+                #Drop any NaNs to avoid error in plotting 
+                x=x.dropna()
                 color = available_colors.pop(0)
                 patch = mpatches.Patch(color=color, label=category)
                 color_keys.append(patch)
@@ -243,6 +268,8 @@ class ModelData(object):
             for category in self.category_set:
                 self.near_nbr[category][self.near_nbr[category] > self.upper] = self.upper
                 x = self.near_nbr[category]
+                #Drop any NaNs to avoid error in plotting 
+                x=x.dropna()
                 color = available_colors.pop(0)
                 patch = mpatches.Patch(color=color, label=category)
                 color_keys.append(patch)
@@ -394,6 +421,7 @@ class ModelData(object):
         
         #extract the column names from the table
         population = ''
+        lower_areal_unit = ''
         idx = ''
         lat = ''
         lon = ''
@@ -406,6 +434,9 @@ class ModelData(object):
         print('If you have no population variable, write "skip" (no quotations)')
         while population not in source_data_columns and population != 'skip':
             population = input('Enter the population variable: ')
+        print('If you have no lower areal unit variable, write "skip" (no quotations)')
+        while lower_areal_unit not in source_data_columns and lower_areal_unit != 'skip':
+            lower_areal_unit = input('Enter the lower areal unit variable: ')
         while lat not in source_data_columns:
             lat = input('Enter the latitude variable: ')
         while lon not in source_data_columns:
@@ -416,6 +447,12 @@ class ModelData(object):
         if population == 'skip':
             self.sources['population'] = 1
             self.valid_population = False
+            
+        #insert filler values for the lower_areal_unit column if 
+        #user lower_areal_unit not want to include it
+        if population == 'skip':
+            self.sources['lower_areal_unit'] = 1
+            self.valid_lower_areal_unit = False
 
         #store the col names for later use
         self.primary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
@@ -424,24 +461,26 @@ class ModelData(object):
         if population == 'skip':
             rename_cols = {lat:'lat', lon:'lon'}
         else:
-            rename_cols = {population:'population', lat:'lat', lon:'lon'}
+            rename_cols = {population:'population', lat:'lat', lon:'lon', lower_areal_unit:'lower_areal_unit'}
   
         self.sources = pd.read_csv(filename)
         self.sources.set_index(idx, inplace=True)
         self.sources.rename(columns=rename_cols,inplace=True)
-        self.sources = self.sources.reindex(columns=['lat','lon','population'])
+        self.sources = self.sources.reindex(columns=['lat','lon','population', 'lower_areal_unit'])
 
+        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
         #join source table with shapefile
-        copy = self.sources.copy(deep=True)
-        geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        crs = {'init':'epsg:4326'}
-        copy = self.sources.copy(deep=True)
-        geo_sources = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        boundaries_gdf = gpd.read_file(shapefile)
-        geo_sources = gpd.sjoin(boundaries_gdf, geo_sources, how='inner', 
-                                    op='intersects')
-        geo_sources.set_index('index_right', inplace=True)
-        self.sources = geo_sources[['community','population','lat','lon','geometry']]
+        #copy = self.sources.copy(deep=True)
+        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
+        #crs = {'init':'epsg:4326'}
+        #copy = self.sources.copy(deep=True)
+        #geo_sources = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
+        #boundaries_gdf = gpd.read_file(shapefile)
+        #geo_sources = gpd.sjoin(boundaries_gdf, geo_sources, how='inner', 
+        #                            op='intersects')
+        #geo_sources.set_index('index_right', inplace=True)
+        #self.sources = geo_sources[['community','population','lat','lon','geometry']]
+        
         self.source_id_list = self.sources.index
         self.sources_good = True
         self.source_filename = filename
@@ -467,6 +506,7 @@ class ModelData(object):
         #extract column names
         category = ''
         target = ''
+        lower_areal_unit = ''
         idx = ''
         lat = ''
         lon = ''
@@ -479,6 +519,9 @@ class ModelData(object):
         print('If you have no target variable, write "skip" (no quotations)')
         while target not in dest_data_columns and target != 'skip':
             target = input('Enter the target variable: ')
+        print('If you have no lower areal unit variable, write "skip" (no quotations)')
+        while lower_areal_unit not in dest_data_columns and lower_areal_unit != 'skip':
+            lower_areal_unit = input('Enter the lower areal unit variable: ')
         print('If you have no category variable, write "skip" (no quotations)')
         while category not in dest_data_columns and category != 'skip':
             category = input('Enter the category variable: ')
@@ -500,10 +543,15 @@ class ModelData(object):
         else:
             category_name = category
 
-        self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon])
+        if lower_areal_unit == 'skip':
+            lower_areal_unit_name = 'lower_areal_unit'
+        else:
+            lower_areal_unit_name = lower_areal_unit
+
+        self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon, lower_areal_unit])
         #clean the table
         rename_cols = {target:'target', category:'category', lat:'lat', 
-                       lon:'lon'}
+                       lon:'lon', lower_areal_unit: 'lower_areal_unit'}
         self.dests.set_index(idx, inplace=True)
         self.dests.rename(columns=rename_cols,inplace=True)
         if category == 'skip':
@@ -511,6 +559,8 @@ class ModelData(object):
             self.valid_category = False
         if target == 'skip':
             self.valid_target = False
+        if lower_areal_unit == 'skip':
+            self.valid_lower_areal_unit = False
         if subset:
             self.dests = self.dests[self.dests['category'].isin(subset)]
         self.category_set = set()
@@ -518,17 +568,17 @@ class ModelData(object):
         self.dests['category'].apply(str)
         self.category_set = set(self.dests['category'])
 
+        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
         #join dest table with shapefile
-        copy = self.dests.copy(deep=True)
-        geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        crs = {'init':'epsg:4326'}
-        geo_dests = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        boundaries_gdf = gpd.read_file(shapefile)
-        geo_dests = gpd.sjoin(boundaries_gdf, geo_dests, how='inner', op='intersects')
-        geo_dests.set_index('index_right', inplace=True)
-        self.dests = geo_dests[['category','lat','lon','target','community',]]
+        #copy = self.dests.copy(deep=True)
+        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
+        #crs = {'init':'epsg:4326'}
+        #geo_dests = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
+        #boundaries_gdf = gpd.read_file(shapefile)
+        #geo_dests = gpd.sjoin(boundaries_gdf, geo_dests, how='inner', op='intersects')
+        #geo_dests.set_index('index_right', inplace=True)
+        #self.dests = geo_dests[['category','lat','lon','target','community',]]
 
         self.dest_id_list = self.dests.index
         self.dests_good = True
         self.dest_filename = filename
-

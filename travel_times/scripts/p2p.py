@@ -5,6 +5,7 @@ from sklearn.neighbors import NearestNeighbors
 from geopy.distance import vincenty
 from NetworkQuery import Query
 from jellyfish import jaro_winkler
+import geopandas as gpd
 import pandas as pd
 import time, sys, os.path, csv, json, logging, os, psutil
 from pandana.loaders import osm
@@ -189,7 +190,7 @@ class TransitMatrix(object):
         '''
         if not os.path.exists("data/"):
             os.makedirs("data/")
-        filename = 'data/{}_0.{}'.format(keyword, extension)
+        filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
             filename = 'data/{}_{}.{}'.format(keyword, counter, extension)
