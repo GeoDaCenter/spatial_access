@@ -58,6 +58,9 @@ def merger():
 
 def dollars_per_location():
     '''
+    Reads in the service agencies and the HQ agencies, then links them (using
+    the linker dataframe). Calculates the number of dollars per location.
+    Returns a dataframe.
     '''
 
     link = linker()
@@ -67,7 +70,7 @@ def dollars_per_location():
     merged = hq.merge(link,how='left').merge(svc,how='inner')
 
     merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
-                           / 1 + merged['Num_Svc_Locations'])
+                           / (1 + merged['Num_Svc_Locations']))
 
     # This drops rows that are either not geocoded or lack an address
     #merged = merged[(merged['Longitude_SVC'] is not np.NaN) | \
@@ -96,7 +99,7 @@ def read_svc():
     per organization. Returns a dataframe.
     '''
 
-    print('\nReading in service agencies')
+    print('Reading in service agencies')
 
     df = pd.read_csv(SVC,converters={'ZipCode':str})
     df = u.rename_cols(df,[x for x in df.columns if x != 'CSDS_Svc_ID'],'_SVC')
