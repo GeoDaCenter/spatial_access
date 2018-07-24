@@ -14,7 +14,6 @@ def read_geo():
 
     df = pd.read_csv(GEO)
     df = df.drop(['Match Score','AddressID'],axis=1)
-    #df = df[['AddressID','Longitude','Latitude']]
 
     return df
 
@@ -25,6 +24,7 @@ def read_contracts():
     '''
 
     df = pd.read_csv(HQ)
+    df = df[df['State'] == 'IL']
 
     return df
 
@@ -35,7 +35,10 @@ def sum_amounts(df):
     ID. Returns a dataframe.
     '''
 
-    summer = df.groupby('CSDS_Vendor_ID')['Amount'].sum()
+    df_trimmed = df[['CSDS_Vendor_ID','CSDS_Contract_ID','Amount']]
+    df_trimmed = df_trimmed.drop_duplicates()
+
+    summer = df_trimmed.groupby('CSDS_Vendor_ID')['Amount'].sum()
     summer.name = 'Summed_Amount'
     summer = summer.to_frame().reset_index()
 
