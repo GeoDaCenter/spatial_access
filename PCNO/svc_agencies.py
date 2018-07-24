@@ -1,3 +1,4 @@
+import re
 import UTILS as u
 import numpy as np
 import pandas as pd
@@ -7,6 +8,8 @@ import COMPARE_ADDRESSES as ca
 LINK = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.csv'
 HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
+GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding.csv'
+DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
 
 THRESH = 0.34
 
@@ -67,14 +70,10 @@ def dollars_per_location():
     svc = read_svc()
     hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount']].drop_duplicates()
 
-    merged = hq.merge(link,how='left').merge(svc,how='inner')
+    merged = hq.merge(link,how='left').merge(svc,how='left')
 
     merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
                            / (1 + merged['Num_Svc_Locations']))
-
-    # This drops rows that are either not geocoded or lack an address
-    #merged = merged[(merged['Longitude_SVC'] is not np.NaN) | \
-     #               (merged['Address_SVC'] != '')]
 
     return merged.reset_index(drop=True)
 
@@ -99,7 +98,7 @@ def read_svc():
     per organization. Returns a dataframe.
     '''
 
-    print('Reading in service agencies')
+    print('\nReading in service agencies')
 
     df = pd.read_csv(SVC,converters={'ZipCode':str})
     df = u.rename_cols(df,[x for x in df.columns if x != 'CSDS_Svc_ID'],'_SVC')
@@ -139,37 +138,53 @@ def count_svc_addr(df):
     return counts.to_frame().reset_index()
 
 
-def needs_geocoding(df,id,lat,lon,address_fields):
+def separate_satellites(df):
     '''
     '''
 
-    #address,city,state,zipcode = address_fields
+    keep = ['CSDS_Vendor_ID','VendorName','CSDS_Org_ID_SVC','City_SVC',
+            'State_SVC','ZipCode_SVC','Longitude_SVC','Latitude_SVC',
+            'Address_SVC','Dollars_Per_Location']
+
+    satellites = df.dropna(subset=['Num_Svc_Locations'])
+    satellites = satellites[keep]
+
+    new_names = [re.sub('_SVC$','',x) for x in keep]
+    cn = dict(zip(keep,new_names))
+
+    satellites = satellites.rename(columns=cn,index=str)
+
+    return satellites.reset_index(drop=True)
+
+
+def needs_geocoding(df):
+    '''
+    Keeps only the records that have not been geocoded. Returns a dataframe.
+    '''
+
+    id = 'CSDS_Org_ID'
+    lat = 'Latitude'
+    lon = 'Longitude'
+    address_fields = ['Address','City','State','ZipCode']
 
     needs_geo = df[[id,lat,lon] + [x for x in address_fields]].drop_duplicates()
-    needs_geo = needs_geo[pd.isnull(needs_geo[lat,lon])]
+    needs_geo = needs_geo[pd.isnull(needs_geo[lat])]
     needs_geo = needs_geo.drop([lat,lon],axis=1)
 
-    new_cols = [re.sub('_SVC$','',x) for x in needs_geo.columns]
-    cn = dict(zip(needs_geo.columns,new_cols))
-
-    needs_geo = needs_geo.rename(columns=cn,index=str)
     needs_geo = needs_geo.rename(columns={'ZipCode':'Zip'},index=str)
 
     return needs_geo.reset_index(drop=True)
 
 
-
 if __name__ == '__main__':
 
-    print()
-
     dollars_div = dollars_per_location()
-    dollars_div.to_csv('dollars_div.csv',index=False)#'../../../rcc-uchicago/PCNO/CSV/chicago/dollars_div.csv',index=False)
+    dollars_div.to_csv(DOLLARS_DIVIDED,index=False)
 
-    lat = 'Latitude_SVC'
-    lon = 'Longitude_SVC'
-    #id_col =
+    satellites = separate_satellites(dollars_div)
 
+    needs_geo = needs_geocoding(satellites)
+    needs_geo.to_csv(GEO,index=False)
 
 
 
@@ -181,22 +196,13 @@ if __name__ == '__main__':
     CONTRACTAGENCIES [VendorName] LINK [Name] SERVICEAGENCIES
 
     -Count the number of service addresses per agency; add as a column
-    -Drop rows with no address or no geocoded coordinates
     -Add agg_dollars as a column
     -Divide agg_dollars by num_locations
-
-
-
-
-
-
-
-
-
-
-
-
-
+    -Pull out the ones that need to be geocoded, then geocode them, then merge
+        them back in
+    -Make two dataframes:
+        -HQs
+        -Satellites
 
 
     *******
