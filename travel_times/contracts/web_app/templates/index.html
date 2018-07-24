@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600" rel="stylesheet">
+		<link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+		<script
+			src="https://code.jquery.com/jquery-3.3.1.js"
+			integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+			crossorigin="anonymous">
+		</script>
+		<script src="static/js/customMethods.js"></script>
+	</head>
+	<body>
+		<header>
+			<div class="container">
+				<h1 class="title">Service Facility Spatial Analytics Engine</h1>
+			</div>
+		</header>
+
+		<main class="hero-section">
+			<div class="container">
+				<div class="section-content">
+					<h2>What do you want to calculate?</h2>
+					<form method="POST" action="/" enctype=multipart/form-data>
+						{{ form.hidden_tag() }}
+						
+						<div class="form-group">
+							{{ form.accessibility_metrics.label }}
+
+							{% if form.accessibility_metrics.errors %}
+								{% for error in form.accessibility_metrics.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.accessibility_metrics }}
+						</div>
+						<div class="form-group">
+							{{ form.coverage_metrics.label }}
+
+							{% if form.coverage_metrics.errors %}
+								{% for error in form.coverage_metrics.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.coverage_metrics }}
+						</div>
+						<div class="form-group">
+							{{ form.travel_mode.label }}
+
+							{% if form.travel_mode.errors %}
+								{% for error in form.travel_mode.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.travel_mode }}
+						</div>
+						<div class="form-group">
+							{{ form.maximum_travel_time.label }}
+
+							{% if form.maximum_travel_time.errors %}
+								{% for error in form.maximum_travel_time.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.maximum_travel_time }}
+						</div>
+						
+
+						<!-- ORIGIN FIELDS -->
+
+						<h2>Select your origin file</h2>
+					
+						<div class="form-group">
+							{{ form.source_file.label }}
+
+							{% if form.source_file.errors %}
+								{% for error in form.source_file.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.source_file }}
+						</div>
+
+						<div class="form-group">
+							{{ form.source_unique_id_field.label }}
+
+							{% if form.source_unique_id_field.errors %}
+								{% for error in form.source_unique_id_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.source_unique_id_field }}
+						</div>
+						<div class="form-group">
+							{{ form.source_population_field.label }}
+
+							{% if form.source_population_field.errors %}
+								{% for error in form.source_population_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.source_population_field }}
+						</div>
+						<div class="form-group">
+							{{ form.source_latitude_field.label }}
+
+							{% if form.source_latitude_field.errors %}
+								{% for error in form.source_latitude_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.source_latitude_field }}
+						</div>
+						<div class="form-group">
+							{{ form.source_longitude_field.label }}
+
+							{% if form.source_longitude_field.errors %}
+								{% for error in form.source_longitude_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.source_longitude_field }}
+						</div>
+
+
+
+						<!-- DESTINATION FIELDS -->
+
+						<h2>Select your destination file</h2>
+					
+						<div class="form-group">
+							{{ form.destination_file.label }}
+
+							{% if form.destination_file.errors %}
+								{% for error in form.destination_file.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.destination_file }}
+						</div>
+
+						<div class="form-group">
+							{{ form.destination_unique_id_field.label }}
+
+							{% if form.destination_unique_id_field.errors %}
+								{% for error in form.destination_unique_id_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.destination_unique_id_field }}
+						</div>
+						<div class="form-group">
+							{{ form.destination_target_field.label }}
+
+							{% if form.destination_target_field.errors %}
+								{% for error in form.destination_target_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.destination_target_field }}
+						</div>
+						<div class="form-group">
+							{{ form.destination_category_field.label }}
+
+							{% if form.destination_category_field.errors %}
+								{% for error in form.destination_category_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.destination_category_field }}
+						</div><div class="form-group">
+							{{ form.destination_latitude_field.label }}
+
+							{% if form.destination_latitude_field.errors %}
+								{% for error in form.destination_latitude_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.destination_latitude_field }}
+						</div>
+						<div class="form-group">
+							{{ form.destination_longitude_field.label }}
+
+							{% if form.destination_longitude_field.errors %}
+								{% for error in form.destination_longitude_field.errors %}
+									<p class="error-message">{{ error }}</p>
+								{% endfor %}
+							{% endif %}
+
+							{{ form.destination_longitude_field }}
+						</div>
+						
+						{{ form.submit(class="btn-primary") }}
+						
+					</form>
+				</div>
+
+				<div class="section-device">
+					<img src="static/img/device.png">
+				</div>
+
+				<div class="clearfix"></div>
+			</div>
+		</main>
+
+	</body>
+</html>
