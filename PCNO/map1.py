@@ -14,6 +14,7 @@ def read_geo():
 
     df = pd.read_csv(GEO)
     df = df.drop(['Match Score','AddressID'],axis=1)
+    #df = df[['AddressID','Longitude','Latitude']]
 
     return df
 
@@ -35,11 +36,15 @@ def sum_amounts(df):
     '''
 
     summer = df.groupby('CSDS_Vendor_ID')['Amount'].sum()
+    summer.name = 'Summed_Amount'
     summer = summer.to_frame().reset_index()
 
-    df = df.merge(summer,how='right')
+    df = df.merge(summer,on='CSDS_Vendor_ID',how='right')
 
-    return df
+    df = df[['CSDS_Vendor_ID','Summed_Amount','VendorName','VendorID','Address',
+             'City','State','Zip']]
+
+    return df.drop_duplicates().reset_index(drop=True)
 
 
 def merge():
@@ -54,10 +59,12 @@ def merge():
     contracts = read_contracts()
     summed = sum_amounts(contracts)
 
-    df = summed.merge(geo)
+    df = summed.merge(geo,how='inner')
 
-    return df[['Amount','CSDS_Vendor_ID','Address','City','State','Zip',
-               'Longitude','Latitude','VendorName']]
+    df = df[['Summed_Amount','CSDS_Vendor_ID','Address','City','State','Zip',
+             'Longitude','Latitude','VendorName']]
+
+    return df.drop_duplicates().reset_index(drop=True)
 
 
 if __name__ == '__main__':
