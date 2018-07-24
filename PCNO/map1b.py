@@ -14,7 +14,7 @@ def read_geo():
     Returns a dataframe.
     '''
 
-    df = pd.read_csv(GEO)
+    df = pd.read_csv(GEO,converters={'Zip':str})
     df = df.drop(['Match Score','AddressID'],axis=1)
 
     return df
@@ -25,7 +25,8 @@ def read_contracts():
     Reads in the contracts with headquarter addresses. Returns a dataframe.
     '''
 
-    df = pd.read_csv(HQ)
+    df = pd.read_csv(HQ,converters={'Zip':str})
+    df = df[df['State'] == 'IL']
 
     return df
 
@@ -58,7 +59,9 @@ def merge():
     df = contracts.merge(geo)
     df = df.merge(cats)
 
-    return df
+    df = df.drop('AddressID',axis=1)
+
+    return df.drop_duplicates().reset_index(drop=True)
 
 
 if __name__ == '__main__':
