@@ -3,12 +3,13 @@ import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.patches as mpatches
-
 from matplotlib import mlab
 import matplotlib as mpl
 from p2p import TransitMatrix
 import os.path, csv, math, sys, logging, json, time
 import copy
+from operator import itemgetter
+import timeit
 
 class ModelData(object):
     '''
@@ -66,9 +67,9 @@ class ModelData(object):
         '''
         assert self.sp_matrix_good, 'load shortest path matrix before this step'
 
-        time = self.sp_matrix.get(source, dest)
+        timee = self.sp_matrix.get(source, dest)
 
-        return time
+        return timee
 
 
     def get_population(self, source_id):
@@ -94,7 +95,7 @@ class ModelData(object):
         '''
         assert self.dests_good, 'load dests before this step'
 
-        return str(self.dest2cats[dest_id])
+        return str(self.dest2cats[int(dest_id)])
 
 
     def figure_name(self):
@@ -102,19 +103,20 @@ class ModelData(object):
         Return a unique figure name.
         '''
         i = 0
-        if not os.path.exists("figures/"):
-            os.makedirs("figures/")
-        fig_name = 'figures/fig_0.png'
+        if not os.path.exists("data/figures/"):
+            os.makedirs("data/figures/")
+        fig_name = 'data/figures/fig_0.png'
         while (os.path.isfile(fig_name)):
             i += 1
-            fig_name = 'figures/fig_{}.png'.format(i)
+            fig_name = 'data/figures/fig_{}.png'.format(i)
 
         return fig_name
 
 
+
     def process(self):
         '''
-        Generate mappings for the model to ugse.
+        Generate mappings for the model to use.
         '''
 
         #need to make sure we've loaded these data first
@@ -122,10 +124,14 @@ class ModelData(object):
         assert self.sources_good, 'load sources before this step'
         assert self.dests_good, 'load destinations before this step'
         self.logger.info('Processing... This could take a while')
+        
 
         #Calculate time to nearest neighbor (near_nbr) and number of destinations within buffer (n_dests_in_range) metrics.
         #pre map dest->category
+        
         start_time = time.time()
+
+        
         CAT = self.dests.columns.get_loc('category') + 1
         ID = 0
         rv = {}
@@ -142,168 +148,66 @@ class ModelData(object):
                 nearest_cat_template[data[CAT]] = None
                 n_dests_in_range_template[data[CAT]] = 0
 
+              
+        #creating source to dest dictionary for times within self.upper using sorting and binary search
+        self.source2dest = {}
+        self.neg_val = {}
+        self.no_dest_in_range = {} #stores no of destinations within self.upper
+        for source in self.source_2:
+            pairs = [(k,v) for k,v in self.dicto[source].items()]
+            pairs.sort(key=itemgetter(1))
+            lo, hi = 0, len(pairs) - 1
+            while lo <= hi:
+                mid =  (lo + hi) / 2
+                mid = int(mid)
+                if pairs[mid][1] <= self.upper:
+                    lo = mid + 1
+                elif pairs[mid][1] > self.upper:
+                    hi = mid - 1
+            key = lo
+            lo, hi = 0, len(pairs) - 1
+            while lo <= hi:
+                mid =  (lo + hi) / 2
+                mid = int(mid)
+                if pairs[mid][1] <= -1:
+                    lo = mid + 1
+                elif pairs[mid][1] > -1:
+                    hi = mid - 1
+            key_min = lo
 
-        #pre map sources->dests (in range) and dests->sources (in range)
-        already_added_a = set()
-        already_added_b = set()
-        near_nbr = {}
-        n_dests_in_range = {}
-        time_val2 = {}
-        time_val={}
 
-        for source_id in self.source_id_list:
-            near_nbr[source_id] = copy.deepcopy(nearest_cat_template)
-            n_dests_in_range[source_id] = copy.deepcopy(n_dests_in_range_template)
-            for dest_id in self.dest_id_list:
-                time_val = self.get_time(source_id, dest_id)
-                cat = self.get_category(dest_id)
-                self.time_val = self.get_time(source_id, dest_id)
-                self.time_val2[source_id] = self.get_time(source_id, dest_id)
+            self.dicto[source] = pairs
 
-                #update the closest dest for each category of this source.
-                #Specify non negative values in order to disregard epsilon values.
-                if time_val>=0:
-                    if near_nbr[source_id][cat] is None:
-                        near_nbr[source_id][cat] = time_val
-                    elif time_val < near_nbr[source_id][cat]:
-                        near_nbr[source_id][cat] = time_val
+            dummy =[]
+            #key_min is the position of the first index which is non-negative.
+            if key_min>0:
+                dummy = pairs[0:key_min]
 
-                #Within upper limit buffer range (default is 30 minutes.)
-                if time_val <= self.upper and time_val>=0:
-                    #increment the number of destinations in range of this source
-                    n_dests_in_range[source_id][cat] += 1
+            #Checking if every destination has negatives. Only then, will we designate NAs for the sources.
+            #neg val dictionary contains all sources that should be NAs.
+            if len(dummy) == len(pairs):
+                self.neg_val[int(float(source))] = pairs[0:key_min]
 
-                    if source_id in already_added_a:
-                        self.source2dest[source_id].append((dest_id, time_val))
-                    else:
-                        self.source2dest[source_id] = [(dest_id,time_val)]
-                        already_added_a.add(source_id)
-                    if dest_id in already_added_b:
-                        self.dest2source[dest_id].append((source_id, time_val))
-                    else:
-                        self.dest2source[dest_id] = [(source_id, time_val)]
-                        already_added_b.add(dest_id)
-                
-        #convert dictionaries to dataframes
-        self.near_nbr = pd.DataFrame.from_dict(near_nbr, 
-            orient='index')
+            self.source2dest[int(float(source))] = pairs[key_min:key]
 
-        self.n_dests_in_range = pd.DataFrame.from_dict(n_dests_in_range, 
-            orient='index')
 
-        self.time_val2 = pd.DataFrame.from_dict(self.time_val2, orient='index')
+            self.no_dest_in_range[int(float(source))] = len(self.source2dest[int(float(source))])
 
-        #Rename column to 'time'
-        self.time_val2=self.time_val2.rename(columns={0:'time'})
+        #creating the same dictionary with destination as keys
+        self.dest2source = {}
+        for i in self.dest_2:
+            if(i!=''):
+                self.dest2source[int(float(i))] = []
+        for key,value in self.source2dest.items():
+            for dest,timee in value:
+                self.dest2source[int(float(dest))].append((key,timee))
 
-        #Find list within matrix with negative values.
-        #When constructing the matrix with p2p, the negative values (-999) are the edges on the border of the bounding box.
-        list_id=self.time_val2.index[self.time_val2['time'] <0].tolist()
-
-        #In final output of metrics, drop the negative values of time distance travel matrix
-        for i in list_id:
-            for j in self.n_dests_in_range.keys():
-                self.n_dests_in_range.at[i,j] = -9999
-        self.n_dests_in_range=self.n_dests_in_range.replace(-9999, np.nan)
-
-        for i in list_id:
-            for j in self.near_nbr.keys():
-                self.near_nbr.at[i,j] = -9999
-        self.near_nbr=self.near_nbr.replace(-9999, np.nan)
-
-        #Get nearest neighbor facility in minutes
-        self.near_nbr =self.near_nbr/60
-
+    
         self.processed_good = True
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
 
-
-    def plot_nearest_providers(self, limit_categories=None, 
-        title='Closest Point CDF', n_bins=500, resolution='block'):
-        '''
-        Plot a cdf of travel times to the closest provider
-        for each category.
-        '''
-
-        assert resolution in ['block', 'population'], 'must use block or resolution'
-        #assert resolution != 'population', 'this feature is a Work in Progress'
-        assert type(limit_categories) in [type(set()), type([]), type(None)], 'limit_categories must be type list, set or None'
-
-        figure_name = self.figure_name()
-
-        
-        #initialize block parameters
-        mpl.pyplot.close()
-        mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
-        fig, ax = mpl.pyplot.subplots(figsize=(8, 4))
-
-        available_colors = ['black','magenta','lime','red','black','orange','grey','yellow','brown','teal']
-        color_keys = []
-        if self.limit_categories:
-            for category in self.limit_categories:
-                self.near_nbr[category][self.near_nbr[category] > self.upper] = self.upper
-                x = self.near_nbr[category]
-                #Drop any NaNs to avoid error in plotting 
-                x=x.dropna()
-                color = available_colors.pop(0)
-                patch = mpatches.Patch(color=color, label=category)
-                color_keys.append(patch)
-                if resolution == 'population':
-                    res = {}
-                    for block_id, time_val in x.iteritems():
-                        block_pop = self.get_population(block_id)
-                        if block_pop <= 0:
-                            continue
-                        for i in range(block_pop):
-                            temp_id = '{}_{}'.format(block_id, i)
-                            res[temp_id] = time_val
-                    res = pd.Series(data=res)
-                    n, bins, blah = ax.hist(res, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-                else:
-                    n, bins, blah = ax.hist(x, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-
-        else:
-            for category in self.category_set:
-                self.near_nbr[category][self.near_nbr[category] > self.upper] = self.upper
-                x = self.near_nbr[category]
-                #Drop any NaNs to avoid error in plotting 
-                x=x.dropna()
-                color = available_colors.pop(0)
-                patch = mpatches.Patch(color=color, label=category)
-                color_keys.append(patch)
-                if resolution == 'population':
-                    res = {}
-                    for block_id, time_val in x.iteritems():
-                        block_pop = self.get_population(block_id)
-                        if block_pop <= 0:
-                            continue
-                        for i in range(block_pop):
-                            temp_id = '{}_{}'.format(block_id, i)
-                            res[temp_id] = time_val
-                    res = pd.Series(data=res)
-                    n, bins, blah = ax.hist(res, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-                else:
-                    n, bins, blah = ax.hist(x, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-
-        if self.limit_categories:
-            ax.legend(loc='best',handles=color_keys)
-        else:
-            ax.legend(loc='best', handles=color_keys)
-        ax.grid(True)
-        ax.set_title(title)
-        ax.set_xlabel('Time in seconds')
-        ax.set_ylabel('Percent of {} Within Range'.format(resolution))
-        fig_name = self.figure_name()
-        mpl.pyplot.savefig(fig_name, dpi=400)
-        mpl.pyplot.show()
-        self.logger.info('Plot was saved to: {}'.format(fig_name))
-
-
-    def get_output_filename(self, keyword, extension='csv', file_path='data/'):
+    
+    def get_output_filename_access (self, keyword, extension='csv', file_path='data/access_metrics/'):
         '''
         Given a keyword, find an unused filename.
         '''
@@ -317,8 +221,23 @@ class ModelData(object):
             counter += 1
 
         return filename
+    
+    def get_output_filename_cov (self, keyword, extension='csv', file_path='data/coverage_metrics/'):
+        '''
+        Given a keyword, find an unused filename.
+        '''
+        
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        filename = file_path + '{}_0.{}'.format(keyword, extension)
+        counter = 1
+        while os.path.isfile(filename):
+            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
+            counter += 1
 
-
+        return filename
+    
+    
     def set_logging(self, level=None):
         '''
         Set the logging level to debug or info
@@ -345,10 +264,27 @@ class ModelData(object):
 
         #try to load from file if given
         if filename:
-            self.sp_matrix = TransitMatrix(network_type=self.network_type, 
-                read_from_file=filename)
-            self.sp_matrix.process()
+            start_time=time.time()
+            self.dicto = {}  #Dictionary storing matrix travel times from each source to each dest
+            
+            
+            self.source_2 = [] #source id list
+            
+            
+            with open(filename, 'r') as File:
+                reader = csv.reader(File)
+                self.dest_2 = next(reader)
+                #convert csv into our useful matrix dictionary
+                for row in reader:
+                    self.dicto[row[0]] = {}
+                    self.source_2.append(row[0])
+                    self.no_dest = len(row)
+                    for i in range(1, len(row)):
+                        self.dicto[row[0]][int(float(self.dest_2[i]))] = int(float(row[i]))     
+            end_time=time.time()
+
             self.logger.info('Loaded sp matrix from file: {}'.format(filename))
+            self.logger.info('Finished loading sp_matrix in {:,.2f} seconds'.format(end_time - start_time))
         else:
             assert self.sources_good, 'load sources before this step'
             assert self.dests_good, 'load destinations before this step'
