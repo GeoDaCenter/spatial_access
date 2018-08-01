@@ -6,7 +6,7 @@ Under the **demo** folder, the notebooks run through Chicago's health example:
 * [access_score.ipynb](./access_score.ipynb)  : This notebook shows how to run the access score and the specific parameters that might be tweaked depending on the user's interest.  It uses the [ScoreModel](./scripts/ScoreModel.py) and [CommunityAnalytics](./scripts/CommunityAnalytics.py) scripts.
 * [coverage_score.ipynb](./coverage_score.ipynb)  :This notebook shows how to run the coverage score and the specific parameters that might be tweaked depending on the user's interest.  It uses the [ScoreModel](./scripts/ScoreModel.py) and [CommunityAnalytics](./scripts/CommunityAnalytics.py) scripts.
 * [travel_time_metrics.ipynb](./travel_time_metrics.ipynb)  :This notebook shows how to run the travel time distance matrices. It uses the [ScoreModel](./scripts/ScoreModel.py) and [CommunityAnalytics](./scripts/CommunityAnalytics.py) scripts.  
-* [calibration.ipynb](./1. calibration.ipynb)  : **? Have it as a notebook/within the demos/in this notebook or not at all?** Comparison (validation and calibration) with GoogleMaps.
+* [calibration.ipynb](./calibration.ipynb)  : **? Have it as a notebook/within the demos/in this notebook or not at all?** Comparison (validation and calibration) with GoogleMaps.
 
 The **data** folder contains the files needed for the estimation of the metrics under **ORIG** (for origins) and **DEST** (for destinations). The **matrices** folder contains the estimated symmetric and asymmetric matrices. The **access_score**, **coverage_score**, and **travel_time_metrics** folders contain the results of the analyses. Finally, **figures** contain the results of maps and plots calculated during the process. 
 
