@@ -57,10 +57,11 @@ class CoverageModel(ModelData):
     Build the Per capita spending model which captures
     the level of spending for low income residents in
     urban enviroments.
+    The source_field_mapping and dest_field_mapping parameters are used by the web app client. 
     '''
 
-    def __init__(self, network_type='drive', source_filename=None, 
-        dest_filename=None, sp_matrix_filename=None, limit_categories=None,
+    def __init__(self, network_type='drive', source_filename=None, source_field_mapping=None,
+        dest_filename=None, dest_field_mapping=None, sp_matrix_filename=None, limit_categories=None,
         upper=30):
 
         super().__init__(network_type, upper)
@@ -74,8 +75,8 @@ class CoverageModel(ModelData):
         self.serv_pop=None
         assert type(limit_categories) == type(set()) or limit_categories == None, 'limit_categories must be of type set or None'
 
-        self.load_sources(source_filename)
-        self.load_dests(dest_filename)
+        self.load_sources(source_filename, field_mapping=source_field_mapping)
+        self.load_dests(dest_filename, field_mapping=dest_field_mapping)
         self.load_sp_matrix(sp_matrix_filename)
         self.process()
 
@@ -293,10 +294,11 @@ class AccessModel(ModelData):
     '''
     Build the Access model which captures the accessibility of 
     nonprofit services in urban environments.
+    The source_field_mapping and dest_field_mapping parameters are used by the web app client. 
     '''
 
-    def __init__(self, network_type='drive', source_filename=None, 
-        dest_filename=None, sp_matrix_filename=None, decay_function='linear',
+    def __init__(self, network_type='drive', source_filename=None, source_field_mapping=None, 
+        dest_filename=None, dest_field_mapping=None, sp_matrix_filename=None, decay_function='linear',
         limit_categories=None, upper=30):
 
         super().__init__(network_type, upper)
@@ -311,8 +313,8 @@ class AccessModel(ModelData):
         else:
             self.logger.error('Unrecognized decay function. Must be one of: linear, root or logit')
 
-        self.load_sources(source_filename)
-        self.load_dests(dest_filename)
+        self.load_sources(source_filename, field_mapping=source_field_mapping)
+        self.load_dests(dest_filename, field_mapping=dest_field_mapping)
         self.load_sp_matrix(sp_matrix_filename)
         
         self.process()
@@ -447,7 +449,7 @@ class AccessModel(ModelData):
         self.results=self.results.replace(-9999, np.nan)
         
         self.good_to_write = True
-        self.logger.info("Finished calculating hssa in {:,.2f} seconds".format(time.time() - start_time))
+        self.logger.info("Finished calculating Access Model in {:,.2f} seconds".format(time.time() - start_time))
 
     def write_csv(self, filename=None):
         '''
