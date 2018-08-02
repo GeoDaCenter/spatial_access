@@ -5,6 +5,7 @@ from sklearn.neighbors import NearestNeighbors
 from geopy.distance import vincenty
 from NetworkQuery import Query
 from jellyfish import jaro_winkler
+import geopandas as gpd
 import pandas as pd
 import time, sys, os.path, csv, json, logging, os, psutil
 from pandana.loaders import osm
@@ -189,7 +190,7 @@ class TransitMatrix(object):
         '''
         if not os.path.exists("data/"):
             os.makedirs("data/")
-        filename = 'data/{}_0.{}'.format(keyword, extension)
+        filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
             filename = 'data/{}_{}.{}'.format(keyword, counter, extension)
@@ -334,25 +335,13 @@ class TransitMatrix(object):
             composite_x = list(self.primary_data.x)
             composite_y = list(self.primary_data.y)
 
-        if max(composite_x) > 0:
-            ul_x = max(composite_x) + self.epsilon
-        else:
-            ul_x = max(composite_x) - self.epsilon
-        if min(composite_x) > 0:
-            lr_x = min(composite_x) - self.epsilon
-        else:
-            lr_x = min(composite_x) + self.epsilon
-
-        if max(composite_y) > 0:
-            ul_y = max(composite_y) - self.epsilon
-        else:  
-            ul_y = max(composite_y) - self.epsilon
-        if min(composite_y) > 0:
-            lr_y = min(composite_y) + self.epsilon
-        else:
-            lr_y = min(composite_y) + self.epsilon
-
-        self.bbox = [ul_x, ul_y, lr_x, lr_y]
+        lat_max = max(composite_x) + self.epsilon
+        lat_min = min(composite_x) - self.epsilon
+        
+        lon_max = max(composite_y) + self.epsilon
+        lon_min = min(composite_y) - self.epsilon
+        
+        self.bbox = [lat_min, lon_min, lat_max, lon_max]
         self.logger.debug('set bbox: {}'.format(self.bbox))
 
 
