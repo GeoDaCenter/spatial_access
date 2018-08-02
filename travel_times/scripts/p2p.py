@@ -193,7 +193,7 @@ class TransitMatrix(object):
         filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
-            filename = 'data/{}_{}.{}'.format(keyword, counter, extension)
+            filename = 'data/matrices/{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
 
         return filename
