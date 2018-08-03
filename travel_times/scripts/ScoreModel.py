@@ -206,6 +206,20 @@ class ModelData(object):
         self.processed_good = True
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
 
+    def get_output_filename (self, keyword, extension='csv', file_path='data/'):
+        '''
+        Given a keyword, find an unused filename.
+        '''
+        
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        filename = file_path + '{}_0.{}'.format(keyword, extension)
+        counter = 1
+        while os.path.isfile(filename):
+            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
+            counter += 1
+
+        return filename
     
     def get_output_filename_access (self, keyword, extension='csv', file_path='data/access_metrics/'):
         '''
