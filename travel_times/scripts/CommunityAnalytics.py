@@ -391,7 +391,7 @@ class AccessModel(ModelData):
                 #if we haven't encountered this category for this source,
                 #create a new list of weights
                 if cat not in weight_dict.keys():
-                    weight_dict[cat] = {}
+                    weight_dict[cat] = DIMINISH_WEIGHTS[:]
 
                 #if we have encountered this category for this source,
                 #take the next highest weight (0 if all weights have)
