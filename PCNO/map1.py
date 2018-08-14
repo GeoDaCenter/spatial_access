@@ -6,13 +6,14 @@ HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
 MAP1 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map1.csv'
 
+
 def read_geo():
     '''
     Reads in the geocoded addresses for map 1. Drops the 'Match Score' column.
     Returns a dataframe.
     '''
 
-    df = pd.read_csv(GEO)
+    df = pd.read_csv(GEO,converters={'Zip':str})
     df = df.drop(['Match Score','AddressID'],axis=1)
 
     return df
@@ -23,7 +24,7 @@ def read_contracts():
     Reads in the contracts with headquarter addresses. Returns a dataframe.
     '''
 
-    df = pd.read_csv(HQ)
+    df = pd.read_csv(HQ,converters={'Zip':str})
     df = df[df['State'] == 'IL']
 
     return df
