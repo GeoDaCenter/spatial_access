@@ -56,8 +56,8 @@ def merge():
 
     cats = read_categories()
 
-    df = contracts.merge(geo)
-    df = df.merge(cats)
+    df = contracts.merge(geo,how='left')
+    df = df.merge(cats,how='left')
 
     df = df.drop('AddressID',axis=1)
 
