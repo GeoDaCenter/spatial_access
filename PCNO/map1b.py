@@ -31,6 +31,21 @@ def read_contracts():
     return df
 
 
+def add_jurisdic(df):
+    '''
+    Takes a dataframe of contracts and adds a column with the jurisdiction of
+    each contract, that is, whether it is from City of Chicago, Cook County, or
+    State of Illinois. Returns a dataframe.
+    '''
+
+    df['Jurisdic'] = ''
+    df['Jurisdic'] = df.apply(lambda x: 'CHICAGO' if x['CSDS_Contract_ID'].startswith('CHI') \
+                              else 'COOK' if x['CSDS_Contract_ID'].startswith('COOK') \
+                              else 'IL', axis=1)
+
+    return df
+
+
 def read_categories():
     '''
     Reads in the service-code classifications for the contracts. Returns a
@@ -53,6 +68,7 @@ def merge():
     geo = read_geo()
 
     contracts = read_contracts()
+    contracts = add_jurisdic(contracts)
 
     cats = read_categories()
 
