@@ -1,4 +1,3 @@
-import map1b
 import pandas as pd
 
 
