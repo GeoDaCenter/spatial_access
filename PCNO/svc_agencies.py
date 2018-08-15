@@ -1,21 +1,43 @@
+import re
 import UTILS as u
 import numpy as np
 import pandas as pd
 import COMPARE_ADDRESSES as ca
 
 
-DEDUPED = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.csv'
+LINK = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.csv'
 HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
+GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding.csv'
+DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
 
 THRESH = 0.34
 
 
-def linker():
+def read_linker():
     '''
+    Reads in the linked agencies file, retains matches >= the THRESH level, then
+    drops two columns. Returns a dataframe.
     '''
 
-    link = read_deduplicated()
+    df = pd.read_csv(LINK,converters={'ClusterID':str})
+
+    df = df[df['LinkScore'] >= THRESH]
+
+    df = df.drop(['LinkScore','SourceFile'],axis=1)
+
+    return df
+
+
+def linker():
+    '''
+    Reads in the linker file (to link HQ agencies to service agencies). Merges a
+    copy of itself on cluster ID, then eliminates records that match on vendor
+    ID (to produce only matches that have different vendor IDs). Returns a
+    dataframe.
+    '''
+
+    link = read_linker()
     link1 = link.rename(columns={'VendorName':'VendorName_LINK1'},index=str)
     link2 = u.rename_cols(link,['VendorName','CSDS_Vendor_ID'],'_LINK2')
 
@@ -24,10 +46,8 @@ def linker():
 
     return df
 
-
+'''
 def merger():
-    '''
-    '''
 
     link = linker()
     hq = read_hq()
@@ -36,26 +56,32 @@ def merger():
     merged = hq.merge(link,how='left').merge(svc,how='left')
 
     return merged
+'''
 
 
 def dollars_per_location():
     '''
+    Reads in the service agencies and the HQ agencies, then links them (using
+    the linker dataframe). Calculates the number of dollars per location.
+    Returns a dataframe.
     '''
 
     link = linker()
     svc = read_svc()
     hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount']].drop_duplicates()
 
-    merged = hq.merge(link,how='left').merge(svc,how='inner')
+    merged = hq.merge(link,how='left').merge(svc,how='left')
 
     merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
-                           / merged['Num_Svc_Locations'])
+                           / (1 + merged['Num_Svc_Locations']))
 
     return merged.reset_index(drop=True)
 
 
 def read_hq():
     '''
+    Reads in the contracts with HQ addresses; converts the zip codes to strings.
+    Adds up the contract amounts per agency. Returns a dataframe.
     '''
 
     df = pd.read_csv(HQ,converters={'Zip':str})
@@ -67,6 +93,9 @@ def read_hq():
 
 def read_svc():
     '''
+    Reads in the service agency addresses. Calls the COMPARE_ADDRESSES module to
+    merge duplicate addresses per agency. Counts the number of service addresses
+    per organization. Returns a dataframe.
     '''
 
     print('\nReading in service agencies')
@@ -86,21 +115,9 @@ def read_svc():
     return merged.reset_index(drop=True)
 
 
-def read_deduplicated():
-    '''
-    '''
-
-    df = pd.read_csv(DEDUPED,converters={'ClusterID':str})
-
-    df = df[df['LinkScore'] >= THRESH]
-
-    df = df.drop(['LinkScore','SourceFile'],axis=1)
-
-    return df
-
-
 def agg_funds(hq):
     '''
+    Adds up the contract amounts per HQ agency. Returns a dataframe.
     '''
 
     agg = hq.groupby('CSDS_Vendor_ID')['Amount'].sum().reset_index()
@@ -111,9 +128,9 @@ def agg_funds(hq):
 
 def count_svc_addr(df):
     '''
+    Counts the number of service addresses per agency. Returns a dataframe.
     '''
 
-    #counts = df.groupby('ClusterID')['CSDS_Vendor_ID_LINK2'].value_counts()
     df = df.assign(Constant=1)
     counts = df.groupby('CSDS_Vendor_ID_LINK2')['Constant'].count()
     counts.name = 'Num_Svc_Locations'
@@ -121,37 +138,53 @@ def count_svc_addr(df):
     return counts.to_frame().reset_index()
 
 
-def needs_geocoding(df,id,lat,lon,address_fields):
+def separate_satellites(df):
     '''
     '''
 
-    #address,city,state,zipcode = address_fields
+    keep = ['CSDS_Vendor_ID','VendorName','CSDS_Org_ID_SVC','City_SVC',
+            'State_SVC','ZipCode_SVC','Longitude_SVC','Latitude_SVC',
+            'Address_SVC','Dollars_Per_Location']
 
-    needs_geo = df[[id,lat,lon, x for x in address_fields]].drop_duplicates()
-    needs_geo = needs_geo[pd.isnull(needs_geo[lat,lon])]
+    satellites = df.dropna(subset=['Num_Svc_Locations'])
+    satellites = satellites[keep]
+
+    new_names = [re.sub('_SVC$','',x) for x in keep]
+    cn = dict(zip(keep,new_names))
+
+    satellites = satellites.rename(columns=cn,index=str)
+
+    return satellites.reset_index(drop=True)
+
+
+def needs_geocoding(df):
+    '''
+    Keeps only the records that have not been geocoded. Returns a dataframe.
+    '''
+
+    id = 'CSDS_Org_ID'
+    lat = 'Latitude'
+    lon = 'Longitude'
+    address_fields = ['Address','City','State','ZipCode']
+
+    needs_geo = df[[id,lat,lon] + [x for x in address_fields]].drop_duplicates()
+    needs_geo = needs_geo[pd.isnull(needs_geo[lat])]
     needs_geo = needs_geo.drop([lat,lon],axis=1)
 
-    new_cols = [re.sub('_SVC$','',x) for x in needs_geo.columns]
-    cn = dict(zip(needs_geo.columns,new_cols))
-
-    needs_geo = needs_geo.rename(columns=cn,index=str)
     needs_geo = needs_geo.rename(columns={'ZipCode':'Zip'},index=str)
 
     return needs_geo.reset_index(drop=True)
 
 
-
 if __name__ == '__main__':
 
-    print()
-    #merged = merger()
     dollars_div = dollars_per_location()
-    dollars_div.to_csv('../../../rcc-uchicago/PCNO/CSV/chicago/dollars_div.csv',index=False)
+    dollars_div.to_csv(DOLLARS_DIVIDED,index=False)
 
-    lat = 'Latitude_SVC'
-    lon = 'Longitude_SVC'
-    id_col =
+    satellites = separate_satellites(dollars_div)
 
+    needs_geo = needs_geocoding(satellites)
+    needs_geo.to_csv(GEO,index=False)
 
 
 
@@ -165,19 +198,11 @@ if __name__ == '__main__':
     -Count the number of service addresses per agency; add as a column
     -Add agg_dollars as a column
     -Divide agg_dollars by num_locations
-
-
-
-
-
-
-
-
-
-
-
-
-
+    -Pull out the ones that need to be geocoded, then geocode them, then merge
+        them back in
+    -Make two dataframes:
+        -HQs
+        -Satellites
 
 
     *******

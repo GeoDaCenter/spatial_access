@@ -6,13 +6,14 @@ HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
 MAP1 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map1.csv'
 
+
 def read_geo():
     '''
     Reads in the geocoded addresses for map 1. Drops the 'Match Score' column.
     Returns a dataframe.
     '''
 
-    df = pd.read_csv(GEO)
+    df = pd.read_csv(GEO,converters={'Zip':str})
     df = df.drop(['Match Score','AddressID'],axis=1)
 
     return df
@@ -23,7 +24,8 @@ def read_contracts():
     Reads in the contracts with headquarter addresses. Returns a dataframe.
     '''
 
-    df = pd.read_csv(HQ)
+    df = pd.read_csv(HQ,converters={'Zip':str})
+    df = df[df['State'] == 'IL']
 
     return df
 
@@ -34,12 +36,19 @@ def sum_amounts(df):
     ID. Returns a dataframe.
     '''
 
-    summer = df.groupby('CSDS_Vendor_ID')['Amount'].sum()
+    df_trimmed = df[['CSDS_Vendor_ID','CSDS_Contract_ID','Amount']]
+    df_trimmed = df_trimmed.drop_duplicates()
+
+    summer = df_trimmed.groupby('CSDS_Vendor_ID')['Amount'].sum()
+    summer.name = 'Summed_Amount'
     summer = summer.to_frame().reset_index()
 
-    df = df.merge(summer,how='right')
+    df = df.merge(summer,on='CSDS_Vendor_ID',how='right')
 
-    return df
+    df = df[['CSDS_Vendor_ID','Summed_Amount','VendorName','VendorID','Address',
+             'City','State','Zip']]
+
+    return df.drop_duplicates().reset_index(drop=True)
 
 
 def merge():
@@ -54,10 +63,12 @@ def merge():
     contracts = read_contracts()
     summed = sum_amounts(contracts)
 
-    df = summed.merge(geo)
+    df = summed.merge(geo,how='inner')
 
-    return df[['Amount','CSDS_Vendor_ID','Address','City','State','Zip',
-               'Longitude','Latitude','VendorName']]
+    df = df[['Summed_Amount','CSDS_Vendor_ID','Address','City','State','Zip',
+             'Longitude','Latitude','VendorName']]
+
+    return df.drop_duplicates().reset_index(drop=True)
 
 
 if __name__ == '__main__':

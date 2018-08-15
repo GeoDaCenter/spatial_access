@@ -3,16 +3,13 @@ import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.patches as mpatches
-
 from matplotlib import mlab
-#import matplotlib as mplt
 import matplotlib as mpl
 from p2p import TransitMatrix
 import os.path, csv, math, sys, logging, json, time
 import copy
-#import matplotlib.pyplot as plt
-
-
+from operator import itemgetter
+import timeit
 
 class ModelData(object):
     '''
@@ -34,6 +31,8 @@ class ModelData(object):
         self.cat2dests = {}
         self.near_nbr = {}
         self.n_dests_in_range = {}
+        self.time = {}
+        self.time_val2 = {}
         self.use_n_nearest = 10
 
         self.sources_nn = {}
@@ -59,6 +58,7 @@ class ModelData(object):
         self.valid_population = True
         self.valid_target = True
         self.valid_category = True
+        self.valid_lower_areal_unit = True
 
 
     def get_time(self, source, dest):
@@ -66,16 +66,10 @@ class ModelData(object):
         Return the time, in seconds, from source to dest.
         '''
         assert self.sp_matrix_good, 'load shortest path matrix before this step'
-        INF = np.NaN
-        #try:
-        time = self.sp_matrix.get(source, dest)
 
-        #except:
-        #    time = -1
-        #    self.logger.warning('({},{}) is not a known source, dest pair'.format(source, dest))
-        if time < 0:
-            return INF
-        return time
+        timee = self.sp_matrix.get(source, dest)
+
+        return timee
 
 
     def get_population(self, source_id):
@@ -85,7 +79,6 @@ class ModelData(object):
         assert self.sources_good, 'load sources before this step'
 
         return self.sources.loc[source_id, 'population']
-
 
     def get_target(self, dest_id):
         '''
@@ -102,7 +95,7 @@ class ModelData(object):
         '''
         assert self.dests_good, 'load dests before this step'
 
-        return str(self.dest2cats[dest_id])
+        return str(self.dest2cats[int(dest_id)])
 
 
     def figure_name(self):
@@ -110,19 +103,20 @@ class ModelData(object):
         Return a unique figure name.
         '''
         i = 0
-        if not os.path.exists("figures/"):
-            os.makedirs("figures/")
-        fig_name = 'figures/fig_0.png'
+        if not os.path.exists("data/figures/"):
+            os.makedirs("data/figures/")
+        fig_name = 'data/figures/fig_0.png'
         while (os.path.isfile(fig_name)):
             i += 1
-            fig_name = 'figures/fig_{}.png'.format(i)
+            fig_name = 'data/figures/fig_{}.png'.format(i)
 
         return fig_name
 
 
+
     def process(self):
         '''
-        Generate mappings for the model to ugse.
+        Generate mappings for the model to use.
         '''
 
         #need to make sure we've loaded these data first
@@ -130,9 +124,14 @@ class ModelData(object):
         assert self.sources_good, 'load sources before this step'
         assert self.dests_good, 'load destinations before this step'
         self.logger.info('Processing... This could take a while')
+        
 
+        #Calculate time to nearest neighbor (near_nbr) and number of destinations within buffer (n_dests_in_range) metrics.
         #pre map dest->category
+        
         start_time = time.time()
+
+        
         CAT = self.dests.columns.get_loc('category') + 1
         ID = 0
         rv = {}
@@ -149,134 +148,65 @@ class ModelData(object):
                 nearest_cat_template[data[CAT]] = None
                 n_dests_in_range_template[data[CAT]] = 0
 
+              
+        #creating source to dest dictionary for times within self.upper using sorting and binary search
+        self.source2dest = {}
+        self.neg_val = {}
+        self.no_dest_in_range = {} #stores no of destinations within self.upper
+        for source in self.source_2:
+            pairs = [(k,v) for k,v in self.dicto[source].items()]
+            pairs.sort(key=itemgetter(1))
+            lo, hi = 0, len(pairs) - 1
+            while lo <= hi:
+                mid =  (lo + hi) / 2
+                mid = int(mid)
+                if pairs[mid][1] <= self.upper:
+                    lo = mid + 1
+                elif pairs[mid][1] > self.upper:
+                    hi = mid - 1
+            key = lo
+            lo, hi = 0, len(pairs) - 1
+            while lo <= hi:
+                mid =  (lo + hi) / 2
+                mid = int(mid)
+                if pairs[mid][1] <= -1:
+                    lo = mid + 1
+                elif pairs[mid][1] > -1:
+                    hi = mid - 1
+            key_min = lo
 
-        #pre map sources->dests (in range) and dests->sources (in range)
-        already_added_a = set()
-        already_added_b = set()
-        near_nbr = {}
-        n_dests_in_range = {}
-        for source_id in self.source_id_list:
-            near_nbr[source_id] = copy.deepcopy(nearest_cat_template)
-            n_dests_in_range[source_id] = copy.deepcopy(n_dests_in_range_template)
-            for dest_id in self.dest_id_list:
-                time_val = self.get_time(source_id, dest_id)
-                cat = self.get_category(dest_id)
 
-                #update the closest dest for each category of this source
-                if near_nbr[source_id][cat] is None:
-                    near_nbr[source_id][cat] = time_val
-                elif time_val < near_nbr[source_id][cat]:
-                    near_nbr[source_id][cat] = time_val
+            self.dicto[source] = pairs
 
-                if time_val < self.upper:
-                    #increment the number of destinations in range of this source
-                    n_dests_in_range[source_id][cat] += 1
+            dummy =[]
+            #key_min is the position of the first index which is non-negative.
+            if key_min>0:
+                dummy = pairs[0:key_min]
 
-                    if source_id in already_added_a:
-                        self.source2dest[source_id].append((dest_id, time_val))
-                    else:
-                        self.source2dest[source_id] = [(dest_id,time_val)]
-                        already_added_a.add(source_id)
-                    if dest_id in already_added_b:
-                        self.dest2source[dest_id].append((source_id, time_val))
-                    else:
-                        self.dest2source[dest_id] = [(source_id, time_val)]
-                        already_added_b.add(dest_id)
+            #Checking if every destination has negatives. Only then, will we designate NAs for the sources.
+            #neg val dictionary contains all sources that should be NAs.
+            if len(dummy) == len(pairs):
+                self.neg_val[int(float(source))] = pairs[0:key_min]
 
-        self.near_nbr = pd.DataFrame.from_dict(near_nbr, 
-            orient='index')
-        #Get nearest neighbor facility in minutes
-        self.near_nbr =self.near_nbr/60
+            self.source2dest[int(float(source))] = pairs[key_min:key]
 
-        self.n_dests_in_range = pd.DataFrame.from_dict(n_dests_in_range, 
-            orient='index')
 
+            self.no_dest_in_range[int(float(source))] = len(self.source2dest[int(float(source))])
+
+        #creating the same dictionary with destination as keys
+        self.dest2source = {}
+        for i in self.dest_2:
+            if(i!=''):
+                self.dest2source[int(float(i))] = []
+        for key,value in self.source2dest.items():
+            for dest,timee in value:
+                self.dest2source[int(float(dest))].append((key,timee))
+
+    
         self.processed_good = True
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
 
-
-    def plot_nearest_providers(self, limit_categories=None, 
-        title='Closest Point CDF', n_bins=500, resolution='block'):
-        '''
-        Plot a cdf of travel times to the closest provider
-        for each category.
-        '''
-
-        assert resolution in ['block', 'population'], 'must use block or resolution'
-        #assert resolution != 'population', 'this feature is a Work in Progress'
-        assert type(limit_categories) in [type(set()), type([]), type(None)], 'limit_categories must be type list, set or None'
-
-        figure_name = self.figure_name()
-
-        
-        #initialize block parameters
-        mpl.pyplot.close()
-        mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
-        fig, ax = mpl.pyplot.subplots(figsize=(8, 4))
-
-        available_colors = ['black','magenta','lime','red','black','orange','grey','yellow','brown','teal']
-        color_keys = []
-        if self.limit_categories:
-            for category in self.limit_categories:
-                self.near_nbr[category][self.near_nbr[category] > self.upper] = self.upper
-                x = self.near_nbr[category]
-                color = available_colors.pop(0)
-                patch = mpatches.Patch(color=color, label=category)
-                color_keys.append(patch)
-                if resolution == 'population':
-                    res = {}
-                    for block_id, time_val in x.iteritems():
-                        block_pop = self.get_population(block_id)
-                        if block_pop <= 0:
-                            continue
-                        for i in range(block_pop):
-                            temp_id = '{}_{}'.format(block_id, i)
-                            res[temp_id] = time_val
-                    res = pd.Series(data=res)
-                    n, bins, blah = ax.hist(res, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-                else:
-                    n, bins, blah = ax.hist(x, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-
-        else:
-            for category in self.category_set:
-                self.near_nbr[category][self.near_nbr[category] > self.upper] = self.upper
-                x = self.near_nbr[category]
-                color = available_colors.pop(0)
-                patch = mpatches.Patch(color=color, label=category)
-                color_keys.append(patch)
-                if resolution == 'population':
-                    res = {}
-                    for block_id, time_val in x.iteritems():
-                        block_pop = self.get_population(block_id)
-                        if block_pop <= 0:
-                            continue
-                        for i in range(block_pop):
-                            temp_id = '{}_{}'.format(block_id, i)
-                            res[temp_id] = time_val
-                    res = pd.Series(data=res)
-                    n, bins, blah = ax.hist(res, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-                else:
-                    n, bins, blah = ax.hist(x, n_bins, density=True, histtype='step',
-                    cumulative=True, label=category, color=color)
-
-        if self.limit_categories:
-            ax.legend(loc='best',handles=color_keys)
-        else:
-            ax.legend(loc='best', handles=color_keys)
-        ax.grid(True)
-        ax.set_title(title)
-        ax.set_xlabel('Time in seconds')
-        ax.set_ylabel('Percent of {} Within Range'.format(resolution))
-        fig_name = self.figure_name()
-        mpl.pyplot.savefig(fig_name, dpi=400)
-        mpl.pyplot.show()
-        self.logger.info('Plot was saved to: {}'.format(fig_name))
-
-
-    def get_output_filename(self, keyword, extension='csv', file_path='data/'):
+    def get_output_filename (self, keyword, extension='csv', file_path='data/'):
         '''
         Given a keyword, find an unused filename.
         '''
@@ -290,8 +220,38 @@ class ModelData(object):
             counter += 1
 
         return filename
+    
+    def get_output_filename_access (self, keyword, extension='csv', file_path='data/access_metrics/'):
+        '''
+        Given a keyword, find an unused filename.
+        '''
+        
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        filename = file_path + '{}_0.{}'.format(keyword, extension)
+        counter = 1
+        while os.path.isfile(filename):
+            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
+            counter += 1
 
+        return filename
+    
+    def get_output_filename_cov (self, keyword, extension='csv', file_path='data/coverage_metrics/'):
+        '''
+        Given a keyword, find an unused filename.
+        '''
+        
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        filename = file_path + '{}_0.{}'.format(keyword, extension)
+        counter = 1
+        while os.path.isfile(filename):
+            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
+            counter += 1
 
+        return filename
+    
+    
     def set_logging(self, level=None):
         '''
         Set the logging level to debug or info
@@ -318,10 +278,27 @@ class ModelData(object):
 
         #try to load from file if given
         if filename:
-            self.sp_matrix = TransitMatrix(network_type=self.network_type, 
-                read_from_file=filename)
-            self.sp_matrix.process()
+            start_time=time.time()
+            self.dicto = {}  #Dictionary storing matrix travel times from each source to each dest
+            
+            
+            self.source_2 = [] #source id list
+            
+            
+            with open(filename, 'r') as File:
+                reader = csv.reader(File)
+                self.dest_2 = next(reader)
+                #convert csv into our useful matrix dictionary
+                for row in reader:
+                    self.dicto[row[0]] = {}
+                    self.source_2.append(row[0])
+                    self.no_dest = len(row)
+                    for i in range(1, len(row)):
+                        self.dicto[row[0]][int(float(self.dest_2[i]))] = int(float(row[i]))     
+            end_time=time.time()
+
             self.logger.info('Loaded sp matrix from file: {}'.format(filename))
+            self.logger.info('Finished loading sp_matrix in {:,.2f} seconds'.format(end_time - start_time))
         else:
             assert self.sources_good, 'load sources before this step'
             assert self.dests_good, 'load destinations before this step'
@@ -378,12 +355,15 @@ class ModelData(object):
 
 
     def load_sources(self, filename=None, 
-                     shapefile='resources/chi_comm_boundaries'):
+                     shapefile='resources/chi_comm_boundaries', field_mapping=None):
         '''
         Load the source points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
             -population (integer)
+        The field_mapping argument will be present if code is being called by the web app.
+        Otherwise the field_mapping default value of None will be passed in, and command
+        line prompts for user input will be executed.
         '''
         #try to load the source table
         try:
@@ -394,25 +374,52 @@ class ModelData(object):
         
         #extract the column names from the table
         population = ''
+        lower_areal_unit = ''
         idx = ''
         lat = ''
         lon = ''
-        source_data_columns = self.sources.columns.values
-        print('The variables in your data set are:')
-        for var in source_data_columns:
-            print('> ',var)
-        while idx not in source_data_columns:
-            idx = input('Enter the unique index variable: ')
-        print('If you have no population variable, write "skip" (no quotations)')
-        while population not in source_data_columns and population != 'skip':
-            population = input('Enter the population variable: ')
-        while lat not in source_data_columns:
-            lat = input('Enter the latitude variable: ')
-        while lon not in source_data_columns:
-            lon = input('Enter the longitude variable: ')
+
+
+        #if the command line is being used to call the code...
+        if field_mapping is None:
+            
+            #extract the column names from the table
+            source_data_columns = self.sources.columns.values
+            print('The variables in your data set are:')
+            for var in source_data_columns:
+                print('> ',var)
+            while idx not in source_data_columns:
+                idx = input('Enter the unique index variable: ')
+            print('If you have no population variable, write "skip" (no quotations)')
+            while population not in source_data_columns and population != 'skip':
+                population = input('Enter the population variable: ')
+            print('If you have no lower areal unit variable, write "skip" (no quotations)')
+            while lower_areal_unit not in source_data_columns and lower_areal_unit != 'skip':
+                lower_areal_unit = input('Enter the lower areal unit variable: ')
+            while lat not in source_data_columns:
+                lat = input('Enter the latitude variable: ')
+            while lon not in source_data_columns:
+                lon = input('Enter the longitude variable: ')
+
+            #insert filler values for the lower_areal_unit column if 
+            #user lower_areal_unit not want to include it in GUI
+            if lower_areal_unit == 'skip':
+                self.sources['lower_areal_unit'] = 1
+                self.valid_lower_areal_unit = False
+
+            
+        
+        #otherwise, if the web app is being used to call the code...
+        else:
+
+            idx = field_mapping['idx']
+            population = field_mapping['population']
+            lower_areal_unit = 'skip'
+            lat = field_mapping['lat']
+            lon = field_mapping['lon']
 
         #insert filler values for the population column if 
-        #user does not want to include it
+        #user does not want to include it. need it for coverage
         if population == 'skip':
             self.sources['population'] = 1
             self.valid_population = False
@@ -424,37 +431,42 @@ class ModelData(object):
         if population == 'skip':
             rename_cols = {lat:'lat', lon:'lon'}
         else:
-            rename_cols = {population:'population', lat:'lat', lon:'lon'}
+            rename_cols = {population:'population', lat:'lat', lon:'lon', lower_areal_unit:'lower_areal_unit'}
   
         self.sources = pd.read_csv(filename)
         self.sources.set_index(idx, inplace=True)
         self.sources.rename(columns=rename_cols,inplace=True)
-        self.sources = self.sources.reindex(columns=['lat','lon','population'])
+        self.sources = self.sources.reindex(columns=['lat','lon','population', 'lower_areal_unit'])
 
+        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
         #join source table with shapefile
-        copy = self.sources.copy(deep=True)
-        geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        crs = {'init':'epsg:4326'}
-        copy = self.sources.copy(deep=True)
-        geo_sources = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        boundaries_gdf = gpd.read_file(shapefile)
-        geo_sources = gpd.sjoin(boundaries_gdf, geo_sources, how='inner', 
-                                    op='intersects')
-        geo_sources.set_index('index_right', inplace=True)
-        self.sources = geo_sources[['community','population','lat','lon','geometry']]
+        #copy = self.sources.copy(deep=True)
+        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
+        #crs = {'init':'epsg:4326'}
+        #copy = self.sources.copy(deep=True)
+        #geo_sources = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
+        #boundaries_gdf = gpd.read_file(shapefile)
+        #geo_sources = gpd.sjoin(boundaries_gdf, geo_sources, how='inner', 
+        #                            op='intersects')
+        #geo_sources.set_index('index_right', inplace=True)
+        #self.sources = geo_sources[['community','population','lat','lon','geometry']]
+        
         self.source_id_list = self.sources.index
         self.sources_good = True
         self.source_filename = filename
 
 
     def load_dests(self, filename=None, 
-        shapefile='resources/chi_comm_boundaries', subset=None):
+        shapefile='resources/chi_comm_boundaries', subset=None, field_mapping=None):
         '''
         Load the destination points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
             -target value (integer or float)
             -category (string)
+        The field_mapping argument will be present if code is being called by the web app.
+        Otherwise the field_mapping default value of None will be passed in, and command
+        line prompts for user input will be executed.
         '''
 
         #try to load dest file
@@ -467,43 +479,73 @@ class ModelData(object):
         #extract column names
         category = ''
         target = ''
+        lower_areal_unit = ''
         idx = ''
         lat = ''
         lon = ''
-        dest_data_columns = self.dests.columns.values
-        print('The variables in your data set are:')
-        for var in dest_data_columns:
-            print('> ',var)
-        while idx not in dest_data_columns:
-            idx = input('Enter the unique index variable: ')
-        print('If you have no target variable, write "skip" (no quotations)')
-        while target not in dest_data_columns and target != 'skip':
-            target = input('Enter the target variable: ')
-        print('If you have no category variable, write "skip" (no quotations)')
-        while category not in dest_data_columns and category != 'skip':
-            category = input('Enter the category variable: ')
-        while lat not in dest_data_columns:
-            lat = input('Enter the latitude variable: ')
-        while lon not in dest_data_columns:
-            lon = input('Enter the longitude variable: ')
+
+        #if the command line is being used to call the code...
+        if field_mapping is None:
+            
+            #extract the column names from the table
+            dest_data_columns = self.dests.columns.values
+            print('The variables in your data set are:')
+            for var in dest_data_columns:
+                print('> ',var)
+            while idx not in dest_data_columns:
+                idx = input('Enter the unique index variable: ')
+            print('If you have no target variable, write "skip" (no quotations)')
+            while target not in dest_data_columns and target != 'skip':
+                target = input('Enter the target variable: ')
+            print('If you have no lower areal unit variable, write "skip" (no quotations)')
+            while lower_areal_unit not in dest_data_columns and lower_areal_unit != 'skip':
+                lower_areal_unit = input('Enter the lower areal unit variable: ')
+            print('If you have no category variable, write "skip" (no quotations)')
+            while category not in dest_data_columns and category != 'skip':
+                category = input('Enter the category variable: ')
+            while lat not in dest_data_columns:
+                lat = input('Enter the latitude variable: ')
+            while lon not in dest_data_columns:
+                lon = input('Enter the longitude variable: ')
+
+        
+
+            if target == 'skip':
+                target_name = 'target'
+            else:
+                target_name = target
+
+        
+        #otherwise, if the web app is being used to call the code...
+        else:
+
+            idx = field_mapping['idx']
+            target = field_mapping['target']
+            target_name = target
+            category = field_mapping['category']
+            lower_areal_unit = 'skip'
+            lat = field_mapping['lat']
+            lon = field_mapping['lon']
+
 
         #store the col names for later use
         self.secondary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
-
-        if target == 'skip':
-            target_name = 'target'
-        else:
-            target_name = target
 
         if category == 'skip':
             category_name = 'category'
         else:
             category_name = category
 
-        self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon])
+        if lower_areal_unit == 'skip':
+            lower_areal_unit_name = 'lower_areal_unit'
+        else:
+            lower_areal_unit_name = lower_areal_unit
+
+        self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon, lower_areal_unit])
         #clean the table
+
         rename_cols = {target:'target', category:'category', lat:'lat', 
-                       lon:'lon'}
+                       lon:'lon', lower_areal_unit: 'lower_areal_unit'}
         self.dests.set_index(idx, inplace=True)
         self.dests.rename(columns=rename_cols,inplace=True)
         if category == 'skip':
@@ -511,6 +553,8 @@ class ModelData(object):
             self.valid_category = False
         if target == 'skip':
             self.valid_target = False
+        if lower_areal_unit == 'skip':
+            self.valid_lower_areal_unit = False
         if subset:
             self.dests = self.dests[self.dests['category'].isin(subset)]
         self.category_set = set()
@@ -518,17 +562,17 @@ class ModelData(object):
         self.dests['category'].apply(str)
         self.category_set = set(self.dests['category'])
 
+        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
         #join dest table with shapefile
-        copy = self.dests.copy(deep=True)
-        geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        crs = {'init':'epsg:4326'}
-        geo_dests = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        boundaries_gdf = gpd.read_file(shapefile)
-        geo_dests = gpd.sjoin(boundaries_gdf, geo_dests, how='inner', op='intersects')
-        geo_dests.set_index('index_right', inplace=True)
-        self.dests = geo_dests[['category','lat','lon','target','community',]]
+        #copy = self.dests.copy(deep=True)
+        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
+        #crs = {'init':'epsg:4326'}
+        #geo_dests = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
+        #boundaries_gdf = gpd.read_file(shapefile)
+        #geo_dests = gpd.sjoin(boundaries_gdf, geo_dests, how='inner', op='intersects')
+        #geo_dests.set_index('index_right', inplace=True)
+        #self.dests = geo_dests[['category','lat','lon','target','community',]]
 
         self.dest_id_list = self.dests.index
         self.dests_good = True
         self.dest_filename = filename
-
