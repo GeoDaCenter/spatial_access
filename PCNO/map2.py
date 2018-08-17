@@ -52,7 +52,10 @@ def merger(dollars_divided,geo):
     '''
     '''
 
-    df = u.merge_coalesce(dollars_divided,geo,'CSDS_Org_ID')
+    df = u.merge_coalesce(dollars_divided,geo,'CSDS_Org_ID','_R','left')
+
+    df = df.drop(['ClusterID','VendorName_LINK1','VendorName_LINK2','Name',
+                  'CSDS_Vendor_ID_LINK2'],axis=1)
 
     return df
 
@@ -64,39 +67,28 @@ def separate_satellites(df):
     keep = ['CSDS_Vendor_ID','VendorName','CSDS_Org_ID','Address','City',
             'State','ZipCode','Longitude','Latitude','Dollars_Per_Location']
 
-    df['Num_Svc_Locations'] = df['Num_Svc_Locations'].replace('',np.NaN)
+    satellites = merged[merged['HQ_Flag'] == 0]
 
-    satellites = df.dropna(subset=['Num_Svc_Locations'])
-
-    return satellites[keep]
+    return satellites[keep].reset_index(drop=True)
 
 
 def separate_hq(merged):
     '''
     '''
 
-    contracts = read_contracts()
-    contracts = contracts[['CSDS_Vendor_ID','Address','City','State','Zip',
-                           'Longitude','Latitude','Summed_Amount']]
-    contracts = contracts.rename(columns={'Zip':'ZipCode'},index=str)
-    contracts = contracts.drop_duplicates()
+    keep = ['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount',
+            'Num_Svc_Locations','Address','City','State','ZipCode','Longitude',
+            'Latitude','Dollars_Per_Location']
 
-    df = merged[['CSDS_Vendor_ID','VendorName','Dollars_Per_Location']]
-    df = df.drop_duplicates()
+    hq = merged[merged['HQ_Flag'] == 1]
 
-    hq = df.merge(contracts)
-    hq['Dollars_Per_Location'] = hq['Dollars_Per_Location'].replace('',np.NaN)
-    hq['Dollars_Per_Location'] = hq['Dollars_Per_Location'].combine_first(hq['Summed_Amount'])
-
-    hq = hq.drop('Summed_Amount',axis=1)
-
-    return hq.reset_index(drop=True)
+    return hq[keep].reset_index(drop=True)
 
 
 if __name__ == '__main__':
 
-    geo = read_geo()
     dollars_divided = read_dollars_divided()
+    geo = read_geo()
 
     merged = merger(dollars_divided,geo)
 
