@@ -27,3 +27,6 @@ if __name__ == '__main__':
 
     print('Map 1 off by:  {0:,.2f}'.format((hq_total - map1_total)))
     print('Map 1b off by: {0:,.2f}'.format((hq_total - map1b_total)))
+
+
+    # $3810692646.12
