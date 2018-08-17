@@ -395,7 +395,6 @@ class AccessModel(ModelData):
 
                 #if we have encountered this category for this source,
                 #take the next highest weight (0 if all weights have)
-                #already been use
                 if len(weight_dict[cat]) > 0:
                     diminish_cat_weight = weight_dict[cat].pop()
                     dw=distance_weight*diminish_cat_weight
@@ -405,6 +404,7 @@ class AccessModel(ModelData):
                 #In order to check that the score is calculated correctly:
                 #print(distance_weight,diminish_cat_weight,dw,cat)
                 #Access score for weights and distance decay
+                #Sum of the weight * distance decay for all accessible facilities
                 access+=dw
                 #Count of weights by areal unit
                 access_cat += diminish_cat_weight 
