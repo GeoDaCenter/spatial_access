@@ -5,21 +5,9 @@ import pandas as pd
 
 
 DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
-HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map1.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map2_geocoding_geocoded.csv'
 MAP2_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_satellites.csv'
 MAP2_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_hq.csv'
-
-
-def read_contracts():
-    '''
-    Reads in the contracts with HQ addresses; converts the zip codes to strings.
-    Returns a dataframe.
-    '''
-
-    df = pd.read_csv(HQ,converters={'Zip':str})
-
-    return df
 
 
 def read_geo():
@@ -60,7 +48,7 @@ def merger(dollars_divided,geo):
     return df
 
 
-def separate_satellites(df):
+def separate_satellites(merged):
     '''
     '''
 
