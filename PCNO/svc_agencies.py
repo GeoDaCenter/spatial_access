@@ -7,6 +7,7 @@ import COMPARE_ADDRESSES as ca
 
 LINK = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.csv'
 HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
+MAP1B = '../../../rcc-uchicago/PCNO/CSV/chicago/maps/map1b.csv'
 SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding.csv'
 DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
@@ -60,12 +61,12 @@ def insert_marginal_hq(df):
                 list_of_dictos.append(dicto)
 
     for dicto in list_of_dictos:
-        if dicto['Address_SVC']:
-            dicto['Address_SVC'] = dicto['Address']
-            dicto['City_SVC'] = dicto['City']
-            dicto['State_SVC'] = dicto['State']
-            dicto['ZipCode_SVC'] = dicto['Zip']
-            dicto['CSDS_Org_ID_SVC'] = np.NaN
+        #if dicto['Address_SVC']:
+        dicto['Address_SVC'] = dicto['Address']
+        dicto['City_SVC'] = dicto['City']
+        dicto['State_SVC'] = dicto['State']
+        dicto['ZipCode_SVC'] = dicto['ZipCode']
+        dicto['CSDS_Org_ID_SVC'] = np.NaN
 
     appender = pd.DataFrame(list_of_dictos)
 
@@ -78,8 +79,8 @@ def insert_marginal_hq(df):
 def merger():
 
     link = linker()
-    hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount',
-                    'Address','City','State','Zip']].drop_duplicates()
+    hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount','Address',
+                    'City','State','ZipCode','Longitude','Latitude']].drop_duplicates()
     svc = read_svc()
 
     merged = hq.merge(link,how='left').merge(svc,how='left')
@@ -128,7 +129,30 @@ def dollars_per_location(merged):
     merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
                            / merged['Num_Svc_Locations'])
 
-    merged = merged.drop(['Address','City','State','Zip'],axis=1).drop_duplicates()
+
+    '''
+    cols = {'Address':'Address_HQ',
+            'City':'City_HQ',
+            'State':'State_HQ',
+            'Zip':'ZipCode_HQ'}
+    merged = merged.rename(columns=cols,index=str)
+    '''
+
+    #merged = merged.rename(columns={'Zip':'ZipCode'},index=str)
+
+    cols = ['Address','City','State','ZipCode','Longitude','Latitude']
+
+    for col in cols:
+        merged[col + '_SVC'] = merged[col + '_SVC'].combine_first(merged[col])
+
+    merged['HQ_Flag'] = merged.apply(lambda x: 1 if (x['Address'] == x['Address_SVC']) and
+                                    (x['City'] == x['City_SVC']) and
+                                    (x['State'] == x['State_SVC']) else 0, axis=1)# \
+                                    #and
+                                    #(x['Zip'] == x['ZipCode_SVC']
+
+
+    merged = merged.drop(cols,axis=1).drop_duplicates()
 
     return merged.reset_index(drop=True)
 
@@ -139,8 +163,13 @@ def read_hq():
     Adds up the contract amounts per agency. Returns a dataframe.
     '''
 
-    df = pd.read_csv(HQ,converters={'Zip':str})
-    df = df[df['State'] == 'IL']
+    #df = pd.read_csv(HQ,converters={'Zip':str})
+    #df = df[df['State'] == 'IL']
+
+    df = pd.read_csv(MAP1B,converters={'Zip':str})
+
+    df = df.rename(columns={'Zip':'ZipCode'},index=str)
+
     agg_amounts = agg_funds(df)
     merged = df.merge(agg_amounts)
 
