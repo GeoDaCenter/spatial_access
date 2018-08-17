@@ -6,7 +6,6 @@ import COMPARE_ADDRESSES as ca
 
 
 LINK = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.csv'
-HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 MAP1B = '../../../rcc-uchicago/PCNO/CSV/chicago/maps/map1b.csv'
 SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding.csv'
@@ -61,7 +60,6 @@ def insert_marginal_hq(df):
                 list_of_dictos.append(dicto)
 
     for dicto in list_of_dictos:
-        #if dicto['Address_SVC']:
         dicto['Address_SVC'] = dicto['Address']
         dicto['City_SVC'] = dicto['City']
         dicto['State_SVC'] = dicto['State']
@@ -163,9 +161,6 @@ def read_hq():
     Adds up the contract amounts per agency. Returns a dataframe.
     '''
 
-    #df = pd.read_csv(HQ,converters={'Zip':str})
-    #df = df[df['State'] == 'IL']
-
     df = pd.read_csv(MAP1B,converters={'Zip':str})
 
     df = df.rename(columns={'Zip':'ZipCode'},index=str)
@@ -240,8 +235,6 @@ def separate_satellites(df):
             'Address_SVC','Dollars_Per_Location']
 
     satellites = df.dropna(subset=['Num_Svc_Locations'])
-    #satellites = df[df['Num_Svc_Locations'] > 1]
-    #satellites = df[keep]
     satellites = satellites[keep]
 
     new_names = [re.sub('_SVC$','',x) for x in keep]
