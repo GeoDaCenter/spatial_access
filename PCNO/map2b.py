@@ -1,5 +1,3 @@
-import re
-import UTILS as u
 import numpy as np
 import pandas as pd
 
@@ -67,12 +65,15 @@ def separate_satellites(merged):
     keep = ['CSDS_Contract_ID','ContractNumber','Description',
             'Agency/Department','VendorName','VendorID','Amount','StartDate',
             'EndDate','Category/ProcurementType','Link/ContractPDF',
-            'CSDS_Vendor_ID','Address_SVC','City_SVC','State_SVC','ZipCode_SVC',
-            'Jurisdic',
+            'CSDS_Vendor_ID','Address','City','State','Zip','Jurisdic',
             'Longitude','Latitude','Classification',
             'Dollars_Per_Contract_Per_Location']
 
-    satellites = merged[merged['HQ_Flag'] == 0]
+    satellites = merged[merged['HQ_Flag'] == 0].drop(['Address','City','State','Zip'],axis=1)
+
+    cols = {'Address_SVC':'Address','City_SVC':'City','State_SVC':'State',
+            'ZipCode_SVC':'Zip'}
+    satellites = satellites.rename(columns=cols,index=str)
 
     return satellites[keep].reset_index(drop=True)
 
