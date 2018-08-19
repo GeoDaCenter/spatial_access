@@ -3,11 +3,14 @@ import pandas as pd
 from datetime import datetime as dt
 
 
-DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
 GEO1 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_hq.csv'
 GEO2 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_satellites.csv'
-MAP2B_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_satellites.csv'
 MAP2B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_hq.csv'
+MAP2B_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_satellites.csv'
+MAP3_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3_hq.csv'
+MAP3_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3_satellites.csv'
+MAP3B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3b_hq.csv'
+MAP3B_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3b_satellites.csv'
 
 
 def read_geo():
@@ -410,12 +413,11 @@ def make_map3(hqb,satb):
     '''
     '''
 
-    keep = ['CSDS_Vendor_ID','FY']#,'VendorName']
+    keep = ['CSDS_Vendor_ID','FY','VendorName']
 
-    keep2 = ['Address','City','State','Longitude','Latitude']#,'Zip']
+    keep2 = ['Address','City','State','Longitude','Latitude']
 
-    z = ['Zip'] #There are different zips for some addresses, which is keeping
-    # the groupby from working properly, but I'm not sure why
+    z = ['Zip']
 
     anam = 'AnnualAmount'
 
@@ -436,8 +438,6 @@ if __name__ == '__main__':
 
     # Total funds should be short $710,000 because of records w/ date problems.
     # New total should be $3809982646.12
-    #                  $3,809,982,646.12
-
     target = 3809982646.12
     print('Target:                 {0:,.2f}'.format(target))
 
@@ -457,28 +457,13 @@ if __name__ == '__main__':
 
     map3b_hq,map3b_satellites = make_map3b(spanner,ann_amts)
 
-    #-----------------------------------------------------------------FINE ABOVE
+    map3_hq,map3_satellites = make_map3(map3b_hq,map3b_satellites)
+    print(map3_hq.AnnualAmount.sum() + map3_satellites.AnnualAmount.sum() - target)
+    print(map3_hq.AnnualAmount.sum() - map3b_hq.AnnualAmount.sum())
+    print(map3_satellites.AnnualAmount.sum() - map3b_satellites.AnnualAmount.sum())
 
-    hq,satellites = make_map3(map3b_hq,map3b_satellites)
-    print(hq.AnnualAmount.sum() + satellites.AnnualAmount.sum() - target)
-    print(hq.AnnualAmount.sum() - map3b_hq.AnnualAmount.sum())
-    print(satellites.AnnualAmount.sum() - map3b_satellites.AnnualAmount.sum())
+    map3_hq.to_csv(MAP3_HQ,index=False)
+    map3_satellites.to_csv(MAP3_SATELLITES,index=False)
 
-
-    '''
-    Map 3:  Amount per fiscal year per location
-
-    Map 3b: amount per fiscal year per location per contract
-
-    So Map 3 is Map 3b aggregated up
-
-    Start with 3b and then aggregate up to 3?
-
-
-    So 3b should have one row for each applicable FY per contract per location,
-    one file for HQs and one for satellites.
-
-    3 should have one row for each applicable FY (with the FY sum for all
-    contracts in effect that FY) per location, one file for HQs and one for
-    satellites.
-    '''
+    map3b_hq.to_csv(MAP3B_HQ,index=False)
+    map3b_satellites.to_csv(MAP3B_SATELLITES,index=False)
