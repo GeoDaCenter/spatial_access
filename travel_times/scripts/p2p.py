@@ -270,9 +270,9 @@ class TransitMatrix(object):
         for var in source_data_columns:
             print('> ',var)
         while xcol not in source_data_columns:
-            xcol = input('Enter the latitude coordinate: ')
+            xcol = input('Enter the latitude (y) coordinate: ')
         while ycol not in source_data_columns:
-            ycol = input('Enter the longitude coordinate: ')
+            ycol = input('Enter the longitude (x) coordinate: ')
         while idx not in source_data_columns:
             idx = input('Enter the index name: ')
 
