@@ -621,7 +621,7 @@ class TransitMatrix(object):
                 writer.writerow([self.node_index_to_loc[from_idx], 
                     self.node_index_to_loc[to_idx], impedence])
 
-                if oneway != 'yes' or self.network_type!= 'drive':
+                if oneway != 'yes':
                     writer.writerow([self.node_index_to_loc[to_idx], 
                         self.node_index_to_loc[from_idx], impedence])
 
@@ -724,7 +724,6 @@ class TransitMatrix(object):
             for row in data.itertuples():
                 origin_id, origin_y, origin_x = row
                 latlong_diff, node_loc = kd_tree.query([origin_x, origin_y],k=1)
-                
                 node_number = node_indices[node_loc]
                 distance = vincenty((origin_y, origin_x), (nodes.loc[node_number].y, 
                     nodes.loc[node_number].x)).km
@@ -733,7 +732,6 @@ class TransitMatrix(object):
 
                 writer.writerow([node_loc, origin_id, distance])
 
-                
         self.logger.info('Nearest Neighbor matching completed in {:,.2f} seconds'.format(time.time() - start_time))
 
 

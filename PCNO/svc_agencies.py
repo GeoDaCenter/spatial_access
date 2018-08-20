@@ -6,7 +6,7 @@ import COMPARE_ADDRESSES as ca
 
 
 LINK = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.csv'
-HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
+MAP1B = '../../../rcc-uchicago/PCNO/CSV/chicago/maps/map1b.csv'
 SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding.csv'
 DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
@@ -46,34 +46,111 @@ def linker():
 
     return df
 
-'''
+
+def insert_marginal_hq(df):
+    '''
+    '''
+
+    list_of_dictos = []
+
+    for row in df.itertuples(index=False):
+        if row.Address_SVC is not np.NaN:
+            if row.Address != row.Address_SVC:
+                dicto = row._asdict()
+                list_of_dictos.append(dicto)
+
+    for dicto in list_of_dictos:
+        dicto['Address_SVC'] = dicto['Address']
+        dicto['City_SVC'] = dicto['City']
+        dicto['State_SVC'] = dicto['State']
+        dicto['ZipCode_SVC'] = dicto['ZipCode']
+        dicto['CSDS_Org_ID_SVC'] = np.NaN
+
+    appender = pd.DataFrame(list_of_dictos)
+
+    df_aug = pd.concat([df,appender])
+    df_aug = df_aug.drop_duplicates()
+
+    return df_aug
+
+
 def merger():
 
     link = linker()
-    hq = read_hq()
+    hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount','Address',
+                    'City','State','ZipCode','Longitude','Latitude']].drop_duplicates()
     svc = read_svc()
 
     merged = hq.merge(link,how='left').merge(svc,how='left')
+    df_aug = insert_marginal_hq(merged)
+    #df_aug.to_csv('temp_df_aug.csv',index=False)
 
-    return merged
-'''
+    mega_df = pd.concat([merged,df_aug])
+    mega_df = mega_df.drop_duplicates(subset=['CSDS_Vendor_ID','Address_SVC']).reset_index(drop=True)
+    #mega_df.to_csv('temp_mega_df.csv',index=False)
+    #print(mega_df[['CSDS_Vendor_ID','Agency_Summed_Amount']].drop_duplicates().Agency_Summed_Amount.sum())
+
+    counts = count_svc_addr(mega_df)
+    numbered = mega_df.merge(counts,how='left')
+
+    numbered['Num_Svc_Locations'] = numbered['Num_Svc_Locations'].replace(np.NaN,1)
+    numbered = numbered.drop_duplicates().reset_index(drop=True)
+    #numbered.to_csv('temp_numbered.csv',index=False)
 
 
-def dollars_per_location():
+    #merged['Num_Svc_Locations'] = merged['Num_Svc_Locations'].replace(np.NaN,1)
+
+    return numbered
+
+
+
+def dollars_per_location(merged):
     '''
     Reads in the service agencies and the HQ agencies, then links them (using
     the linker dataframe). Calculates the number of dollars per location.
     Returns a dataframe.
     '''
 
+    '''
     link = linker()
     svc = read_svc()
-    hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount']].drop_duplicates()
+
+    hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount',
+                    'Address','City','State','Zip']].drop_duplicates()
 
     merged = hq.merge(link,how='left').merge(svc,how='left')
 
+    # The HQ is the first svc_loc and every satellite adds 1
+    merged['Num_Svc_Locations'] = merged['Num_Svc_Locations'].replace(np.NaN,1)
+    '''
+
     merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
-                           / (1 + merged['Num_Svc_Locations']))
+                           / merged['Num_Svc_Locations'])
+
+
+    '''
+    cols = {'Address':'Address_HQ',
+            'City':'City_HQ',
+            'State':'State_HQ',
+            'Zip':'ZipCode_HQ'}
+    merged = merged.rename(columns=cols,index=str)
+    '''
+
+    #merged = merged.rename(columns={'Zip':'ZipCode'},index=str)
+
+    cols = ['Address','City','State','ZipCode','Longitude','Latitude']
+
+    for col in cols:
+        merged[col + '_SVC'] = merged[col + '_SVC'].combine_first(merged[col])
+
+    merged['HQ_Flag'] = merged.apply(lambda x: 1 if (x['Address'] == x['Address_SVC']) and
+                                    (x['City'] == x['City_SVC']) and
+                                    (x['State'] == x['State_SVC']) else 0, axis=1)# \
+                                    #and
+                                    #(x['Zip'] == x['ZipCode_SVC']
+
+
+    merged = merged.drop(cols,axis=1).drop_duplicates()
 
     return merged.reset_index(drop=True)
 
@@ -84,7 +161,10 @@ def read_hq():
     Adds up the contract amounts per agency. Returns a dataframe.
     '''
 
-    df = pd.read_csv(HQ,converters={'Zip':str})
+    df = pd.read_csv(MAP1B,converters={'Zip':str})
+
+    df = df.rename(columns={'Zip':'ZipCode'},index=str)
+
     agg_amounts = agg_funds(df)
     merged = df.merge(agg_amounts)
 
@@ -109,10 +189,14 @@ def read_svc():
     fixed_addresses = ca.fix_duplicate_addresses(df,key,target)
     fixed_addresses = fixed_addresses.drop_duplicates(subset=[key,target])
 
+    '''
     counts = count_svc_addr(fixed_addresses)
     merged = fixed_addresses.merge(counts)
 
     return merged.reset_index(drop=True)
+    '''
+
+    return fixed_addresses
 
 
 def agg_funds(hq):
@@ -140,6 +224,10 @@ def count_svc_addr(df):
 
 def separate_satellites(df):
     '''
+    The problem right now is that this is keeping HQs that have satellites and
+    only excluding HQs with no satellites.
+
+    Going to leave this alone and deal with it in the map2 script.
     '''
 
     keep = ['CSDS_Vendor_ID','VendorName','CSDS_Org_ID_SVC','City_SVC',
@@ -170,6 +258,7 @@ def needs_geocoding(df):
     needs_geo = df[[id,lat,lon] + [x for x in address_fields]].drop_duplicates()
     needs_geo = needs_geo[pd.isnull(needs_geo[lat])]
     needs_geo = needs_geo.drop([lat,lon],axis=1)
+    needs_geo = needs_geo.dropna(subset=['CSDS_Org_ID'])
 
     needs_geo = needs_geo.rename(columns={'ZipCode':'Zip'},index=str)
 
@@ -178,40 +267,14 @@ def needs_geocoding(df):
 
 if __name__ == '__main__':
 
-    dollars_div = dollars_per_location()
+    merged = merger()
+
+    dollars_div = dollars_per_location(merged)
     dollars_div.to_csv(DOLLARS_DIVIDED,index=False)
+
+    # This is the correct amount:  3810692646.1199999
 
     satellites = separate_satellites(dollars_div)
 
     needs_geo = needs_geocoding(satellites)
-    needs_geo.to_csv(GEO,index=False)
-
-
-
-
-
-    '''
-    $/agency @ service addresses
-
-    CONTRACTAGENCIES [VendorName] LINK [Name] SERVICEAGENCIES
-
-    -Count the number of service addresses per agency; add as a column
-    -Add agg_dollars as a column
-    -Divide agg_dollars by num_locations
-    -Pull out the ones that need to be geocoded, then geocode them, then merge
-        them back in
-    -Make two dataframes:
-        -HQs
-        -Satellites
-
-
-    *******
-    Problem:  Single locations are defined by multiple unique address strings, all the cleaning notwithstanding
-    *******
-    Options:
-    -Geocode everything, then do float comparisons on the coordinates (or drop some that are within some tolerance of others)
-    -Split up addresses with re and try to compare them
-    -Split up addresses with the Usaddress library and try to compare them
-    -Deduplicate with Logan's module (concatenate all to a single field first)
-    -Deduplicate with the Dedupe library (I'll need to write a script that requires the CSDS_Agency_ID to match)
-    '''
+    #needs_geo.to_csv(GEO,index=False)

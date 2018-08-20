@@ -4,9 +4,8 @@ import numpy as np
 import pandas as pd
 
 
-PREHQ = '../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv'
-HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
-DEDUPED = '../../../rcc-uchicago/PCNO/Geo/deduped_contract_results.csv'
+DEDUPED = '../../../rcc-uchicago/PCNO/Geo/deduped_contract_results.csv' #6317 lines
+HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv' #6009 lines
 ADDR_OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/map1_addresses_for_geocoding.csv'
 AGENCIES = '../../../rcc-uchicago/PCNO/CSV/chicago/hq_agencies_names.csv'
 
