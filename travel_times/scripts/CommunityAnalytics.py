@@ -46,10 +46,11 @@ def logit_decay_function(time, upper):
     if time > upper:
         return 0
     else:
-        return 1-(1/(math.exp((upper/450)-(.3/60)*(time))+1))
-        #return 1-(1/(math.exp((upper/300)-(.3/60)*(time))+1))
-        #return 1-(1/(math.exp((upper/300)-(.4/60)*(time))+1))
-        #return (100-(100/(math.exp((upper/300)-(.0065)*(time))+1))/100)
+        #return 1-(1/(math.exp((upper/450)-(.3/60)*(time))+1))
+        #return 1-(1/(math.exp((upper/163.63636363)-(.5/60)*(time))+1))
+        #return 1-(1/(math.exp((upper/163.63636363)-(.45/60)*(time))+1))
+        #return 1-(1/(math.exp((upper/180)-(.5/60)*(time))+1))
+        return 1-(1/(math.exp((upper/180)-(.48/60)*(time))+1))  
 
 
 class CoverageModel(ModelData):
