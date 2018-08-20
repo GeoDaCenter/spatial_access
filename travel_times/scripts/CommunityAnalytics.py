@@ -81,7 +81,8 @@ class CoverageModel(ModelData):
         self.process()
 
         self.good_to_write = False
-
+        
+    #TODO: Subesetting is currently not working
     def calculate(self):
         '''
         Calculate the per capita value of ALL categories
