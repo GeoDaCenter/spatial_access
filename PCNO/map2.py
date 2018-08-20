@@ -5,9 +5,21 @@ import pandas as pd
 
 
 DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
+HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map1.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map2_geocoding_geocoded.csv'
 MAP2_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_satellites.csv'
 MAP2_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_hq.csv'
+
+
+def read_contracts():
+    '''
+    Reads in the contracts with HQ addresses; converts the zip codes to strings.
+    Returns a dataframe.
+    '''
+
+    df = pd.read_csv(HQ,converters={'Zip':str})
+
+    return df
 
 
 def read_geo():
@@ -40,43 +52,51 @@ def merger(dollars_divided,geo):
     '''
     '''
 
-    df = u.merge_coalesce(dollars_divided,geo,'CSDS_Org_ID','_R','left')
-
-    df = df.drop(['ClusterID','VendorName_LINK1','VendorName_LINK2','Name',
-                  'CSDS_Vendor_ID_LINK2'],axis=1)
+    df = u.merge_coalesce(dollars_divided,geo,'CSDS_Org_ID')
 
     return df
 
 
-def separate_satellites(merged):
+def separate_satellites(df):
     '''
     '''
 
     keep = ['CSDS_Vendor_ID','VendorName','CSDS_Org_ID','Address','City',
             'State','ZipCode','Longitude','Latitude','Dollars_Per_Location']
 
-    satellites = merged[merged['HQ_Flag'] == 0]
+    df['Num_Svc_Locations'] = df['Num_Svc_Locations'].replace('',np.NaN)
 
-    return satellites[keep].reset_index(drop=True)
+    satellites = df.dropna(subset=['Num_Svc_Locations'])
+
+    return satellites[keep]
 
 
 def separate_hq(merged):
     '''
     '''
 
-    keep = ['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount',
-            'Num_Svc_Locations','Address','City','State','ZipCode','Longitude',
-            'Latitude','Dollars_Per_Location']
+    contracts = read_contracts()
+    contracts = contracts[['CSDS_Vendor_ID','Address','City','State','Zip',
+                           'Longitude','Latitude','Summed_Amount']]
+    contracts = contracts.rename(columns={'Zip':'ZipCode'},index=str)
+    contracts = contracts.drop_duplicates()
 
-    hq = merged[merged['HQ_Flag'] == 1]
+    df = merged[['CSDS_Vendor_ID','VendorName','Dollars_Per_Location']]
+    df = df.drop_duplicates()
 
-    return hq[keep].reset_index(drop=True)
+    hq = df.merge(contracts)
+    hq['Dollars_Per_Location'] = hq['Dollars_Per_Location'].replace('',np.NaN)
+    hq['Dollars_Per_Location'] = hq['Dollars_Per_Location'].combine_first(hq['Summed_Amount'])
+
+    hq = hq.drop('Summed_Amount',axis=1)
+
+    return hq.reset_index(drop=True)
 
 
 if __name__ == '__main__':
 
-    dollars_divided = read_dollars_divided()
     geo = read_geo()
+    dollars_divided = read_dollars_divided()
 
     merged = merger(dollars_divided,geo)
 

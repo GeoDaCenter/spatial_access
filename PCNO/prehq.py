@@ -16,12 +16,13 @@ JWSIM_THRESH = .9
 MIN_DOLLARS = .01
 
 # File shortcuts
+HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/contracts_w_hq_addresses.csv'
 OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv'
 
 
 def read_contracts():
     '''
-    Reads in the contracts dataset via the MERGE_CONTRACTS module. Returns a
+    Reads in the contrats dataset via the MERGE_CONTRACTS module. Returns a
     dataframe.
     '''
 
