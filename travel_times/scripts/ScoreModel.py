@@ -290,6 +290,8 @@ class ModelData(object):
                 self.dest_2 = next(reader)
                 #convert csv into our useful matrix dictionary
                 for row in reader:
+                    if row[0] in self.dicto.keys():
+                        print('Warning: Check for duplicates in your ID.')
                     self.dicto[row[0]] = {}
                     self.source_2.append(row[0])
                     self.no_dest = len(row)
