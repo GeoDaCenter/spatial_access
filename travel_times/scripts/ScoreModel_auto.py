@@ -376,8 +376,8 @@ class ModelData(object):
         population = 'skip'
         lower_areal_unit = 'skip'
         idx = 'ID'
-        lat = 'lat'
-        lon = 'lon'
+        lat = 'INSIDE_Y'
+        lon = 'INSIDE_X'
 
         '''
         #if the command line is being used to call the code...
@@ -407,7 +407,7 @@ class ModelData(object):
                 self.sources['lower_areal_unit'] = 1
                 self.valid_lower_areal_unit = False
 
-        '''
+        
 
             
         
@@ -419,7 +419,8 @@ class ModelData(object):
             lower_areal_unit = 'skip'
             lat = field_mapping['lat']
             lon = field_mapping['lon']
-
+        '''
+        
         #insert filler values for the population column if 
         #user does not want to include it. need it for coverage
         if population == 'skip':
@@ -517,7 +518,7 @@ class ModelData(object):
                 target_name = 'target'
             else:
                 target_name = target
-        '''
+        
 
         
         #otherwise, if the web app is being used to call the code...
@@ -531,7 +532,7 @@ class ModelData(object):
             lat = field_mapping['lat']
             lon = field_mapping['lon']
 
-
+        
         #store the col names for later use
         self.secondary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
 
@@ -547,7 +548,7 @@ class ModelData(object):
 
         self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon, lower_areal_unit])
         #clean the table
-
+'''
         rename_cols = {target:'target', category:'category', lat:'lat', 
                        lon:'lon', lower_areal_unit: 'lower_areal_unit'}
         self.dests.set_index(idx, inplace=True)

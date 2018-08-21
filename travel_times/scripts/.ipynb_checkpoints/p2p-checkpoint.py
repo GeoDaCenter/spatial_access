@@ -5,7 +5,6 @@ from sklearn.neighbors import NearestNeighbors
 from geopy.distance import vincenty
 from NetworkQuery import Query
 from jellyfish import jaro_winkler
-import geopandas as gpd
 import pandas as pd
 import time, sys, os.path, csv, json, logging, os, psutil
 from pandana.loaders import osm
@@ -145,6 +144,7 @@ class TransitMatrix(object):
             self.logger.error('Source, dest pair could not be found')
 
 
+
     def _load_parameters(self, filename='p2p_parameters.json'):
         '''
         Load model parameters from json.
@@ -193,7 +193,7 @@ class TransitMatrix(object):
         filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
-            filename = 'data/{}_{}.{}'.format(keyword, counter, extension)
+            filename = 'data/matrices/{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
 
         return filename
@@ -270,9 +270,9 @@ class TransitMatrix(object):
         for var in source_data_columns:
             print('> ',var)
         while xcol not in source_data_columns:
-            xcol = input('Enter the latitude coordinate: ')
+            xcol = input('Enter the latitude (y) coordinate: ')
         while ycol not in source_data_columns:
-            ycol = input('Enter the longitude coordinate: ')
+            ycol = input('Enter the longitude (x) coordinate: ')
         while idx not in source_data_columns:
             idx = input('Enter the index name: ')
 
@@ -335,13 +335,17 @@ class TransitMatrix(object):
             composite_x = list(self.primary_data.x)
             composite_y = list(self.primary_data.y)
 
+        
         lat_max = max(composite_x) + self.epsilon
+        
         lat_min = min(composite_x) - self.epsilon
+       
+        lon_max= max(composite_y) + self.epsilon
         
-        lon_max = max(composite_y) + self.epsilon
-        lon_min = min(composite_y) - self.epsilon
+        lon_min= min(composite_y) - self.epsilon
         
-        self.bbox = [lat_min, lon_min, lat_max, lon_max]
+
+        self.bbox = [lat_min,lon_min,lat_max,lon_max]
         self.logger.debug('set bbox: {}'.format(self.bbox))
 
 
@@ -454,6 +458,8 @@ class TransitMatrix(object):
 
         self.node_pair_to_speed = node_pair_to_speed
 
+
+
       
     def _cost_model(self, distance, sl):
         '''
@@ -474,6 +480,28 @@ class TransitMatrix(object):
             drive_constant = (edge_speed_limit / self.ONE_HOUR) * self.ONE_KM
             return int((distance / drive_constant) + self.DRIVE_NODE_PENALTY) 
 
+    #runs a depth first search from given vertex ve
+    def dfs(self, ve):
+        #size=0
+        stack = [ve]
+        #component = [] 
+        while(stack):
+            v = stack.pop()
+            if(self.visited[v] == True):
+                continue
+            self.visited[v] = True
+            #size =size+1
+            #component.append(v)
+            self.comp_id[v] = self.idd #gives compnent id to each vertex
+            if v in self.adj.keys():
+                for nbr in self.adj[v]:
+                    if(self.visited[nbr] ==False):
+                        stack.append(nbr)
+        #print(ve,size)
+        #print(component)
+        return
+
+        
 
     def _request_network(self):
         '''
@@ -490,8 +518,8 @@ class TransitMatrix(object):
 
         #query OSM
         try:
-            self.nodes, self.edges = osm.network_from_bbox(self.bbox[0], 
-                self.bbox[1], self.bbox[2], self.bbox[3],
+            self.nodes, self.edges = osm.network_from_bbox(lat_min = self.bbox[0], 
+                lng_min = self.bbox[1], lat_max=self.bbox[2], lng_max=self.bbox[3],
                 network_type=self.network_type)
         except:
             request_error = '''Error trying to download OSM network. 
@@ -505,21 +533,72 @@ class TransitMatrix(object):
         if self.network_type == 'drive':
             self._clean_speed_limits()
 
-
-        self.num_nodes = len(self.nodes)
-        self.num_edges = len(self.edges)
+    def _request_network2(self):
 
         start_time = time.time()
-
-        #map index name to position
-        node_index_to_loc = {}
-        for i, index_name in enumerate(self.nodes.index):
-            node_index_to_loc[index_name] = i
 
         DISTANCE = self.edges.columns.get_loc('distance') + 1
         FROM_IDX = self.edges.columns.get_loc('from') + 1
         TO_IDX = self.edges.columns.get_loc('to') + 1
         ONEWAY = self.edges.columns.get_loc('oneway') + 1
+
+        #creating adjacency lust from osmnet nodes and edges
+        self.adj = {}
+        self.node = set()
+        c=0
+        self.visited = {}
+        self.comp_id = {}
+        for data in self.edges.itertuples():
+            so = data[FROM_IDX]
+            de = data[TO_IDX]
+            if so not in self.adj.keys():
+                self.adj[so] = []
+            if de not in self.adj.keys():
+                self.adj[de] = []
+            oneway = data[ONEWAY]
+            self.adj[so].append(de)
+            self.node.add(so)
+            if oneway!='yes':
+                self.adj[de].append(so)
+                self.node.add(de)
+            self.visited[so] = False
+            self.visited[de] = False
+
+            
+        #Connected components check using depth first search of graph
+        self.idd = 0 
+        size=0
+        for source in self.node:
+            self.visited[source] = False
+        c = 0
+
+        for source in self.node:
+            if self.visited[source] == False:
+                #print(source)
+                self.dfs(source)
+                c=c+1
+                self.idd = self.idd+1
+        #print("No of disconnections initially:",c) 
+        count = 0
+        #Remove disconnected nodes
+        for index,row in self.nodes.iterrows():
+            if self.comp_id[index] !=0:
+                count=count+1
+                self.nodes = self.nodes.drop(index)
+        print("Number of disconnected nodes removed:",count) 
+
+        #
+        
+
+        self.num_nodes = len(self.nodes)
+        self.num_edges = len(self.edges)
+
+
+        #map index name to position
+        self.node_index_to_loc = {}
+        for i, index_name in enumerate(self.nodes.index):
+            self.node_index_to_loc[index_name] = i
+
 
         #create a mapping of each node to every other connected node
         #transform them by cost model as well
@@ -534,16 +613,22 @@ class TransitMatrix(object):
                 else:
                     impedence = self._cost_model(data[DISTANCE], None)
                 oneway = data[ONEWAY]
+
+                #checking if edge connects any of the disconnected nodes
+                if self.comp_id[from_idx] != 0 or self.comp_id[to_idx] != 0:
+                    continue
                 
-                writer.writerow([node_index_to_loc[from_idx], 
-                    node_index_to_loc[to_idx], impedence])
+                writer.writerow([self.node_index_to_loc[from_idx], 
+                    self.node_index_to_loc[to_idx], impedence])
 
                 if oneway != 'yes':
-                    writer.writerow([node_index_to_loc[to_idx], 
-                        node_index_to_loc[from_idx], impedence])
+                    writer.writerow([self.node_index_to_loc[to_idx], 
+                        self.node_index_to_loc[from_idx], impedence])
 
         
         self.logger.info("Prepared raw network in {:,.2f} seconds and wrote to: {}".format(time.time() - start_time, self.network_filename))
+                 
+        
 
 
     def _calc_shortest_path(self):
@@ -660,7 +745,7 @@ class TransitMatrix(object):
         files = os.listdir("data")
         for file in files:
             if 'raw_network' in file or 'nn_primary' in file or 'nn_secondary' in file:
-                os.remove('data/' + file)
+                os.remove('data/matrices' + file)
         if os.path.isfile('p2p.log'):
             os.remove('p2p.log')
         if os.path.isfile('logs'):
@@ -675,6 +760,7 @@ class TransitMatrix(object):
         '''
         Process the data.
         '''
+        start_time = time.time()
 
         self.set_logging(debug)
 
@@ -702,11 +788,13 @@ class TransitMatrix(object):
 
         self._load_sl_data(speed_limit_filename)
 
-        start_time = time.time()
 
         self._set_output_filename(output_filename)
 
+
         self._request_network()
+
+        self._request_network2()
 
         self._match_nn(False)
         if self.secondary_input:
@@ -715,5 +803,6 @@ class TransitMatrix(object):
         self._calc_shortest_path()
 
         self._cleanup_artifacts(cleanup)
-
+    
+        
         self.logger.info('All operations completed in {:,.2f} seconds'.format(time.time() - start_time))

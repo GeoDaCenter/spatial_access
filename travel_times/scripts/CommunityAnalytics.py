@@ -46,10 +46,14 @@ def logit_decay_function(time, upper):
     if time > upper:
         return 0
     else:
-        return 1-(1/(math.exp((upper/450)-(.3/60)*(time))+1))
+        #return 1-(1/(math.exp((upper/450)-(.3/60)*(time))+1))
         #return 1-(1/(math.exp((upper/300)-(.3/60)*(time))+1))
         #return 1-(1/(math.exp((upper/300)-(.4/60)*(time))+1))
         #return (100-(100/(math.exp((upper/300)-(.0065)*(time))+1))/100)
+        #return 1-(1/(math.exp((upper/163.63636363)-(.5/60)*(time))+1))
+        #return 1-(1/(math.exp((upper/163.63636363)-(.45/60)*(time))+1))
+        #return 1-(1/(math.exp((upper/180)-(.5/60)*(time))+1)
+        return 1-(1/(math.exp((upper/180)-(.48/60)*(time))+1))  
 
 
 class CoverageModel(ModelData):
@@ -559,33 +563,66 @@ class TTMetrics(ModelData):
     def calculate(self):
 
         #Stores no of destination wthin upper for a given source and category
-        self.n_dests_in_range ={}
+        # self.n_dests_in_range ={}
+        # for s, val in self.source2dest.items():
+        #     self.n_dests_in_range[s] = {}
+
+        #     for catt in self.category_set:
+        #         self.n_dests_in_range[s][catt] = 0
+        #     for d in val:
+        #         cat = self.get_category(d[0])
+        #         if d[1] >= 0:
+        #             self.n_dests_in_range[s][cat] +=1
+
+
         for s, val in self.source2dest.items():
             self.n_dests_in_range[s] = {}
+    
+            if self.category_set == set(["CAT_UNDEFINED"]):
+                self.n_dests_in_range[s]= len([item for item in val if item])
 
-            for catt in self.category_set:
-                self.n_dests_in_range[s][catt] = 0
-            for d in val:
-                cat = self.get_category(d[0])
-                if d[1] >= 0:
-                    self.n_dests_in_range[s][cat] +=1
+            else:
+                for catt in self.category_set:
+                    self.n_dests_in_range[s][catt] = 0
+                for d in val:
+                    cat = self.get_category(d[0])
+                    if d[1] >= 0:
+                        self.n_dests_in_range[s][cat] +=1
 
-        #Stores nearest neighbour to given source of a given categeory
+        #Stores nearest neighbour to given source of a given category
         self.near_nbr = {}
         for s,val in self.dicto.items():
             self.near_nbr[s] = {}
             no_cat = 0
-            for d in val:
-                cat = self.get_category(d[0])
-                if cat not in self.near_nbr[s] and d[1]>0:
-                    self.near_nbr[s][cat] = d[1]
-                    no_cat +=1
-                    if(no_cat == len(self.category_set)):
-                        break
+            if self.category_set == set(["CAT_UNDEFINED"]):
+                self.near_nbr[s] = val[0][1]
+            else:
+                for d in val:
+                    cat = self.get_category(d[0])
+                    if cat not in self.near_nbr[s] and d[1]>0:
+                        self.near_nbr[s][cat] = d[1]
+                        no_cat +=1
+                        if(no_cat == len(self.category_set)):
+                            break
+        # #Stores nearest neighbour to given source of a given category
+        # self.near_nbr = {}
+        # for s,val in self.dicto.items():
+        #     self.near_nbr[s] = {}
+        #     no_cat = 0
+        #     for d in val:
+        #         cat = self.get_category(d[0])
+        #         if cat not in self.near_nbr[s] and d[1]>0:
+        #             self.near_nbr[s][cat] = d[1]
+        #             no_cat +=1
+        #             if(no_cat == len(self.category_set)):
+        #                 break
 
         self.tes = pd.DataFrame.from_dict(self.n_dests_in_range, orient='index')
-        self.near_nbr = pd.DataFrame.from_dict(self.near_nbr, orient='index')
+        self.res_nbr = pd.DataFrame.from_dict(self.near_nbr, orient='index')
+
         self.n_dests_in_range = self.tes
+        self.near_nbr=self.res_nbr
+
         self.n_dests_in_range.fillna(0,inplace=True)
         #self.n_dests_in_range=self.n_dests_in_range.replace(-9999, 0)
         for keyy, negs in self.neg_val.items():
@@ -595,6 +632,15 @@ class TTMetrics(ModelData):
 
         self.n_dests_in_range=self.n_dests_in_range.replace(-9999, np.nan)
         self.near_nbr=self.near_nbr.replace(-9999, np.nan)
+
+        if self.category_set == set(["CAT_UNDEFINED"]):
+            self.n_dests_in_range.rename(columns={ self.tes.columns[0]: 'n_dests' }, inplace=True)
+            self.n_dests_in_range=self.n_dests_in_range['n_dests']
+            self.n_dests_in_range=pd.DataFrame(self.n_dests_in_range)
+
+            self.near_nbr.rename(columns={ self.res_nbr.columns[0]: 'nn' }, inplace=True)
+            self.near_nbr=self.near_nbr['nn']
+            self.near_nbr=pd.DataFrame(self.near_nbr)
 
         
     def plot_nearest_providers(self, limit_categories=None, 
