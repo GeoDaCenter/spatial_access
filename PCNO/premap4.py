@@ -5,19 +5,20 @@ import ADDRESS_CLEANER as ac
 
 IRS = '../../../rcc-uchicago/PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map4_for_geocoding.csv'
-# All non-profits regardless of whether they had a contract
-# So a df of all the unique orgs from the IRS-990 forms
 
 
 def read_irs():
     '''
+    Reads in the IRS records. Converts the ZipCode field to string and drops
+    unwanted columns. Adds a unique ID for each organization. Cleans addresses,
+    then renames columns and drops one last field. Returns a dataframe.
     '''
 
+    # Define tthe columns to keep
     keep = ['EIN','OrganizationName','Address1','Address2','City','State','ZipCode']
 
     df = pd.read_csv(IRS,converters={'ZipCode':str})
     # Do this at the end instead of at the beginning
-    #converters={'Address1':ac.address_cleaner,'Address2':ac.address_cleaner}
 
     # Keep the desired columns
     df = df[keep].drop_duplicates().reset_index(drop=True)
@@ -34,6 +35,7 @@ def read_irs():
     # Now send the address column through the round-1 adress cleaner
     df['Address1'] = df['Address1'].apply(ac.address_cleaner)
 
+    # Rename some addresses and drop a column
     df = df.rename(columns={'Address1':'Address','ZipCode':'Zip'},index=str).drop('Address2',axis=1)
 
     return df
@@ -41,6 +43,8 @@ def read_irs():
 
 def just_addresses(df):
     '''
+    Reduces the IRS records to just addresses (which will be geocoded). Returns
+    a dataframe.
     '''
 
     addresses = df[['Address','City','State','Zip','CSDS_Org_ID']]

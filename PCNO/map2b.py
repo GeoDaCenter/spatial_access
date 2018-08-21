@@ -10,6 +10,8 @@ MAP2B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_hq.csv'
 
 def read_contracts():
     '''
+    Reads in the contracts from map 1b, converting the Zip field to string.
+    Returns a dataframe.
     '''
 
     df = pd.read_csv(MAP1B,converters={'Zip':str})
@@ -19,6 +21,8 @@ def read_contracts():
 
 def read_dollars_divided():
     '''
+    Reads the dollars_divided file, converting the Zip field to a string.
+    Returns a dataframe.
     '''
 
     df = pd.read_csv(DOLLARS_DIVIDED,converters={'Zip':str})
@@ -28,8 +32,10 @@ def read_dollars_divided():
 
 def merger():
     '''
+    Reads in the contracts and dollars_divided files and merges them. Calculates
+    the dollars per contract per location by dividing the amount by the number
+    of service locations. Returns a dataframe.
     '''
-
 
     contracts = read_contracts()
     dollars_divided = read_dollars_divided()
@@ -44,6 +50,9 @@ def merger():
 
 def separate_hq(merged):
     '''
+    Makes the dataframe for the map 2b HQ file: Separates HQ records, drops
+    unwanted columns, and changes the order of the rest of the columns. Returns
+    a dataframe.
     '''
 
     keep = ['CSDS_Contract_ID','ContractNumber','Description',
@@ -60,6 +69,9 @@ def separate_hq(merged):
 
 def separate_satellites(merged):
     '''
+    Makes the dataframe for the map 2b satellite file: Separates satellite
+    records, drops unwanted columns, renames some columns, and changes the order
+    of the rest of the columns. Returns a dataframe.
     '''
 
     keep = ['CSDS_Contract_ID','ContractNumber','Description',

@@ -10,6 +10,8 @@ MAP4 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map4.csv'
 
 def read_geo():
     '''
+    Reads in the geocoded addresses for map 4 locations. Converts the Zip column
+    to string. Drops the Match Score and ID columns. Returns a dataframe.
     '''
 
     df = pd.read_csv(GEO,converters={'Zip':str})
@@ -19,8 +21,12 @@ def read_geo():
 
 if __name__ == '__main__':
 
+    # Read in the IRS records from the premap4.py script
     irs = pm4.read_irs()
+
+    # Read in the geocoded addresses
     geo = read_geo()
 
+    # Merge the coordinates into the IRS records, then write to CSV
     merged = irs.merge(geo)
     merged.to_csv(MAP4,index=False)

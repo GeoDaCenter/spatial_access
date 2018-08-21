@@ -24,6 +24,8 @@ def read_geo():
 
 def read_dollars_divided():
     '''
+    Reads the dollars_divided file, converting the Zip field to a string.
+    Returns a dataframe.
     '''
 
     df = pd.read_csv(DOLLARS_DIVIDED,converters={'ZipCode_SVC':str})
@@ -38,6 +40,8 @@ def read_dollars_divided():
 
 def merger(dollars_divided,geo):
     '''
+    Merges the dollars_divided and geo dataframes, coalescing the values across
+    matching columns. Drops unwanted columns. Returns a dataframe.
     '''
 
     df = u.merge_coalesce(dollars_divided,geo,'CSDS_Org_ID','_R','left')
@@ -50,6 +54,9 @@ def merger(dollars_divided,geo):
 
 def separate_satellites(merged):
     '''
+    Makes the dataframe for the map 2 satellite file: Separates satellite
+    records, drops unwanted columns, and changes the order of the rest of the
+    columns. Returns a dataframe.
     '''
 
     keep = ['CSDS_Vendor_ID','VendorName','CSDS_Org_ID','Address','City',
@@ -62,6 +69,9 @@ def separate_satellites(merged):
 
 def separate_hq(merged):
     '''
+    Makes the dataframe for the map 2 HQ file: Separates HQ records, drops
+    unwanted columns, and changes the order of the rest of the columns. Returns
+    a dataframe.
     '''
 
     keep = ['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount',
