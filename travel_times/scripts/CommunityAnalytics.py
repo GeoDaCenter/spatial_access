@@ -397,6 +397,9 @@ class AccessModel(ModelData):
                 if cat not in weight_dict.keys():
                     weight_dict[cat] = DIMINISH_WEIGHTS[:]
 
+                if self.category_set == set(["CAT_UNDEFINED"]):
+                    weight_dict[cat] = DIMINISH_WEIGHTS[:]
+                
                 #if we have encountered this category for this source,
                 #take the next highest weight (0 if all weights have)
                 if len(weight_dict[cat]) > 0:
