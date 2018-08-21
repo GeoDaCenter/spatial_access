@@ -507,12 +507,8 @@ class TransitMatrix(object):
 
     def _request_network(self):
         '''
+        All that request network does is find nodes and edges.
         Fetch a street network from OSM that encompasses the data points.
-        Writes three .csv files:
-            distance_matrix: matrix representing the distance from each point in
-            the OSM network to every other point (in meters)
-            nodes: list of all nodes in the network
-            edges: list of all edges in the network
         '''
         
         self.network_filename = self._get_output_filename("raw_network")
@@ -672,7 +668,6 @@ class TransitMatrix(object):
 
         
         self.logger.info("Prepared raw network in {:,.2f} seconds and wrote to: {}".format(time.time() - start_time, self.network_filename))
-                 
 
 
     def _calc_shortest_path(self):
