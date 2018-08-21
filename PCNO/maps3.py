@@ -118,31 +118,6 @@ def id_problem_dates(df,mode):
     return df
 
 
-def calc_len(df,mode):
-    '''
-    Calculates the length of each contract in days. Returns a dataframe.
-    '''
-
-    p = 'ContractDateProblem'
-    c = 'ContractLength'
-
-    if mode == 'standard':
-        s = 'StartDate'
-        e = 'EndDate'
-    else:
-        s = 'EarliestStartDate'
-        e = 'LatestEndDate'
-
-    df = df.assign(ContractLength = np.NaN)
-
-    # If there is not a contract date problem, calculate the length in days.
-    # The constant (1) is added to include both the day on which the contract
-    # begins and the day on which it ends.
-    df[c] = df.apply(lambda x: np.NaN if x[p] else (x[e] - x[s]).days + 1, axis=1)
-
-    return df
-
-
 def find_best_dates(df):
     '''
     Takes in a dataframe of contracts and for each unique contract number, finds
@@ -241,20 +216,25 @@ def make_span(df):
     Returns a dataframe.
     '''
 
+    # Make a trimmed version of the dataset with only the records that have no
+    # date problems and with only the contract number and starting and ending
+    # fiscal years.
     df_trimmed = df[df['ContractDateProblem'] == 0]
     df_trimmed = df[['ContractNumber','FYStart','FYEnd']]
     df_trimmed = df_trimmed.drop_duplicates().reset_index(drop=True)
 
+    # Create a new column that contains a list of all the fiscal years spanned
+    # by each contract
     df_trimmed['Range'] = df_trimmed.apply(lambda x:
                          [y for y in range(x['FYStart'],x['FYEnd'] + 1)],axis=1)
 
+    # Reshape the dataframe so that there is one row per FY per contract
     df_trimmed = df_trimmed.set_index('ContractNumber')
-
     spanner = df_trimmed['Range'].apply(pd.Series).stack().reset_index(level=0)
     spanner = spanner.rename(columns={0:'FY'},index=str).reset_index(drop=True)
-    spanner['Range'] = spanner['FY'].apply(int)
+    spanner['FY'] = spanner['FY'].apply(int)
 
-    return spanner
+    return spanner[['ContractNumber','FY']]
 
 
 def make_map3b(spanner,ann_amts):
@@ -371,6 +351,8 @@ if __name__ == '__main__':
     print('Difference between target and\n\tmap 3b HQ + satellites:\t\t\t   {0:,.2f}'.format(\
           map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum() - target))
 
+
+    # Write to CSV
     map3_hq.to_csv(MAP3_HQ,index=False)
     map3_satellites.to_csv(MAP3_SATELLITES,index=False)
 
