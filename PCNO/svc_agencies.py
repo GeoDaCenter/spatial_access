@@ -75,6 +75,8 @@ def insert_marginal_hq(df):
 
 
 def merger():
+    '''
+    '''
 
     link = linker()
     hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount','Address',
@@ -83,22 +85,15 @@ def merger():
 
     merged = hq.merge(link,how='left').merge(svc,how='left')
     df_aug = insert_marginal_hq(merged)
-    #df_aug.to_csv('temp_df_aug.csv',index=False)
 
     mega_df = pd.concat([merged,df_aug])
     mega_df = mega_df.drop_duplicates(subset=['CSDS_Vendor_ID','Address_SVC']).reset_index(drop=True)
-    #mega_df.to_csv('temp_mega_df.csv',index=False)
-    #print(mega_df[['CSDS_Vendor_ID','Agency_Summed_Amount']].drop_duplicates().Agency_Summed_Amount.sum())
 
     counts = count_svc_addr(mega_df)
     numbered = mega_df.merge(counts,how='left')
 
     numbered['Num_Svc_Locations'] = numbered['Num_Svc_Locations'].replace(np.NaN,1)
     numbered = numbered.drop_duplicates().reset_index(drop=True)
-    #numbered.to_csv('temp_numbered.csv',index=False)
-
-
-    #merged['Num_Svc_Locations'] = merged['Num_Svc_Locations'].replace(np.NaN,1)
 
     return numbered
 
@@ -111,32 +106,8 @@ def dollars_per_location(merged):
     Returns a dataframe.
     '''
 
-    '''
-    link = linker()
-    svc = read_svc()
-
-    hq = read_hq()[['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount',
-                    'Address','City','State','Zip']].drop_duplicates()
-
-    merged = hq.merge(link,how='left').merge(svc,how='left')
-
-    # The HQ is the first svc_loc and every satellite adds 1
-    merged['Num_Svc_Locations'] = merged['Num_Svc_Locations'].replace(np.NaN,1)
-    '''
-
     merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
                            / merged['Num_Svc_Locations'])
-
-
-    '''
-    cols = {'Address':'Address_HQ',
-            'City':'City_HQ',
-            'State':'State_HQ',
-            'Zip':'ZipCode_HQ'}
-    merged = merged.rename(columns=cols,index=str)
-    '''
-
-    #merged = merged.rename(columns={'Zip':'ZipCode'},index=str)
 
     cols = ['Address','City','State','ZipCode','Longitude','Latitude']
 
@@ -145,10 +116,7 @@ def dollars_per_location(merged):
 
     merged['HQ_Flag'] = merged.apply(lambda x: 1 if (x['Address'] == x['Address_SVC']) and
                                     (x['City'] == x['City_SVC']) and
-                                    (x['State'] == x['State_SVC']) else 0, axis=1)# \
-                                    #and
-                                    #(x['Zip'] == x['ZipCode_SVC']
-
+                                    (x['State'] == x['State_SVC']) else 0, axis=1)
 
     merged = merged.drop(cols,axis=1).drop_duplicates()
 

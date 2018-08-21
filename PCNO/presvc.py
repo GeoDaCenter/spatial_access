@@ -9,8 +9,8 @@ from SERVICE_STANDARDIZE_NAME import stdname
 
 
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_addresses_geocoded.csv'
-OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
-
+AGENCIES = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
+NAMES = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies_names.csv'
 
 def merger():
     '''
@@ -229,25 +229,7 @@ if __name__ == '__main__':
     filled = try_fill(cleaned)
 
     names = just_names(filled)
-    names.to_csv('../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies_names.csv',index=False)
+    names.to_csv(NAMES,index=False)
 
     identified = merge_ids(filled,names)
-    identified.to_csv(OUT,index=False)
-
-    print()
-
-    #jws = disambiguate_names(filled,'Name','CSDS_Org_ID')
-    '''
-    -Copy Long,Lat in for identical addresses DONE
-    -Boil down to single line per identical record DONE
-    -Deduplicate based on name (and address????)
-        -Logan's module?
-        -Dedupe?
-        -Cartesian product and JWSim?
-
-    -If there's a geocoded address, copy the coordinates to matching addresses
-
-    -Then:  Record Linkage to HQ addresses
-        -Assign an address ID to each unique address that is for a linked service agency
-        -Geocode the rest of the addresses
-    '''
+    identified.to_csv(AGENCIES,index=False)
