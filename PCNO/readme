@@ -1,0 +1,61 @@
+Instructions for running the following scripts to generate CSV files for:
+-Map 1:  Total dollars per agency, mapped at the headquarters addresses
+-Map 1b: Map 1, but at the contract level
+-Map 2:  Total dollars per agency, divided over the headquarters and service addresses
+-Map 2b: Map 2, but at the contract level
+-Map 3:  Total dollars per fiscal year per agency, divided over the headquarters and service addresses
+-Map 3b: Map 3, but at contract level
+-Map 4:  All non-profits in Chicago, regardless of whether they had contracts with the city, county, or state
+
+--------------------------------------------------------------------------------
+
+
+Run the scripts in this order, geocoding address files and running the deduplication script when indicated:
+-prehq.py: Produces the file for the deduplication script.
+-Run: python3 dedupe_contracts.py -f ../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv
+-hq.py: Produces a file to be geocoded.
+-Geocode the map1_addresses_for_geocoding.csv file.
+-map1.py: Produces the file for Map 1.
+-map1b.py: Produces the file for Map 1b.
+-validate_map1_amounts.py: Validates the amounts for Map 1 and Map 1b.
+-presvc.py: Prepares service agencies for linking with headquarters.
+-link_contracts_agencies.py: Uses the dedupe module to link known agencies to their service addresses.
+-svc_agencies.py: Produces a file to be geocoded.
+-Geocode the map2_geocoding.csv file.
+-map2.py: Produces the files for Map 2.
+-map2b.py: Produces the files for Map 2b.
+-validate_map2_amounts.py: Validates the amounts for Map 2 and Map 2b.
+-maps3.py: Produces the files for Map 3 and Map 3b; validates the amounts.
+-premap4.py; Produces a file to be geocoded.
+-Geocode the map4_for_geocoding.csv file.
+-map4.py: Produces the file for Map 4.
+
+
+
+
+
+
+
+AMOUNT_CALCULATIONS.py
+COMPARE_ADDRESSES.py
+DFSS.py
+
+IMPORT_ADDRESSES.py
+MAPSCORPS.py
+MATCH_NAMES.py
+MERGE_CONTRACTS.py
+
+PURPLEBINDER.py
+SERVICE_ADDRESS_CLEANER.py
+SERVICE_STANDARDIZE_NAME.py
+STANDARDIZE_NAME.py
+UTILS.py
+
+WESTCHI.py
+
+
+
+
+
+
+#dedupe_svc_agencies.py
