@@ -574,7 +574,7 @@ class TTMetrics(ModelData):
         #         if d[1] >= 0:
         #             self.n_dests_in_range[s][cat] +=1
 
-
+        #Create count of destinations within range
         for s, val in self.source2dest.items():
             self.n_dests_in_range[s] = {}
     
@@ -589,11 +589,10 @@ class TTMetrics(ModelData):
                     if d[1] >= 0:
                         self.n_dests_in_range[s][cat] +=1
 
-        #Stores nearest neighbour to given source of a given category
+        #Create nearest neighbour to given source of a given category
         self.near_nbr = {}
         for s,val in self.dicto.items():
             self.near_nbr[s] = {}
-            no_cat = 0
             if self.category_set == set(["CAT_UNDEFINED"]):
                 self.near_nbr[s] = val[0][1]
             else:
@@ -604,6 +603,7 @@ class TTMetrics(ModelData):
                         no_cat +=1
                         if(no_cat == len(self.category_set)):
                             break
+
         # #Stores nearest neighbour to given source of a given category
         # self.near_nbr = {}
         # for s,val in self.dicto.items():
@@ -617,31 +617,29 @@ class TTMetrics(ModelData):
         #             if(no_cat == len(self.category_set)):
         #                 break
 
-        self.tes = pd.DataFrame.from_dict(self.n_dests_in_range, orient='index')
-        self.res_nbr = pd.DataFrame.from_dict(self.near_nbr, orient='index')
+        self.n_dests_in_range = pd.DataFrame.from_dict(self.n_dests_in_range, orient='index')
+        self.near_nbr = pd.DataFrame.from_dict(self.near_nbr, orient='index')
 
-        self.n_dests_in_range = self.tes
-        self.near_nbr=self.res_nbr
 
-        self.n_dests_in_range.fillna(0,inplace=True)
-        #self.n_dests_in_range=self.n_dests_in_range.replace(-9999, 0)
-        for keyy, negs in self.neg_val.items():
-            for j in self.category_set:
-                self.near_nbr.at[keyy,j] = -9999
-                self.n_dests_in_range.at[keyy,j] = -9999
+        # self.n_dests_in_range.fillna(0,inplace=True)
+        # #self.n_dests_in_range=self.n_dests_in_range.replace(-9999, 0)
+        # for keyy, negs in self.neg_val.items():
+        #     for j in self.category_set:
+        #         self.near_nbr.at[keyy,j] = -999
+        #         self.n_dests_in_range.at[keyy,j] = -999
 
-        self.n_dests_in_range=self.n_dests_in_range.replace(-9999, np.nan)
-        self.near_nbr=self.near_nbr.replace(-9999, np.nan)
+        # self.n_dests_in_range=self.n_dests_in_range.replace(-9999, np.nan)
+        # self.near_nbr=self.near_nbr.replace(-999, np.nan)
 
         if self.category_set == set(["CAT_UNDEFINED"]):
-            self.n_dests_in_range.rename(columns={ self.tes.columns[0]: 'n_dests' }, inplace=True)
+            self.n_dests_in_range.rename(columns={ self.n_dests_in_range.columns[0]: 'n_dests' }, inplace=True)
             self.n_dests_in_range=self.n_dests_in_range['n_dests']
             self.n_dests_in_range=pd.DataFrame(self.n_dests_in_range)
 
-            self.near_nbr.rename(columns={ self.res_nbr.columns[0]: 'nn' }, inplace=True)
+            #self.near_nbr = pd.DataFrame.from_dict(self.near_nbr, orient='index')
+            self.near_nbr.rename(columns={ self.near_nbr.columns[0]: 'nn' }, inplace=True)
             self.near_nbr=self.near_nbr['nn']
             self.near_nbr=pd.DataFrame(self.near_nbr)
-
         
     def plot_nearest_providers(self, limit_categories=None, 
         title='Closest Point CDF', n_bins=500, resolution='block'):
