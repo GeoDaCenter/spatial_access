@@ -3,8 +3,6 @@ import pandas as pd
 from datetime import datetime as dt
 
 
-GEO1 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_hq.csv'
-GEO2 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_satellites.csv'
 MAP2B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_hq.csv'
 MAP2B_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_satellites.csv'
 MAP3_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3_hq.csv'
@@ -13,21 +11,10 @@ MAP3B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3b_hq.csv'
 MAP3B_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map3b_satellites.csv'
 
 
-def read_geo():
-    '''
-    '''
-
-    geo1 = pd.read_csv(GEO1,converters={'ZipCode':str})
-    geo2 = pd.read_csv(GEO2,converters={'ZipCode':str})
-
-    geo = pd.concat([geo1,geo2])
-    geo = geo.rename(columns={'ZipCode':'Zip'},index=str)
-
-    return geo.drop('Dollars_Per_Location',axis=1)
-
-
 def read_contracts():
     '''
+    Reads the map 2b HQ and satellite files and adds a flag for the type of
+    location. Returns a dataframe.
     '''
 
     contracts1 = pd.read_csv(MAP2B_HQ,converters={'ZipCode':str})
@@ -39,18 +26,6 @@ def read_contracts():
     contracts = pd.concat([contracts1,contracts2])
 
     return contracts
-
-
-def merger():
-    '''
-    '''
-
-    geo = read_geo()
-    contracts = read_contracts()
-
-    merged = contracts.merge(geo,how='left')
-
-    return merged
 
 
 def datefixer(datestring):
@@ -70,6 +45,9 @@ def datefixer(datestring):
 
 def assign_fy(df):
     '''
+    Determines the fiscal years in which the earliest start date and latest end
+    date are located. Calculates the number of fiscal years spanned by the given
+    contract. Returns a dataframe.
     '''
 
     s = 'EarliestStartDate'
@@ -240,118 +218,8 @@ def prep(merged):
 
     # Identify records that have an end date before the start date
     prob_dates = id_problem_dates(best_dates,'expanded')
+
     return prob_dates
-
-    # Measure the length of each contract in days
-    #length_measured = calc_len(prob_dates,'expanded')
-
-    # Convert to one record per amount per contract ID (instead of one record
-    # per address per contract ID)
-    unique_amts = unique_amounts(prob_dates)#length_measured)
-
-    # Sum the amounts for all the records associated with a given contract
-    #summer = sum_amounts(unique_amts)
-
-    return unique_amts#summer
-
-
-def unique_amounts(df):
-    '''
-    Takes in a dataframe of contract records and drops duplicate records (which
-    have different addresses). Returns a dataframe.
-    '''
-
-
-
-    '''
-    df = df.drop(['Address','City','State','Zip','Latitude','Longitude',
-                  'AddressID','Num_Svc_Locations'],
-                 axis=1)
-
-    return df.drop_duplicates().reset_index(drop=True)
-    '''
-
-    #df = df.drop_duplicates(subset=['ContractNumber','Amount'])
-    agg = df.groupby('ContractNumber')['Amount'].sum()
-    agg.name = 'TotalAmount'
-    agg = agg.to_frame().reset_index()
-
-    merged = df.merge(agg,how='inner')
-
-    merged = merged[['ContractNumber','Description','Agency/Department',
-                     'VendorName','VendorID','Category/ProcurementType',
-                     'Link/ContractPDF','CSDS_Vendor_ID','Address','City',
-                     'State','Zip','Agency_Summed_Amount',
-                     'CSDS_Org_ID','Num_Svc_Locations','EarliestStartDate',
-                     'LatestEndDate','ContractDateProblem','TotalAmount']]
-
-    return merged.drop_duplicates(subset=['ContractNumber']).reset_index(drop=True)
-
-
-def sum_amounts(df):
-    '''
-    Adds up the different amounts for each contract. Returns a dataframe.
-    '''
-
-    trimmed = df[['Amount','CSDS_Contract_ID','ContractNumber',
-                  'EarliestStartDate','LatestEndDate','ContractDateProblem']]#,#'ContractLength']]
-    trimmed = trimmed.drop_duplicates()
-
-    summer = trimmed.groupby(['ContractNumber']).Amount.sum()
-    summer.name = 'TotalAmount'
-    summer = summer.to_frame().reset_index()
-
-    #BOOKMARK
-
-    df = df.drop('Amount',axis=1)
-    df = df.merge(summer)
-    #df = df[['Contract Number','EarliestStartDate','LatestEndDate',
-     #        'ContractDateProblem','ContractLength','TotalAmount',
-      #       'CSDS_Agency_ID']]
-
-    return df.drop_duplicates().reset_index(drop=True)
-
-
-def separate_addresses(df):
-    '''
-    Removes the contract info and reduces the dataframe to just the agency and
-    address info. Returns a dataframe.
-    '''
-
-    df = df[['CSDS_Vendor_ID','Address','City','State','Zip',#'AddressID',
-             'Latitude','Longitude','Num_Svc_Locations']]
-
-    #df = df.dropna(subset=['AddressID'])
-
-    return df.drop_duplicates().reset_index(drop=True)
-
-
-def merge_addr(amts,addr):
-    '''
-    Merges the amounts and addresses dataframes. Returns a dataframe with one
-    row per address per contract.
-    '''
-
-    #unique = addr
-
-    #add_ct = addr.groupby('CSDS_Vendor_ID').count()#['AddressID']
-    addr = addr.drop_duplicates()
-    add_ct = addr['CSDS_Vendor_ID'].value_counts()
-
-    add_ct.name = 'AddressCount'
-    add_ct = add_ct.to_frame().reset_index()
-    add_ct = add_ct.rename(columns={'index':'CSDS_Vendor_ID'},index=str)
-
-    add_merge = addr.merge(add_ct)
-    amts_merge = add_merge.merge(amts)
-    amts_div = amts_merge.assign(AnnualDollarsPerAddressPerContract=amts_merge.apply(
-               lambda x: x.AnnualAmount / x.AddressCount, axis=1))
-
-    amts_div = amts_div.drop([#'CSDS_Contract_ID','EndDate','StartDate',
-                              'Link/ContractPDF','Description',
-                              'VendorID'],axis=1).drop_duplicates().reset_index(drop=True)
-
-    return amts_div
 
 
 def calc_ann_amt(df):
@@ -361,9 +229,8 @@ def calc_ann_amt(df):
 
     col = 'Dollars_Per_Contract_Per_Location'
 
-    #df = df.assign(AnnualAmount=df.apply(lambda x: x.TotalAmount / x.FYs if
     df = df.assign(AnnualAmount=df.apply(lambda x: x[col] / x.FYs if
-                   x.ContractDateProblem == 0 else np.NaN,axis=1))
+                                 x.ContractDateProblem == 0 else np.NaN,axis=1))
 
     return df
 
@@ -378,7 +245,8 @@ def make_span(df):
     df_trimmed = df[['ContractNumber','FYStart','FYEnd']]
     df_trimmed = df_trimmed.drop_duplicates().reset_index(drop=True)
 
-    df_trimmed['Range'] = df_trimmed.apply(lambda x: [y for y in range(x['FYStart'],x['FYEnd'] + 1)],axis=1)
+    df_trimmed['Range'] = df_trimmed.apply(lambda x:
+                         [y for y in range(x['FYStart'],x['FYEnd'] + 1)],axis=1)
 
     df_trimmed = df_trimmed.set_index('ContractNumber')
 
@@ -391,8 +259,12 @@ def make_span(df):
 
 def make_map3b(spanner,ann_amts):
     '''
+    Fills in the annual amount for each contract; splits the data into HQ and
+    satellite dataframes. Drops unneeded columns and reorders the rest. Returns
+    two dataframes.
     '''
 
+    # Defines the order for the columns to keep
     keep = ['CSDS_Contract_ID','ContractNumber','Description',
             'Agency/Department','VendorName','VendorID','Amount',
             'EarliestStartDate','LatestEndDate','Category/ProcurementType',
@@ -401,34 +273,59 @@ def make_map3b(spanner,ann_amts):
             'Num_Svc_Locations','Dollars_Per_Contract_Per_Location','FYStart',
             'FYEnd','FY','AnnualAmount']
 
+    # Merges the annual amounts into the dataframe of fiscal years per contract
     merged = spanner.merge(ann_amts)
 
+    # Splits the data into HQ and satellite dataframes
     hq = merged[merged['HQ_Flag'] == 1].reset_index(drop=True)
     satellites = merged[merged['HQ_Flag'] == 0].reset_index(drop=True)
 
+    # Drops unneeded columns and reorders the rest
     return hq[keep],satellites[keep]
 
 
 def make_map3(hqb,satb):
     '''
+    Aggregates the map 3b dataframes up to the location level. Returns two
+    dataframes.
     '''
 
+    # Defines the order for the first subset of columns to keep
     keep = ['CSDS_Vendor_ID','FY','VendorName']
 
+    # Defines the order of the second subset of the columns to keep
     keep2 = ['Address','City','State','Longitude','Latitude']
 
+    # Defines the last subset of the columns to keep
     z = ['Zip']
 
+    # Shortcut
     anam = 'AnnualAmount'
 
+    # Groups the map 3b HQ dataframe by the columns in keep, then sums the anam
+    # column and converts the resulting series to a dataframe. Resets the index
+    # to get the columns in keep back.
     hq_sum = hqb.groupby(keep)[anam].sum().to_frame().reset_index()
+
+    # Keeps only the selected columns from the map 3b HQ dataframe, then drops
+    # duplicates
     hqb_trimmed = hqb[keep + keep2 + z].drop_duplicates().reset_index(drop=True)
 
+    # Merges the two modified dataframes such that the result has one line per
+    # fiscal year per agency (with HQ address)
     hq = hqb_trimmed.merge(hq_sum,how='left')
 
+    # Groups the map 3b satellite dataframe by the columns in keep + keep2, then
+    # sums the anam column and converts the resulting series to a dataframe.
+    # Resets the index to get back the columns in keep + keep2.
     sat_sum = satb.groupby(keep + keep2)[anam].sum().to_frame().reset_index()
+
+    # Keeps only the selected columns from the map 3b satellites dataframe, then
+    # drops duplicates
     satb_trimmed = satb[keep + keep2 + z].drop_duplicates().reset_index(drop=True)
 
+    # Merges the two modified dataframes such that the result has one line per
+    # fiscal year per location (with satelltie address)
     sat = satb_trimmed.merge(sat_sum,how='left')
 
     return hq.reset_index(drop=True),sat.reset_index(drop=True)
@@ -439,10 +336,10 @@ if __name__ == '__main__':
     # Total funds should be short $710,000 because of records w/ date problems.
     # New total should be $3809982646.12
     target = 3809982646.12
-    print('Target:                 {0:,.2f}'.format(target))
+    print('Target:                                {0:,.2f}'.format(target))
 
-    # contracts.Amount.sum() should be: 3810692646.12
-    contracts = merger()
+    # contracts.Dollars_Per_Contract_Per_Location.sum() should be: 3810692646.12
+    contracts = read_contracts()
 
     # Convert to one record (with a single amount) per contract
     dated = prep(contracts)
@@ -453,14 +350,26 @@ if __name__ == '__main__':
     # Calculate the annual amount for each contract (totalAmt / numFY)
     ann_amts = calc_ann_amt(fy_assigned)
 
+    # Make the span of applicable FYs for each organization
     spanner = make_span(ann_amts)
 
+    # Create the dataframes for map 3b
     map3b_hq,map3b_satellites = make_map3b(spanner,ann_amts)
 
+    # Create the dataframes for map 3
     map3_hq,map3_satellites = make_map3(map3b_hq,map3b_satellites)
-    print(map3_hq.AnnualAmount.sum() + map3_satellites.AnnualAmount.sum() - target)
-    print(map3_hq.AnnualAmount.sum() - map3b_hq.AnnualAmount.sum())
-    print(map3_satellites.AnnualAmount.sum() - map3b_satellites.AnnualAmount.sum())
+
+    # Validate that the amounts are correct
+    print('Map 3 HQ + satellites annual amounts:  {0:,.2f}'.format(\
+               map3_hq.AnnualAmount.sum() + map3_satellites.AnnualAmount.sum()))
+    print('Difference between target and\n\tmap 3 HQ + satellites:\t\t\t   {0:,.2f}'.format(\
+          map3_hq.AnnualAmount.sum() + map3_satellites.AnnualAmount.sum() - target))
+
+
+    print('Map 3b HQ + satellites annual amounts: {0:,.2f}'.format(\
+               map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum()))
+    print('Difference between target and\n\tmap 3b HQ + satellites:\t\t\t   {0:,.2f}'.format(\
+          map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum() - target))
 
     map3_hq.to_csv(MAP3_HQ,index=False)
     map3_satellites.to_csv(MAP3_SATELLITES,index=False)
