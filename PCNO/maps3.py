@@ -346,7 +346,7 @@ if __name__ == '__main__':
           map3_hq.AnnualAmount.sum() + map3_satellites.AnnualAmount.sum() - target))
 
 
-    print('Map 3b HQ + satellites annual amounts: {0:,.2f}'.format(\
+    print('\nMap 3b HQ + satellites annual amounts: {0:,.2f}'.format(\
                map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum()))
     print('Difference between target and\n\tmap 3b HQ + satellites:\t\t\t   {0:,.2f}'.format(\
           map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum() - target))
