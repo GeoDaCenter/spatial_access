@@ -9,6 +9,7 @@ LINK = '../../../rcc-uchicago/PCNO/CSV/chicago/2018-07-03_link_agencies_output.c
 MAP1B = '../../../rcc-uchicago/PCNO/CSV/chicago/maps/map1b.csv'
 SVC = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding.csv'
+GEO2 = '../../../rcc-uchicago/PCNO/CSV/chicago/map2_geocoding_version2.csv'
 DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
 
 THRESH = 0.34
@@ -89,13 +90,7 @@ def merger():
     mega_df = pd.concat([merged,df_aug])
     mega_df = mega_df.drop_duplicates(subset=['CSDS_Vendor_ID','Address_SVC']).reset_index(drop=True)
 
-    counts = count_svc_addr(mega_df)
-    numbered = mega_df.merge(counts,how='left')
-
-    numbered['Num_Svc_Locations'] = numbered['Num_Svc_Locations'].replace(np.NaN,1)
-    numbered = numbered.drop_duplicates().reset_index(drop=True)
-
-    return numbered
+    return mega_df
 
 
 
@@ -106,21 +101,42 @@ def dollars_per_location(merged):
     Returns a dataframe.
     '''
 
-    merged = merged.assign(Dollars_Per_Location=merged['Agency_Summed_Amount']\
-                           / merged['Num_Svc_Locations'])
 
-    cols = ['Address','City','State','ZipCode','Longitude','Latitude']
+
+    cols = ['Address','City','State','ZipCode']
 
     for col in cols:
         merged[col + '_SVC'] = merged[col + '_SVC'].combine_first(merged[col])
 
-    merged['HQ_Flag'] = merged.apply(lambda x: 1 if (x['Address'] == x['Address_SVC']) and
+    coords = ['Longitude','Latitude']
+    for col in coords:
+        merged[col + '_SVC'] = merged.apply(lambda x: x[col] if
+                                        (x['Address'] == x['Address_SVC']) and
+                                        (x['City'] == x['City_SVC']) and
+                                        (x['State'] == x['State_SVC'])
+                                        else np.NaN, axis=1)
+
+    # Need to account for HQ addresses with different zips
+    merged2 = merged.sort_values(['CSDS_Vendor_ID','Address_SVC','City_SVC',
+                                  'State_SVC','ZipCode_SVC'],ascending=True)
+
+    merged2 = merged2.drop_duplicates(subset=['CSDS_Vendor_ID','Address','City',
+                                              'State','Address_SVC','City_SVC',
+                                              'State_SVC'],keep='first')
+
+    merged2['HQ_Flag'] = merged2.apply(lambda x: 1 if
+                                    (x['Address'] == x['Address_SVC']) and
                                     (x['City'] == x['City_SVC']) and
-                                    (x['State'] == x['State_SVC']) else 0, axis=1)
+                                    (x['State'] == x['State_SVC']) else 0,
+                                    axis=1)
 
-    merged = merged.drop(cols,axis=1).drop_duplicates()
+    counts = count_svc_addr(merged2)
+    numbered = merged2.merge(counts,how='left')
 
-    return merged.reset_index(drop=True)
+    dollars_div = numbered.assign(Dollars_Per_Location=numbered['Agency_Summed_Amount']\
+                           / numbered['Num_Svc_Locations'])
+
+    return dollars_div.drop_duplicates().reset_index(drop=True)
 
 
 def read_hq():
@@ -184,7 +200,7 @@ def count_svc_addr(df):
     '''
 
     df = df.assign(Constant=1)
-    counts = df.groupby('CSDS_Vendor_ID_LINK2')['Constant'].count()
+    counts = df.groupby('CSDS_Vendor_ID')['Constant'].count()
     counts.name = 'Num_Svc_Locations'
 
     return counts.to_frame().reset_index()
@@ -203,6 +219,7 @@ def separate_satellites(df):
             'Address_SVC','Dollars_Per_Location']
 
     satellites = df.dropna(subset=['Num_Svc_Locations'])
+    satellites = satellites[satellites['Num_Svc_Locations'] > 1]
     satellites = satellites[keep]
 
     new_names = [re.sub('_SVC$','',x) for x in keep]
@@ -228,7 +245,7 @@ def needs_geocoding(df):
     needs_geo = needs_geo.drop([lat,lon],axis=1)
     needs_geo = needs_geo.dropna(subset=['CSDS_Org_ID'])
 
-    needs_geo = needs_geo.rename(columns={'ZipCode':'Zip'},index=str)
+    needs_geo = needs_geo.rename(columns={'ZipCode':'Zip','CSDS_Org_ID':'ID'},index=str)
 
     return needs_geo.reset_index(drop=True)
 
@@ -245,4 +262,4 @@ if __name__ == '__main__':
     satellites = separate_satellites(dollars_div)
 
     needs_geo = needs_geocoding(satellites)
-    #needs_geo.to_csv(GEO,index=False)
+    needs_geo.to_csv(GEO2,index=False)
