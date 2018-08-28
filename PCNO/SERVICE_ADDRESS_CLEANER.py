@@ -14,7 +14,7 @@ def address_cleaner(string):
     blocked = ['CALL FOR DETAILS','CONFIDENTIAL LOCATION','BASEMENT',
                'CONFIDENTIAL','UNDISCLOSED LOCATION','MULTIPLE LOCATIONS',
                'UNDISCLOSED LOCATION- NORTHSIDE','MULTIPLE LOCATIONS CHICAGO',
-               'DV SHELTER']
+               'MULTIPLE LOCATIONS CHICAGO AND SUBURBS','DV SHELTER']
 
     if re.findall(r'ST\.? LOUIS',string):
         string = re.sub(r'ST\.? LOUIS', 'SAINT LOUIS',string)
