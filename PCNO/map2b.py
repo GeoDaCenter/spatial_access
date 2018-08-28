@@ -15,6 +15,7 @@ def read_contracts():
     '''
 
     df = pd.read_csv(MAP1B,converters={'Zip':str})
+    df = df.drop(['Longitude','Latitude'],axis=1)
 
     return df
 
@@ -25,7 +26,7 @@ def read_dollars_divided():
     Returns a dataframe.
     '''
 
-    df = pd.read_csv(DOLLARS_DIVIDED,converters={'Zip':str})
+    df = pd.read_csv(DOLLARS_DIVIDED,converters={'ZipCode':str,'ZipCode_SVC':str})
 
     return df
 
@@ -38,9 +39,10 @@ def merger():
     '''
 
     contracts = read_contracts()
+
     dollars_divided = read_dollars_divided()
 
-    merged = dollars_divided.merge(contracts,how='left')
+    merged = contracts.merge(dollars_divided,how='left')
 
     merged['Dollars_Per_Contract_Per_Location'] = merged['Amount'] / merged['Num_Svc_Locations']
 
