@@ -29,6 +29,10 @@ def import_pb(fname):
     # Convert string columns to uppercase
     df_upper = u.upper(splitC)
 
+    # There are serious problems with some of the geocoding in the PB data, so
+    # drop the coordinates
+    df_upper = df_upper.drop(['Latitude','Longitude'],axis=1)
+
     return df_upper
 
 
