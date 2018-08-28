@@ -89,8 +89,8 @@ def read_pb():
 
     df = pb.import_pb(PB)
 
-    # If there is no location info at all for a record, drop it
-    drop_cols = ['Address1','Address2','City','State','ZipCode','Latitude','Longitude']
+    # If there is no address info at all for a record, drop it
+    drop_cols = ['Address1','Address2']
     df = df.dropna(subset=drop_cols,how='all').drop_duplicates().reset_index(drop=True)
 
     # Create a sequential CSDS org ID for each record
