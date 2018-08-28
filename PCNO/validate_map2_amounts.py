@@ -9,6 +9,9 @@ MAP2B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_hq.csv'
 
 if __name__ == '__main__':
 
+    target = 3810692646.12
+    print('Target:      {0:,.2f}'.format(target))
+
     hq = pd.read_csv(MAP2_HQ)
     hq_total = hq.Dollars_Per_Location.sum()
 
@@ -17,7 +20,7 @@ if __name__ == '__main__':
 
     map2_total = hq_total + sat_total
 
-    print('Map2 total:  ',map2_total)
+    print('Map2 total:  {0:,.2f}'.format(map2_total))
     # $3810692646.12
 
 
@@ -30,4 +33,4 @@ if __name__ == '__main__':
 
     map2b_total = hqb_total + satb_total
 
-    print('Map2b total: ',map2b_total)
+    print('Map2b total: {0:,.2f}'.format(map2b_total))
