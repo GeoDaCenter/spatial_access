@@ -1,3 +1,4 @@
+import map2 as m2
 import numpy as np
 import pandas as pd
 
@@ -7,6 +8,37 @@ DOLLARS_DIVIDED = '../../../rcc-uchicago/PCNO/CSV/chicago/dollars_divided.csv'
 MAP2B_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_satellites.csv'
 MAP2B_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2b_hq.csv'
 
+MAP2_SATELLITES = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_satellites.csv'
+MAP2_HQ = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map2_hq.csv'
+
+def read_map2():
+    '''
+    '''
+
+    keep = ['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount','Address',
+            'City','State','ZipCode','HQ_Flag','Num_Svc_Locations',
+            'Dollars_Per_Location']
+
+    dollars_divided = m2.read_dollars_divided()
+    dollars_divided = dollars_divided[keep]
+
+    cv = {'ZipCode':str}
+    hq = pd.read_csv(MAP2_HQ,converters=cv)
+    hq['HQ_Flag'] = 1
+    sat = pd.read_csv(MAP2_SATELLITES,converters=cv)
+    sat['HQ_Flag'] = 0
+
+    merged = pd.concat([hq,sat])
+
+    merged = merged.drop(['Agency_Summed_Amount','CSDS_Org_ID',#'City','State',
+                          #'ZipCode','Address',#'Longitude','Latitude'
+                          'Num_Svc_Locations','Dollars_Per_Location'],axis=1)
+
+    merged = merged.merge(dollars_divided,how='left')
+
+    return merged
+
+
 
 def read_contracts():
     '''
@@ -15,7 +47,7 @@ def read_contracts():
     '''
 
     df = pd.read_csv(MAP1B,converters={'Zip':str})
-    df = df.drop(['Longitude','Latitude'],axis=1)
+    df = df.drop(['Longitude','Latitude','Address','City','State','Zip'],axis=1)
 
     return df
 
@@ -40,7 +72,8 @@ def merger():
 
     contracts = read_contracts()
 
-    dollars_divided = read_dollars_divided()
+    #dollars_divided = read_dollars_divided()
+    dollars_divided = read_map2()
 
     merged = contracts.merge(dollars_divided,how='left')
 
@@ -60,7 +93,7 @@ def separate_hq(merged):
     keep = ['CSDS_Contract_ID','ContractNumber','Description',
             'Agency/Department','VendorName','VendorID','Amount','StartDate',
             'EndDate','Category/ProcurementType','Link/ContractPDF',
-            'CSDS_Vendor_ID','Address','City','State','Zip','Jurisdic',
+            'CSDS_Vendor_ID','Address','City','State','ZipCode','Jurisdic',
             'Longitude','Latitude','Classification','Num_Svc_Locations',
             'Dollars_Per_Contract_Per_Location']
 
@@ -83,13 +116,13 @@ def separate_satellites(merged):
             'Longitude','Latitude','Classification',
             'Dollars_Per_Contract_Per_Location']
 
-    satellites = merged[merged['HQ_Flag'] == 0].drop(['Address','City','State','Zip'],axis=1)
+    satellites = merged[merged['HQ_Flag'] == 0]#.drop(['Address','City','State','Zip'],axis=1)
 
     cols = {'Address_SVC':'Address','City_SVC':'City','State_SVC':'State',
             'ZipCode_SVC':'Zip'}
     satellites = satellites.rename(columns=cols,index=str)
 
-    return satellites[keep].reset_index(drop=True)
+    return satellites#[keep].reset_index(drop=True)
 
 
 if __name__ == '__main__':
