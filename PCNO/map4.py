@@ -3,7 +3,7 @@ import pandas as pd
 import premap4 as pm4
 
 
-IRS = '../../../rcc-uchicago/PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
+#IRS = '../../../rcc-uchicago/PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map4_for_geocoding_geocoded.csv'
 MAP4 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map4.csv'
 
@@ -22,11 +22,11 @@ def read_geo():
 if __name__ == '__main__':
 
     # Read in the IRS records from the premap4.py script
-    irs = pm4.read_irs()
+    irs = pm4.mod_irs()
 
     # Read in the geocoded addresses
     geo = read_geo()
 
     # Merge the coordinates into the IRS records, then write to CSV
-    merged = irs.merge(geo)
+    merged = irs.merge(geo,how='left')
     merged.to_csv(MAP4,index=False)
