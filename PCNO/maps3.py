@@ -248,7 +248,7 @@ def make_map3b(spanner,ann_amts):
     keep = ['CSDS_Contract_ID','ContractNumber','Description',
             'Agency/Department','VendorName','VendorID','Amount',
             'EarliestStartDate','LatestEndDate','Category/ProcurementType',
-            'Link/ContractPDF','CSDS_Vendor_ID','Address','City','State','Zip',
+            'Link/ContractPDF','CSDS_Vendor_ID','Address','City','State','ZipCode',
             'Jurisdic','Longitude','Latitude','Classification',
             'Num_Svc_Locations','Dollars_Per_Contract_Per_Location','FYStart',
             'FYEnd','FY','AnnualAmount']
@@ -277,7 +277,7 @@ def make_map3(hqb,satb):
     keep2 = ['Address','City','State','Longitude','Latitude']
 
     # Defines the last subset of the columns to keep
-    z = ['Zip']
+    z = ['ZipCode']
 
     # Shortcut
     anam = 'AnnualAmount'
