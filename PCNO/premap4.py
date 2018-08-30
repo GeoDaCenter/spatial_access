@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 import ADDRESS_CLEANER as ac
-
+import IMPORT_ADDRESSES as ia
 
 IRS = '../../../rcc-uchicago/PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/map4_for_geocoding.csv'
 
-
+# DEPRECATED; now use mod_irs(), which reads in from the IMPORT_ADDRESSES module
 def read_irs():
     '''
     Reads in the IRS records. Converts the ZipCode field to string and drops
@@ -41,6 +41,22 @@ def read_irs():
     return df
 
 
+def mod_irs():
+    '''
+    '''
+
+    df = ia.read_irs()
+
+    cn = {'Address1':'Address','ZipCode':'Zip','VendorName':'OrganizationName'}
+    irs = df.rename(columns=cn,index=str).drop('Address2',axis=1).replace('',np.NaN)
+
+    irs['Zip'] = irs['Zip'].apply(str)
+
+    irs = irs.dropna(subset=['Address','OrganizationName']).reset_index(drop=True)
+
+    return irs
+
+
 def just_addresses(df):
     '''
     Reduces the IRS records to just addresses (which will be geocoded). Returns
@@ -57,7 +73,8 @@ def just_addresses(df):
 
 if __name__ == '__main__':
 
-    irs = read_irs()
+    #irs = read_irs()
+    irs = mod_irs()
 
     addresses = just_addresses(irs)
-    addresses.to_csv(GEO,index=False)
+    #addresses.to_csv(GEO,index=False)
