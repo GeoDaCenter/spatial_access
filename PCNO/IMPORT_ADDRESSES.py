@@ -57,7 +57,11 @@ def read_irs():
     internal organization ID. Drops columns. Returns a dataframe.
     '''
 
-    keep = ['OrganizationName','Address1','Address2','City','State','ZipCode']
+    # The EIN was added to this list very late in the overall process (for
+    # checking data in Map 4). If this causes problems in earlier steps, remove
+    # EIN from this list and replicate this function (but with EIN in the list)
+    # in the premap4 script.
+    keep = ['EIN','OrganizationName','Address1','Address2','City','State','ZipCode']
 
     df = pd.read_csv(IRS)
     # Do this at the end instead of at the beginning
