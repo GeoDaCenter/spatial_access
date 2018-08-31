@@ -7,20 +7,40 @@ import usaddress as add
 
 def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
     '''
+    Takes in a dataframe. Attempts to fix duplicate addresses (by default, in
+    the 'Address_SVC' field) if they have the same key (bby default, the
+    'ClusterID' field). Returns a dataframe.
     '''
 
     print('\nFixing duplicate addresses')
 
+    # Sort the target field by length, longest to shortest
     sorter = df[target].str.len().sort_values(ascending=False).index
     df = df.reindex(sorter)
 
+    # Make a mini version of the dataframe with two fields, the key & the target
+    # (which has been renamed to indicate it's the original field)
     minimized_df = df[[key,target]].drop_duplicates().dropna()
     minimized_df[target + '_Original'] = minimized_df[target]
 
+    # Make a list of the unique values in the key field
     unique_keys = list(minimized_df[key].unique())
 
+    # Set a flag to FALSE
     new_df_exists = False
 
+
+    # OVERVIEW: Call the iter_df() function on subsets of the dataframe (one
+    # subset per key) to compare and fix the address strings assigned to that
+    # key.
+
+    # For each value in the list of unique keys:
+        # Make a mini dataframe that is just the rows corresponding to that key
+        # If the there is more than 1 row:
+            # Call iter_df() on the mini df & assign the result to local_df2
+            # If the new_df_exists flag is set to TRUE:
+                # Create new_df by concatenating the existing new_df and local_df2
+            # else: Assign the name new_df to local_df2 and set the new_df_exists to TRUE
     for uKey in unique_keys:
         local_df = minimized_df[minimized_df[key] == uKey]
         if len(local_df) > 1:
@@ -33,15 +53,19 @@ def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
 
     print('Coalescing fixed addresses')
 
+    # Rename the columns in preparation of calling merge_coalesce()
     new_cols = {target:target + '_COAL',target + '_Original':target}
     new_df = new_df.rename(columns=new_cols,index=str)
 
+    # Rename the columns in preparation of calling merge_coalesce()
     min_cols = {target + '_Original':target + '_COAL'}
     minimized_df = minimized_df.rename(columns=min_cols,index=str)
 
     # Coalesce with the dfs in this order so that we keep the new values
     merged = u.merge_coalesce(new_df,minimized_df,[key,target],how='right')
 
+    # Merge the new address strings in, drop the original field, and rename the
+    # new one
     df = df.merge(merged,how='left').drop(target,axis=1)
     df = df.rename(columns={target + '_COAL':target},index=str)
 
@@ -50,34 +74,48 @@ def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
 
 def iter_df(df,field):
     '''
+    Goes through a dataframe and compares each address string to all other
+    address strings. Updates all matches so that they have the exact same string
+    (if A matches B and B matches C, updates B and C so that they match A).
+    Returns a dataframe.
     '''
 
+    # Resets the index so that the lower index is always listed first.
     df = df.reset_index(drop=True)
 
-    matches, unmatches = [], []
-
+    # For every pair of indices:
+        # Set string1 to the target value at the first index
+        # Set string2 to the target value at the second index
+        # Compare the strings
+            # If one requires a fix, call update_df() and fix it
     for idx1, idx2 in it.combinations(range(len(df)),2):
         string1 = df.loc[idx1,field]
         string2 = df.loc[idx2,field]
         result, fix = pairwise_comparison(string1,string2)
         if result:
-            matches.append(tuple((idx1,idx2)))
             if fix:
                 df = update_df(df,field,idx1,idx2)
         else:
-            unmatches.append(tuple((idx1,idx2)))
+            pass
 
     return df
 
 
 def update_df(df,field,idx1,idx2):
     '''
+    Takes a dataframe, the name of a target field, and the two indices to be
+    considered. Updates the value in the target field at the higher of the two
+    indices to equal the value at the lower index. Returns a dataframe.
     '''
 
+    # Find out which is higher and which is lower
     min_idx = min(idx1,idx2)
     max_idx = max(idx1,idx2)
 
+    # Copy the target string from the value at the lower index
     target_string = df.loc[min_idx,field]
+
+    # Set the value at the higher index to the target string
     df.loc[max_idx,field] = target_string
 
     return df
@@ -87,10 +125,15 @@ def pairwise_comparison(string1,string2):
     '''
     Parses two strings into usaddress dictionaries, then compares the
     dictionaries to assess whether the addresses are the same. Returns True if
-    so and False if not.
+    so and False if not. Also returns a list with the names of the fields (if
+    any) that need to be fixed. (The results are used for flow control in the
+    iter_df() function.)
     '''
 
-    #What about the city, state, and zip? Should those be concatenated and considered, too?
+
+    # What about the city, state, and zip? Should those be concatenated and
+    # considered, too? Possibly consider this in future work.
+
 
     # Parse the addresses into dictionaries
     s1_dicto = add.tag(string1)[0]
@@ -110,6 +153,7 @@ def pairwise_comparison(string1,string2):
         fix.append('StreetNamePostType')
 
 
+    # Compare the address strings by part
     for key, value1 in s1_dicto.items():
         # If string1 has street type and string2 doesn't, mark for fixing; but
         # if string2 does and they don't match, mark for fixing
@@ -180,21 +224,3 @@ def is_substring(string1,string2):
                     return False
 
     return True
-
-
-# DEPRECATED FUNCTION
-def compare_addresses(df,address_field):
-    '''
-    Takes a dataframe and the name of an address field, then does pairwise
-    comparisons on the strings in the field. Returns True if they are all the
-    same and False if at least one is different.
-    '''
-
-    same = True
-
-    for string1, string2 in it.combinations(df[field],2):
-        same = pairwise_comparison(string1,string2)
-        if not same:
-            break
-
-    return same
