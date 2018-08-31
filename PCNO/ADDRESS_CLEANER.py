@@ -9,11 +9,11 @@ def address_cleaner(string):
     them.  Also standardizes addresses to some extent.
     '''
 
-    # Contains non-printing characters that will be cleaned out of strings
-    cleaner = ['\n','\r','\t']
-
     # Strip leading and trailing spaces, commas, & periods; convert to uppercase
     string = string.strip(' ,./').upper()
+
+    # Contains non-printing characters that will be cleaned out of strings
+    cleaner = ['\n','\r','\t']
 
     # If present in the string, replace each NPC from cleaner with a space
     for npc in cleaner:
@@ -143,7 +143,7 @@ def round2(df):
     '''
 
     # Define some shortcuts
-    nm = 'Name'#'MasterRepName'
+    nm = 'Name'
     ct = 'City'
     st = 'State'
     add1 = 'Address1'
