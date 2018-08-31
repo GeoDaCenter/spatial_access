@@ -3,7 +3,6 @@ import pandas as pd
 import premap4 as pm4
 
 
-#IRS = '../../../rcc-uchicago/PCNO/Matching/CHICAGO_IRS990_2013-2016_reshaped.csv'
 GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map4_for_geocoding_geocoded.csv'
 MAP4 = '../../../rcc-uchicago/PCNO/CSV/chicago/Maps/map4.csv'
 
@@ -14,8 +13,10 @@ def read_geo():
     to string. Drops the Match Score and ID columns. Returns a dataframe.
     '''
 
+    # Read in the geocoded file and convert Zip to string
     df = pd.read_csv(GEO,converters={'Zip':str})
 
+    # Drop two columns
     return df.drop(['Match Score','ID'],axis=1)
 
 

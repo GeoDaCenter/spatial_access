@@ -38,8 +38,6 @@ def preProcess(column):
     return column
 
 
-
-
 def readData(filename):
     '''
     Reads in the data, passing the values to the pre-processor for cleaning.
@@ -57,7 +55,6 @@ def readData(filename):
 
 
 if __name__ == '__main__':
-
 
     optp = optparse.OptionParser()
     optp.add_option('-v', '--verbose', dest='verbose', action='count',
