@@ -121,8 +121,8 @@ def just_addresses(best_addr):
 
 def just_names(df):
     '''
-    Reduces the dataframe to unique entries in the VendorName column. Returns a
-    dataframe.
+    Reduces the dataframe to unique entries in the VendorName and CSDS_Vendor_ID
+    columns. Returns a dataframe.
     '''
 
     names = df[['VendorName','CSDS_Vendor_ID']].drop_duplicates().reset_index(drop=True)
@@ -132,15 +132,20 @@ def just_names(df):
 
 if __name__ == '__main__':
 
+    # Read in the contracts with deduplicated vendor names
     results = read_deduplicated()
 
+    # Take the most common address for each vendor name
     best_addr = best_address(results)
 
+    # Give each agency a headquarters address; drop those without an address
     merged = apply_hq_address(results,best_addr)
     merged.to_csv(HQ,index=False)
 
+    # Reduce to just addresses and write to CSV
     addresses = just_addresses(best_addr)
     addresses.to_csv(ADDR_OUT,index=False)
 
+    # Reduce to just agency names and vendor IDs; write to CSV
     names = just_names(merged)
     names.to_csv(AGENCIES,index=False)

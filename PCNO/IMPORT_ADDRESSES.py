@@ -25,8 +25,7 @@ def read_il_addr():
     which there was not a match in the IRS data). Returns a dataframe.
     '''
 
-    # Not sending to the address cleaner because these were hand-cleaned
-    # SEND TO THE ADDRESS CLEANER ANYWAY
+    # Send the Address1 field to the address cleaner
     il_addr = pd.read_csv(IL_ADDR,converters={'Address1':ac.address_cleaner})
 
     # Keep only these columns
@@ -41,11 +40,14 @@ def read_cook_addr():
     inserts an address2 column. Cleans the addresses. Returns a dataframe.
     '''
 
+    # Read in the Cook County addresses and send through the address cleaner
     cook_addr = pd.read_csv(COOK_ADDR,converters={'Address':ac.address_cleaner})
 
+    # Rename some columns and add an empty Address2 column
     cook_addr = cook_addr.rename(columns={'Address':'Address1','Zip':'ZipCode'})
     cook_addr['Address2'] = ''
 
+    # Send through the round2 address cleaner
     cook_addr = ac.round2(cook_addr)
 
     return cook_addr
@@ -110,6 +112,8 @@ def read_wchi():
     '''
 
     df = wc.import_wchi(WCHI)
+
+    # Create a sequential CSDS org ID for each record
     df = df.assign(CSDS_Org_ID=['WCHI' + str(x + 1) for x in range(len(df))])
 
     return df
@@ -121,6 +125,8 @@ def read_dfss():
     '''
 
     df = dfss.import_dfss(DFSS)
+
+    # Create a sequential CSDS org ID for each record
     df = df.assign(CSDS_Org_ID=['DFSS' + str(x + 1) for x in range(len(df))])
 
     return df
@@ -131,11 +137,14 @@ def read_mc():
     Reads in the MapsCorps datasets. Assigns an ID. Returns a single dataframe.
     '''
 
+    # Read in the two MapsCorps datasets
     df1 = mc.import_mc(MC,MC_2009_2015)
     df2 = mc.import_mc(MC,MC_2016)
 
+    # Concatenate the dataframes
     df = pd.concat([df1,df2])
 
+    # Create a sequential CSDS org ID for each record
     df = df.assign(CSDS_Org_ID=['MC' + str(x + 1) for x in range(len(df))])
 
     return df
