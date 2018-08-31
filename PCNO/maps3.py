@@ -17,12 +17,16 @@ def read_contracts():
     location. Returns a dataframe.
     '''
 
-    contracts1 = pd.read_csv(MAP2B_HQ,converters={'ZipCode':str})
-    contracts1['HQ_Flag'] = 1
+    # Read in contracts and convert ZipCode to string
+    cv = {'ZipCode':str}
+    contracts1 = pd.read_csv(MAP2B_HQ,converters=cv)
+    contracts2 = pd.read_csv(MAP2B_SATELLITES,converters=cv)
 
-    contracts2 = pd.read_csv(MAP2B_SATELLITES,converters={'ZipCode':str})
+    # Assign flags depending on whether the dataframe came from HQ or satellites
+    contracts1['HQ_Flag'] = 1
     contracts2['HQ_Flag'] = 0
 
+    # Concatenate the dataframes
     contracts = pd.concat([contracts1,contracts2])
 
     return contracts
@@ -30,17 +34,17 @@ def read_contracts():
 
 def datefixer(datestring):
     '''
-    Fixes dates that come in 'yyyy-mm-dd' format and changes them to datetime.
-    If there is no date, returns datetime for 01/01/1900.
+    Fixes dates that come in 'yyyy-mm-dd' or 'm/d/yy' format and changes them to
+    datetime. If the string is empty, returns datetime for 01/01/1900.
     '''
 
     if not datestring:
         return dt.strptime('1/1/1900','%m/%d/%Y')
     else:
         try:
-            return dt.strptime(datestring,'%m/%d/%y')#'%Y-%m-%d')
-        except:
             return dt.strptime(datestring,'%Y-%m-%d')
+        except:
+            return dt.strptime(datestring,'%m/%d/%y')
 
 
 def assign_fy(df):
@@ -50,32 +54,45 @@ def assign_fy(df):
     contract. Returns a dataframe.
     '''
 
+    # Define some fieldnames
     s = 'EarliestStartDate'
     e = 'LatestEndDate'
 
+    # Assign the FYStart and FYEnd variables by getting the FY of the dates in
+    # the 'EarliestStartDate' and 'LatestEndDate' fields
     df = df.assign(FYStart=df[s].apply(fy))
     df = df.assign(FYEnd=df[e].apply(fy))
 
+    # Count the numbber of FYs spanned by the range
     df = df.assign(FYs=df.apply(lambda x: x.FYEnd - x.FYStart + 1, axis=1))
 
     return df
 
 
-def fy(datetime):
+def fy(datetime_object):
     '''
     Takes in a datetime object and returns the fiscal year in which that date
     falls.
     '''
 
-    # Per the City Clerk's web site, the fiscal year follows the calendar year
+    # Per the City Clerk's web site, the fiscal year follows the calendar year:
     # http://www.chicityclerk.com/legislation-records/journals-and-reports/city-budgets
-    fystart = '-01-01' # -mm-dd
 
-    year = datetime.strftime('%Y')
+    # Therefore, the fiscal year of any date matches its year. However, the same
+    # will not be true in all jurisdictions. This script allows the script to be
+    # modified for other FY start dates.
 
-    thresh = datefixer(year + fystart)
+    # Set a string that defines when the fiscal year ends (December 31)
+    fyend = '-12-31' # -mm-dd
 
-    if datetime >= (thresh):
+    # Extract the year from datetime_object
+    year = datetime_object.strftime('%Y')
+
+    # Concatenate the strings, then pass to datefixer to get a datetime object
+    thresh = dt.strptime(year + fyend,'%Y-%m-%d')
+
+    # If the date is after the threshold, it's in the next fiscal year
+    if datetime_object > (thresh):
         return int(year) + 1
     else:
         return int(year)
@@ -87,6 +104,7 @@ def fix_dates(df):
     dataframe.
     '''
 
+    # Define the column names
     s = 'StartDate'
     e = 'EndDate'
 
@@ -102,18 +120,20 @@ def id_problem_dates(df,mode):
     Identifies records with problem date ranges. Returns a dataframe.
     '''
 
-    p = 'ContractDateProblem'
-
+    # If running in standard mode, then start = StartDate and end = EndDate
     if mode == 'standard':
         s = 'StartDate'
         e = 'EndDate'
+    # If not running in standard mode, then use these fields instead
     else:
         s = 'EarliestStartDate'
         e = 'LatestEndDate'
 
+    # Assign an empty variable
     df = df.assign(ContractDateProblem = np.NaN)
 
-    df[p] = df.apply(lambda x: 1 if x[s] > x[e] else 0, axis=1)
+    # If s is greater than e, then there's a problem with the dates
+    df['ContractDateProblem'] = df.apply(lambda x: 1 if x[s] > x[e] else 0, axis=1)
 
     return df
 
@@ -137,7 +157,7 @@ def most_common_date(df,field):
     new field. Returns a dataframe.
     '''
 
-    # Define a constant
+    # Define a fieldname
     cn = 'ContractNumber'
 
     # Determine how to sort the dataframe
@@ -154,7 +174,6 @@ def most_common_date(df,field):
     dates.name = 'Count'
     dates = dates.to_frame().reset_index()
     dates = dates.sort_values(by=[cn,field],ascending=sort)
-    #return dates
 
     # Get the max number of times a date appears for each contract
     max_count = dates.groupby([cn,field]).max()
@@ -204,6 +223,9 @@ def calc_ann_amt(df):
 
     col = 'Dollars_Per_Contract_Per_Location'
 
+    # For records that do not have a contract date problem, assign to
+    # AnnualAmount the value in col divided by the number of FYs spanned by the
+    # contract; otherwise, assign np.NaN
     df = df.assign(AnnualAmount=df.apply(lambda x: x[col] / x.FYs if
                                  x.ContractDateProblem == 0 else np.NaN,axis=1))
 
@@ -234,6 +256,7 @@ def make_span(df):
     spanner = spanner.rename(columns={0:'FY'},index=str).reset_index(drop=True)
     spanner['FY'] = spanner['FY'].apply(int)
 
+    # Keep only these columns
     return spanner[['ContractNumber','FY']]
 
 
@@ -350,7 +373,6 @@ if __name__ == '__main__':
                map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum()))
     print('Difference between target and\n\tmap 3b HQ + satellites:\t\t\t   {0:,.2f}'.format(\
           map3b_hq.AnnualAmount.sum() + map3b_satellites.AnnualAmount.sum() - target))
-
 
     # Write to CSV
     map3_hq.to_csv(MAP3_HQ,index=False)
