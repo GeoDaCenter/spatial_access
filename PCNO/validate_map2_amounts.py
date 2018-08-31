@@ -21,8 +21,6 @@ if __name__ == '__main__':
     map2_total = hq_total + sat_total
 
     print('Map2 total:  {0:,.2f}'.format(map2_total))
-    # $3810692646.12
-
 
 
     hqb = pd.read_csv(MAP2B_HQ)

@@ -17,10 +17,10 @@ def read_geo():
     Reads in the geocoded addresses for map 1. Drops the 'Match Score' column.
     Returns a dataframe.
     '''
-
-    df1 = pd.read_csv(GEO1)
-    df2 = pd.read_csv(GEO2)
-    df3 = pd.read_csv(GEO3)
+    cv = {'Zip':str}
+    df1 = pd.read_csv(GEO1,converters=cv)
+    df2 = pd.read_csv(GEO2,converters=cv)
+    df3 = pd.read_csv(GEO3,converters=cv)
 
     df1 = df1.rename(columns={'CSDS_Org_ID':'ID'},index=str)
 
@@ -45,6 +45,7 @@ def read_dollars_divided():
     dicto = dict([((x, x + '_HQ')) for x in cols])
     df = df.rename(columns=dicto,index=str)
 
+    #'''
     new_names = [re.sub('_SVC$','',x) for x in df.columns]
     cn = dict(zip(df.columns,new_names))
 
@@ -59,7 +60,11 @@ def merger(dollars_divided,geo):
     matching columns. Drops unwanted columns. Returns a dataframe.
     '''
 
-    df = u.merge_coalesce(dollars_divided,geo,'CSDS_Org_ID','_HQ','left')
+    keys = ['Address', 'City', 'State', 'ZipCode']
+    sfx = '_R'
+    how = 'left'
+
+    df = u.merge_coalesce(dollars_divided,geo,keys,sfx,how)
 
     df = df.drop(['ClusterID','VendorName_LINK1','VendorName_LINK2','Name',
                   'CSDS_Vendor_ID_LINK2'],axis=1)
