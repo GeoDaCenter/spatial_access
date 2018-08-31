@@ -5,7 +5,7 @@ Instructions for running the following scripts to generate CSV files for:
 -Map 2b: Map 2, but at the contract level
 -Map 3:  Total dollars per fiscal year per agency, divided over the headquarters and service addresses
 -Map 3b: Map 3, but at contract level
--Map 4:  All non-profits in Chicago, regardless of whether they had contracts with the city, county, or state
+-Map 4:  All non-profits in Chicago, regardless of whether they had contracts with the city, county, or state, mapped at their headquarters address
 
 --------------------------------------------------------------------------------
 
@@ -30,32 +30,21 @@ Run the scripts in this order, geocoding address files and running the deduplica
 -Geocode the map4_for_geocoding.csv file.
 -map4.py: Produces the file for Map 4.
 
+--------------------------------------------------------------------------------
 
 
-
-
-
-
-AMOUNT_CALCULATIONS.py
-COMPARE_ADDRESSES.py
-DFSS.py
-
-IMPORT_ADDRESSES.py
-MAPSCORPS.py
-MATCH_NAMES.py
-MERGE_CONTRACTS.py
-
-PURPLEBINDER.py
-SERVICE_ADDRESS_CLEANER.py
-SERVICE_STANDARDIZE_NAME.py
-STANDARDIZE_NAME.py
-UTILS.py
-
-WESTCHI.py
-
-
-
-
-
-
-#dedupe_svc_agencies.py
+The scripts use the following modules:
+-ADDRESS_CLEANER: Contains functions for cleaning single address strings and fixing known address-related problems in the data.
+-AMOUNT_CALCULATIONS.py: Contains functions for cleaning dollar amounts and limiting the contracts considered based on a minimum amount.
+-COMPARE_ADDRESSES.py: Compares different address strings for locations of a single agency to consolidate duplicate locations with different strings (i.e., '123 S Main St' and '123 South Main Street')
+-DFSS.py: Contains functions to read in the DFSS agency data with minimal manipulation.
+-IMPORT_ADDRESSES.py: Contains functions to read in all of the agency datasets.
+-MAPSCORPS.py: Contains functions to read in the MAPSCORPS agency data with minimal manipulation.
+-MATCH_NAMES.py: Contains functions to match records based on names using Jaro-Winkler distance.
+-MERGE_CONTRACTS.py: Contains functions to read in the contracts datasets.
+-PURPLEBINDER.py: Contains functinos to read in the PURPLEBINDER agency data with minimal manipulation.
+-SERVICE_ADDRESS_CLEANER.py: Contains functions to clean address strings based on the peculiarities of the agency datasets.
+-SERVICE_STANDARDIZE_NAME.py: Contains a function to clean name strings based on the peculiarities of the agency datasets.
+-STANDARDIZE_NAME.py: Contains a function to clean name strings.
+-UTILS.py: Contains functions to clean Zip codes, uppercase a dataframe, and merge values into a dataframe that already has those same fields.
+-WESTCHI.py: Contains functions to read in the WESTCHI agency data with minimal manipulation.
