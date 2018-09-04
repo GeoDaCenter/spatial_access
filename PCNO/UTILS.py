@@ -9,10 +9,14 @@ def upper(df):
     dataframe to uppercase. Returns a dataframe.
     '''
 
+    # Print progress report
     print('Converting text columns to uppercase')
 
+    # For every column:
     for col in df.columns:
+        # If the column is type Object (holds strings) and isn't the Link column
         if df[col].dtype == 'O' and col != 'Link/ContractPDF':
+            # Convert all the values to uppercase
             df[col] = df[col].str.upper()
 
     return df
@@ -35,13 +39,20 @@ def fix_zip(zipcode):
 def merge_coalesce(df1,df2,keys,suffix='_R',how='left'):
     '''
     Merges two dataframes with overlapping columns that do not match. Copies the
-    values from the second dataframe into the first dataframe. Returns a
-    dataframe.
+    values from the second dataframe into the first dataframe. The suffix should
+    be a string that does not currently end any of the column names for either
+    dataframe. The how argument defines what kind of join to make.
+
+    Returns a dataframe.
     '''
 
+    # Make a list of the columns in df2 that ARE NOT in df1
     cols = [x for x in df2.columns if x not in keys]
+
+    # Rename those columns in df2 to have the suffix
     df2 = rename_cols(df2,cols,suffix)
 
+    # Make the merge; replace the empty string with np.NaN
     df = pd.merge(df1,df2,how=how)
     df = df.replace('',np.NaN)
 
@@ -50,10 +61,11 @@ def merge_coalesce(df1,df2,keys,suffix='_R',how='left'):
     # (col + SUFFIX) is in df2.columns
     coal = [x for x in df1.columns if x + suffix in df2.columns]
 
+    # Fill in empty spce in col with values from col + suffix
     for col in coal:
         df[col] = df[col].combine_first(df[col + suffix])
 
-    # Drop the extra columns
+    # Drop the extra columns, those that end with the suffix
     drop = [x for x in df2.columns if x.endswith(suffix)]
     df = df.drop(drop,axis=1)
 
@@ -67,9 +79,13 @@ def rename_cols(df,cols,suffix='_R'):
     dataframe.
     '''
 
+    # Define the list of new column names
     new = [x + suffix for x in cols]
+
+    # Zip old and new names into a dictionary
     cn = dict(zip(cols,new))
 
+    # Rename the columns
     df = df.rename(columns=cn,index=str)
 
     return df

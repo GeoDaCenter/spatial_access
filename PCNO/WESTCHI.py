@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from string import punctuation, digits
 
-
+# Define a constant of characters to strip off
 STRIP_CHARS = punctuation + digits + ' '
 
 
@@ -14,8 +14,13 @@ def import_wchi(fname):
     parts. Converts strings to uppercase. Returns a dataframe.
     '''
 
+    # Read in the WESTCHI file
     df = read_wc(fname)
+
+    # Split addresses into their compnent parts
     split = split_addr(df)
+
+    # Convert strings to uppercase
     df_upper = u.upper(split)
 
     return df_upper
@@ -27,12 +32,18 @@ def read_wc(fname):
     dataframe.
     '''
 
+    # Define columns to use
     uc = ['name','address','postal_code','ComArea','WardArea','phone']
+
+    # Make a dictionary of converters (all to string)
     cv = dict([(item,str) for item in uc[2:]])
+
+    # Read in file, using usecols and converters
+    df = pd.read_csv(fname, usecols = uc, converters = cv)
+
+    # Rename columns
     cols = {'name':'Name','address':'Address','postal_code':'ZipCode',
             'ComArea':'CommunityArea','WardArea':'Ward','phone':'Phone'}
-
-    df = pd.read_csv(fname, usecols = uc, converters = cv)
     df = df.rename(columns = cols)
 
     return df
@@ -57,7 +68,7 @@ def split_addr(df):
     # Strip off forbidden characters from the State field
     df['State'] = df['State'].apply(lambda x: x.strip(STRIP_CHARS))
 
-    # Expand the Address_both column into two parts
+    # Expand the Address_both column into two parts, splitting on '; '
     new_cols = df['Address_both'].str.split(pat='; ',n=0,expand=True)
 
     # Concatenate the new columns to the dataframe, then rename them and drop
@@ -69,6 +80,7 @@ def split_addr(df):
     # replace any empty fields with the empty string
     df = df.replace(np.NaN,'')
 
+    # Drop drop_duplicates and reset the index for good measure
     df = df.drop_duplicates().reset_index(drop=True)
 
     return df
