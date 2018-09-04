@@ -12,22 +12,32 @@ GEO = '../../../rcc-uchicago/PCNO/CSV/chicago/Geocoded Service Addresses/map1_ad
 AGENCIES = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies.csv'
 NAMES = '../../../rcc-uchicago/PCNO/CSV/chicago/service_agencies_names.csv'
 
+
 def merger():
     '''
-    Imports the four datasets and merges them together. Returns a single
-    dataframe.
+    Imports the four datasets (PURPLEBINDER, WESTCHI, DFSSS, and MAPSCORPS) and
+    merges them together. Returns a single dataframe.
     '''
 
+    # A list of the dataset names
     strings = ['pb','westchi','dfss','mapscorps']
+
+    # Initialize an empty list to hold the dataframes
     dfs = []
 
+    # For every dataset in the list of dataset names:
     for string in strings:
+        # Print progress report
         print('\nReading in {} dataset(s)'.format(string.upper()))
+        # Read in the dataset
         df = import_svc_addr(string)
+        # Append the newly read dataframe to the list
         dfs.append(df)
 
+    # Concatenate the dataframes
     merged = pd.concat(dfs)
 
+    # Replace np.NaN with the empty string
     return merged.replace(np.NaN,'')
 
 
@@ -38,25 +48,35 @@ def import_svc_addr(dataset):
     single dataframe.
     '''
 
+    # Read in the PURPLEBINDER dataset
     if dataset == 'pb':
         df = ad.read_pb()
+        # Keep only records in Illinois
         df = df[df.State == 'IL']
+        # Drop the CommunityArea column
         df = df.drop('CommunityArea',axis=1)
 
+    # Read in the WESTCHI dataset
     elif dataset == 'westchi':
         df = ad.read_wchi()
+        # Drop these columns
         df = df.drop(['Phone','Ward','CommunityArea'],axis=1)
 
+    # Read in the DFSS dataset
     elif dataset == 'dfss':
         df = ad.read_dfss()
+        # Drop these columns
         drop = ['SiteName','Phone','Ward','CommunityAreaName','CommunityArea']
         df = df.drop(drop,axis=1)
 
+    # Read in the MAPSCORPS dataset
     elif dataset == 'mapscorps':
         df = ad.read_mc()
+        # Keep only these columns in this order
         keep = ['Name','Address1','Address2','City','State','ZipCode','CSDS_Org_ID']
         df = df[keep]
 
+    # Drop duplicates and reset the index
     return df.drop_duplicates().reset_index(drop=True)
 
 
@@ -66,14 +86,19 @@ def clean_df(df):
     only records in IL. Returns a dataframe.
     '''
 
+    # Print progress report
     print('\nStandardizing names and cleaning addresses')
 
+    # Standardize names
     df['Name'] = df['Name'].apply(stdname)
 
+    # Clean service addresses
     df = sac.full_cleaning(df)
 
+    # Keep only records with the address in Illinois
     df = df[df['State'] == 'IL']
 
+    # Reset the index
     return df.reset_index(drop=True)
 
 
@@ -88,6 +113,7 @@ def filler(df,targets,type,keys1,keys2):
     Returns a dataframe.
     '''
 
+    # Concatenate the lists of keys
     bigkeys = keys1 + keys2
 
     # Make a copy of df but only keep the target columns plus those in keys1
@@ -125,12 +151,14 @@ def read_geo():
     column. Returns a dataframe.
     '''
 
+    # Read in the geocoded addresses and drop a column
     df = pd.read_csv(GEO)
     df = df.drop('Match Score',axis=1)
 
-    #df = df.rename(columns={'Latitude':'Lat','Longitude':'Lon'},index=str)
+    # Rename a column
     df = df.rename(columns={'Zip':'ZipCode'},index=str)
 
+    # Fix the values in the ZipCode column
     df['ZipCode'] = df['ZipCode'].apply(u.fix_zip)
 
     return df
@@ -143,17 +171,16 @@ def try_fill(df):
     Returns a dataframe.
     '''
 
+    # Print progress report
     print('\nFilling in missing zip codes and coordinates as best as possible')
 
     # Fill in missing zip codes as best as possible
-    #df = fill_zips(df)
     targetsZ = ['ZipCode']
     keys1Z = ['Address','City','State']
     keys2Z = ['Name','Longitude','Latitude']
     df = filler(df,targetsZ,str,keys1Z,keys2Z)
 
     # Fill in missing longitude and latitude coordinates as best as possible
-    #df = fill_coords(df)
     targetsL = ['Longitude','Latitude']
     keys1L = ['Address','City','State','ZipCode']
     keys2L = ['Name']
@@ -168,43 +195,19 @@ def try_fill(df):
     return df
 
 
-def id_geocoded(df):
-    '''
-    Need to figure out what parts of this function to cannibalize LATER ON.
-    Once the service addresses are merged into the contracts, THEN they should
-    get a unique CSDS_Address_ID. For now, ignore everything in this function.
-    '''
-
-    keep = ['Longitude','Latitude','Address','City','Zip','State']
-    geo1 = pd.read_csv(GEO)[keep + ['AddressID']]
-
-    df = df.rename(columns={'ZipCode':'Zip'},index=str)
-
-    for col in keep[0:2]:
-        df[col] = df[col].replace('',np.NaN).apply(float)
-
-    geo2 = df[keep].dropna(subset=keep[0:2],how='any')
-    geo2 = geo2.drop_duplicates()
-    geo2 = geo2.assign(AddressID = ['Addr_' + str(x + 1 + len(geo1)) for x in range(len(geo2))])
-
-    geo = pd.concat([geo1,geo2])
-    geo = geo.drop_duplicates(subset=keep[2:],keep='first')
-
-    geo = geo.rename(columns={'Zip':'ZipCode'},index=str)
-
-    return geo.reset_index(drop=True)
-
-
 def just_names(df):
     '''
     Reduces the dataframe to unique entries in the Name column. Returns a
     dataframe.
     '''
 
+    # Take only the Name column, drop duplicates, and reset the index
     names = df[['Name']].drop_duplicates().reset_index(drop=True)
 
+    # Rename the column
     names = names.rename(columns={'Name':'VendorName'},index=str)
 
+    # Add a service agency ID column
     names = names.assign(CSDS_Svc_ID=['SvcAg_' + str(x + 1) for x in range(len(names))])
 
     return names
@@ -212,6 +215,7 @@ def just_names(df):
 
 def merge_ids(df,names):
     '''
+    Merges the CSDS_Svc_ID column into the names dataframe. Returns a dataframe.
     '''
 
     names = names.rename(columns={'VendorName':'Name'},index=str)
@@ -223,7 +227,6 @@ def merge_ids(df,names):
 
 if __name__ == '__main__':
 
-    #'''
     merged = merger()
     cleaned = clean_df(merged)
     filled = try_fill(cleaned)

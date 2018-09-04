@@ -45,13 +45,17 @@ def mod_irs():
     '''
     '''
 
+    # Read in the IRS dataset with the IMPORT_ADDRESSES module
     df = ia.read_irs()
 
+    # Rename some columns, drop Address2, and replace the empty string with NaN
     cn = {'Address1':'Address','ZipCode':'Zip','VendorName':'OrganizationName'}
     irs = df.rename(columns=cn,index=str).drop('Address2',axis=1).replace('',np.NaN)
 
+    # Transform the Zip column to string
     irs['Zip'] = irs['Zip'].apply(str)
 
+    # Drop rows with NaN in Address or OrganizationName; reset the index
     irs = irs.dropna(subset=['Address','OrganizationName']).reset_index(drop=True)
 
     return irs
@@ -63,9 +67,16 @@ def just_addresses(df):
     a dataframe.
     '''
 
+    # Keep only these columns
     addresses = df[['Address','City','State','Zip','CSDS_Org_ID']]
+
+    # Drop duplicates based on only these columns
     addresses = addresses.drop_duplicates(subset=['Address','City','State','Zip'])
+
+    # Drop records with blank addresses
     addresses = addresses[addresses['Address'] != '']
+
+    # Rename a column
     addresses = addresses.rename(columns={'CSDS_Org_ID':'ID'},index=str)
 
     return addresses.reset_index(drop=True)
@@ -73,8 +84,7 @@ def just_addresses(df):
 
 if __name__ == '__main__':
 
-    #irs = read_irs()
     irs = mod_irs()
 
     addresses = just_addresses(irs)
-    #addresses.to_csv(GEO,index=False)
+    addresses.to_csv(GEO,index=False)

@@ -11,13 +11,17 @@ def import_mc(fname,sheetname):
     Converts string values to uppercase. Drops duplicates. Returns a dataframe.
     '''
 
+    # Extracts the year from the sheetname
     year = get_year(sheetname)
 
+    # Uses a different function to read in the file based on the year
     if year == 2009:
         df = read_2009(fname,sheetname)
     elif year == 2016:
         df = read_2016(fname,sheetname)
 
+    # Replaces the string 'nan' (str(np.NaN)) with the empty string and converts
+    # strings to uppercase
     df = df.replace('nan','')
     df_upper = u.upper(df)
 
@@ -42,22 +46,28 @@ def read_2009(fname,sheetname):
     the city (Chicago) and state (IL) for all entries. Returns a dataframe.
     '''
 
+    # Reads in a specific sheet from the file, taking every field in as a string
     df = pd.read_excel(fname,sheetname,dtype=str)
 
+    # Gets the categories for the 2009 file
     keep_cats = keep(2009)
 
+    # Define some fieldnames
     pt = 'OrgTypeMain'
     pst = 'OrgTypeLabel'
 
+    # Keep only records with categories in the keep_cats list
     df = df[df[pst].isin(keep_cats)].drop_duplicates().reset_index(drop=True)
 
+    # Rename some fields
     cn = {'OrgName':'Name','CommArea':'CommunityArea','Unit':'Address2',
           'PostalCode':'ZipCode',pst:'SubType',pt:'Type'}
-
     df = df.rename(columns=cn,index=str)
 
+    # Concatenate the address fields
     df['Address1'] = df.apply(lambda x: x['Addnum'] + ' ' + x['Street'],axis=1)
 
+    # Set city and state fields because there aren't any in the dataset
     df['City'] = 'CHICAGO'
     df['State'] = 'IL'
 
@@ -70,30 +80,41 @@ def read_2016(fname,sheetname):
     categories (per Dr. Marwell). Renames columns. Concatenates addresses. Adds
     the state (IL) for all entries. Returns a dataframe.
     '''
+
+    # Reads in a specific sheet from the file, taking every field in as a string
     original_df = pd.read_excel(fname,sheetname,dtype=str)
 
+    # Define some fieldnames
     pt = 'PlaceType'
     pst = 'PlaceSubType'
 
+    # Get the subtype from the keep function for the 2016 datset
     keep_sub = keep(2016)
+
+    # Define these based on Dr. Marwell's instructions
     keep_type = ['Childcare and Schools',
                  'Health Services',
                  'Social Services & Political Advocacy']
 
+    # Keep only records that meet Dr. Marwell's criteria
     df2 = original_df[original_df[pst].isin(keep_sub)]
     df3 = original_df[(original_df[pt].isin(keep_type)) & (original_df[pst] == 'Other')]
 
+    # Concatenate the two dataframes
     df = pd.concat([df2,df3])
 
+    # Rename columns
     cn = {'Unit':'Address2','Zip Code':'ZipCode','GeoArea':'CommunityArea',
           'PhoneNumber':'Phone',pt:'Type',pst:'SubType'}
-
     df = df.rename(columns=cn,index=str)
 
+    # Replace 'nan' with '' in the Fraction field
     df['Fraction'] = df['Fraction'].replace('nan','')
 
+    # Concatenate the address fields
     df['Address1'] = df.apply(lambda x: x['BuildingNumber'] + ' ' + x['Fraction'] + ' ' + x['Street'],axis=1)
 
+    # Set the state to IL because it isn't in the original dataset
     df['State'] = 'IL'
 
     return df
@@ -104,6 +125,8 @@ def keep(year):
     Defines a list of categories to keep for the 2009-2015 or 2016 MapsCorps
     data. Returns a list of strings.
     '''
+
+    # Categories to keep by year, according to Dr. Marwell
 
     if year == 2009:
         keep = ['Arts & Entertainment - Museum',

@@ -4,8 +4,8 @@ from datetime import datetime as dt
 
 
 # FNAMES is a list of tuples. There is one tuple per original dataset. The tuple
-# consists of the original filename, the output filename, and a label that will
-# be used to identify the records in that dataset.
+# consists of the original filename and a label that will be used to identify
+# the records in that dataset.
 FNAMES = [tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/Cook County contracts.csv','COOK')),
           tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/City of Chicago contracts delegates blanks.csv','CHI')),
           tuple(('../../../rcc-uchicago/PCNO/CSV/chicago/originals/IL State Contracts w Keep column.csv', 'IL'))]
@@ -80,6 +80,7 @@ def process_dataset(fname_tuple):
     fnamein, label = fname_tuple
 
     if label == 'IL':
+        # Create a dictionary of converters to process each column appropriately
         cn = ['FY','Agency Code','Agency','Contract Number','Award Description',
               'Type Description','Class Description','Vendor Name','Vendor 2',
               'Start Date','End Date','Current Contract Amount',
@@ -116,9 +117,12 @@ def process_dataset(fname_tuple):
     # Create a sequential CSDS contract ID for each record
     df = df.assign(CSDS_Contract_ID=[label + str(x + 1) for x in range(len(df))])
 
-    # Replace np.nan and empty strings with 'INVALID' (or else the ML breaks)
+    # Replace np.nan and empty strings with 'INVALID'.
+    # Note: This is a holdover from the script that was initially used to pre-
+    # process the data for the ML classification process.
     df = df.replace(np.nan,'INVALID').replace('','INVALID')
 
+    # Trim and pad the dataframe so that it has the appropriate columns
     df = trimmer(df,label)
 
     return df
@@ -183,4 +187,5 @@ def trimmer(df,label):
         if col not in df.columns:
             df[col] = ''
 
+    # Keep only the appropriate columns, drop duplicates, and reset the index
     return df[keep].drop_duplicates().reset_index(drop=True)

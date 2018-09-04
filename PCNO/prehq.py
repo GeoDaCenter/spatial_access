@@ -15,7 +15,7 @@ JWSIM_THRESH = .9
 # Minimum dollar amount required to keep a contract record
 MIN_DOLLARS = .01
 
-# File shortcuts
+# File shortcut
 OUT = '../../../rcc-uchicago/PCNO/CSV/chicago/prehq_contracts.csv'
 
 
@@ -25,20 +25,30 @@ def read_contracts():
     dataframe.
     '''
 
+    # Initialize an empty list to hold the dataframes
     dfs = []
 
+    # For every ((filename,label)) tuple:
     for fname_tuple in mc.FNAMES:
+        # Read in and process the dataset
         df = mc.process_dataset(fname_tuple)
+        # If the label == 'CHI':
         if fname_tuple[-1] == 'CHI':
+            # Send the dataframe through the round2 address cleaner
             df = addclean.round2(df)
+            # Send the Address1 field through the address cleaner
             df['Address1'] = df['Address1'].apply(addclean.address_cleaner)
+        # Add the newly processed dataframe into the list
         dfs.append(df)
 
+    # Concatenate all the dataframes
     merged = pd.concat(dfs)
 
+    # Convert the text columns (except for the URLs) to uppercase
     merged = u.upper(merged)
 
-    return merged   # 6591 records
+    # There should be this many records in the dataframe:  6591 records
+    return merged
 
 
 def clean_amounts(df):
@@ -52,8 +62,10 @@ def clean_amounts(df):
     # Shortcut
     a = 'Amount'
 
+    # Call the clean_dollars function on the Amount column
     df[a] = df[a].apply(ac.clean_dollars)
 
+    # Drop amounts below the minimum threshold
     df = ac.drop_low(df,MIN_DOLLARS)
 
     return df
@@ -67,19 +79,23 @@ def import_addresses(dataset):
 
     print('Reading in {} addresses'.format(dataset.upper()))
 
+    # Read in the COOK address dataset; rename a column
     if dataset == 'cook':
         df = ad.read_cook_addr()
         df = df.rename(columns={'ID':'VendorName'},index=str)
 
+    # Read in the IRS dataset; rename a column and standardize names
     elif dataset == 'irs':
         df = ad.read_irs()
         df = df.rename(columns={'OrganizationName':'VendorName'},index=str)
         df['VendorName'] = df['VendorName'].apply(stdname)
 
+    # Read in the IL address dataset; standardize names
     elif dataset == 'il':
         df = ad.read_il_addr()
         df['VendorName'] = df['VendorName'].apply(stdname)
 
+    # Conver text fields to uppercase
     df = u.upper(df)
 
     return df
@@ -88,7 +104,7 @@ def import_addresses(dataset):
 def jwsim_contracts_irs(contracts,irs,suffix):
     '''
     Takes the contracts and IRS dataframes and returns a dataframe of records
-    with matching names (>= JWSIM_THRESH).
+    with matching names where the JW similarity is >= JWSIM_THRESH.
     '''
 
     # Rename the columns in IRS:
@@ -101,6 +117,7 @@ def jwsim_contracts_irs(contracts,irs,suffix):
     prod = mn.cart_prod(contracts,irs)
     prod = prod.replace(np.NaN,'')
 
+    # Print progress report
     print('Calculating Jaro-Winkler similarity on vendor names')
 
     # Compute the Jaro-Winkler similarity on the VendorName cols
@@ -108,6 +125,7 @@ def jwsim_contracts_irs(contracts,irs,suffix):
     arg = ((prod,col1,col1 + suffix))
     jwsim = mn.parallelize(mn.jwsim,arg)
 
+    # Return only the rows where JW similarity >= JWSIM_THRESH
     return jwsim[jwsim.JWSimilarity >= JWSIM_THRESH]
 
 
@@ -119,8 +137,10 @@ def coalesce_matches(contracts,jwsim,suffix):
 
     jwsim = trim_jwsim(jwsim,suffix)
 
+    # Define the key on which to coalesce
     keys = ['CSDS_Contract_ID']
 
+    # Fill in missing values in contracts from matches in jwsim, matchin on keys
     df = u.merge_coalesce(contracts,jwsim,keys,suffix)
 
     return df
@@ -164,23 +184,40 @@ def preprocess_contracts():
     Returns a dataframe.
     '''
 
+    # Read in the contracts and clean the dollar amounts
     contracts = read_contracts()
     contracts = clean_amounts(contracts)
+
+    # Read in the COOK addresses dataset
     cook = import_addresses('cook')
 
-    print('Coalescing COOK matches')
+    # Fill in addresses from the COOK dataset, matching on VendorName; then,
+    # standardize VendorName
+    print('Coalescing COOK address matches')
     merged = u.merge_coalesce(contracts,cook,'VendorName')
     merged['VendorName'] = merged['VendorName'].apply(stdname)
 
+    # Read in the IRS dataset
     irs = import_addresses('irs')
 
+    # Get a datframe of JW similarity matches >= JWSIM_THRESH between the merged
+    # and irs dataframes
     sfx = '_IRS'
     jwsim = jwsim_contracts_irs(merged,irs,sfx)
+
+    # Print progress report
     print('Coalescing IRS matches')
+
+    # Fill in addresses from the IRS dataset
     coalesced = coalesce_matches(merged,jwsim,sfx)
 
+    # Read in the IL addresses dataset
     il = import_addresses('il')
+
+    # Print progress report
     print('Coalescing IL matches')
+
+    # Fill in addresses from the IL dataset, matching on VendorName
     df = u.merge_coalesce(coalesced,il,'VendorName')
 
     return df
