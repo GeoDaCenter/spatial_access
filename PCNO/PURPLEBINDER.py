@@ -78,6 +78,7 @@ def splitters():
     and the latter is the strings concatenated and joined with pipes.
     '''
 
+    # Shortcuts
     a2 = r'address2'
     a1 = r'address'
     c = r'city'
@@ -87,9 +88,13 @@ def splitters():
     lo = r'XLongitude'
     ca = r'community_area_id'
 
+    # Put the field names into a list
     split_list = [a2,a1,c,s,z,la,lo,ca]
+
+    # Make a single string that joins the field names on pipe
     split_string = '|'.join(split_list)
 
+    # Return both the list and the string
     return split_list,split_string
 
 
@@ -165,7 +170,7 @@ def split_rows(pb):
 def clean(df,string_list):
     '''
     Cleans up the values after the addresses have been split into their
-    component parts.
+    component parts. Returns a dataframe.
     '''
 
     # For every column in the dataframe:

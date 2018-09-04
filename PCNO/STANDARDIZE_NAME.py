@@ -27,6 +27,9 @@ def standardize_name(input_txt):
     # stripped off).
     input_txt = input_txt.upper() + ' '
 
+    # NOTE: I commented this out because it was causing np.NaN to turn up in the
+    # IRS organization names; a few organizations in Chicago have 'LOS ANGELES'
+    # in their name.
     # Return np.NaN for org names that include 'POMONA' OR 'LOS ANGELES'
     #if 'POMONA' in input_txt or 'LOS ANGELES' in input_txt:
         #return np.NaN
@@ -35,16 +38,16 @@ def standardize_name(input_txt):
     for char in NPC:
         input_txt = input_txt.replace(char,' ')
 
+    # Replace each character in BAD_SUBSTRINGS with the empty string
     for substr in BAD_SUBSTRINGS:
         input_txt = input_txt.replace(substr,'')
 
+    # Replace '&' with ' AND '
     input_txt = re.sub("&"," AND ",input_txt)
 
     # Fix a stubborn non-ASCII character
     if input_txt.startswith('MUJERES LATINAS EN '):
         return 'MUJERES LATINAS EN ACCION'
-
-    #input_txt = input_txt.translate(None, string.punctuation)      # DEPRECATED
 
     # Fix Y.M.C.A.
     input_txt = re.sub('(^|\s)Y.M.C.A.',' YMCA ',input_txt)
@@ -126,7 +129,7 @@ def standardize_name(input_txt):
     input_txt = re.sub("(^|\s)THEIR ", " ", input_txt)
     input_txt = re.sub("(^|\s)SPF ", " ", input_txt)
 
-    # Replace multiple spaces with one
+    # Replace multiple spaces with one and trim leading and trailing whitespace
     input_txt = re.sub('\s+',' ',input_txt)
     input_txt = input_txt.strip()
 

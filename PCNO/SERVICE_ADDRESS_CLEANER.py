@@ -9,31 +9,38 @@ def address_cleaner(string):
     DFSS, and MapsCorps datasets. Returns a string.
     '''
 
+    # Strip off leading and trailing whitespace
     string = string.strip()
 
+    # Strings that will be blocked
     blocked = ['CALL FOR DETAILS','CONFIDENTIAL LOCATION','BASEMENT',
                'CONFIDENTIAL','UNDISCLOSED LOCATION','MULTIPLE LOCATIONS',
                'UNDISCLOSED LOCATION- NORTHSIDE','MULTIPLE LOCATIONS CHICAGO',
-               'MULTIPLE LOCATIONS CHICAGO AND SUBURBS','DV SHELTER']
+               'MULTIPLE LOCATIONS CHICAGO AND SUBURBS','DV SHELTER',
+               'EDWARD HEALTH & FITNESS CENTER â€” SEVEN BRIDGES']
 
+    # Standardize different spellings of SAINT LOUIS
     if re.findall(r'ST\.? LOUIS',string):
         string = re.sub(r'ST\.? LOUIS', 'SAINT LOUIS',string)
 
+    # Standardize different spellings of SOUTH
     if re.findall(r' S\.[A-Z]+',string):
         string = re.sub(r' S.',' SOUTH ',string)
 
+    # If the string is in blocked, return the empty string
     for item in blocked:
         if string == item:
             return ''
 
-    if string.startswith('PHONE') or string.startswith('OFFICE PHONE') or \
-        string == 'EDWARD HEALTH & FITNESS CENTER â€” SEVEN BRIDGES':
+    # Clean out strings that are labeled as phone numbers
+    if string.startswith('PHONE') or string.startswith('OFFICE PHONE'):
         return ''
 
+    # Clean up floor labels
     if string.endswith(' FLOOR') or string.endswith(' FL'):
         string = re.sub(r'[0-9]+(ST|ND|RD|TH) FLOOR$','',string)
         string = re.sub(r'[0-9]+(ST|ND|RD|TH) FL$','',string)
-
+    # If string ends with this substring, trim it off
     elif string.endswith('ADH (MC 345)'):
         string = string[0:-len('ADH (MC 345)')]
 
@@ -62,7 +69,7 @@ def address_cleaner(string):
     for key, value in split_chars.items():
         # If key is found within string:
         if re.findall(key,string):
-            # Call splitter on string with value
+            # Call splitter on string with value and clean up the string
             string = splitter(string,value)
 
     # Hard-coding a weird prefix found on some strings
@@ -85,7 +92,7 @@ def address_cleaner(string):
         return '9204 SOUTH COMMERCIAL AVENUE'
 
     # If the address is supposed to end in a number (like a state/cty/US hwy),
-    # return it. Else, clean it some more.
+    # return it. Else, run it through the address_cleaner module's cleaner
     if re.findall(r' ROUTE [0-9]+$',string):
         return string
     else:
@@ -135,9 +142,13 @@ def clean_zips(df):
     digits. Returns a dataframe.
     '''
 
+    # Shortcut
     zipc = 'ZipCode'
 
+    # Split the string at the hyphen and keep only the first part
     df[zipc] = df[zipc].apply(lambda x: x.split('-')[0])
+
+    # If the zip code isn't five digits, return the empty string
     df[zipc] = df[zipc].apply(lambda x: x if len(x) == 5 else '')
 
     return df
@@ -149,14 +160,21 @@ def full_cleaning(df):
     Calls the zip code cleaner. Returns a dataframe.
     '''
 
+    # Call the address cleaner on Address1 and then Address2
     df['Address1'] = df['Address1'].apply(address_cleaner)
     df['Address2'] = df['Address2'].apply(address_cleaner)
 
+    # Concatenate Address1 and Address2 and store in new Address column
     df['Address'] = df.apply(lambda x: x['Address1'] + ',' + x['Address2'],axis=1)
+
+    # Send Address column through the cleaner; splitter will take care of the
+    # concatenated values
     df['Address'] = df['Address'].apply(address_cleaner)
 
+    # Drop the original address columns
     df = df.drop(['Address1','Address2'],axis=1)
 
+    # Clean the zip codes
     df = clean_zips(df)
 
     return df

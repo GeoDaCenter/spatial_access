@@ -12,7 +12,6 @@ def stdname(string):
     # Call the original standardize_name function to do preliminary cleaning
     string = sname.standardize_name(string)
 
-
     # Standardize local universities and other organizations that sometimes have
     # slightly different names across records of the same organization
     univs = ['UNIVERSITY OF CHICAGO','NORTHWESTERN UNIVERSITY',
