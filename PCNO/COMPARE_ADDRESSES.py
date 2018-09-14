@@ -130,6 +130,14 @@ def pairwise_comparison(string1,string2):
     iter_df() function.)
     '''
 
+    forbidden = {'251 EAST HURON 541 NORTH FAIRBANKS':'251 EAST HURON STREET'}
+
+    for key,val in forbidden.items():
+        if string1 == key:
+            string1 = val
+        if string2 == key:
+            string2 = val
+
 
     # What about the city, state, and zip? Should those be concatenated and
     # considered, too? Possibly consider this in future work.
