@@ -134,7 +134,7 @@ def separate_satellites(merged):
 
     # Rename some columns
     cols = {'Address_SVC':'Address','City_SVC':'City','State_SVC':'State',
-            'ZipCode_SVC':'Zip'}
+            'ZipCode':'Zip'}
     satellites = satellites.rename(columns=cols,index=str)
 
     return satellites[keep].reset_index(drop=True)
