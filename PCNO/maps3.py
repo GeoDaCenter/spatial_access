@@ -272,8 +272,8 @@ def make_map3b(spanner,ann_amts):
             'Agency/Department','VendorName','VendorID','Amount',
             'EarliestStartDate','LatestEndDate','Category/ProcurementType',
             'Link/ContractPDF','CSDS_Vendor_ID','Address','City','State','ZipCode',
-            'Jurisdic','Longitude','Latitude','Classification',
-            'Num_Svc_Locations','Dollars_Per_Contract_Per_Location','FYStart',
+            'Jurisdic','Longitude','Latitude','Classification','Num_Svc_Locations',
+            'Num_Total_Locations','Dollars_Per_Contract_Per_Location','FYStart',
             'FYEnd','FY','AnnualAmount']
 
     # Merges the annual amounts into the dataframe of fiscal years per contract
