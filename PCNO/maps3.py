@@ -279,6 +279,9 @@ def make_map3b(spanner,ann_amts):
     # Merges the annual amounts into the dataframe of fiscal years per contract
     merged = spanner.merge(ann_amts)
 
+    # Keep only the records without a contract date problem
+    merged = merged[merged['ContractDateProblem'] == 0]
+
     # Splits the data into HQ and satellite dataframes
     hq = merged[merged['HQ_Flag'] == 1].reset_index(drop=True)
     satellites = merged[merged['HQ_Flag'] == 0].reset_index(drop=True)
