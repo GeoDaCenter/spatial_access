@@ -175,7 +175,7 @@ def dollars_per_location(merged):
 
     # Calculate the number of dollars divided by the number of locations
     dollars_div = numbered.assign(Dollars_Per_Location=numbered['Agency_Summed_Amount']\
-                           / numbered['Num_Svc_Locations'])
+                           / numbered['Num_Total_Locations'])
 
     # Drop duplicates and reset the index for good measure
     return dollars_div.drop_duplicates().reset_index(drop=True)
@@ -257,10 +257,15 @@ def count_svc_addr(df):
     counts = df.groupby('CSDS_Vendor_ID')['Constant'].count()
 
     # Rename the series
-    counts.name = 'Num_Svc_Locations'
+    counts.name = 'Num_Total_Locations'
 
     # Convert to a dataframe and reset the index
-    return counts.to_frame().reset_index()
+    counts = counts.to_frame().reset_index()
+
+    # Set the number of svc locations by subtracting the headquarters location
+    counts['Num_Svc_Locations'] = counts['Num_Total_Locations'] - 1
+
+    return counts
 
 
 def separate_satellites(df):
@@ -277,11 +282,11 @@ def separate_satellites(df):
             'Address_SVC','Dollars_Per_Location']
 
     # Any rows with np.NaN in this field are not satellites, so drop them
-    satellites = df.dropna(subset=['Num_Svc_Locations'])
+    satellites = df.dropna(subset=['Num_Total_Locations'])
 
-    # Keep only records with Num_Svc_Locations > 1
+    # Keep only records with Num_Total_Locations > 1
     # (This renders the previous line redundant; consider addressing)
-    satellites = satellites[satellites['Num_Svc_Locations'] > 1]
+    satellites = satellites[satellites['Num_Total_Locations'] > 1]
 
     # Keep designated columns and rearrange
     satellites = satellites[keep]
@@ -327,14 +332,31 @@ def needs_geocoding(df):
     return needs_geo.reset_index(drop=True)
 
 
+def consolidate_addresses(df):
+    '''
+    Consolidates addresses within blocks of records for the same vendor and also
+    within rows (comparing Address and Address_SVC). Returns a dataframe.
+    '''
+
+    # Consolidate addresses within each vendor
+    key = 'CSDS_Vendor_ID'
+    target = 'Address_SVC'
+    fixed = ca.fix_duplicate_addresses(merged,key,target)
+
+    # Consolidate addresses within each row
+    field1 = 'Address'
+    field2 = 'Address_SVC'
+    fixed2 = ca.compare_within_row(fixed,field1,field2)
+
+    return fixed2
+
+
 if __name__ == '__main__':
 
     merged = merger()
 
-    # Use the COMPARE_ADDRESSES module to reconcile duplicates across HQ and svc
-    key = 'CSDS_Vendor_ID'
-    target = 'Address_SVC'
-    merged_compared = ca.fix_duplicate_addresses(merged,key,target)
+    # Use the COMPARE_ADDRESSES module to reconcile duplicates
+    merged_compared = consolidate_addresses(merged)
 
     dollars_div = dollars_per_location(merged_compared)
     dollars_div.to_csv(DOLLARS_DIVIDED,index=False)
