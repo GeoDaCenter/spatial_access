@@ -20,7 +20,7 @@ def read_map2():
     # Define columns to keep and their order
     keep = ['CSDS_Vendor_ID','VendorName','Agency_Summed_Amount','Address',
             'City','State','ZipCode','HQ_Flag','Num_Svc_Locations',
-            'Dollars_Per_Location']
+            'Num_Total_Locations','Dollars_Per_Location']
 
     # Read in the dollars_divided file from the m2 script, then trim columns
     dollars_divided = m2.read_dollars_divided()
@@ -49,11 +49,11 @@ def read_map2():
 
 def read_contracts():
     '''
-    Reads in the contracts from map 1b, converting the Zip field to string.
-    Returns a dataframe.
+    Reads in the contracts from map 1b; drop unneeded columns. Returns a
+    dataframe.
     '''
 
-    df = pd.read_csv(MAP1B,converters={'Zip':str})
+    df = pd.read_csv(MAP1B)
     df = df.drop(['Longitude','Latitude','Address','City','State','Zip'],axis=1)
 
     return df
@@ -88,7 +88,7 @@ def merger():
 
     # Create a new column and carry out the calculation
     dpcpl = 'Dollars_Per_Contract_Per_Location'
-    merged[dpcpl] = merged['Amount'] / merged['Num_Svc_Locations']
+    merged[dpcpl] = merged['Amount'] / merged['Num_Total_Locations']
 
     return merged
 
@@ -106,7 +106,7 @@ def separate_hq(merged):
             'EndDate','Category/ProcurementType','Link/ContractPDF',
             'CSDS_Vendor_ID','Address','City','State','ZipCode','Jurisdic',
             'Longitude','Latitude','Classification','Num_Svc_Locations',
-            'Dollars_Per_Contract_Per_Location']
+            'Num_Total_Locations','Dollars_Per_Contract_Per_Location']
 
     # Keep the records where HQ_Flag == 1
     hq = merged[merged['HQ_Flag'] == 1]
@@ -125,7 +125,7 @@ def separate_satellites(merged):
     keep = ['CSDS_Contract_ID','ContractNumber','Description',
             'Agency/Department','VendorName','VendorID','Amount','StartDate',
             'EndDate','Category/ProcurementType','Link/ContractPDF',
-            'CSDS_Vendor_ID','Address','City','State','Zip','Jurisdic',
+            'CSDS_Vendor_ID','Address','City','State','ZipCode','Jurisdic',
             'Longitude','Latitude','Classification',
             'Dollars_Per_Contract_Per_Location']
 
@@ -133,8 +133,7 @@ def separate_satellites(merged):
     satellites = merged[merged['HQ_Flag'] == 0]
 
     # Rename some columns
-    cols = {'Address_SVC':'Address','City_SVC':'City','State_SVC':'State',
-            'ZipCode':'Zip'}
+    cols = {'Address_SVC':'Address','City_SVC':'City','State_SVC':'State'}
     satellites = satellites.rename(columns=cols,index=str)
 
     return satellites[keep].reset_index(drop=True)
