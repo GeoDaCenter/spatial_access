@@ -99,6 +99,8 @@ def insert_marginal_hq(df):
 
 def merger():
     '''
+    Merges the service and headquarters dataframes together. Returns a single
+    dataframe.
     '''
 
     # Read in the linker dataframe
@@ -329,7 +331,12 @@ if __name__ == '__main__':
 
     merged = merger()
 
-    dollars_div = dollars_per_location(merged)
+    # Use the COMPARE_ADDRESSES module to reconcile duplicates across HQ and svc
+    key = 'CSDS_Vendor_ID'
+    target = 'Address_SVC'
+    merged_compared = ca.fix_duplicate_addresses(merged,key,target)
+
+    dollars_div = dollars_per_location(merged_compared)
     dollars_div.to_csv(DOLLARS_DIVIDED,index=False)
 
     # This is the correct amount:  3810692646.1199999
