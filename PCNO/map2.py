@@ -47,7 +47,7 @@ def read_dollars_divided():
     Returns a dataframe.
     '''
 
-    Reads in the dollars_divided file, converting Zip codes to strings
+    # Reads in the dollars_divided file, converting Zip codes to strings
     df = pd.read_csv(DOLLARS_DIVIDED,converters={'ZipCode':str,'ZipCode_SVC':str})
 
     # Renames columns to add '_HQ' to these fields
