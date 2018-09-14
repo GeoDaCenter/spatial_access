@@ -1,8 +1,22 @@
 import re
 import UTILS as u
+import numpy as np
 import pandas as pd
 import itertools as it
 import usaddress as add
+
+
+def compare_within_row(df,field1='Address',field2='Address_SVC'):
+    '''
+    Compares addresses within a row to see if they are the same. If so, updates
+    the address in field2 to match the address in field1. Returns a dataframe.
+    '''
+
+    df[field2] = df.apply(lambda x: np.NaN if x[field2] is np.NaN else
+                        x[field1] if pairwise_comparison(x[field1],x[field2])[0]
+                        else x[field2], axis=1)
+
+    return df
 
 
 def fix_duplicate_addresses(df,key='ClusterID',target='Address_SVC'):
@@ -130,8 +144,8 @@ def pairwise_comparison(string1,string2):
     iter_df() function.)
     '''
 
+    # If the string == key, change it to val
     forbidden = {'251 EAST HURON 541 NORTH FAIRBANKS':'251 EAST HURON STREET'}
-
     for key,val in forbidden.items():
         if string1 == key:
             string1 = val
