@@ -174,6 +174,25 @@ def full_cleaning(df):
     # Drop the original address columns
     df = df.drop(['Address1','Address2'],axis=1)
 
+    # 309 HARRISON STREET	OAK PARK	IL	-87.78231947	41.87261454	60302
+    har1 = '309 HARRISON STREET'
+    har2 = '309 WEST HARRISON STREET'
+    sinn = 'SARAHS INN'
+
+    df['ZipCode'] = df.apply(lambda x: '60304' if x['Address'] == har1 and
+                             x['Name'] == sinn else x['ZipCode'], axis=1)
+    df['City'] = df.apply(lambda x: 'OAK PARK' if x['Address'] == har1 and
+                             x['Name'] == sinn else x['City'], axis=1)
+
+    df['ZipCode'] = df.apply(lambda x: '60304' if x['Address'] == har2 and
+                             x['Name'] == sinn else x['ZipCode'], axis=1)
+    df['City'] = df.apply(lambda x: 'OAK PARK' if x['Address'] == har2 and
+                             x['Name'] == sinn else x['City'], axis=1)
+
+    df['Address'] = df.apply(lambda x: har1 if x['Address'] == har2 and
+                             x['Name'] == sinn else x['Address'], axis=1)
+
+
     # Clean the zip codes
     df = clean_zips(df)
 
