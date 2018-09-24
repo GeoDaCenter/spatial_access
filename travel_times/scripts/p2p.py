@@ -921,7 +921,7 @@ class TransitMatrix(object):
         files = os.listdir("data")
         for file in files:
             if 'raw_network' in file or 'nn_primary' in file or 'nn_secondary' in file:
-                os.remove('data/' + file)
+                os.remove('data/matrices' + file)
         if os.path.isfile('p2p.log'):
             os.remove('p2p.log')
         if os.path.isfile('logs'):
