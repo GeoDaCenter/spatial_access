@@ -202,12 +202,12 @@ class TransitMatrix(object):
         '''
         Given a keyword, find an unused filename.
         '''
-        if not os.path.exists("data/"):
-            os.makedirs("data/")
-        filename = 'data/{}_0.{}'.format(keyword, extension)
+        if not os.path.exists("data/matrices/"):
+            os.makedirs("data/matrices/")
+        filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
-            filename = 'data/{}_{}.{}'.format(keyword, counter, extension)
+            filename = 'data/matrices/{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
 
         return filename
@@ -921,7 +921,7 @@ class TransitMatrix(object):
         files = os.listdir("data")
         for file in files:
             if 'raw_network' in file or 'nn_primary' in file or 'nn_secondary' in file:
-                os.remove('data/matrices' + file)
+                os.remove('data/matrices/' + file)
         if os.path.isfile('p2p.log'):
             os.remove('p2p.log')
         if os.path.isfile('logs'):

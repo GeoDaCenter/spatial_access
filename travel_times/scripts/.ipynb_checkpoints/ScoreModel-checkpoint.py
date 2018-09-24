@@ -34,6 +34,7 @@ class ModelData(object):
         self.time = {}
         self.time_val2 = {}
         self.use_n_nearest = 10
+        self.output_filename = None
 
         self.sources_nn = {}
         self.idx_2_col = {}
@@ -205,7 +206,23 @@ class ModelData(object):
     
         self.processed_good = True
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
+        
+    def get_output_filename (self, keyword, extension='csv', file_path='data/'):
+        '''
+        Given a keyword, find an unused filename.
+        '''
+        if file_path is None:
+            file_path="data/"
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        filename = os.path.join(file_path, '{}_0.{}'.format(keyword, extension))
+        counter = 1
+        while os.path.isfile(filename):
+            filename = os.path.join(file_path, '{}_{}.{}'.format(keyword, counter, extension))
+            counter += 1
+        self.output_filename = filename
 
+        return filename
     
     def get_output_filename_access (self, keyword, extension='csv', file_path='data/access_metrics/'):
         '''
@@ -219,6 +236,7 @@ class ModelData(object):
         while os.path.isfile(filename):
             filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
+        self.output_filename = filename
 
         return filename
     
@@ -234,6 +252,7 @@ class ModelData(object):
         while os.path.isfile(filename):
             filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
+        self.output_filename = filename
 
         return filename
     
@@ -272,10 +291,13 @@ class ModelData(object):
             
             
             with open(filename, 'r') as File:
+                
                 reader = csv.reader(File)
                 self.dest_2 = next(reader)
                 #convert csv into our useful matrix dictionary
                 for row in reader:
+                    if row[0] in self.dicto.keys():
+                        print('Warning: Check for duplicates in your ID.')
                     self.dicto[row[0]] = {}
                     self.source_2.append(row[0])
                     self.no_dest = len(row)
@@ -341,12 +363,15 @@ class ModelData(object):
 
 
     def load_sources(self, filename=None, 
-                     shapefile='resources/chi_comm_boundaries'):
+                     shapefile='resources/chi_comm_boundaries', field_mapping=None):
         '''
         Load the source points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
             -population (integer)
+        The field_mapping argument will be present if code is being called by the web app.
+        Otherwise the field_mapping default value of None will be passed in, and command
+        line prompts for user input will be executed.
         '''
         #try to load the source table
         try:
@@ -361,34 +386,51 @@ class ModelData(object):
         idx = ''
         lat = ''
         lon = ''
-        source_data_columns = self.sources.columns.values
-        print('The variables in your data set are:')
-        for var in source_data_columns:
-            print('> ',var)
-        while idx not in source_data_columns:
-            idx = input('Enter the unique index variable: ')
-        print('If you have no population variable, write "skip" (no quotations)')
-        while population not in source_data_columns and population != 'skip':
-            population = input('Enter the population variable: ')
-        print('If you have no lower areal unit variable, write "skip" (no quotations)')
-        while lower_areal_unit not in source_data_columns and lower_areal_unit != 'skip':
-            lower_areal_unit = input('Enter the lower areal unit variable: ')
-        while lat not in source_data_columns:
-            lat = input('Enter the latitude variable: ')
-        while lon not in source_data_columns:
-            lon = input('Enter the longitude variable: ')
+
+
+        #if the command line is being used to call the code...
+        if field_mapping is None:
+            
+            #extract the column names from the table
+            source_data_columns = self.sources.columns.values
+            print('The variables in your data set are:')
+            for var in source_data_columns:
+                print('> ',var)
+            while idx not in source_data_columns:
+                idx = input('Enter the unique index variable: ')
+            print('If you have no population variable, write "skip" (no quotations)')
+            while population not in source_data_columns and population != 'skip':
+                population = input('Enter the population variable: ')
+            print('If you have no lower areal unit variable, write "skip" (no quotations)')
+            while lower_areal_unit not in source_data_columns and lower_areal_unit != 'skip':
+                lower_areal_unit = input('Enter the lower areal unit variable: ')
+            while lat not in source_data_columns:
+                lat = input('Enter the latitude variable: ')
+            while lon not in source_data_columns:
+                lon = input('Enter the longitude variable: ')
+
+            #insert filler values for the lower_areal_unit column if 
+            #user lower_areal_unit not want to include it in GUI
+            if lower_areal_unit == 'skip':
+                self.sources['lower_areal_unit'] = 1
+                self.valid_lower_areal_unit = False
+
+            
+        
+        #otherwise, if the web app is being used to call the code...
+        else:
+
+            idx = field_mapping['idx']
+            population = field_mapping['population']
+            lower_areal_unit = 'skip'
+            lat = field_mapping['lat']
+            lon = field_mapping['lon']
 
         #insert filler values for the population column if 
-        #user does not want to include it
+        #user does not want to include it. need it for coverage
         if population == 'skip':
             self.sources['population'] = 1
             self.valid_population = False
-            
-        #insert filler values for the lower_areal_unit column if 
-        #user lower_areal_unit not want to include it
-        if population == 'skip':
-            self.sources['lower_areal_unit'] = 1
-            self.valid_lower_areal_unit = False
 
         #store the col names for later use
         self.primary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
@@ -423,13 +465,16 @@ class ModelData(object):
 
 
     def load_dests(self, filename=None, 
-        shapefile='resources/chi_comm_boundaries', subset=None):
+        shapefile='resources/chi_comm_boundaries', subset=None, field_mapping=None):
         '''
         Load the destination points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
             -target value (integer or float)
             -category (string)
+        The field_mapping argument will be present if code is being called by the web app.
+        Otherwise the field_mapping default value of None will be passed in, and command
+        line prompts for user input will be executed.
         '''
 
         #try to load dest file
@@ -446,33 +491,55 @@ class ModelData(object):
         idx = ''
         lat = ''
         lon = ''
-        dest_data_columns = self.dests.columns.values
-        print('The variables in your data set are:')
-        for var in dest_data_columns:
-            print('> ',var)
-        while idx not in dest_data_columns:
-            idx = input('Enter the unique index variable: ')
-        print('If you have no target variable, write "skip" (no quotations)')
-        while target not in dest_data_columns and target != 'skip':
-            target = input('Enter the target variable: ')
-        print('If you have no lower areal unit variable, write "skip" (no quotations)')
-        while lower_areal_unit not in dest_data_columns and lower_areal_unit != 'skip':
-            lower_areal_unit = input('Enter the lower areal unit variable: ')
-        print('If you have no category variable, write "skip" (no quotations)')
-        while category not in dest_data_columns and category != 'skip':
-            category = input('Enter the category variable: ')
-        while lat not in dest_data_columns:
-            lat = input('Enter the latitude variable: ')
-        while lon not in dest_data_columns:
-            lon = input('Enter the longitude variable: ')
+
+        #if the command line is being used to call the code...
+        if field_mapping is None:
+            
+            #extract the column names from the table
+            dest_data_columns = self.dests.columns.values
+            print('The variables in your data set are:')
+            for var in dest_data_columns:
+                print('> ',var)
+            while idx not in dest_data_columns:
+                idx = input('Enter the unique index variable: ')
+            print('If you have no target variable, write "skip" (no quotations)')
+            while target not in dest_data_columns and target != 'skip':
+                target = input('Enter the target variable: ')
+            print('If you have no lower areal unit variable, write "skip" (no quotations)')
+            while lower_areal_unit not in dest_data_columns and lower_areal_unit != 'skip':
+                lower_areal_unit = input('Enter the lower areal unit variable: ')
+            print('If you have no category variable, write "skip" (no quotations)')
+            while category not in dest_data_columns and category != 'skip':
+                category = input('Enter the category variable: ')
+            while lat not in dest_data_columns:
+                lat = input('Enter the latitude variable: ')
+            while lon not in dest_data_columns:
+                lon = input('Enter the longitude variable: ')
+
+        
+
+            if target == 'skip':
+                target_name = 'target'
+            else:
+                target_name = target
+
+        
+        #otherwise, if the web app is being used to call the code, get field names from field_mapping (supplied by the web app)
+        else:
+
+            idx = field_mapping['idx']
+            target = field_mapping['target']
+            target_name = target
+            category = field_mapping['category']
+            if category == "":
+                category = "skip"
+            lower_areal_unit = 'skip'
+            lat = field_mapping['lat']
+            lon = field_mapping['lon']
+
 
         #store the col names for later use
         self.secondary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
-
-        if target == 'skip':
-            target_name = 'target'
-        else:
-            target_name = target
 
         if category == 'skip':
             category_name = 'category'
@@ -486,6 +553,7 @@ class ModelData(object):
 
         self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon, lower_areal_unit])
         #clean the table
+
         rename_cols = {target:'target', category:'category', lat:'lat', 
                        lon:'lon', lower_areal_unit: 'lower_areal_unit'}
         self.dests.set_index(idx, inplace=True)

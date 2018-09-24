@@ -161,11 +161,11 @@ class CoverageModel(ModelData):
 
         if aggregate_type == 'category':
             #Fill in NaN only to aggregate the values
-            res_0=self.results.drop(columns=['serv_pop'])
+            res_0=self.results.drop(columns=['pop_served'])
             res=res_0.fillna(0)
             res = res.groupby(['category']).sum()
         elif aggregate_type == 'coverage':
-            res_0=self.results.drop(columns=['serv_pop'])
+            res_0=self.results.drop(columns=['pop_served'])
             res=res_0.fillna(0)
             res = res.groupby(['lower_areal_unit']).sum()
         else:
@@ -179,7 +179,7 @@ class CoverageModel(ModelData):
 
 
     def agg_area_cat(self):
-        res=self.results.drop(columns=['serv_pop'])
+        res=self.results.drop(columns=['pop_served'])
         res=res.fillna(0)
         res = res.groupby(['lower_areal_unit','category']).sum()
         res=res[['target','coverage']]
@@ -212,6 +212,7 @@ class CoverageModel(ModelData):
 
          df.to_csv(filename)
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
+            
     def plot_cdf(self, title='Coverage Amount'):
         '''
         Generate a CDF. If limit_categories was specified,
@@ -268,7 +269,7 @@ class CoverageModel(ModelData):
         '''
         assert self.good_to_write, 'need to calculate first'
         if not filename:
-            filename = self.get_output_filename('Coverage_{}'.format(self.network_type), file_path=file_path)
+            filename = self.get_output_filename_cov('Coverage_{}'.format(self.network_type))
         self.results.to_csv(filename)
 
 
@@ -634,7 +635,7 @@ class TTMetrics(ModelData):
         #Create count of destinations within range
         for s, val in self.source2dest.items():
             self.n_dests_in_range[s] = {}
-    
+            no_cat = 0
             if self.category_set == set(["CAT_UNDEFINED"]):
                 self.n_dests_in_range[s]= len([item for item in val if item])
 
