@@ -1,5 +1,5 @@
 import numpy as np
-import multiprocessing, math
+import multiprocessing, math, os, ast
 import scipy.spatial
 from sklearn.neighbors import NearestNeighbors
 from geopy.distance import vincenty
@@ -75,15 +75,17 @@ class TransitMatrix(object):
         -epsilon: [optional] smooth out the network edges
         -primary_input: 
     '''
-    def __init__(self, network_type, epsilon=0.05, primary_input=None, 
-        secondary_input=None, output_type='csv', n_best_matches=4, 
+    def __init__(self, network_type, epsilon=0.05, walk_speed=None, primary_input=None, primary_input_field_mapping=None,
+        secondary_input=None, secondary_input_field_mapping=None, output_type='csv', n_best_matches=4, 
         read_from_file=None, write_to_file=False, load_to_mem=True,
         primary_hints=None, secondary_hints=None):
-
+        
         self.network_type = network_type
         self.epsilon = epsilon
         self.primary_input = primary_input
+        self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
+        self.secondary_input_field_mapping = secondary_input_field_mapping
         self.sl_data = None
         self.primary_data = None
         self.secondary_data = None
@@ -111,20 +113,21 @@ class TransitMatrix(object):
 
         self.bbox = []
         self.node_pair_to_speed = {}
+        self.speed_limit_dictionary = None
         self.tmatrix = None
 
         #CONSTANTS
-        self.HUMAN_WALK_SPEED = 5 #km per hour
+        self.HUMAN_WALK_SPEED = walk_speed #km per hour
         self.BIKE_SPEED = 15 #km per hour
         self.ONE_HOUR = 3600 #seconds
         self.ONE_KM = 1000 #meters
-        self.WALK_CONSTANT = (self.HUMAN_WALK_SPEED / self.ONE_HOUR) * self.ONE_KM
+        # self.WALK_CONSTANT = (self.HUMAN_WALK_SPEED / self.ONE_HOUR) * self.ONE_KM
         self.WALK_NODE_PENALTY = 0
-        self.BIKE_CONSTANT = (self.BIKE_SPEED / self.ONE_HOUR) * self.ONE_KM
+        # self.BIKE_CONSTANT = (self.BIKE_SPEED / self.ONE_HOUR) * self.ONE_KM
         self.BIKE_NODE_PENALTY = 0
 
         self.DEFAULT_DRIVE_SPEED = 40 #km per hour
-        self.DRIVE_CONSTANT = (self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM 
+        # self.DRIVE_CONSTANT = (self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM 
         self.DRIVE_NODE_PENALTY = 0
         self.INFINITY = -1
 
@@ -150,23 +153,33 @@ class TransitMatrix(object):
         '''
         Load model parameters from json.
         '''
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        filename = os.path.join(dir_path, filename)
+
         try:
             with open(filename) as json_data:
+                
                 params = json.load(json_data)
-
-                self.HUMAN_WALK_SPEED = params['walk']['default_speed']
+                
+                #HUMAN_WALK_SPEED is the only of these parameters that may be set in the web app.
+                #Check if it's already set (meaning the value was passed into __init__), set from parameters file otherwise.
+                if not self.HUMAN_WALK_SPEED:
+                    self.HUMAN_WALK_SPEED = params['walk']['default_speed']
+                
                 self.WALK_NODE_PENALTY = params['walk']['node_penalty']
-
+                
                 self.DEFAULT_DRIVE_SPEED = params['drive']['default_speed']
                 self.DRIVE_NODE_PENALTY = params['drive']['node_penalty']
-
+                
                 self.BIKE_SPEED = params['bike']['default_speed']
                 self.BIKE_NODE_PENALTY = params['bike']['node_penalty']
-
+                
                 self.WALK_CONSTANT = (self.HUMAN_WALK_SPEED / self.ONE_HOUR) * self.ONE_KM
                 self.BIKE_CONSTANT = (self.BIKE_SPEED / self.ONE_HOUR) * self.ONE_KM
                 self.DRIVE_CONSTANT = (self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM
-        except:
+
+        except Exception as e:
+            print(e)
             raise EnvironmentError("Necessary file: {} could not be found in current directory".format(filename))
 
 
@@ -191,10 +204,10 @@ class TransitMatrix(object):
         '''
         if not os.path.exists("data/"):
             os.makedirs("data/")
-        filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
+        filename = 'data/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
-            filename = 'data/matrices/{}_{}.{}'.format(keyword, counter, extension)
+            filename = 'data/{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
 
         return filename
@@ -233,15 +246,109 @@ class TransitMatrix(object):
         self.sl_data = self.sl_data[['street_name','speed_limit']]
 
 
+    def _validate_csv(self, source_data):
+
+        # Gather input file basic counts
+        record_count = source_data.shape[0]
+        print("record_count: " + str(record_count))
+        column_count = source_data.shape[1]
+        print("column_count: " + str(column_count))
+        cell_count = record_count * column_count
+        print("cell_count: " + str(cell_count))
+        
+        # Set total error counter to 0
+        invalid_count = 0
+
+        # Gather null counts
+        index_null_count = pd.isnull(source_data[[idx]]).sum()[0]
+        print("index_null_count: " + str(index_null_count))
+        invalid_count += index_null_count
+
+        lat_null_count = pd.isnull(source_data[[lat]]).sum()[0]
+        print("lat_null_count: " + str(lat_null_count))
+        invalid_count += lat_null_count
+
+        lon_null_count = pd.isnull(source_data[[lon]]).sum()[0]
+        print("lon_null_count: " + str(lon_null_count))
+        invalid_count += lon_null_count
+
+        # Coerce numeric fields to numeric type and collect invalid values
+        source_data[lat] = pd.to_numeric(source_data[lat], errors="coerce")
+        invalid_lat = pd.isnull(source_data[[lat]]).sum()[0] - lat_null_count
+        print("invalid_lat: " + str(invalid_lat))
+        invalid_count += invalid_lat
+        
+        source_data[lon] = pd.to_numeric(source_data[lon], errors="coerce")
+        invalid_lon = pd.isnull(source_data[[lon]]).sum()[0] - lon_null_count
+        print("invalid_lon: " + str(invalid_lon))
+        invalid_count += invalid_lon
+
+        source_data[idx] = pd.to_numeric(source_data[idx], errors="coerce")
+        invalid_index = pd.isnull(source_data[[idx]]).sum()[0] - index_null_count
+        print("invalid_index: " + str(invalid_index))
+        invalid_count += invalid_index 
+
+        # Having coerced to numeric, now check for invalid values
+        # check for 0 coordinates
+        lat_zero_count = (source_data[[lat]] == 0).sum(axis=1).sum()
+        print("lat_zero_count: " + str(lat_zero_count))
+        invalid_count += lat_zero_count
+        
+        lon_zero_count = (source_data[[lon]] == 0).sum(axis=1).sum()
+        print("lon_zero_count: " + str(lon_zero_count))
+        invalid_count += lon_zero_count
+
+        # check for coordinates with values out of bounds
+        current_record_count = source_data.shape[0]
+        lat_out_of_bounds_count = current_record_count - source_data[lat].between(-180, 180).sum() - invalid_lat - lat_null_count
+        print("lat_out_of_bounds_count: " + str(lat_out_of_bounds_count))
+        invalid_count += lat_out_of_bounds_count
+
+        lon_out_of_bounds_count = current_record_count - source_data[lon].between(-180, 180).sum() - invalid_lon - lon_null_count
+        print("lon_out_of_bounds_count: " + str(lon_out_of_bounds_count))
+        invalid_count += lon_out_of_bounds_count
+
+        ## Drop records
+
+        # Replace 0 and other invalid values in coordinate fields with n/a
+        cols = [lat, lon]
+        source_data.loc[source_data[lat] > 180, lat] = 0
+        source_data.loc[source_data[lat] < -180, lat] = 0
+        source_data.loc[source_data[lon] > 180, lon] = 0
+        source_data.loc[source_data[lon] < -180, lon] = 0
+        source_data[cols] = source_data[cols].replace({0:np.nan})
+
+        pre_drop_indices = source_data.index
+        pre_drop = len(source_data)
+        source_data.dropna(subset=[xcol, ycol], axis='index', inplace=True)
+        post_drop_indices = source_data.index
+        post_drop = len(source_data)
+       
+        dropped_lines = pre_drop - len(source_data)
+        self.logger.info('Total number of rows in the dataset: {}'.format(pre_drop))
+        self.logger.info('Complete number of rows for computing the matrix: {}'.format(post_drop))
+        self.logger.info("Total number of rows dropped due to missing latitude or longitude values: {}".format(dropped_lines))
+        
+        # Drop records with n/a values in the index/coordinate fields
+        source_data.dropna(subset=[idx, lat, lon], axis='index', inplace=True)
+        source_data.set_index(idx, inplace=True)
+
+        # Drop records with a duplicate index value, keeping only the first
+        source_data = source_data[~source_data.index.duplicated(keep='first')]
+
     def _parse_csv(self, primary):
         '''
         Load source data from .csv. Identify long, lat and id columns.
         '''
         #decide which input to load
+        field_mapping = None
+
         if primary:
             filename = self.primary_input
+            field_mapping = self.primary_input_field_mapping
         else:
             filename = self.secondary_input
+            field_mapping = self.secondary_input_field_mapping
 
         
         source_data = pd.read_csv(filename)
@@ -266,16 +373,24 @@ class TransitMatrix(object):
         except:
             pass
 
+        #if the web app is instantiating a TransitMatrix object/calling this code,
+        #a field_mapping dictionary should be present
+        if field_mapping:
+            print("Using field mapping provided by web app.")
+            xcol = field_mapping["lat"]
+            ycol = field_mapping["lon"]
+            idx = field_mapping["idx"]
 
-        print('The variables in your data set are:')
-        for var in source_data_columns:
-            print('> ',var)
-        while xcol not in source_data_columns:
-            xcol = input('Enter the latitude (y) coordinate: ')
-        while ycol not in source_data_columns:
-            ycol = input('Enter the longitude (x) coordinate: ')
-        while idx not in source_data_columns:
-            idx = input('Enter the index name: ')
+        else:
+            print('The variables in your data set are:')
+            for var in source_data_columns:
+                print('> ',var)
+            while xcol not in source_data_columns:
+                xcol = input('Enter the latitude coordinate: ')
+            while ycol not in source_data_columns:
+                ycol = input('Enter the longitude coordinate: ')
+            while idx not in source_data_columns:
+                idx = input('Enter the index name: ')
 
         #drop nan lines
         pre_drop_indices = source_data.index
@@ -336,17 +451,14 @@ class TransitMatrix(object):
             composite_x = list(self.primary_data.x)
             composite_y = list(self.primary_data.y)
 
-        
-        lat_max = max(composite_x) + self.epsilon
-        
-        lat_min = min(composite_x) - self.epsilon
-       
-        lon_max= max(composite_y) + self.epsilon
-        
-        lon_min= min(composite_y) - self.epsilon
-        
 
-        self.bbox = [lat_min,lon_min,lat_max,lon_max]
+        lat_max = max(composite_x) + self.epsilon
+        lat_min = min(composite_x) - self.epsilon
+        
+        lon_max = max(composite_y) + self.epsilon
+        lon_min = min(composite_y) - self.epsilon
+        
+        self.bbox = [lat_min, lon_min, lat_max, lon_max]
         self.logger.debug('set bbox: {}'.format(self.bbox))
 
 
@@ -460,26 +572,32 @@ class TransitMatrix(object):
         self.node_pair_to_speed = node_pair_to_speed
 
 
-
-      
     def _cost_model(self, distance, sl):
         '''
         Return the edge impedence as specified by the cost model.
         '''
         if self.network_type == 'walk':
             return int((distance / self.WALK_CONSTANT) + self.WALK_NODE_PENALTY)
+            #If you want to get results in METERS instead of SECONDS, please uncomment below and comment line above
+            #return int (distance)
         elif self.network_type == 'bike':
             return int((distance / self.BIKE_CONSTANT) + self.BIKE_NODE_PENALTY)
+            #If you want to get results in METERS instead of SECONDS, please uncomment below and comment line above
+            #return int (distance)
         else:
             if sl:
                 edge_speed_limit = sl
             else:
-                #if we weren't provided speed limit data, we use defaults
-                #ideally, never want to be here
+                #Logic reading in speed limits from either the user-supplied speed limit file or 
+                #the default speed limit dictionary should guarantee that the below code will 
+                #never execute.  Keep in for testing purposes until no longer needed.
                 self.logger.warning('Using default drive speed. Results will be inaccurate')
                 edge_speed_limit = self.DEFAULT_DRIVE_SPEED
             drive_constant = (edge_speed_limit / self.ONE_HOUR) * self.ONE_KM
             return int((distance / drive_constant) + self.DRIVE_NODE_PENALTY) 
+            #If you want to get results in METERS instead of SECONDS, please uncomment below and comment line above
+            #return int (distance)
+
 
     #runs a depth first search from given vertex ve
     #Way to traverse an entire graph: checking for normal weak connection
@@ -501,14 +619,27 @@ class TransitMatrix(object):
         if size>self.max_size:
             self.max_size = size
             self.rem_id = self.idd
-        return
+        return  
 
-        
+    def _read_in_speed_limit_dictionary(self):
 
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        speed_limit_dictionary_file = os.path.join(dir_path, "speed_limit_dictionary.txt")
+
+        with open(speed_limit_dictionary_file, "r") as f:
+            speed_limit_dictionary_text = f.read()
+            self.speed_limit_dictionary = ast.literal_eval(speed_limit_dictionary_text)
+
+            
     def _request_network(self):
+
         '''
-        All that request network does is find nodes and edges.
         Fetch a street network from OSM that encompasses the data points.
+        Writes three .csv files:
+            distance_matrix: matrix representing the distance from each point in
+            the OSM network to every other point (in meters)
+            nodes: list of all nodes in the network
+            edges: list of all edges in the network
         '''
         
         self.network_filename = self._get_output_filename("raw_network")
@@ -528,7 +659,7 @@ class TransitMatrix(object):
             sys.exit()
 
 
-        if self.network_type == 'drive':
+        if self.network_type == 'drive' and self.sl_data:
             self._clean_speed_limits()
 
     def _request_network2(self):
@@ -542,6 +673,7 @@ class TransitMatrix(object):
         FROM_IDX = self.edges.columns.get_loc('from') + 1
         TO_IDX = self.edges.columns.get_loc('to') + 1
         ONEWAY = self.edges.columns.get_loc('oneway') + 1
+        HIGHWAY = self.edges.columns.get_loc('highway') + 1
 
         #creating adjacency list from osmnet nodes and edges
         self.adj = {}
@@ -640,6 +772,8 @@ class TransitMatrix(object):
         for i, index_name in enumerate(self.nodes.index):
             self.node_index_to_loc[index_name] = i
 
+        #read in the dictionary of speed limit values used to calculate edge impedences
+        self._read_in_speed_limit_dictionary()
 
         #create a mapping of each node to every other connected node
         #transform them by cost model as well
@@ -652,7 +786,11 @@ class TransitMatrix(object):
                     impedence = self._cost_model(data[DISTANCE], 
                         self.node_pair_to_speed[(from_idx, to_idx)])
                 else:
-                    impedence = self._cost_model(data[DISTANCE], None)
+                    highway_tag = data[HIGHWAY]
+                    if highway_tag is None or highway_tag not in self.speed_limit_dictionary["urban"]:
+                        highway_tag = "unclassified"
+                    impedence = self._cost_model(data[DISTANCE], float(self.speed_limit_dictionary["urban"][highway_tag]))
+
                 oneway = data[ONEWAY]
 
                 #checking if edge connects any of the disconnected nodes. If not, don't consider it.
@@ -668,8 +806,7 @@ class TransitMatrix(object):
 
         
         self.logger.info("Prepared raw network in {:,.2f} seconds and wrote to: {}".format(time.time() - start_time, self.network_filename))
-
-
+                 
     def _calc_shortest_path(self):
         '''
         Outsources the work of computing the shortest path matrix
@@ -677,7 +814,7 @@ class TransitMatrix(object):
         '''
 
         start_time = time.time()
-
+        
         #if we are provided a .csv shortest path matrix, load it 
         #to memory
         if self.read_from_file:
@@ -784,7 +921,7 @@ class TransitMatrix(object):
         files = os.listdir("data")
         for file in files:
             if 'raw_network' in file or 'nn_primary' in file or 'nn_secondary' in file:
-                os.remove('data/matrices' + file)
+                os.remove('data/' + file)
         if os.path.isfile('p2p.log'):
             os.remove('p2p.log')
         if os.path.isfile('logs'):
@@ -807,14 +944,7 @@ class TransitMatrix(object):
         if self.read_from_file:
             self.logger.info('Loading data from file: {}'.format(self.read_from_file))
             self._calc_shortest_path()
-            return
-
-        #sanity check
-        if self.network_type == 'drive':
-            if not speed_limit_filename:
-                self.logger.error('Network type is drive. Must provide speed limit table')
-                sys.exit()
-              
+            return      
 
         self.logger.info("Processing network ({}) in format: {} with epsilon: {}".format(self.network_type, 
             self.output_type, self.epsilon))
