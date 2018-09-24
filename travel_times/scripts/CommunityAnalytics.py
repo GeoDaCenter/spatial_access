@@ -190,14 +190,14 @@ class CoverageModel(ModelData):
         #Making the lower areal unit the index to avoid confusions with embedded Python's index 
         low_area=low_area.set_index('lower_areal_unit')
         return low_area.join(res)
-    
+              
     def write_aggregate(self, aggregate_type, filename=None):
          '''
          Write the aggregate to csv
          '''
          df = self._get_aggregate(aggregate_type)
          if not filename:
-             filename = self.get_output_filename('{}_aggregate'.format(aggregate_type))
+             filename = self.get_output_filename_cov('{}_aggregate'.format(aggregate_type))
 
          df.to_csv(filename)
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
@@ -208,12 +208,10 @@ class CoverageModel(ModelData):
          '''
          df = self.agg_area_cat()
          if not filename:
-             filename = self.get_output_filename('{}agg_area_cat'.format(self.network_type))
+             filename = self.get_output_filename_cov('{}agg_area_cat'.format(self.network_type))
 
          df.to_csv(filename)
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
-            
-
     def plot_cdf(self, title='Coverage Amount'):
         '''
         Generate a CDF. If limit_categories was specified,
@@ -511,13 +509,13 @@ class AccessModel(ModelData):
         txt = re.sub(r"[^\w]", '_', txt)
         return txt
 
-    def write_csv(self, filename=None, file_path=None):
+    def write_csv(self, filename=None):
         '''
         Write the model data to file.
         '''
         assert self.good_to_write, 'need to calculate first'
         if not filename:
-            filename = self.get_output_filename('Access_{}'.format(self.network_type), file_path=file_path)
+            filename = self.get_output_filename_access('Access_{}'.format(self.network_type))
         self.results.to_csv(filename)
 
     def _get_aggregate(self, aggregate_type):
@@ -556,7 +554,7 @@ class AccessModel(ModelData):
         '''
         df = self._get_aggregate(aggregate_type)
         if not filename:
-            filename = self.get_output_filename('{}_aggregate'.format(aggregate_type))
+            filename = self.get_output_filename_access('{}_aggregate'.format(aggregate_type))
 
         df.to_csv(filename)
         self.logger.info('Wrote aggregate to file: {}'.format(filename))
