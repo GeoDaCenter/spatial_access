@@ -34,6 +34,7 @@ class ModelData(object):
         self.time = {}
         self.time_val2 = {}
         self.use_n_nearest = 10
+        self.output_filename = None
 
         self.sources_nn = {}
         self.idx_2_col = {}
@@ -205,19 +206,21 @@ class ModelData(object):
     
         self.processed_good = True
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
-
+        
     def get_output_filename (self, keyword, extension='csv', file_path='data/'):
         '''
         Given a keyword, find an unused filename.
         '''
-        
+        if file_path is None:
+            file_path="data/"
         if not os.path.exists(file_path):
             os.makedirs(file_path)
-        filename = file_path + '{}_0.{}'.format(keyword, extension)
+        filename = os.path.join(file_path, '{}_0.{}'.format(keyword, extension))
         counter = 1
         while os.path.isfile(filename):
-            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
+            filename = os.path.join(file_path, '{}_{}.{}'.format(keyword, counter, extension))
             counter += 1
+        self.output_filename = filename
 
         return filename
     
@@ -233,6 +236,7 @@ class ModelData(object):
         while os.path.isfile(filename):
             filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
+        self.output_filename = filename
 
         return filename
     
@@ -248,6 +252,7 @@ class ModelData(object):
         while os.path.isfile(filename):
             filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
             counter += 1
+        self.output_filename = filename
 
         return filename
     
@@ -286,6 +291,7 @@ class ModelData(object):
             
             
             with open(filename, 'r') as File:
+                
                 reader = csv.reader(File)
                 self.dest_2 = next(reader)
                 #convert csv into our useful matrix dictionary
@@ -518,13 +524,15 @@ class ModelData(object):
                 target_name = target
 
         
-        #otherwise, if the web app is being used to call the code...
+        #otherwise, if the web app is being used to call the code, get field names from field_mapping (supplied by the web app)
         else:
 
             idx = field_mapping['idx']
             target = field_mapping['target']
             target_name = target
             category = field_mapping['category']
+            if category == "":
+                category = "skip"
             lower_areal_unit = 'skip'
             lat = field_mapping['lat']
             lon = field_mapping['lon']
