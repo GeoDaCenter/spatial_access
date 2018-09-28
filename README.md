@@ -1,2 +1,2 @@
-Master: [![Build status](https://travis-ci.org/lmnoel/spatial_access.svg?master)](https://travis-ci.org/lmnoel)
-Dev: [![Build status](https://travis-ci.org/lmnoel/spatial_access.svg?dev_lnoel)](https://travis-ci.org/lmnoel)
+Master: [![Build Status](https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=master)](https://travis-ci.org/GeoDaCenter/spatial_access)
+Dev: [![Build Status](https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=dev_logan)](https://travis-ci.org/GeoDaCenter/spatial_access)
