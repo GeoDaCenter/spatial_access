@@ -3,7 +3,6 @@ import multiprocessing, math, os, ast
 import scipy.spatial
 from sklearn.neighbors import NearestNeighbors
 from geopy.distance import vincenty
-from NetworkQuery import Query
 from jellyfish import jaro_winkler
 import pandas as pd
 from collections import deque
