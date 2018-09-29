@@ -5,7 +5,9 @@ python:
 
 install:
 - pip3 install Cython
+- pip3 install pylint
 - pip3 install . 
 
 script:
 - pytest
+- pylint
