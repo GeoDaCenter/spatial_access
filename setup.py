@@ -1,6 +1,41 @@
 import platform, distutils.core, distutils.extension, Cython.Build, setuptools
+from setuptools.command.install import install
 
-import sys
+import sys, subprocess
+import os
+
+class CustomInstallCommand(install):
+    """Customized setuptools install command"""
+    def run(self):
+        os.system('pip3 install -r requirements.txt')
+        print('running...')
+        print('running...')
+        print('running...')
+        print('running...')
+        print('running...')
+        if sys.platform == "darwin":
+            os.system('brew install spatialindex')
+            print('installing on osx')
+            print('installing on osx')
+            print('installing on osx')
+            print('installing on osx')
+            print('installing on osx')
+        elif sys.platform == "linux2":
+            sos.system('curl -L https://github.com/libspatialindex/libspatialindex/archive/1.8.5.tar.gz | tar xz')
+            os.system('cd spatialindex-src-1.8.5')
+            os.system('./configure')
+            os.system('make')
+            os.system('sudo make install')
+            os.system('sudo ldconfig')
+            print('installing on linux')
+            print('installing on linux')
+            print('installing on linux')
+            print('installing on linux')
+            print('installing on linux')
+        else:
+            raise('You are trying to install spatial_access on an unsupported platform')
+        subprocess.call(['pip3 install rtree'])
+        install.run(self)
 
 ## Macs require this extra build option.
 ouff_mac = []
@@ -24,6 +59,7 @@ EXT_MODULES=Cython.Build.cythonize([EXTENSION],
                                    language='c++')
 
 setuptools.setup(
+    cmdclass = {'install':CustomInstallCommand},
     name = 'spatial_access',
     version='0.1.0',
     ext_modules=EXT_MODULES,
