@@ -1,4 +1,4 @@
-import platform, distutils.core, distutils.extension, Cython.Build
+import platform, distutils.core, distutils.extension, Cython.Build, setuptools
 
 import sys
 
@@ -21,9 +21,9 @@ EXTENSION = distutils.extension.Extension(
 
 EXT_MODULES=Cython.Build.cythonize([EXTENSION],
                                     #include_path = ["/usr/local/include/"],
-                                   language='c++')#, gdb_debug=True)
+                                   language='c++')
 
-distutils.core.setup(
+setuptools.setup(
     name = 'spatial_access',
     version='0.1.0',
     ext_modules=EXT_MODULES,
