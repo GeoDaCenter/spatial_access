@@ -7,19 +7,6 @@ os:
 python:
 - "3.6"
 
-before_install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
-      brew install spatialindex;
-  elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-    curl -L https://github.com/libspatialindex/libspatialindex/archive/1.8.5.tar.gz | tar xz;
-    cd spatialindex-src-1.8.5;
-    ./configure; 
-    make;
-    sudo make install;
-    sudo ldconfig; 
-  fi
-- pip3 install -r requirements.txt
-
 install:
 - pip3 install Cython
 - pip3 install pylint

@@ -9,16 +9,8 @@ class CustomInstallCommand(install):
     def run(self):
         os.system('pip3 install -r requirements.txt')
         print('running...')
-        print('running...')
-        print('running...')
-        print('running...')
-        print('running...')
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
-            print('installing on osx')
-            print('installing on osx')
-            print('installing on osx')
-            print('installing on osx')
             print('installing on osx')
         elif sys.platform == "linux2":
             sos.system('curl -L https://github.com/libspatialindex/libspatialindex/archive/1.8.5.tar.gz | tar xz')
@@ -27,10 +19,6 @@ class CustomInstallCommand(install):
             os.system('make')
             os.system('sudo make install')
             os.system('sudo ldconfig')
-            print('installing on linux')
-            print('installing on linux')
-            print('installing on linux')
-            print('installing on linux')
             print('installing on linux')
         else:
             raise('You are trying to install spatial_access on an unsupported platform')
