@@ -3,6 +3,9 @@ language: python
 python:
 - "3.6"
 
+before_install:
+- python3 install -r requirements.txt
+
 install:
 - pip3 install Cython
 - pip3 install pylint
