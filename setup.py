@@ -12,7 +12,7 @@ class CustomInstallCommand(install):
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
             print('installing on osx')
-        elif sys.platform == "linux2":
+        elif sys.platform.startswith('linux'):
             sos.system('curl -L https://github.com/libspatialindex/libspatialindex/archive/1.8.5.tar.gz | tar xz')
             os.system('cd spatialindex-src-1.8.5')
             os.system('./configure')
@@ -21,7 +21,7 @@ class CustomInstallCommand(install):
             os.system('sudo ldconfig')
             print('installing on linux')
         else:
-            raise('You are trying to install spatial_access on an unsupported platform')
+            raise Exception('You are trying to install spatial_access on an unsupported platform')
         subprocess.call(['pip3 install rtree'])
         install.run(self)
 
