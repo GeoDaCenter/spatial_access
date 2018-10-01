@@ -8,6 +8,13 @@ python:
 - "3.6"
 
 before_install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install spatialindex; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl -L https://github.com/libspatialindex/libspatialindex/archive/1.8.5.tar.gz | tar xz; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd spatialindex-src-1.8.5; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./configure; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then make; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo make install; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo ldconfig; fi
 - pip3 install -r requirements.txt
 
 install:
