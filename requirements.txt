@@ -1,3 +1,4 @@
+fiona>=1.7.12
 cython>=0.28.2
 matplotlib>=2.0.2
 jellyfish>=0.5.6

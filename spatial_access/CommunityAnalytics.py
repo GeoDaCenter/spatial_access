@@ -4,7 +4,7 @@ import pandas as pd
 from geopandas import GeoDataFrame
 #from shapely.geometry import Point
 #from geopandas import gpd
-from ScoreModel import ModelData
+from spatial_access.ScoreModel import ModelData
 import matplotlib.pyplot as pltcat
 import matplotlib.patches as mpatches
 from matplotlib import mlab

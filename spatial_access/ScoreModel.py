@@ -5,7 +5,7 @@ from shapely.geometry import Point
 import matplotlib.patches as mpatches
 from matplotlib import mlab
 import matplotlib as mpl
-from p2p import TransitMatrix
+from spatial_access.p2p import TransitMatrix
 import os.path, csv, math, sys, logging, json, time
 import copy
 from operator import itemgetter
