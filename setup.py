@@ -1,5 +1,10 @@
-import platform, distutils.core, distutils.extension, Cython.Build, setuptools
+import platform, distutils.core, distutils.extension, setuptools
 from setuptools.command.install import install
+try:
+    import Cython.Build
+except ImportError:
+    os.system('pip3 install Cython --force')
+    import Cython.Build
 
 import sys
 import os
@@ -13,19 +18,13 @@ class CustomInstallCommand(install):
             os.system('brew install spatialindex')
             print('installing on osx')
         elif sys.platform.startswith('linux'):
-            sos.system('curl -L https://github.com/libspatialindex/libspatialindex/archive/1.8.5.tar.gz | tar xz')
-            os.system('cd spatialindex-src-1.8.5')
-            os.system('./configure')
-            os.system('make')
-            os.system('sudo make install')
-            os.system('sudo ldconfig')
+            os.system('sudo apt-get install libspatialindex-dev')
             print('installing on linux')
         else:
             raise Exception('You are trying to install spatial_access on an unsupported platform', os.system)
         os.system('pip3 install rtree')
         install.run(self)
 
-## Macs require this extra build option.
 ouff_mac = []
 if sys.platform == "darwin":
   ouff_mac = ['-mmacosx-version-min=10.9']
