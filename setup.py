@@ -3,7 +3,7 @@ from setuptools.command.install import install
 try:
     import Cython.Build
 except:
-    os.system('pip3 install Cython --force')
+    os.system('pip3 install Cython')
     import Cython.Build
 
 class CustomInstallCommand(install):
@@ -13,7 +13,7 @@ class CustomInstallCommand(install):
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
-            os.system('sudo apt-get install libspatialindex-dev')
+            os.system('yes | sudo apt-get install libspatialindex-dev')
         else:
             raise Exception('You are trying to install spatial_access on an unsupported platform', os.system)
         install.run(self)
