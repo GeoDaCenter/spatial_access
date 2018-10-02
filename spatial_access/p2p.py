@@ -82,7 +82,7 @@ class TransitMatrix(object):
         self.network_type = network_type
         self.epsilon = epsilon
         self.primary_input = primary_input
-        self.primary_input_field_mapping = primary_input_field_mapping
+        self.primary_input_field_mappingp = primary_input_field_mapping
         self.secondary_input = secondary_input
         self.secondary_input_field_mapping = secondary_input_field_mapping
         self.sl_data = None
@@ -178,7 +178,7 @@ class TransitMatrix(object):
                 self.DRIVE_CONSTANT = (self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM
 
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             raise EnvironmentError("Necessary file: {} could not be found in current directory".format(filename))
 
 
@@ -249,62 +249,62 @@ class TransitMatrix(object):
 
         # Gather input file basic counts
         record_count = source_data.shape[0]
-        print("record_count: " + str(record_count))
+        self.logger.info("record_count: " + str(record_count))
         column_count = source_data.shape[1]
-        print("column_count: " + str(column_count))
+        self.logger.info("column_count: " + str(column_count))
         cell_count = record_count * column_count
-        print("cell_count: " + str(cell_count))
+        self.logger.info("cell_count: " + str(cell_count))
         
         # Set total error counter to 0
         invalid_count = 0
 
         # Gather null counts
         index_null_count = pd.isnull(source_data[[idx]]).sum()[0]
-        print("index_null_count: " + str(index_null_count))
+        self.logger.info("index_null_count: " + str(index_null_count))
         invalid_count += index_null_count
 
         lat_null_count = pd.isnull(source_data[[lat]]).sum()[0]
-        print("lat_null_count: " + str(lat_null_count))
+        self.logger.info("lat_null_count: " + str(lat_null_count))
         invalid_count += lat_null_count
 
         lon_null_count = pd.isnull(source_data[[lon]]).sum()[0]
-        print("lon_null_count: " + str(lon_null_count))
+        self.logger.info("lon_null_count: " + str(lon_null_count))
         invalid_count += lon_null_count
 
         # Coerce numeric fields to numeric type and collect invalid values
         source_data[lat] = pd.to_numeric(source_data[lat], errors="coerce")
         invalid_lat = pd.isnull(source_data[[lat]]).sum()[0] - lat_null_count
-        print("invalid_lat: " + str(invalid_lat))
+        self.logger.info("invalid_lat: " + str(invalid_lat))
         invalid_count += invalid_lat
         
         source_data[lon] = pd.to_numeric(source_data[lon], errors="coerce")
         invalid_lon = pd.isnull(source_data[[lon]]).sum()[0] - lon_null_count
-        print("invalid_lon: " + str(invalid_lon))
+        self.logger.info("invalid_lon: " + str(invalid_lon))
         invalid_count += invalid_lon
 
         source_data[idx] = pd.to_numeric(source_data[idx], errors="coerce")
         invalid_index = pd.isnull(source_data[[idx]]).sum()[0] - index_null_count
-        print("invalid_index: " + str(invalid_index))
+        self.logger.info("invalid_index: " + str(invalid_index))
         invalid_count += invalid_index 
 
         # Having coerced to numeric, now check for invalid values
         # check for 0 coordinates
         lat_zero_count = (source_data[[lat]] == 0).sum(axis=1).sum()
-        print("lat_zero_count: " + str(lat_zero_count))
+        self.logger.info("lat_zero_count: " + str(lat_zero_count))
         invalid_count += lat_zero_count
         
         lon_zero_count = (source_data[[lon]] == 0).sum(axis=1).sum()
-        print("lon_zero_count: " + str(lon_zero_count))
+        self.logger.info("lon_zero_count: " + str(lon_zero_count))
         invalid_count += lon_zero_count
 
         # check for coordinates with values out of bounds
         current_record_count = source_data.shape[0]
         lat_out_of_bounds_count = current_record_count - source_data[lat].between(-180, 180).sum() - invalid_lat - lat_null_count
-        print("lat_out_of_bounds_count: " + str(lat_out_of_bounds_count))
+        self.logger.info("lat_out_of_bounds_count: " + str(lat_out_of_bounds_count))
         invalid_count += lat_out_of_bounds_count
 
         lon_out_of_bounds_count = current_record_count - source_data[lon].between(-180, 180).sum() - invalid_lon - lon_null_count
-        print("lon_out_of_bounds_count: " + str(lon_out_of_bounds_count))
+        self.logger.info("lon_out_of_bounds_count: " + str(lon_out_of_bounds_count))
         invalid_count += lon_out_of_bounds_count
 
         ## Drop records
@@ -375,7 +375,7 @@ class TransitMatrix(object):
         #if the web app is instantiating a TransitMatrix object/calling this code,
         #a field_mapping dictionary should be present
         if field_mapping:
-            print("Using field mapping provided by web app.")
+            self.logger.info("Using field mapping provided by web app.")
             xcol = field_mapping["lat"]
             ycol = field_mapping["lon"]
             idx = field_mapping["idx"]
@@ -749,11 +749,11 @@ class TransitMatrix(object):
         while self.stack2:
             source = self.stack2.pop()
             if self.visited[source] == False:
-                #print(source)
+                #self.logger.info(source)
                 self.dfs(source)
                 c=c+1
                 self.idd = self.idd+1
-        print("Number of islands initially found:",c) 
+        self.logger.info("Number of islands initially found:",c) 
         #print("Removing id:",self.rem_id) 
         count = 0
         #Remove disconnected nodes
@@ -761,7 +761,7 @@ class TransitMatrix(object):
             if self.comp_id[index] != self.rem_id:
                 count=count+1
                 self.nodes = self.nodes.drop(index)
-        print("Number of disconnected nodes removed:",count) 
+        self.logger.info("Number of disconnected nodes removed:",count) 
 
         self.num_nodes = len(self.nodes)
         self.num_edges = len(self.edges)

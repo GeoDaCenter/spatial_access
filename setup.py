@@ -10,16 +10,12 @@ class CustomInstallCommand(install):
     """Customized setuptools install command"""
     def run(self):
         os.system('pip3 install -r requirements.txt')
-        print('running...')
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
-            print('installing on osx')
         elif sys.platform.startswith('linux'):
             os.system('sudo apt-get install libspatialindex-dev')
-            print('installing on linux')
         else:
             raise Exception('You are trying to install spatial_access on an unsupported platform', os.system)
-        os.system('pip3 install rtree')
         install.run(self)
 
 ouff_mac = []
