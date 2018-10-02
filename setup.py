@@ -1,13 +1,10 @@
-import platform, distutils.core, distutils.extension, setuptools
+import platform, distutils.core, distutils.extension, setuptools, sys, os
 from setuptools.command.install import install
 try:
     import Cython.Build
-except ImportError:
+except:
     os.system('pip3 install Cython --force')
     import Cython.Build
-
-import sys
-import os
 
 class CustomInstallCommand(install):
     """Customized setuptools install command"""

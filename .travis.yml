@@ -13,4 +13,4 @@ install:
 
 script:
 - pytest
-- pylint
+- pylint spatial_access
