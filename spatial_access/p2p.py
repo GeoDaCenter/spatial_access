@@ -392,7 +392,7 @@ class TransitMatrix(object):
         else:
             no_cores = 1
 
-        self.available_threads = no_cores
+        return no_cores
 
     def _clean_speed_limits(self):
         '''
@@ -761,7 +761,7 @@ class TransitMatrix(object):
             self.output_filename,
             self.num_nodes,
             imp_val,
-            self.available_threads,
+            self._get_thread_limit(),
             outer_node_rows,
             outer_node_cols,
             nearest_neighbors,
