@@ -4,7 +4,7 @@
 
 <table>
 <tr>
-  <td>Version/td>
+  <td>Version</td>
   <td>
     0.1.0
   </td>
