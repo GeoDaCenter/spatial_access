@@ -22,6 +22,8 @@ class NetworkInterface():
         self.bbox = None
         self.cache_filename = 'osm_query_cache/'
         self._try_create_cache()
+        self.nodes = None
+        self.edges = None
 
     def clear_cache(self):
         '''
@@ -115,8 +117,8 @@ class NetworkInterface():
         self._get_bbox(primary_data, secondary_data,
                        secondary_input, epsilon)
         if self._network_exists():
-            return pd.read_csv(self.get_nodes_filename()), pd.read_csv(self.get_edges_filename())
-        return self._request_network()
+            self.nodes =  pd.read_csv(self.get_nodes_filename())
+            self.edges = pd.read_csv(self.get_edges_filename())
 
     def _request_network(self):
         '''
@@ -124,13 +126,13 @@ class NetworkInterface():
         current query
         '''
         try:
-            nodes, edges = osm.network_from_bbox(
+            self.nodes, self.edges = osm.network_from_bbox(
                 lat_min=self.bbox[0], lng_min=self.bbox[1],
                 lat_max=self.bbox[2], lng_max=self.bbox[3],
                 network_type=self.network_type)
-            nodes.to_csv(self.get_nodes_filename())
-            edges.to_csv(self.get_edges_filename())
-            return nodes, edges
+            self.nodes.to_csv(self.get_nodes_filename())
+            self.edges.to_csv(self.get_edges_filename())
+
         except BaseException:
             request_error = '''Error trying to download OSM network.
             Did you reverse lat/long?
@@ -139,3 +141,17 @@ class NetworkInterface():
             if self.logger:
                 self.logger.error(request_error)
             sys.exit()
+
+    def number_of_nodes(self):
+        '''
+        Return the number of nodes in the network.
+        '''
+
+        return len(self.nodes)
+
+    def number_of_edges(self):
+        '''
+        Return the number of edges in the network.
+        '''
+
+        return len(self.edges)

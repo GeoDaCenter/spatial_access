@@ -12,10 +12,10 @@ class TestClass(object):
         walk_interface = NetworkInterface('walk')
         source_df = self.create_example_source_table()
 
-        nodes, edges = walk_interface.load_network(source_df, None, False, 0.005)
+        walk_interface.load_network(source_df, None, False, 0.005)
 
         try:
-            assert len(nodes) > 0 and len(edges) > 0
+            assert len(walk_interface.nodes) > 0 and len(walk_interface.edges) > 0
         except BaseException:
             assert False
 
@@ -24,10 +24,10 @@ class TestClass(object):
         walk_interface = NetworkInterface('walk')
         source_df = self.create_example_source_table()
 
-        nodes, edges = walk_interface.load_network(source_df, None, False, 0.005)
+        walk_interface.load_network(source_df, None, False, 0.005)
 
         try:
-            assert len(nodes) > 0 and len(edges) > 0
+            assert len(walk_interface.nodes) > 0 and len(walk_interface.edges) > 0
         except BaseException:
             assert False
 
@@ -37,10 +37,10 @@ class TestClass(object):
         source_df = self.create_example_source_table()
         dest_df = self.create_example_dest_table()
 
-        nodes, edges = drive_interface.load_network(source_df, dest_df, True, 0.005)
+        drive_interface.load_network(source_df, dest_df, True, 0.005)
 
         try:
-            assert len(nodes) > 0 and len(edges) > 0
+            assert len(drive_interface.nodes) > 0 and len(drive_interface.edges) > 0
         except BaseException:
             assert False
 
