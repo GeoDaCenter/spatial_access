@@ -106,8 +106,8 @@ class NetworkInterface():
         Returns: nodes, edges (pandas df's)
         '''
         assert(type(primary_data) == pd.DataFrame)
-        assert(type(secondary_data) == pd.DataFrame)
-        assert(type(secondary_input) == str)
+        assert(type(secondary_data) == pd.DataFrame or type(secondary_data) == type(None))
+        assert(type(secondary_input) == bool)
         assert(type(epsilon) == float or type(epsilon) == int)
 
 

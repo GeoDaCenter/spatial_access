@@ -47,7 +47,7 @@ class TestClass(object):
         transit_matrix_1._load_inputs()
         transit_matrix_1.nodes, transit_matrix_1.edges = transit_matrix_1._networkInterface.load_network(transit_matrix_1.primary_data, 
                                                                      transit_matrix_1.secondary_data, 
-                                                                     transit_matrix_1.secondary_input,
+                                                                     True,
                                                                      transit_matrix_1.epsilon)
 
         try:
