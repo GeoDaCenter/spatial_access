@@ -1,3 +1,5 @@
+
+
 # spatial_access: Large Scale Python spatial analysis toolkit
 
 <table>
@@ -8,15 +10,17 @@
   </td>
 </tr>    
 <tr>
-  <td>Stable Build</td>
+  <td>Latest Release</td>
   <td>
-    [![Build Status](https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=master)](https://travis-ci.org/GeoDaCenter/spatial_access)
+    <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
+    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=master" alt="travis build status" />
   </td>
 </tr>
 <tr>
   <td>Development Build</td>
   <td>
-       [![Build Status](https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=dev_logan)](https://travis-ci.org/GeoDaCenter/spatial_access)
+    <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
+    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=dev_logan" alt="travis build status" 
     </td>
 </tr>
 <tr>
