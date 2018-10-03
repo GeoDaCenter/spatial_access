@@ -4,18 +4,18 @@
  *
  */
 
+#pragma once
+
 #include <iostream>
 #include <thread>
 #include <mutex>
 #include <vector>
 
-using namespace std;
-
 /* jobQueue: a thread-safe queue for dispensing integer jobs*/
 class jobQueue {
 private:
-    vector <int> data;
-    mutex lock;
+    std::vector <int> data;
+    std::mutex lock;
 public:
     jobQueue(int size_in);
     jobQueue(void);
@@ -91,7 +91,7 @@ typedef class workerArgs workerArgs;
 /* A pool of worker threads to execute a job (f_in), which takes arguments (wa)*/
 class workerQueue {
 private:
-    thread *threadArray;
+    std::thread *threadArray;
     int n_threads;
 
 public:
@@ -103,7 +103,7 @@ public:
 
 /*initialize workerQueue */
 workerQueue::workerQueue(int n_threads_in) {
-    threadArray = new thread[n_threads_in];
+    threadArray = new std::thread[n_threads_in];
     n_threads = n_threads_in;
 
 }
@@ -112,7 +112,7 @@ workerQueue::workerQueue(int n_threads_in) {
 /* start the workerQueue */
 void workerQueue::start(void (*f_in)(workerArgs*), workerArgs *wa) {
     for (int i = 0; i < n_threads; i++) {
-        threadArray[i] = thread(f_in, wa);
+        threadArray[i] = std::thread(f_in, wa);
     }
 
     for (int j = 0; j < n_threads; j++) {

@@ -6,3 +6,6 @@ travel_times/access_score.ipynb
 travel_times/access_score.ipynb
 .pytest_cache/
 .DS_Store
+spatial_access.egg-info/
+__pycache__
+.cache

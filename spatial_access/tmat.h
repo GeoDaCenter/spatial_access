@@ -1,8 +1,9 @@
+#pragma once
+
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <string.h>
 #include <mutex>
 #include <thread>
 #include <stdexcept>
@@ -11,12 +12,8 @@
 #include <vector>
 #include <utility>
 
-#include "utils/json.h"
-#include "utils/LimitedQueue.h"
 #include "utils/threadUtilities.h"
 #include "utils/dataFrame.h"
-
-using namespace std;
 
 #define ID_MAX_LEN (20)
 
@@ -24,7 +21,6 @@ using namespace std;
 #define WRITE_AND_LOAD (1)
 #define LOAD_ONLY (2)
 #define READ_ONLY (3)
-
 
 /* struct to represent a single source associated with */
 /* a single network node */
@@ -38,18 +34,17 @@ typedef struct nnSingleEntry {
 /* struct to represent the multiple possible sources associated */
 /* with a single network node */
 typedef struct nnMultiEntry {
-    nnSingleEntry *entries;
-    int n_entries;
+    std::vector<nnSingleEntry> entries;
 } nnMultiEntry;
 
 
 /* class to represent a single column entry*/
 class nnCols {
 public:
-    nnMultiEntry* me;
+    nnMultiEntry me;
 
     void addCol(int col_no, char* id, int dist);
-    void init(string infile, int N);
+    void init(std::string infile, int N);
     ~nnCols(void);
 };
 
@@ -60,28 +55,25 @@ void nnCols::addCol(int col_no, char* id, int dist) {
     se.id = id;
     se.pos = col_no;
     se.dist = dist; 
-    me->entries[me->n_entries] = se;
-    me->n_entries++;
+    me.entries.push_back(se);
 }
 
 
 /* initialize the nnCols class from sparse network in file*/
-void nnCols::init(string infile, int N) {
-    ifstream fileIN;
+void nnCols::init(std::string infile, int N) {
+    std::ifstream fileIN;
     fileIN.open(infile);
     if (fileIN.fail()) {
-        throw runtime_error("Could not load input nn_file");
+        throw std::runtime_error("Could not load input nn_file");
     }
-    me = (nnMultiEntry*) malloc(sizeof(nnMultiEntry));
-    me->n_entries = 0;
-    me->entries = (nnSingleEntry*) malloc(sizeof(nnSingleEntry) * (N + 1));
+    me.entries.reserve(N + 1);
     int col_no, dist;
     const char* id;
 
-    string line;
+    std::string line;
     while (getline(fileIN, line)) {
-        istringstream stream(line);
-        string input;
+        std::istringstream stream(line);
+        std::string input;
         getline(stream, input,',');
         col_no = (int) stoi(input);
         getline(stream, input,',');
@@ -95,21 +87,17 @@ void nnCols::init(string infile, int N) {
 
 /* destructor for the nnCols class*/
 nnCols::~nnCols(void) {
-    for (int i = 0; i < me->n_entries; i++) {
-        //free(me->entries[i].id);
-    } 
-    free(me->entries);
-    free(me);
+
 }
 
 
 /* class to represent the rows of a sparse network*/
 class nnTable {
 public:
-    unordered_map<int, nnMultiEntry*> map;
-    unordered_set <int> s;
+    std::unordered_map<int, nnMultiEntry*> map;
+    std::unordered_set <int> s;
     void addRow(int row_no, char* id, int dist);
-    void init(string infile, int N);
+    void init(std::string infile, int N);
     nnMultiEntry* findMatchingEntries(int row_no);
     ~nnTable();
 };
@@ -125,40 +113,34 @@ void nnTable::addRow(int row_no, char* id, int dist) {
 
     nnMultiEntry *me;
     if (s.find(row_no) == s.end()) {
-        me = (nnMultiEntry*) malloc(sizeof(nnMultiEntry));
-        me->n_entries = 1;
-        me->entries = (nnSingleEntry*) malloc(sizeof(nnSingleEntry));
-        me->entries[0] = se;
+        me = new nnMultiEntry;
+        me->entries.push_back(se);
         s.insert(row_no);
 
     } else {
 
         me = map[row_no];
-        me->n_entries++;
-
-        me->entries = (nnSingleEntry*) realloc(me->entries, 
-            sizeof(nnSingleEntry) * (me->n_entries));
-        me->entries[me->n_entries - 1] = se;
+        me->entries.push_back(se);
     }
     map[row_no] = me;
 }
 
 
 /*initialize the nnTable class with sparse network from file*/
-void nnTable::init(string infile, int N) {
+void nnTable::init(std::string infile, int N) {
     map.reserve(N);
-    ifstream fileIN;
+    std::ifstream fileIN;
     fileIN.open(infile);
     if (fileIN.fail()) {
-        throw runtime_error("Could not load input nn_file");
+        throw std::runtime_error("Could not load input nn_file");
     }
     int row_no, dist;
     const char* id;
 
-    string line;
+    std::string line;
     while (getline(fileIN, line)) {
-        istringstream stream(line);
-        string input;
+        std::istringstream stream(line);
+        std::string input;
         getline(stream, input,',');
         row_no = (int) stoi(input);
         getline(stream, input,',');
@@ -174,15 +156,18 @@ void nnTable::init(string infile, int N) {
 
 /*destructor for the nnTable class*/
 nnTable::~nnTable(void) {
-    unordered_map<int, nnMultiEntry*>::iterator itr;
-
-    for (itr = map.begin(); itr != map.end(); itr++) {
-        for (int i = 0; i < itr->second->n_entries; i++) {
-            free(itr->second->entries[i].id);
-        }
-        free(itr->second->entries);
-        free(itr->second);
+    // std::unordered_map<int, nnMultiEntry*>::iterator itr;
+    for (auto valuePair : map)
+    {
+        delete valuePair.second;
     }
+    // for (itr = map.begin(); itr != map.end(); itr++) {
+    //     for (int i = 0; i < itr->second->n_entries; i++) {
+    //         free(itr->second->entries[i].id);
+    //     }
+    //     free(itr->second->entries);
+    //     free(itr->second);
+    // }
 }
 
 
@@ -249,8 +234,7 @@ void newMinHeapNode(int v, int dist, MinHeapNode *new_node)
 /* A utility function to create a new adjacency list node*/
 struct AdjListNode* newAdjListNode(int dest, int weight)
 {
-    struct AdjListNode* newNode =
-            (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
+    struct AdjListNode* newNode = new AdjListNode;
     newNode->dest = dest;
     newNode->weight = weight;
     newNode->next = NULL;
@@ -261,11 +245,11 @@ struct AdjListNode* newAdjListNode(int dest, int weight)
 /* A utility function that creates a graph of V vertices*/
 struct Graph* createGraph(int V)
 {
-    struct Graph* graph = (struct Graph*) malloc(sizeof(struct Graph));
+    struct Graph* graph = new Graph;
     graph->V = V;
  
     // Create an array of adjacency lists.  Size of array will be V
-    graph->array = (struct AdjList*) malloc(V * sizeof(struct AdjList));
+    graph->array = new AdjList[V];
  
      // Initialize each adjacency list as empty by making head as NULL
     for (int i = 0; i < V; ++i)
@@ -277,8 +261,8 @@ struct Graph* createGraph(int V)
  
 /* free a graph struct*/
 void freeGraph(Graph* graph) {
-    free(graph->array);
-    free(graph);
+    delete [] graph->array;
+    delete graph;
 }
 
 
@@ -294,21 +278,21 @@ void addEdge(struct Graph* graph, int src, int dest, int weight)
 }
 
 /* Utility function to read edge list from .csv*/
-void readCSV(Graph* graph, string infile) {
-    ifstream fileIN;
+void readCSV(Graph* graph, std::string infile) {
+    std::ifstream fileIN;
 
     int src, dst, edge_weight;
 
     fileIN.open(infile);
     if (fileIN.fail()) {
-        throw runtime_error("Could not load input file");
+        throw std::runtime_error("Could not load input file");
     }
 
-    string line;
+    std::string line;
     
     while (getline(fileIN, line)) {
-        istringstream stream(line);
-        string input;
+        std::istringstream stream(line);
+        std::string input;
         getline(stream, input,',');
         src = (int) stoi(input);
         getline(stream, input,',');
@@ -322,21 +306,21 @@ void readCSV(Graph* graph, string infile) {
 
 
 /* write the header line for the output file */
-void writeHeader(nnCols *snn, string outfile) {
-    ofstream Ofile;
+void writeHeader(nnCols *snn, std::string outfile) {
+    std::ofstream Ofile;
 
     Ofile.open(outfile);
     if (Ofile.fail()) {
-        throw runtime_error("Could not open output file");
+        throw std::runtime_error("Could not open output file");
     }
     Ofile << ",";
-    for (int i = 0; i < snn->me->n_entries; i++) {
-        Ofile << snn->me->entries[i].id;
-        if (i < snn->me->n_entries - 1) {
+    for (auto i = 0; i < snn->me.entries.size(); i++) {
+        Ofile << snn->me.entries.at(i).id;
+        if (i < snn->me.entries.size() - 1) {
             Ofile << ",";
         }
     }
-    Ofile << endl;
+    Ofile << std::endl;
     Ofile.close();
 
 }
@@ -348,19 +332,18 @@ public:
     jobQueue jq;
     nnTable primaryNN;
     nnCols secondaryNN;
-    json_2d json;
-    string outfile;
+    std::string outfile;
     dataFrame *df;
     float impedence;
     int mode;
     int N;
     int user_cols;
     int write_mode;
-    mutex write_lock;
-    mutex insert_data;
-    workerArgs(string infile, string outfile_in, float impedence_in, 
+    std::mutex write_lock;
+    std::mutex insert_data;
+    workerArgs(std::string infile, std::string outfile_in, float impedence_in, 
         int mode_in, int N_in, int user_cols_in,
-        string nn_prim_in, string nn_sec_in, dataFrame *df_in, int write_mode);
+        std::string nn_prim_in, std::string nn_sec_in, dataFrame *df_in, int write_mode);
     workerArgs(void);
     ~workerArgs(void);
 
@@ -372,16 +355,16 @@ workerArgs::workerArgs(void) {
 
 
 /* wa initializer */
-workerArgs::workerArgs(string infile, string outfile_in, float impedence_in, 
-    int mode_in, int N_in, int user_cols_in, string nn_prim_in, 
-    string nn_sec_in, dataFrame *df_in, int write_mode_in) {
+workerArgs::workerArgs(std::string infile, std::string outfile_in, float impedence_in, 
+    int mode_in, int N_in, int user_cols_in, std::string nn_prim_in, 
+    std::string nn_sec_in, dataFrame *df_in, int write_mode_in) {
 
     //init values
     impedence = impedence_in;
     mode = mode_in;
     N = N_in;
     user_cols = user_cols_in;
-    outfile = string(outfile_in);
+    outfile = std::string(outfile_in);
     df = df_in;
     write_mode = write_mode_in;
 
@@ -408,13 +391,6 @@ workerArgs::workerArgs(string infile, string outfile_in, float impedence_in,
 /* wa destructor */
 workerArgs::~workerArgs(void) {
 
-    //write data if json type
-    if (mode) {
-        if ((write_mode == WRITE_ONLY) || (write_mode == WRITE_AND_LOAD)) {
-            json.write(outfile);
-        }
-    }
-
     //clean up
     
     struct AdjListNode *AdjListNode;
@@ -424,7 +400,7 @@ workerArgs::~workerArgs(void) {
             AdjListNode = graph->array[i].head;
             while (AdjListNode) {
                 temp = AdjListNode->next;
-                free(AdjListNode);
+                delete AdjListNode;
                 AdjListNode = temp;
             }
 
@@ -439,22 +415,20 @@ workerArgs::~workerArgs(void) {
 /* A utility function to create a Min Heap*/
 struct MinHeap* createMinHeap(int capacity)
 {
-    struct MinHeap* minHeap =
-         (struct MinHeap*) malloc(sizeof(struct MinHeap));
-    minHeap->pos = (int *)malloc(capacity * sizeof(int));
+    struct MinHeap* minHeap = new MinHeap;
+    minHeap->pos = new int[capacity];
     minHeap->size = 0;
     minHeap->capacity = capacity;
-    minHeap->array =
-         (struct MinHeapNode*) malloc(capacity * sizeof(struct MinHeapNode));
+    minHeap->array = new MinHeapNode[capacity];
     return minHeap;
 }
 
 
 /* free a minHeap struct*/
 void freeMinheap(MinHeap* minHeap) {
-    free(minHeap->pos);
-    free(minHeap->array);
-    free(minHeap);
+    delete [] minHeap->array;
+    delete minHeap->pos;
+    delete minHeap;
 }
 
 
@@ -578,24 +552,24 @@ bool isInMinHeap(struct MinHeap *minHeap, int v)
 
 /*write_row: write a row to file*/
 void writeRow(int* dist, nnMultiEntry* me_prim, workerArgs *wa) {
-    ofstream Ofile;
+    std::ofstream Ofile;
     if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-        Ofile.open(wa->outfile, ios_base::app);
+        Ofile.open(wa->outfile, std::ios_base::app);
         wa->write_lock.lock();
     }
     int src_imp, dst_imp, calc_imp, fin_imp;
-    for (int i = 0; i < me_prim->n_entries; i++) {
+    for (auto i = 0; i < me_prim->entries.size(); i++) {
         src_imp = me_prim->entries[i].dist / wa->impedence;
-        unordered_map<string, int> row_data;
+        std::unordered_map<std::string, int> row_data;
         if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
             Ofile <<  me_prim->entries[i].id << ",";
         }
-        for (int j = 0; j < wa->secondaryNN.me->n_entries; j++) {
-            dst_imp = wa->secondaryNN.me->entries[j].dist * wa->impedence;
-            calc_imp = dist[wa->secondaryNN.me->entries[j].pos];
+        for (auto j = 0; j < wa->secondaryNN.me.entries.size(); j++) {
+            dst_imp = wa->secondaryNN.me.entries.at(j).dist * wa->impedence;
+            calc_imp = dist[wa->secondaryNN.me.entries.at(j).pos];
             if (calc_imp == INT_MAX) {
                 fin_imp = -1;
-            } else if (me_prim->entries[i].pos == wa->secondaryNN.me->entries[j].pos) {
+            } else if (me_prim->entries.at(i).pos == wa->secondaryNN.me.entries.at(j).pos) {
                 fin_imp = 0;
             }
             else {
@@ -604,12 +578,12 @@ void writeRow(int* dist, nnMultiEntry* me_prim, workerArgs *wa) {
             if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
                 Ofile << fin_imp;
             }
-            if (j < wa->secondaryNN.me->n_entries - 1) {
+            if (j < wa->secondaryNN.me.entries.size() - 1) {
                 if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
                     Ofile << ",";
                 }
             }
-            row_data[wa->secondaryNN.me->entries[j].id] = fin_imp;
+            row_data[wa->secondaryNN.me.entries.at(j).id] = fin_imp;
 
         }
         if ((wa->write_mode == LOAD_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
@@ -618,7 +592,7 @@ void writeRow(int* dist, nnMultiEntry* me_prim, workerArgs *wa) {
             wa->insert_data.unlock();
         }
         if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-            Ofile << endl;
+            Ofile << std::endl;
         }
     }
     if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
@@ -627,40 +601,6 @@ void writeRow(int* dist, nnMultiEntry* me_prim, workerArgs *wa) {
     }
 }
 
-/*findBest: get best n entries*/
-void findBest(int* dist, nnMultiEntry* me_prim, workerArgs *wa) {
-    limitedQueue lq(wa->mode);
-    int src_imp, dst_imp, calc_imp, fin_imp;
-    string src_id;
-    string dst_id;
-    for (int i = 0; i < me_prim->n_entries; i++) {
-        src_imp = me_prim->entries[i].dist / wa->impedence;
-        src_id = me_prim->entries[i].id;
-        for (int j = 0; j < wa->secondaryNN.me->n_entries; j++) {
-            dst_imp = wa->secondaryNN.me->entries[j].dist * wa->impedence;
-            dst_id = wa->secondaryNN.me->entries[j].id;
-            calc_imp = dist[wa->secondaryNN.me->entries[j].pos];
-            if (calc_imp == INT_MAX) {
-                continue;
-            } else if (me_prim->entries[i].pos == wa->secondaryNN.me->entries[j].pos) {
-                continue;
-            }
-            else {
-                fin_imp = dst_imp + calc_imp + src_imp;
-                lq.put(dst_id, fin_imp);
-            }
-
-
-        }
-        //wa->insert_data.lock();
-        //wa->data->emplace(me_prim->entries[i].id, lq.get());
-        //wa->insert_data.unlock();
-        wa->write_lock.lock();
-        wa->json.insert(src_id, lq.get());
-        wa->write_lock.unlock();
-    }
-
-}
 
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
@@ -730,11 +670,8 @@ void dijkstra(int src, workerArgs *wa) {
     }
 
     //write row to file or find best
-    if (!wa->mode) {
-        writeRow(dist, me_prim, wa);
-    } else {
-        findBest(dist, me_prim, wa);
-    }
+    writeRow(dist, me_prim, wa);
+   
 
     //free allocated memory
     freeMinheap(minHeap);
@@ -742,23 +679,23 @@ void dijkstra(int src, workerArgs *wa) {
     
 }
 
-vector<string> readIDs(string infile) {
+std::vector<std::string> readIDs(std::string infile) {
 
-    ifstream fileIN;
+    std::ifstream fileIN;
 
     int a, b;
-    string id;
+    std::string id;
 
     fileIN.open(infile);
     if (fileIN.fail()) {
-        throw runtime_error("Could not load input file");
+        throw std::runtime_error("Could not load input file");
     }
 
-    string line;
-    vector<string> data;
+    std::string line;
+    std::vector<std::string> data;
     while (getline(fileIN, line)) {
-        istringstream stream(line);
-        string input;
+        std::istringstream stream(line);
+        std::string input;
         getline(stream, input,',');
         a = (int) stoi(input);
         getline(stream, input,',');
@@ -789,12 +726,12 @@ public:
     dataFrame df;
     //unique_ptr<dataFrame> df_ptr; //causes setup.py to fail
     int write_mode;
-    tMatrix(string infile, string nn_pinfile, string nn_sinfile, string outfile,
+    tMatrix(std::string infile, std::string nn_pinfile, std::string nn_sinfile, std::string outfile,
         int N, float impedence, int num_threads, int outer_node_rows, 
         int outer_node_cols, int mode, int write_mode);
     tMatrix(void);
     ~tMatrix(void);
-    int get(string source, string dest);
+    int get(std::string source, std::string dest);
     void loadFromDisk(void);
 };
 
@@ -807,7 +744,7 @@ void tMatrix::loadFromDisk(void) {
 
 }
 
-tMatrix::tMatrix(string infile, string nn_pinfile, string nn_sinfile, string outfile,
+tMatrix::tMatrix(std::string infile, std::string nn_pinfile, std::string nn_sinfile, std::string outfile,
         int N, float impedence, int num_threads, int outer_node_rows, int outer_node_cols, 
         int mode, int write_mode_in) {
 
@@ -816,14 +753,14 @@ tMatrix::tMatrix(string infile, string nn_pinfile, string nn_sinfile, string out
 
     if (write_mode == READ_ONLY) {
         if (!df.loadFromDisk(infile)) {
-            throw runtime_error("failed to load df from file");
+            throw std::runtime_error("failed to load df from file");
         }
 
     } else {
         //initialize worker arguments
-        vector<string> primary_ids = readIDs(nn_pinfile);
+        std::vector<std::string> primary_ids = readIDs(nn_pinfile);
 
-        vector<string> secondary_ids = readIDs(nn_sinfile);
+        std::vector<std::string> secondary_ids = readIDs(nn_sinfile);
 
         if ((write_mode == LOAD_ONLY) || (write_mode == WRITE_AND_LOAD)) {
             df.reserve(primary_ids, secondary_ids);
@@ -841,7 +778,7 @@ tMatrix::tMatrix(string infile, string nn_pinfile, string nn_sinfile, string out
 
 }
 
-int tMatrix::get(string source, string dest) {
+int tMatrix::get(std::string source, std::string dest) {
     if (write_mode != WRITE_ONLY) {
         return df.retrieveSafe(source, dest);
     } else {

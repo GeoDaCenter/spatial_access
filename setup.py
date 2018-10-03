@@ -9,13 +9,15 @@ except:
 class CustomInstallCommand(install):
     """Customized setuptools install command"""
     def run(self):
-        os.system('pip3 install -r requirements.txt')
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
             os.system('yes | sudo apt-get install libspatialindex-dev')
         else:
-            raise Exception('You are trying to install spatial_access on an unsupported platform', os.system)
+            exception_message = '''You are trying to install spatial_access on an unsupported 
+                                   platform. Note: We DO NOT support Windows.'''
+
+            raise Exception(exception_message, os.system)
         install.run(self)
 
 ouff_mac = []
@@ -55,6 +57,13 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'jupyter_nbextensions_configurator>=0.1.7'
 ]
 
+SUBMODULE_NAMES = ['spatial_access.p2p', 
+                   'spatial_access.ScoreModel', 
+                   'spatial_access.CommunityAnalytics',
+                   'spatial_access.ConfigInterface',
+                   'spatial_access.NetworkInterface',
+                   'spatial_access.MatrixInterface']
+
 setuptools.setup(
     cmdclass = {'install':CustomInstallCommand},
     name = 'spatial_access',
@@ -64,5 +73,5 @@ setuptools.setup(
     version='0.1.0',
     ext_modules=EXT_MODULES,
     install_requires=REQUIRED_DEPENDENCIES,
-    py_modules=['spatial_access.p2p', 'spatial_access.ScoreModel', 'spatial_access.CommunityAnalytics']
+    py_modules=SUBMODULE_NAMES
     )
