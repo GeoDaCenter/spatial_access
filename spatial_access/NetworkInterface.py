@@ -117,8 +117,14 @@ class NetworkInterface():
         self._get_bbox(primary_data, secondary_data,
                        secondary_input, epsilon)
         if self._network_exists():
-            self.nodes =  pd.read_csv(self.get_nodes_filename())
-            self.edges = pd.read_csv(self.get_edges_filename())
+            node_filename = self.get_nodes_filename()
+            edge_filename = self.get_edges_filename()
+
+            self.nodes =  pd.read_csv(node_filename)
+            self.edges = pd.read_csv(edge_filename)
+            if self.logger:
+                self.logger.debug('Read nodes from %s', node_filename)
+                self.logger.debug('Read edges from %s', edge_filename)
 
     def _request_network(self):
         '''

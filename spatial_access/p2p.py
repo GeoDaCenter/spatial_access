@@ -282,7 +282,7 @@ class TransitMatrix():
         xcol = ''
         ycol = ''
         idx = ''
-
+        skip_user_input = field_mapping
         # use the column names if we already have them
         try:
             if primary and self.primary_hints:
@@ -293,18 +293,19 @@ class TransitMatrix():
                 xcol = self.secondary_hints['xcol']
                 ycol = self.secondary_hints['ycol']
                 idx = self.secondary_hints['idx']
+            skip_user_input = True
+
         except BaseException:
             pass
 
         # if the web app is instantiating a TransitMatrix object/calling this code,
         # a field_mapping dictionary should be present
         if field_mapping:
-            self.logger.info("Using field mapping provided by web app.")
             xcol = field_mapping["lat"]
             ycol = field_mapping["lon"]
             idx = field_mapping["idx"]
 
-        else:
+        if not skip_user_input:
             print('The variables in your data set are:')
             for var in source_data_columns:
                 print('> ', var)
