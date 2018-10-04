@@ -15,7 +15,8 @@ class TestClass(object):
         walk_interface.load_network(source_df, None, False, 0.005)
 
         try:
-            assert len(walk_interface.nodes) > 0 and len(walk_interface.edges) > 0
+           assert walk_interface.nodes is not None and walk_interface.edges is not None 
+           assert len(walk_interface.nodes) > 0 and len(walk_interface.edges) > 0
         except BaseException:
             assert False
 
@@ -27,6 +28,7 @@ class TestClass(object):
         walk_interface.load_network(source_df, None, False, 0.005)
 
         try:
+            assert walk_interface.nodes is not None and walk_interface.edges is not None
             assert len(walk_interface.nodes) > 0 and len(walk_interface.edges) > 0
         except BaseException:
             assert False
@@ -40,6 +42,7 @@ class TestClass(object):
         drive_interface.load_network(source_df, dest_df, True, 0.005)
 
         try:
+            assert drive_interface.nodes is not None and drive_interface.edges is not None
             assert len(drive_interface.nodes) > 0 and len(drive_interface.edges) > 0
         except BaseException:
             assert False
