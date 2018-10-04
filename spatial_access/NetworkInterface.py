@@ -147,11 +147,12 @@ class NetworkInterface():
         Return the number of nodes in the network.
         '''
 
+        assert self.nodes is not None
         return len(self.nodes)
 
     def number_of_edges(self):
         '''
         Return the number of edges in the network.
         '''
-
+        assert self.edges is not None
         return len(self.edges)
