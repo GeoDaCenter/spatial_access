@@ -190,14 +190,14 @@ class CoverageModel(ModelData):
         #Making the lower areal unit the index to avoid confusions with embedded Python's index 
         low_area=low_area.set_index('lower_areal_unit')
         return low_area.join(res)
-              
+    
     def write_aggregate(self, aggregate_type, filename=None):
          '''
          Write the aggregate to csv
          '''
          df = self._get_aggregate(aggregate_type)
          if not filename:
-             filename = self.get_output_filename_cov('{}_aggregate'.format(aggregate_type))
+             filename = self.get_output_filename('{}_aggregate'.format(aggregate_type))
 
          df.to_csv(filename)
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
@@ -208,11 +208,12 @@ class CoverageModel(ModelData):
          '''
          df = self.agg_area_cat()
          if not filename:
-             filename = self.get_output_filename_cov('{}agg_area_cat'.format(self.network_type))
+             filename = self.get_output_filename('{}agg_area_cat'.format(self.network_type))
 
          df.to_csv(filename)
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
             
+
     def plot_cdf(self, title='Coverage Amount'):
         '''
         Generate a CDF. If limit_categories was specified,
@@ -269,7 +270,7 @@ class CoverageModel(ModelData):
         '''
         assert self.good_to_write, 'need to calculate first'
         if not filename:
-            filename = self.get_output_filename_cov('Coverage_{}'.format(self.network_type))
+            filename = self.get_output_filename('coverage_{}'.format(self.network_type), file_path=file_path)
         self.results.to_csv(filename)
 
 
@@ -313,7 +314,7 @@ class AccessModel(ModelData):
 
 
     def calculate(self, custom_threshold=40, normalize=True, 
-        custom_weight_dict=None, largest_weights_first=True, subset_provided=False):
+        custom_weight_dict=None, largest_weights_first=True):
         '''
         Calculate the Access score for each block
         from the vendors within the specified range.
@@ -329,10 +330,6 @@ class AccessModel(ModelData):
             largest_weights_first: boolean, if using custom_weight_dict. If True,
             sort the weight arrays such that largest will be used first. IF false,
             do the opposite.
-            by_category: if True, calculate() returns access values for each 
-            provided destination category individually as well as for the aggregate
-            of the selected categories.  if False, just the aggregate access value
-            for facilities matching the destination categories is output.
         '''
 
         start_time = time.time()
@@ -341,10 +338,12 @@ class AccessModel(ModelData):
         DIMINISH_WEIGHTS =  [1,1,1,1,1,1,1,1,1,1]
         
         #Construct a list of category subsets for which access should be calculated.
-        #First append the full list of categories chosen (so the aggregate measure for those categories is also calculated)
-        #If only a single category was chosen, there's no need to append the full list, since the aggregate will just be that single category.
+        #First append the full list of categories chosen (so the aggregate measure for 
+        #those categories is also calculated). If only a single category was chosen, there's
+        #no need to append the full list, since the aggregate will just be that single category.
         category_list = [self.limit_categories] #If no categories chosen, we end up with [[]]
-        if subset_provided and len(self.limit_categories) > 1:
+        
+        if len(self.limit_categories) > 1:
             for category in self.limit_categories:
                 category_list.append([category])
 
@@ -507,16 +506,15 @@ class AccessModel(ModelData):
     def _replace_symbols(self, txt):
         
         # Replace all non-word characters (everything except numbers, letters and underscores) with underscores
-        txt = re.sub(r"[^\w]", '_', txt)
-        return txt
+        return re.sub(r"[^\w]", '_', txt)
 
-    def write_csv(self, filename=None):
+    def write_csv(self, filename=None, file_path=None):
         '''
         Write the model data to file.
         '''
         assert self.good_to_write, 'need to calculate first'
         if not filename:
-            filename = self.get_output_filename_access('Access_{}'.format(self.network_type))
+            filename = self.get_output_filename('access_{}'.format(self.network_type), file_path=file_path)
         self.results.to_csv(filename)
 
     def _get_aggregate(self, aggregate_type):
@@ -555,7 +553,7 @@ class AccessModel(ModelData):
         '''
         df = self._get_aggregate(aggregate_type)
         if not filename:
-            filename = self.get_output_filename_access('{}_aggregate'.format(aggregate_type))
+            filename = self.get_output_filename('{}_aggregate'.format(aggregate_type))
 
         df.to_csv(filename)
         self.logger.info('Wrote aggregate to file: {}'.format(filename))
@@ -635,7 +633,7 @@ class TTMetrics(ModelData):
         #Create count of destinations within range
         for s, val in self.source2dest.items():
             self.n_dests_in_range[s] = {}
-            no_cat = 0
+    
             if self.category_set == set(["CAT_UNDEFINED"]):
                 self.n_dests_in_range[s]= len([item for item in val if item])
 
@@ -651,6 +649,7 @@ class TTMetrics(ModelData):
         self.near_nbr = {}
         for s,val in self.dicto.items():
             self.near_nbr[s] = {}
+            no_cat = 0
             if self.category_set == set(["CAT_UNDEFINED"]):
                 self.near_nbr[s] = val[0][1]
             else:
