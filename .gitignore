@@ -1,8 +1,70 @@
-*.DS_Store 
-*.pyc
-
+# Ad hoc *
+###################
 PCNO/dedupe_working_data.csv
 travel_times/access_score.ipynb
 travel_times/access_score.ipynb
 
-.DS_Store
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+*.ipynb_checkpoints
+
+# Python files #
+######################
+*__pycache__/
+
+# R files #
+######################
+*.Rhistory
+
+# OS generated files #
+######################
+*.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Outputs and resources
+######################
+travel_times/scripts/data/*
+travel_times/scripts/web_app_data/*
+travel_times/scripts/uploads/*
+
+# Distribution files
+######################
+travel_times/dist/
+travel_times/build/
+travel_times/instance/
+*.egg-info/
+
+
+
+
