@@ -224,39 +224,6 @@ class ModelData(object):
 
         return filename
     
-    def get_output_filename_access (self, keyword, extension='csv', file_path='data/access_metrics/'):
-        '''
-        Given a keyword, find an unused filename.
-        '''
-        
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        filename = file_path + '{}_0.{}'.format(keyword, extension)
-        counter = 1
-        while os.path.isfile(filename):
-            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
-            counter += 1
-        self.output_filename = filename
-
-        return filename
-    
-    def get_output_filename_cov (self, keyword, extension='csv', file_path='data/coverage_metrics/'):
-        '''
-        Given a keyword, find an unused filename.
-        '''
-        
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        filename = file_path + '{}_0.{}'.format(keyword, extension)
-        counter = 1
-        while os.path.isfile(filename):
-            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
-            counter += 1
-        self.output_filename = filename
-
-        return filename
-    
-    
     def set_logging(self, level=None):
         '''
         Set the logging level to debug or info
