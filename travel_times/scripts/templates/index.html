@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href = "https://code.jquery.com/ui/1.12.1/themes/ui-darkness/jquery-ui.css"
+         rel = "stylesheet">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+          integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+          crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/customMethods.js') }}"></script>
+
+<!--     base black-tie blitzer cupertino dark-hive dot-luv eggplant excite-bike flick hot-sneaks humanity le-frog mint-choc overcast pepper-grinder redmond smoothness south-street start sunny swanky-purse trontastic ui-darkness ui-lightness vader -->
+</head>
+<body>
+ 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <h1 class="title">Service Facility Spatial Analytics Engine</h1>
+        </div>
+    </header>
+
+    <main class="hero-section">
+        <div class="container">
+            <div class="section-content">
+                <div id="dialog" title="Information">
+                  <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+                </div>
+                <h2>What do you want to calculate?</h2>
+                <form method="POST" action="/" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="form-group">
+                        {% if form.coverage_measures_checkbox.errors %}
+                            {% for error in form.coverage_measures_checkbox.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                    	{{ form.access_measures_checkbox.label }}
+                    	{{ form.access_measures_checkbox }}
+                        <div>
+                            <ul>
+                                <li>HSSA Score<i class='material-icons infoButton' id='HSSAScoreInfoButton'>info</i></li>
+                                <li>Accessible facility count</li>
+                                <li>Time to closest facility</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ form.coverage_measures_checkbox.label }}
+                        {{ form.coverage_measures_checkbox }}
+                        <div>
+                            <ul>
+                                <li>Number of people within access space</li>
+                                <li>Per capita spending</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ form.travel_mode.label }}
+                        {{ form.travel_mode }}
+                    </div>
+                    <div class="form-group">
+                        <label for="maximumTimeSlider">Maximum travel time (in minutes)</label>
+                        {% if request.form["maximumTimeSlider"] %}
+                            <input id="maximumTimeSliderId" name="maximumTimeSlider" class="slider" type="range" value={{ request.form["maximumTimeSlider"] }} min="1" max="120" oninput="maximumTimeSliderValueId.value = maximumTimeSliderId.value" />
+                            <output name="maximumTimeSliderValue" id="maximumTimeSliderValueId">{{ request.form["maximumTimeSlider"] }}</output>
+                        {% else %}
+                            <input id="maximumTimeSliderId" name="maximumTimeSlider" class="slider" type="range" value="30" min="1" max="120" oninput="maximumTimeSliderValueId.value = maximumTimeSliderId.value" />
+                            <output name="maximumTimeSliderValue" id="maximumTimeSliderValueId">30</output>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group" id="advancedSettingsLabelContainer">
+                        <label id="advancedSettingsLabel">Advanced settings</label>
+                        <i class="material-icons" title="Advanced Access Measure Settings" id="advancedSettingsButton">settings</i>
+                    </div>
+                    <div class="form-group" id="advancedSettingsContainer">
+
+                        <div class="form-group">
+                            <label for="walkSpeedSlider">Walk speed (in miles per hour)</label>
+                            {% if request.form["walkSpeedSlider"] %}
+                                <input id="walkSpeedSliderId" name="walkSpeedSlider" class="slider" type="range" value={{ request.form["walkSpeedSlider"] }} min="0.5" max="5"  step="0.1" oninput="walkSpeedSliderValueId.value = walkSpeedSliderId.value" />
+                                <output name="walkSpeedSliderValue" id="walkSpeedSliderValueId">{{ request.form["walkSpeedSlider"] }}</output>
+                            {% else %}
+                                <input id="walkSpeedSliderId" name="walkSpeedSlider" class="slider" type="range" value="3" min="0.5" max="5"  step="0.1" oninput="walkSpeedSliderValueId.value = walkSpeedSliderId.value" />
+                                <output name="walkSpeedSliderValue" id="walkSpeedSliderValueId">3</output>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.decay_function.label }}
+                            {{ form.decay_function }}
+                        </div>
+                        <div class="form-group">
+                            <label id="epsilonValueSliderLabel" for="epsilonValueSlider">Epsilon value</label>
+                            <i class='material-icons infoButton' id='epsilonValueSliderInfoButton'>info</i>
+                            <br>
+                            {% if request.form["epsilonValueSlider"] %}
+                                <input id="epsilonValueSliderId" name="epsilonValueSlider" class="slider" type="range" value={{request.form["epsilonValueSlider"]}} min="0" max="0.2"  step="0.01" oninput="epsilonValueSliderValueId.value = epsilonValueSliderId.value" />
+                                <output name="epsilonValueSliderValue" id="epsilonValueSliderValueId">{{request.form["epsilonValueSlider"]}}</output>
+                            {% else %}
+                                <input id="epsilonValueSliderId" name="epsilonValueSlider" class="slider" type="range" value="0.05" min="0" max="0.2"  step="0.01" oninput="epsilonValueSliderValueId.value = epsilonValueSliderId.value" />
+                                <output name="epsilonValueSliderValue" id="epsilonValueSliderValueId">0.05</output>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.custom_weight_dict.label }}
+                            {{ form.custom_weight_dict }}
+                        </div>
+
+                    </div>
+
+                    <!-- ORIGIN FIELDS -->
+
+                    <h2>Select your origin file</h2>
+
+                    <div class="form-group">
+                        {{ form.origin_file.label }}
+                        {% if form.origin_file.errors %}
+                            {% for error in form.origin_file.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        {{ form.origin_file }}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.origin_unique_id_field.label }}
+                        {{ form.origin_unique_id_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.origin_latitude_field.label }}
+                        {{ form.origin_latitude_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.origin_longitude_field.label }}
+                        {{ form.origin_longitude_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.origin_population_field.label }}
+                        {{ form.origin_population_field }}
+                    </div>
+
+                    <!-- DESTINATION FIELDS -->
+
+                    <h2>Select your destination file</h2>
+
+                    <div class="form-group">
+                        {{ form.destination_file.label }}
+                        {% if form.destination_file.errors %}
+                            {% for error in form.destination_file.errors %}
+                                <p class="error-message">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        {{ form.destination_file }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.destination_unique_id_field.label }}
+                        {{ form.destination_unique_id_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.destination_latitude_field.label }}
+                        {{ form.destination_latitude_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.destination_longitude_field.label }}
+                        {{ form.destination_longitude_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.destination_target_field.label }}
+                        {{ form.destination_target_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.destination_category_field.label }}
+                        {{ form.destination_category_field }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.destination_categories.label }}
+                        {{ form.destination_categories }}
+                    </div>
+
+                    {{ form.submit(class="btn-primary") }}
+
+                </form>
+            </div>
+
+            <div class="clearfix"></div>
+        </div>
+    </main>
+
+</body>
+
+</html>
