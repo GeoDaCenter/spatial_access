@@ -313,7 +313,7 @@ class AccessModel(ModelData):
 
 
     def calculate(self, custom_threshold=40, normalize=True, 
-        custom_weight_dict=None, largest_weights_first=True, subset_provided=False):
+        custom_weight_dict=None, largest_weights_first=True):
         '''
         Calculate the Access score for each block
         from the vendors within the specified range.
@@ -329,10 +329,6 @@ class AccessModel(ModelData):
             largest_weights_first: boolean, if using custom_weight_dict. If True,
             sort the weight arrays such that largest will be used first. IF false,
             do the opposite.
-            by_category: if True, calculate() returns access values for each 
-            provided destination category individually as well as for the aggregate
-            of the selected categories.  if False, just the aggregate access value
-            for facilities matching the destination categories is output.
         '''
 
         start_time = time.time()
@@ -344,7 +340,7 @@ class AccessModel(ModelData):
         #First append the full list of categories chosen (so the aggregate measure for those categories is also calculated)
         #If only a single category was chosen, there's no need to append the full list, since the aggregate will just be that single category.
         category_list = [self.limit_categories] #If no categories chosen, we end up with [[]]
-        if subset_provided and len(self.limit_categories) > 1:
+        if len(self.limit_categories) > 1:
             for category in self.limit_categories:
                 category_list.append([category])
 
@@ -507,10 +503,9 @@ class AccessModel(ModelData):
     def _replace_symbols(self, txt):
         
         # Replace all non-word characters (everything except numbers, letters and underscores) with underscores
-        txt = re.sub(r"[^\w]", '_', txt)
-        return txt
+        return re.sub(r"[^\w]", '_', txt)
 
-    def write_csv(self, filename=None):
+    def write_csv(self, filename=None, file_path=None):
         '''
         Write the model data to file.
         '''
