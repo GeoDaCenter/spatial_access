@@ -18,6 +18,8 @@
 #include "utils/MinHeap.h"
 #include "utils/userDataContainer.h"
 
+#define UNDEFINED (-1)
+
 /* struct to represent a single source associated with */
 /* a single network node */
 
@@ -63,8 +65,8 @@ workerArgs::workerArgs(Graph &graph, userDataContainer &userSourceData,
 
 
     //initialize job queue
-    auto sourceTractIds = userSourceData.retrieveAllNetworkNodeIds();
-    for (auto i : sourceTractIds) {
+    auto sourceTractIds = userSourceData.retrieveUniqueNetworkNodeIds();
+    for (int i : sourceTractIds) {
         jq.insert(i);
     }
 
@@ -80,53 +82,82 @@ workerArgs::~workerArgs(void) {
 /*write_row: write a row to file*/
 void writeRow(const std::vector<int> &dist, workerArgs *wa, int src) {
     std::ofstream Ofile;
+    // std::cout << "src tract id : " << src << std::endl;
     if (wa->writeMode) {
         Ofile.open(wa->outfile, std::ios_base::app);
         wa->write_lock.lock();
     }
     int src_imp, dst_imp, calc_imp, fin_imp;
-    // std::vector<userDataPoint> sourceUserDataPoints = wa->primaryMap.retrieveEntry(src);
-    // for (auto sourceUserDataPoint : sourceUserDataPoints) {
-    //     src_imp = sourceUserDataPoint.dist / wa->impedence;
-    //     std::unordered_map<std::string, int> row_data;
-    //     if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-    //         Ofile <<  sourceUserDataPoint.id << ",";
-    //     }
-    //     std::vector<userDataPoint> destUserDataPoints = wa->primaryMap.retrieveEntry(src);
-    //     for (auto j = 0; j < wa->V; j++) {
-    //         dst_imp = wa->secondaryNN.me.entries.at(j).dist * wa->impedence;
-    //         calc_imp = dist[wa->secondaryNN.me.entries.at(j).pos];
-    //         if (calc_imp == INT_MAX) {
-    //             fin_imp = -1;
-    //         } else if (me_prim.entries.at(i).pos == wa->secondaryNN.me.entries.at(j).pos) {
-    //             fin_imp = 0;
-    //         }
-    //         else {
-    //             fin_imp = dst_imp + calc_imp + src_imp;
-    //         }
-    //         if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-    //             Ofile << fin_imp;
-    //         }
-    //         if (j < wa->secondaryNN.me.entries.size() - 1) {
-    //             if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-    //                 Ofile << ",";
-    //             }
-    //         }
-    //         row_data[wa->secondaryNN.me.entries.at(j).id] = fin_imp;
+    //  iterate through each data point of the current source tract
+    auto sourceTract = wa->userSourceData.retrieveTract(src);
+    // std::cout << "size of source" <<  sourceTract.retrieveDataPoints().size() << std::endl;
+    for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
+    {
+        // std::cout << "sourceDataPoint: " <<  sourceDataPoint.id << std::endl;
+        src_imp = sourceDataPoint.lastMileDistance / wa->impedence;
 
-    //     }
-    //     if ((wa->write_mode == LOAD_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-    //         wa->insert_data.lock();
-    //         wa->df.insertRow(row_data, me_prim.entries[i].id);
-    //         wa->insert_data.unlock();
-    //     }
-    //     if ((wa->write_mode == WRITE_ONLY) || (wa->write_mode == WRITE_AND_LOAD)) {
-    //         Ofile << std::endl;
-    //     }
-    // }
+        auto destNodeIds = wa->userDestData.retrieveAllNetworkNodeIds();
+        // iterate through each dest tract
+
+        std::unordered_map<std::string, int> row_data;
+        for (auto destNodeId : destNodeIds)
+        {
+           //  std::cout << "destNodeId: " << destNodeId << std::endl;
+            std::vector<userDataPoint> destPoints = wa->userDestData.retrieveTract(destNodeId).retrieveDataPoints();
+          //   std::cout << "number of associated points in tract " << destPoints.size() << std::endl;
+            for (auto destDataPoint : destPoints)
+            {
+               calc_imp = dist.at(destNodeId);
+               //  std::cout << "destDataPoint.id: " << destDataPoint.id << std::endl;
+                if (destDataPoint.id == sourceDataPoint.id)
+                {
+                  //  std::cout << "matching indexes" << std::endl;
+                    fin_imp = 0;
+                }
+                else 
+                {
+                    dst_imp = destDataPoint.lastMileDistance / wa->impedence;
+                  //  std::cout << "before calc imp" << std::endl;
+                   //  std::cout << "dist.size(): " << dist.size() << std::endl;  
+                    // std::cout << "calc_imp: " << calc_imp << std::endl;
+                    if (calc_imp == INT_MAX)
+                    {
+                        fin_imp = UNDEFINED;
+                    }
+                    else
+                    {
+                        fin_imp = dst_imp + src_imp + calc_imp;    
+                    }
+
+                    //std::cout << "fin_imp: " << fin_imp << std::endl;
+                }
+                std::cout << "(" << sourceDataPoint.id << "," << destDataPoint.id << ") :" << fin_imp << std::endl;
+                //std::cout << "src_imp: "  << src_imp << std::endl;
+                //std::cout << "dst_imp: "  << dst_imp << std::endl;
+                // std::cout << "calc_imp: "  << calc_imp << std::endl;
+
+
+                // row_data.at(destDataPoint.id) = fin_imp;
+
+            }
+        }
+        wa->insert_data.lock();
+        wa->df.insertRow(row_data, sourceDataPoint.id);
+        wa->insert_data.unlock();
+        
+    }
     if (wa->writeMode) {
         Ofile.close();
         wa->write_lock.unlock();
+    }
+}
+
+void printDistArray( std::vector<int> dist)
+{
+    std::cout << "printing dist" << std::endl;
+    for (auto element : dist) 
+    {
+        std::cout << element << std::endl;
     }
 }
 
@@ -134,11 +165,11 @@ void writeRow(const std::vector<int> &dist, workerArgs *wa, int src) {
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 void dijkstra(int src, workerArgs *wa) {
+    std::cout << "started dijkstra for source: " << src << std::endl;
 
     int V = wa->graph.V;// Get the number of vertices in graph
     
-    std::vector<int> dist;
-    dist.reserve(V);
+    std::vector<int> dist(V, INT_MAX);
 
     // minHeap represents set E
     MinHeap minHeap(V);
@@ -146,7 +177,6 @@ void dijkstra(int src, workerArgs *wa) {
     // Initialize min heap with all vertices. dist value of all vertices 
     for (int v = 0; v < V; ++v)
     {
-        dist[v] = INT_MAX;
         minHeap.array[v] = MinHeapNode(v, dist[v]);
         minHeap.pos[v] = v;
     }
@@ -188,7 +218,7 @@ void dijkstra(int src, workerArgs *wa) {
             pCrawl = pCrawl->next;
         }
     }
-
+    // printDistArray(dist);
     //write row to file or find best
     writeRow(dist, wa, src);
     
@@ -196,8 +226,10 @@ void dijkstra(int src, workerArgs *wa) {
 
 void workerHandler(workerArgs* wa) {
     int src;
+    std::cout << "entered workerHandler" << std::endl;
     while (!wa->jq.empty()) {
         src = wa->jq.pop();
+        std::cout << "added src " << src << " to queue" << std::endl;
         //exit loop if job queue was empty
         if (src < 0) {
             break;
@@ -249,9 +281,9 @@ void transitMatrix::compute(float impedence, int numThreads, const std::string &
 
     workerArgs wa(graph, userSourceDataContainer, userDestDataContainer, impedence, 
         numNodes, df, outfile, true);   
-    std::cout << "foo" << std::endl;
+
     workerQueue wq(numThreads);
-    std::cout << "bar" << std::endl;
+
     wq.start(workerHandler, &wa);
 }
 

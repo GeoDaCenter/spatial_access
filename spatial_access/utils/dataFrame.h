@@ -160,14 +160,14 @@ void dataFrame::reserve(std::vector<std::string> primary_ids, std::vector<std::s
 }
 
 void dataFrame::manualDelete(void) {
-    delete [] data;
+    // delete [] data;
 }
 
 
 /* destructor */
 
 dataFrame::~dataFrame(void) {
-    delete [] data;
+    // delete [] data;
 }
 
 /* insert a value with row_id, col_id */

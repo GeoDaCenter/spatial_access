@@ -50,8 +50,8 @@ MinHeap::MinHeap(int capacity)
 
 /* free a minHeap struct*/
 MinHeap::~MinHeap() {
-    delete [] this->array;
-    delete this->pos;
+    // delete [] this->array;
+    // delete this->pos;
 }
 
 

@@ -6,28 +6,23 @@
 #include <iostream>
 #include <fstream>
 
-class AdjListNode
-{
-public:
-    int dest;
-    int weight;
-    AdjListNode *next;
-    AdjListNode(int dest, int weight);
-    AdjListNode() {}
-    ~AdjListNode();
-};
+struct AdjListNode 
+{ 
+    int dest; 
+    int weight; 
+    struct AdjListNode* next; 
+}; 
 
-AdjListNode::AdjListNode(int dest, int weight)
-{
-    this->dest = dest;
-    this->weight = weight;
-    this->next = nullptr;
-}
+// A utility function to create a new adjacency list node 
+struct AdjListNode* newAdjListNode(int dest, int weight) 
+{ 
+    struct AdjListNode* newNode = new AdjListNode; 
+    newNode->dest = dest; 
+    newNode->weight = weight; 
+    newNode->next = NULL; 
+    return newNode; 
+} 
 
-AdjListNode::~AdjListNode()
-{
-
-}
 
 class AdjList
 {
@@ -42,9 +37,9 @@ class Graph
 public:
     int V;
     AdjList *array;
-    Graph(int v);
+    Graph(int vertices);
     Graph();
-    void initializeGraph(int v);
+    void initializeGraph(int vertices);
     ~Graph();
     void addEdge(int src, int dest, int weight);
     void readCSV(const std::string &infile);
@@ -83,18 +78,29 @@ void Graph::initializeGraph(int V)
  
 /* free a graph struct*/
  Graph::~Graph() {
-    delete [] this->array;
+    for (auto i = 0; i < V; i++)
+    {
+        auto nodeToDelete = this->array[i].head;
+        if (!nodeToDelete)
+        {
+            break;
+        }
+        while (nodeToDelete)
+        {
+            auto nextNodeToDelete = nodeToDelete->next;
+            //delete nodeToDelete;
+            nodeToDelete = nextNodeToDelete;
+        }
+    }
 }
 
 
 /* Adds an edge to an undirected graph */
 void Graph::addEdge(int src, int dest, int weight)
 {
-    // Add an edge from src to dest.  A new node is added to the adjacency
-    // list of src.  The node is added at the begining
-    AdjListNode newNode(dest, weight);
-    newNode.next = this->array[src].head;
-    this->array[src].head = &newNode;
+    struct AdjListNode* newNode = newAdjListNode(dest, weight); 
+    newNode->next = this->array[src].head; 
+    this->array[src].head = newNode; 
 }
 
 /* Utility function to read edge list from .csv*/

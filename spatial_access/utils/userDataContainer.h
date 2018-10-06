@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <iostream>
 
 class userDataPoint
@@ -32,7 +33,13 @@ public:
     userDataTract(int networkNodeId);
     void addPoint(userDataPoint userData);
     void print();
+    const std::vector<userDataPoint> & retrieveDataPoints();
 };
+
+const std::vector<userDataPoint>& userDataTract::retrieveDataPoints()
+{
+    return data;
+}
 
 void userDataTract::print()
 {
@@ -67,6 +74,7 @@ public:
     userDataTract retrieveTract(int networkNodeId);
     const std::vector<std::string>& retrieveAllUserDataIds();
     const std::vector<int>& retrieveAllNetworkNodeIds();
+    std::vector<int> retrieveUniqueNetworkNodeIds();
     void print();
 };
 
@@ -74,6 +82,7 @@ const std::vector<std::string>& userDataContainer::retrieveAllUserDataIds()
 {
     return this->ids;
 }
+
 
 void userDataContainer::print()
 {
@@ -117,4 +126,23 @@ userDataTract userDataContainer::retrieveTract(int networkNodeId)
 const std::vector<int>& userDataContainer::retrieveAllNetworkNodeIds()
 {
     return allNetworkNodeIds;
+}
+
+std::vector<int> userDataContainer::retrieveUniqueNetworkNodeIds()
+{
+    std::vector<int> returnValue;
+    std::unordered_set<int> cache;
+    for (auto entry : allNetworkNodeIds)
+    {
+        if (cache.find(entry) != cache.end())
+        {
+            continue;
+        }
+        else
+        {
+            cache.insert(entry);
+            returnValue.push_back(entry);
+        }
+    }
+    return returnValue;
 }
