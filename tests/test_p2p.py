@@ -11,8 +11,8 @@ class TestClass():
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('walk', 
-            primary_input='test_data/sources.csv',
-            secondary_input='test_data/dests.csv',
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
 
         assert(True)
@@ -24,8 +24,8 @@ class TestClass():
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('walk', 
-            primary_input='test_data/sources.csv',
-            secondary_input='test_data/dests.csv',
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1._load_inputs()
 
@@ -41,8 +41,8 @@ class TestClass():
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('walk', 
-            primary_input='test_data/sources.csv',
-            secondary_input='test_data/dests.csv',
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1._load_inputs()
         transit_matrix_1._networkInterface.load_network(transit_matrix_1.primary_data, 
