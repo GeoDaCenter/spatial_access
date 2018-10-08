@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <cstring>
 #include <fstream>
 
 struct AdjListNode 
@@ -37,6 +38,7 @@ class Graph
 public:
     int V;
     AdjList *array;
+    std::vector<struct AdjListNode*> nodePointers;
     Graph(int vertices);
     Graph();
     void initializeGraph(int vertices);
@@ -44,6 +46,8 @@ public:
     void addEdge(int src, int dest, int weight);
     void readCSV(const std::string &infile);
     void print();
+    Graph(Graph const & other);
+    Graph & operator=(Graph const & other);
 };
 
 void Graph::print()
@@ -62,6 +66,21 @@ Graph::Graph()
 
 }
 
+Graph::Graph(Graph const & other)
+{
+    this->V = other.V;
+    this->array = new AdjList[this->V];
+    std::memcpy(this->array, other.array, this->V * sizeof(AdjList));
+}
+
+Graph & Graph::operator=(Graph const & other)
+{
+    V = other.V;
+    *array = *other.array;
+
+    return *this;
+}
+
 void Graph::initializeGraph(int V)
 {
     this->V = V;
@@ -78,20 +97,11 @@ void Graph::initializeGraph(int V)
  
 /* free a graph struct*/
  Graph::~Graph() {
-    for (auto i = 0; i < V; i++)
+    for (auto nodePointer : nodePointers)
     {
-        auto nodeToDelete = this->array[i].head;
-        if (!nodeToDelete)
-        {
-            break;
-        }
-        while (nodeToDelete)
-        {
-            auto nextNodeToDelete = nodeToDelete->next;
-            //delete nodeToDelete;
-            nodeToDelete = nextNodeToDelete;
-        }
+        delete nodePointer;
     }
+    // delete this->array;
 }
 
 
@@ -99,6 +109,7 @@ void Graph::initializeGraph(int V)
 void Graph::addEdge(int src, int dest, int weight)
 {
     struct AdjListNode* newNode = newAdjListNode(dest, weight); 
+    this->nodePointers.push_back(newNode);
     newNode->next = this->array[src].head; 
     this->array[src].head = newNode; 
 }

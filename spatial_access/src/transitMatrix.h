@@ -4,13 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <mutex>
-#include <thread>
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <utility>
+#include <mutex>
 
 #include "utils/threadUtilities.h"
 #include "utils/dataFrame.h"
@@ -26,52 +25,35 @@
 /* write the header line for the output file */
 
 /* class to manage worker thread data */
+
+
 class workerArgs {
 public:
-    Graph graph;
+    Graph &graph;
+    dataFrame &df;
     jobQueue jq;
     userDataContainer userSourceData;
     userDataContainer userDestData;
-    dataFrame df;
-    std::string outfile;
     float impedence;
     int numNodes;
-    int writeMode;
-    std::mutex write_lock;
-    std::mutex insert_data;
+    std:: mutex writeLock;
     workerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, float impedence, 
-                       int numNodes, dataFrame &df, const std::string &outfile, bool writeMode);
+                       int numNodes, dataFrame &df) 
+    : graph(graph), df(df), userSourceData(userSourceData), userDestData(userDestData),
+    impedence(impedence), numNodes(numNodes) {}
     ~workerArgs(void);
+    void initialize();
 
 };
 
-
-
-/* wa initializer */
-workerArgs::workerArgs(Graph &graph, userDataContainer &userSourceData,
-                       userDataContainer &userDestData, float impedence, 
-                       int numNodes, dataFrame &df, const std::string &outfile, bool writeMode) {
-
-    //init values
-    this->graph = graph;
-    this->userSourceData = userSourceData;
-    this->userDestData = userDestData;
-    this->impedence = impedence;
-    this->numNodes = numNodes;
-    this->df = df;
-    this->writeMode = writeMode;
-    this->outfile = outfile;
-
-
+void workerArgs::initialize()
+{
     //initialize job queue
-    auto sourceTractIds = userSourceData.retrieveUniqueNetworkNodeIds();
-    for (int i : sourceTractIds) {
+    for (auto i : userSourceData.retrieveUniqueNetworkNodeIds()) {
         jq.insert(i);
     }
-
- }
-
+}
 
 /* wa destructor */
 workerArgs::~workerArgs(void) {
@@ -80,13 +62,8 @@ workerArgs::~workerArgs(void) {
 
 
 /*write_row: write a row to file*/
-void writeRow(const std::vector<int> &dist, workerArgs *wa, int src) {
-    std::ofstream Ofile;
-    // std::cout << "src tract id : " << src << std::endl;
-    if (wa->writeMode) {
-        Ofile.open(wa->outfile, std::ios_base::app);
-        wa->write_lock.lock();
-    }
+void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
+
     int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -95,8 +72,11 @@ void writeRow(const std::vector<int> &dist, workerArgs *wa, int src) {
     {
         // std::cout << "sourceDataPoint: " <<  sourceDataPoint.id << std::endl;
         src_imp = sourceDataPoint.lastMileDistance / wa->impedence;
-
-        auto destNodeIds = wa->userDestData.retrieveAllNetworkNodeIds();
+        // if (wa->writeMode)
+        // {
+        //     Ofile << sourceDataPoint.id << ",";
+        // }
+        auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
 
         std::unordered_map<std::string, int> row_data;
@@ -129,35 +109,18 @@ void writeRow(const std::vector<int> &dist, workerArgs *wa, int src) {
                         fin_imp = dst_imp + src_imp + calc_imp;    
                     }
 
-                    //std::cout << "fin_imp: " << fin_imp << std::endl;
                 }
-                std::cout << "(" << sourceDataPoint.id << "," << destDataPoint.id << ") :" << fin_imp << std::endl;
-                //std::cout << "src_imp: "  << src_imp << std::endl;
-                //std::cout << "dst_imp: "  << dst_imp << std::endl;
-                // std::cout << "calc_imp: "  << calc_imp << std::endl;
 
+               //  std::cout << "(" << sourceDataPoint.id << "," << destDataPoint.id << ") :" << fin_imp << std::endl;
 
-                // row_data.at(destDataPoint.id) = fin_imp;
+                row_data.insert(std::make_pair(destDataPoint.id, fin_imp));
 
             }
-        }
-        wa->insert_data.lock();
-        wa->df.insertRow(row_data, sourceDataPoint.id);
-        wa->insert_data.unlock();
-        
-    }
-    if (wa->writeMode) {
-        Ofile.close();
-        wa->write_lock.unlock();
-    }
-}
 
-void printDistArray( std::vector<int> dist)
-{
-    std::cout << "printing dist" << std::endl;
-    for (auto element : dist) 
-    {
-        std::cout << element << std::endl;
+        }
+        wa->writeLock.lock();
+        wa->df.insertRow(row_data, sourceDataPoint.id);
+        wa->writeLock.unlock();
     }
 }
 
@@ -165,7 +128,6 @@ void printDistArray( std::vector<int> dist)
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 void dijkstra(int src, workerArgs *wa) {
-    std::cout << "started dijkstra for source: " << src << std::endl;
 
     int V = wa->graph.V;// Get the number of vertices in graph
     
@@ -218,18 +180,17 @@ void dijkstra(int src, workerArgs *wa) {
             pCrawl = pCrawl->next;
         }
     }
-    // printDistArray(dist);
-    //write row to file or find best
-    writeRow(dist, wa, src);
+
+    //calculate row and add to dataFrame
+    calculateRow(dist, wa, src);
     
 }
 
 void workerHandler(workerArgs* wa) {
     int src;
-    std::cout << "entered workerHandler" << std::endl;
     while (!wa->jq.empty()) {
         src = wa->jq.pop();
-        std::cout << "added src " << src << " to queue" << std::endl;
+
         //exit loop if job queue was empty
         if (src < 0) {
             break;
@@ -238,6 +199,9 @@ void workerHandler(workerArgs* wa) {
     }
 }
 
+
+namespace lmnoel {
+
 class transitMatrix {
 public:
     dataFrame df;
@@ -245,20 +209,24 @@ public:
     userDataContainer userDestDataContainer;
     Graph graph;
     int numNodes;
-    void addToUserSourceDataContainer(int networkNodeId, std::string id, int lastMileDistance);
+    void addToUserSourceDataContainer(int networkNodeId, std::string id, int lastMileDistance, bool isBidirectional);
     void addToUserDestDataContainer(int networkNodeId, std::string id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V);
     transitMatrix(std::string infile);
     void compute(float impedence, int numThreads);
-    void compute(float impedence, int numThreads, const std::string &outfile);
     transitMatrix(void);
     int get(const std::string &source, const std::string &dest);
     void loadFromDisk(void);
     void prepareDataFrame();
-    void writeHeader(const std::string &outfile);
+    bool writeCSV(const std::string &outfile);
+    void printDataFrame();
 };
 
+bool transitMatrix::writeCSV(const std::string &outfile)
+{
+    return this->df.writeCSV(outfile);
+}
 
 transitMatrix::transitMatrix(int V)
 {
@@ -273,59 +241,32 @@ void transitMatrix::prepareDataFrame()
     df.reserve(userSourceIds, userDestIds);
 }
 
-void transitMatrix::compute(float impedence, int numThreads, const std::string &outfile)
-{
-    prepareDataFrame();
-
-    writeHeader(outfile);
-
-    workerArgs wa(graph, userSourceDataContainer, userDestDataContainer, impedence, 
-        numNodes, df, outfile, true);   
-
-    workerQueue wq(numThreads);
-
-    wq.start(workerHandler, &wa);
-}
-
 void transitMatrix::compute(float impedence, int numThreads)
 {
     prepareDataFrame();
+
     workerArgs wa(graph, userSourceDataContainer, userDestDataContainer, impedence, 
-        numNodes, df, "blah", false);   
+        numNodes, df);
+    
+    wa.initialize();  
 
     workerQueue wq(numThreads);
 
     wq.start(workerHandler, &wa);
 }
 
-void transitMatrix::writeHeader(const std::string &outfile) {
-    std::ofstream Ofile;
-    auto userDestIds = userDestDataContainer.retrieveAllUserDataIds();
-
-    Ofile.open(outfile);
-    if (Ofile.fail()) {
-        throw std::runtime_error("Could not open output file");
-    }
-    auto numUserDestIds = userDestIds.size();
-    Ofile << ",";
-    for (auto i = 0; i < numUserDestIds; i++) {
-        Ofile << userDestIds.at(i);
-        if (i < numUserDestIds - 1) {
-            Ofile << ",";
-        }
-    }
-    Ofile << std::endl;
-    Ofile.close();
-
-}
 void transitMatrix::addToUserDestDataContainer(int networkNodeId, std::string id, int lastMileDistance)
 {
     userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);
 }
 
-void transitMatrix::addToUserSourceDataContainer(int networkNodeId, std::string id, int lastMileDistance)
+void transitMatrix::addToUserSourceDataContainer(int networkNodeId, std::string id, int lastMileDistance, bool isBidirectional)
 {
     userSourceDataContainer.addPoint(networkNodeId, id, lastMileDistance);
+    if (isBidirectional)
+    {
+        userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);   
+    }
 }
 
 void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirectional)
@@ -347,7 +288,13 @@ transitMatrix::transitMatrix(std::string infile)
 
 }
 
+void transitMatrix::printDataFrame(){
+    this->df.printDataFrame();
+}
+
 // change ids to ints to speed up a lot
 int transitMatrix::get(const std::string &source, const std::string &dest) {
     return df.retrieveSafe(source, dest);
 }
+
+} // namespace lnoel

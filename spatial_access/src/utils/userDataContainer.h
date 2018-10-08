@@ -68,13 +68,14 @@ public:
     std::unordered_map<int, userDataTract> data;
     std::vector<int> allNetworkNodeIds;
     std::vector<std::string> ids;
+    std::vector<int> uniqueNetworkNodeIds;
     userDataContainer();
     void addPoint(int networkNodeId, std::string id, int lastMileDistance);
     bool containsTract(int networkNodeId);
     userDataTract retrieveTract(int networkNodeId);
     const std::vector<std::string>& retrieveAllUserDataIds();
     const std::vector<int>& retrieveAllNetworkNodeIds();
-    std::vector<int> retrieveUniqueNetworkNodeIds();
+    const std::vector<int>& retrieveUniqueNetworkNodeIds();
     void print();
 };
 
@@ -115,7 +116,10 @@ void userDataContainer::addPoint(int networkNodeId, std::string id, int lastMile
         userDataTract newUserDataTract(networkNodeId);
         newUserDataTract.addPoint(newDataPoint);
         data.insert(std::make_pair(networkNodeId, newUserDataTract));
+        uniqueNetworkNodeIds.push_back(networkNodeId);
     }
+
+
 }
 
 userDataTract userDataContainer::retrieveTract(int networkNodeId)
@@ -128,21 +132,8 @@ const std::vector<int>& userDataContainer::retrieveAllNetworkNodeIds()
     return allNetworkNodeIds;
 }
 
-std::vector<int> userDataContainer::retrieveUniqueNetworkNodeIds()
+
+const std::vector<int>& userDataContainer::retrieveUniqueNetworkNodeIds()
 {
-    std::vector<int> returnValue;
-    std::unordered_set<int> cache;
-    for (auto entry : allNetworkNodeIds)
-    {
-        if (cache.find(entry) != cache.end())
-        {
-            continue;
-        }
-        else
-        {
-            cache.insert(entry);
-            returnValue.push_back(entry);
-        }
-    }
-    return returnValue;
+    return uniqueNetworkNodeIds;
 }

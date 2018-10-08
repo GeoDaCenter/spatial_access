@@ -5,7 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <set>
-#include <mutex>
 #include <stdexcept>
 #include <vector>
 
@@ -28,6 +27,8 @@ private:
     std::unordered_map <std::string, int> rows;
     std::unordered_map <std::string, int> cols;
 
+    std::vector<std::string> row_labels;
+    std::vector<std::string> col_labels;
     std::set<std::string> row_contents;
     std::set<std::string> col_contents;
 
@@ -48,11 +49,74 @@ public:
     int retrieveSafe(std::string row_id, std::string col_id);
     void manualDelete(void);
     bool validKey(std::string row_id, std::string col_id);
+    bool writeCSV(std::string outfile);
+    void printDataFrame();
 };
+
+bool dataFrame::writeCSV(std::string outfile)
+{
+    std::ofstream Ofile;
+    Ofile.open(outfile);
+    if (Ofile.fail()) {
+        throw std::runtime_error("Could not open output file");
+    }
+    Ofile << ",";
+    for (auto col_label : col_labels)
+    {
+        Ofile << col_label << ",";
+    }
+    Ofile << std::endl;
+    for (int row_index = 0; row_index < n_rows; row_index++)
+    {
+        Ofile << row_labels[row_index] << ",";
+        for (int col_index = 0; col_index < n_cols; col_index++)
+        {
+            Ofile << data[row_index * n_cols + col_index] << ","; 
+        }
+        Ofile << std::endl;
+    }
+
+
+
+    Ofile << std::endl;
+    Ofile.close();
+    return true;
+} 
+
+void dataFrame::printDataFrame()
+{
+
+    std::cout << ",";
+    for (auto col_label : col_labels)
+    {
+        std::cout << col_label << ",";
+    }
+    std::cout << std::endl;
+    for (int row_index = 0; row_index < n_rows; row_index++)
+    {
+        std::cout << row_labels[row_index] << ",";
+        for (int col_index = 0; col_index < n_cols; col_index++)
+        {
+            std::cout << data[row_index * n_cols + col_index] << ","; 
+        }
+        std::cout << std::endl;
+    }
+
+} 
 
 
 /* void constructor */
 dataFrame::dataFrame(void) {
+}
+
+
+
+void printArray(std::vector<std::string> data)
+{
+    for (auto element : data)
+    {
+        std::cout << element << std::endl;
+    }
 }
 
 
@@ -63,12 +127,11 @@ bool dataFrame::loadFromDisk(std::string infile) {
         state = ERROR;
         return false;
     }
-
+    std::vector<std::string> infileColLabels;
+    std::vector<std::string> infileRowLabels;
     std::string line;
     n_rows = 0, n_cols = 0;
     bool first_row = true;
-    std::vector<std::string> row_labels;
-    std::vector<std::string> col_labels;
 
     // first pass through to allocate matrix and load
     // columns/rows
@@ -84,19 +147,22 @@ bool dataFrame::loadFromDisk(std::string infile) {
 
                     first_col = false;
                 } else {
-                    col_labels.push_back(col_id);
+                    infileColLabels.push_back(col_id);
                 }
             }
         } else {
             std::string row_id;
             getline(stream, row_id,',');
-            row_labels.push_back(row_id);
-
+            if (!row_id.size())
+            {
+                break;
+            }
+            infileRowLabels.push_back(row_id);
+            
         }
     }
-    reserve(row_labels, col_labels);
+    reserve(infileRowLabels, infileColLabels);
 
-    // second pass through to load up the matrix
     fileINA.close();
 
     fileINB.open(infile);
@@ -135,8 +201,7 @@ bool dataFrame::loadFromDisk(std::string infile) {
 
 }
 
-
-/* for use with void constructor */
+// use when creating a new data frame
 void dataFrame::reserve(std::vector<std::string> primary_ids, std::vector<std::string> secondary_ids) {
     n_rows = primary_ids.size();
     n_cols = secondary_ids.size();
@@ -146,12 +211,14 @@ void dataFrame::reserve(std::vector<std::string> primary_ids, std::vector<std::s
         row_id = primary_ids.at(row_idx);
         rows[row_id] = row_idx;
         row_contents.insert(row_id);
+        row_labels.push_back(row_id);
     }
 
     for (int col_idx = 0; col_idx < n_cols; col_idx++) {
         col_id = secondary_ids.at(col_idx);
         cols[col_id] = col_idx;
         col_contents.insert(col_id);
+        col_labels.push_back(col_id);
     }
 
     data = new int[n_rows * n_cols];
@@ -160,7 +227,7 @@ void dataFrame::reserve(std::vector<std::string> primary_ids, std::vector<std::s
 }
 
 void dataFrame::manualDelete(void) {
-    // delete [] data;
+     delete [] data;
 }
 
 
@@ -172,10 +239,12 @@ dataFrame::~dataFrame(void) {
 
 /* insert a value with row_id, col_id */
 void dataFrame::insertRow(std::unordered_map<std::string, int> row_data, std::string source_id) {
-
+    std::cout << "in insertRow for source_id:" << source_id << std::endl;
+    auto rowNum = rows[source_id];
     for (std::pair<std::string, int> element : row_data)
     {
-        data[rows[source_id] *  n_cols + cols[element.first]] = element.second;
+        std::cout << element.first << ":" << element.second << std::endl;
+        data[rowNum *  n_cols + cols[element.first]] = element.second;
     }
 }
 

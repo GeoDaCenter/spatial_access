@@ -25,8 +25,8 @@ if sys.platform == "darwin":
   ouff_mac = ['-mmacosx-version-min=10.9']
 
 EXTENSION = distutils.extension.Extension(
-    name = 'pyengine', language = 'c++',
-    sources = ['spatial_access/pyengine.pyx'],
+    name = 'transitMatrixAdapter', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapter.pyx'],
     extra_compile_args = ['-Wno-unused-function', 
                           '-std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
