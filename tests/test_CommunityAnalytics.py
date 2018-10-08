@@ -1,4 +1,4 @@
-from spatial_access.CommunityAnalytics import CommunityAnalytics
+from spatial_access.CommunityAnalytics import CoverageModel, AccessModel
 
 
 def test_1():
