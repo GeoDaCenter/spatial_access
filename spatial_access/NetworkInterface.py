@@ -108,9 +108,9 @@ class NetworkInterface():
         Returns: nodes, edges (pandas df's)
         '''
         assert isinstance(primary_data, pd.DataFrame)
-        #assert isinstance(secondary_input, (pd.DataFrame, None))
+        assert isinstance(secondary_data, pd.DataFrame) or secondary_data is None
         assert isinstance(secondary_input, bool)
-        #assert isinstance(epsilon, tup(float, int))
+        assert isinstance(epsilon, float) or isinstance(epsilon, int)
 
         self._try_create_cache()
         self._get_bbox(primary_data, secondary_data,

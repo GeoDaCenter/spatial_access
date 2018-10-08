@@ -627,7 +627,7 @@ class TransitMatrix():
 
         self._networkInterface.load_network(self.primary_data, 
                                             self.secondary_data, 
-                                            self.secondary_input,
+                                            self.secondary_input is not None,
                                             self.epsilon)
 
         self._matrixInterface.prepare_matrix(self._networkInterface.number_of_nodes())

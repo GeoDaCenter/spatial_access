@@ -1,6 +1,9 @@
+# pylint: disable
 from transitMatrixAdapter import pyTransitMatrix
 
 class TestClass():
+
+    @staticmethod
 
     def test_1(self):
         '''
@@ -9,16 +12,16 @@ class TestClass():
         '''
         matrix = pyTransitMatrix(vertices=5)
 
-        matrix.addEdgeToGraph(0, 1, 5, True);
-        matrix.addEdgeToGraph(1, 2, 6, True);
-        matrix.addEdgeToGraph(2, 3, 2, True);
-        matrix.addEdgeToGraph(2, 4, 4, False);
-        matrix.addEdgeToGraph(3, 4, 3, True);
+        matrix.addEdgeToGraph(0, 1, 5, True)
+        matrix.addEdgeToGraph(1, 2, 6, True)
+        matrix.addEdgeToGraph(2, 3, 2, True)
+        matrix.addEdgeToGraph(2, 4, 4, False)
+        matrix.addEdgeToGraph(3, 4, 3, True)
 
-        matrix.addToUserSourceDataContainer(1, b"A", 1, True);
-        matrix.addToUserSourceDataContainer(0, b"B", 2, True);
-        matrix.addToUserSourceDataContainer(4, b"C", 3, True);
-        matrix.addToUserSourceDataContainer(1, b"D", 7, True);
+        matrix.addToUserSourceDataContainer(1, b"A", 1, True)
+        matrix.addToUserSourceDataContainer(0, b"B", 2, True)
+        matrix.addToUserSourceDataContainer(4, b"C", 3, True)
+        matrix.addToUserSourceDataContainer(1, b"D", 7, True)
 
         matrix.compute(1)
 
