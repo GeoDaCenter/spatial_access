@@ -47,7 +47,7 @@ class TestClass():
         assert matrix.get(b"A",b"B") == 8
         assert matrix.get(b"D",b"C") == 20
 
-        matrix.writeCSV("test_outfile.csv");
+        matrix.writeCSV(b"test_outfile.csv");
 
         assert True
 
