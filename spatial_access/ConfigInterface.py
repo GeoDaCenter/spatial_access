@@ -2,7 +2,6 @@
 Abstracts the network parameter configurations.
 """
 
-import os
 import json
 
 # pylint: disable=invalid-name, too-many-instance-attributes
@@ -12,11 +11,14 @@ class ConfigInterface():
     configurations.
     '''
     filename = 'spatial_access/p2p_parameters.json'
-    def __init__(self, logger=None):
+    def __init__(self, network_type, logger=None):
+        self.network_type = network_type
         self.logger = logger
         self.ONE_HOUR = 3600 # seconds
         self.ONE_KM = 1000 # meters
+        self.defaultImpedenceForNetworkType = None
         self.load_from_file()
+
 
     def load_from_file(self):
         '''
@@ -38,14 +40,22 @@ class ConfigInterface():
                 self.BIKE_NODE_PENALTY = params['bike']['node_penalty']
 
                 self.WALK_CONSTANT = (
-                    self.HUMAN_WALK_SPEED / self.ONE_HOUR) * self.ONE_KM
+                    self.HUMAN_WALK_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
                 self.BIKE_CONSTANT = (
-                    self.BIKE_SPEED / self.ONE_HOUR) * self.ONE_KM
+                    self.BIKE_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
                 self.DRIVE_CONSTANT = (
-                    self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM
-
+                    self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
+            if self.network_type == 'walk':
+                self.defaultImpedenceForNetworkType = self.WALK_CONSTANT
+            elif self.network_type == 'drive':
+                self.defaultImpedenceForNetworkType = self.DRIVE_CONSTANT
+            elif self.network_type == 'bike':
+                self.defaultImpedenceForNetworkType = self.BIKE_CONSTANT
+            else:
+                self.logger.error("Invalid network type")
+                raise EnvironmentError("Invalid network type")
         except FileNotFoundError as error:
             if self.logger:
                 self.logger.error(error)
             raise EnvironmentError(
-                "Config file: {} could not be found in current directory".format(ConfigInterface.filename))
+                "Config file: {} could not be found".format(ConfigInterface.filename))

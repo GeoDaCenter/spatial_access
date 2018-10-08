@@ -34,14 +34,13 @@ public:
     jobQueue jq;
     userDataContainer userSourceData;
     userDataContainer userDestData;
-    float impedence;
     int numNodes;
     std:: mutex writeLock;
     workerArgs(Graph &graph, userDataContainer &userSourceData,
-                       userDataContainer &userDestData, float impedence, 
+                       userDataContainer &userDestData, 
                        int numNodes, dataFrame &df) 
     : graph(graph), df(df), userSourceData(userSourceData), userDestData(userDestData),
-    impedence(impedence), numNodes(numNodes) {}
+     numNodes(numNodes) {}
     ~workerArgs(void);
     void initialize();
 
@@ -67,39 +66,28 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
     int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
-    // std::cout << "size of source" <<  sourceTract.retrieveDataPoints().size() << std::endl;
+
     for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
     {
-        // std::cout << "sourceDataPoint: " <<  sourceDataPoint.id << std::endl;
-        src_imp = sourceDataPoint.lastMileDistance / wa->impedence;
-        // if (wa->writeMode)
-        // {
-        //     Ofile << sourceDataPoint.id << ",";
-        // }
+        src_imp = sourceDataPoint.lastMileDistance;
+
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
 
         std::unordered_map<std::string, int> row_data;
         for (auto destNodeId : destNodeIds)
         {
-           //  std::cout << "destNodeId: " << destNodeId << std::endl;
             std::vector<userDataPoint> destPoints = wa->userDestData.retrieveTract(destNodeId).retrieveDataPoints();
-          //   std::cout << "number of associated points in tract " << destPoints.size() << std::endl;
             for (auto destDataPoint : destPoints)
             {
-               calc_imp = dist.at(destNodeId);
-               //  std::cout << "destDataPoint.id: " << destDataPoint.id << std::endl;
+                calc_imp = dist.at(destNodeId);
                 if (destDataPoint.id == sourceDataPoint.id)
                 {
-                  //  std::cout << "matching indexes" << std::endl;
                     fin_imp = 0;
                 }
                 else 
                 {
-                    dst_imp = destDataPoint.lastMileDistance / wa->impedence;
-                  //  std::cout << "before calc imp" << std::endl;
-                   //  std::cout << "dist.size(): " << dist.size() << std::endl;  
-                    // std::cout << "calc_imp: " << calc_imp << std::endl;
+                    dst_imp = destDataPoint.lastMileDistance;
                     if (calc_imp == INT_MAX)
                     {
                         fin_imp = UNDEFINED;
@@ -110,9 +98,6 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
                     }
 
                 }
-
-               //  std::cout << "(" << sourceDataPoint.id << "," << destDataPoint.id << ") :" << fin_imp << std::endl;
-
                 row_data.insert(std::make_pair(destDataPoint.id, fin_imp));
 
             }
@@ -214,7 +199,7 @@ public:
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V);
     transitMatrix(std::string infile);
-    void compute(float impedence, int numThreads);
+    void compute(int numThreads);
     transitMatrix(void);
     int get(const std::string &source, const std::string &dest);
     void loadFromDisk(void);
@@ -241,13 +226,13 @@ void transitMatrix::prepareDataFrame()
     df.reserve(userSourceIds, userDestIds);
 }
 
-void transitMatrix::compute(float impedence, int numThreads)
+void transitMatrix::compute(int numThreads)
 {
     prepareDataFrame();
 
-    workerArgs wa(graph, userSourceDataContainer, userDestDataContainer, impedence, 
+    workerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
         numNodes, df);
-    
+
     wa.initialize();  
 
     workerQueue wq(numThreads);

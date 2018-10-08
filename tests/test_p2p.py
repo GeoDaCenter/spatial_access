@@ -1,6 +1,6 @@
 from spatial_access.p2p import TransitMatrix
 
-class TestClass(object):
+class TestClass():
     '''
     Suite of tests for p2p.
     '''

@@ -1,3 +1,4 @@
+spatial_access/transitMatrixAdapter.cpp
 logs/
 *.DS_Store 
 *.pyc

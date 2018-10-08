@@ -1,18 +1,16 @@
 """
 Abstract interface for the c++ implementation of a matrix.
 """
-
-import psutil
+import multiprocessing
 import time
 import sys
-import multiprocessing
 try:
-    from pyengine import tmatrix
+    from transitMatrixAdapter import pyTransitMatrix #pylint disable=no-name-in-module
 except BaseException:
     print('Unable to import pyengine. Try running setup.py again')
 
 
-class MatrixInterface(object):
+class MatrixInterface():
     '''
     A wrapper for C++ based pandas DataFrame like matrix.
     '''
@@ -22,7 +20,7 @@ class MatrixInterface(object):
         self._transit_matrix = None
 
     @staticmethod
-    def _get_thread_limit(self):
+    def _get_thread_limit():
         '''
         Determine if the algorithm should be throttled
         based on the available system memory and number of cores.
@@ -37,38 +35,29 @@ class MatrixInterface(object):
 
         return no_cores
 
-    def read_matrix_from_file(self, matrix_to_load):
+    def read_matrix_from_file(self, outfile):
         '''
         Load a matrix from file
         '''
         start_time = time.time()
         try:
-            self.build_matrix(
-                network_filename=matrix_to_load,
-                nn_primary_filename="none",
-                nn_secondary_filename="none",
-                output_filename="none",
-                num_nodes=0,
-                impedence_value=0.0,
-                outer_node_rows=1,
-                outer_node_cols=0,
-                write_to_file=False,
-                load_to_mem=False,
-                read_from_file=True)
+            self._transit_matrix = pyTransitMatrix(infile=bytes(outfile))
             logger_vars = time.time() - start_time
             self.logger.info(
                 'Shortest path matrix loaded from disk in {:,.2f} seconds', logger_vars)
             return
-        except BaseException as e:
-            self.logger.error('Unable to load matrix from file: %s', e)
+        except BaseException as exception:
+            self.logger.error('Unable to load matrix from file: %s', exception)
             sys.exit()
 
+    def prepare_matrix(self, num_nodes):
+        '''
+        Instantiate a pyTransitMatrix with the available nodes
+        '''
+        self._transit_matrix = pyTransitMatrix(vertices=num_nodes)
 
-    def build_matrix(self, network_filename,
-                     nn_primary_filename, nn_secondary_filename, 
-                     output_filename, num_nodes, impedence_value,
-                     outer_node_rows, outer_node_cols,
-                     write_to_file, load_to_mem, read_from_file=False):
+
+    def build_matrix(self):
         '''
         Outsources the work of computing the shortest path matrix
         to a C++ module.
@@ -76,53 +65,7 @@ class MatrixInterface(object):
 
         start_time = time.time()
 
-        if self.write_to_file:
-            self.logger.info(
-                'Writing to file: %s',
-                    self.output_filename)
-
-        assert(type(network_filename) == str)
-        assert(type(nn_primary_filename) == str)
-        assert(type(nn_secondary_filename) == str)
-        assert(type(output_filename) == str)
-        assert(type(num_nodes) == int)
-        assert(type(impedence_value) == float)
-        assert(type(outer_node_rows) == int)
-        assert(type(outer_node_cols) == int)
-        assert(type(write_to_file) == bool)
-        assert(type(load_to_mem) == bool)
-        assert(type(read_from_file) == bool)
-
-        GB = 1073741824
-        if write_to_file and not load_to_mem:
-            write_mode = 0
-        elif write_to_file and load_to_mem:
-            write_mode = 1
-        elif not write_to_file and load_to_mem:
-            write_mode = 2
-        elif (read_from_file) and (not write_to_file) and (not load_to_mem):
-            write_mode = 3
-        if load_to_mem:
-            expected_memory = int(2 * outer_node_cols * outer_node_rows / GB)
-            system_memory = int(psutil.virtual_memory().total / GB)
-            if expected_memory > system_memory:
-                warning_text = '''WARNING: Expected memory ({} Gb) is greater than
-                available system memory ({} Gb). P2p will likely crash,
-                please run in write only mode (not load_to_mem)'''.format(
-                    expected_memory, system_memory)
-                print(warning_text)
-
-        self.transit_matrix = tmatrix(network_filename.encode('UTF-8'),
-                                      nn_primary_filename.encode('UTF-8'),
-                                      nn_secondary_filename.encode('UTF-8'),
-                                      output_filename.encode('UTF-8'),
-                                      num_nodes,
-                                      impedence_value,
-                                      self._get_thread_limit(),
-                                      outer_node_rows,
-                                      outer_node_cols,
-                                      0, # TODO: (lnoel) remove this parameter
-                                      write_mode)
+        self._transit_matrix.compute(self._get_thread_limit())
 
         logger_vars = time.time() - start_time
         self.logger.info(
@@ -132,9 +75,8 @@ class MatrixInterface(object):
         '''
         Fetch the time value associated with the source, dest pair.
         '''
-        assert self.tm is not None, "tmatrix does not yet exist"
         try:
-            return self.tm.get(str(source), str(dest))
+            return self._transit_matrix.get(bytes(str(source))), bytes(str(dest))
         except BaseException:
             if self.logger:
                 self.logger.error('Source, dest pair could not be found')

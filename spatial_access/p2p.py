@@ -30,7 +30,6 @@ class TransitMatrix():
     Arguments:
         -network_type: 'walk', 'drive' or 'bike'
         -epsilon: [optional] smooth out the network edges
-        -primary_input:
     '''
 
     def __init__(
@@ -44,11 +43,12 @@ class TransitMatrix():
             secondary_input_field_mapping=None,
             read_from_file=None,
             write_to_file=False,
-            load_to_mem=True,
             primary_hints=None,
             secondary_hints=None,
+            use_meters=False,
             debug=False):
 
+        #arguments
         self.network_type = network_type
         self.epsilon = epsilon
         self.walk_speed=walk_speed
@@ -56,33 +56,25 @@ class TransitMatrix():
         self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
         self.secondary_input_field_mapping = secondary_input_field_mapping
+        self.read_from_file = read_from_file        
+        self.primary_hints = primary_hints
+        self.secondary_hints = secondary_hints
+        self.use_meters = use_meters
+        self.debug = debug
+
+        #member variables
         self.sl_data = None
         self.primary_data = None
         self.secondary_data = None
-        self.read_from_file = read_from_file
-        if read_from_file:
-            self.write_to_file = False
-            self.load_to_mem = False
-        else:
-            self.write_to_file = write_to_file
-            self.load_to_mem = load_to_mem
-
-        self.network_filename = None
         self.output_filename = None
-        self.nn_primary_filename = None
-        self.nn_secondary_filename = None
-
-        self.primary_hints = primary_hints
-        self.secondary_hints = secondary_hints
-
         self.node_pair_to_speed = {}
         self.node_index_to_loc = {}
         self.speed_limit_dictionary = None
 
+        #instantiate interfaces
         self.INFINITY = -1
-        self.debug = debug
         self.set_logging()
-        self._configInterface = ConfigInterface(self.logger)
+        self._configInterface = ConfigInterface(network_type, self.logger)
         self._networkInterface = NetworkInterface(network_type, self.logger)
         self._matrixInterface = MatrixInterface(self.logger)
 
@@ -90,8 +82,8 @@ class TransitMatrix():
         assert network_type in [
             'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
 
-        assertion_warning = "Need to (write_to_file and or load_to_mem) or read_from_file"
-        assert (write_to_file or load_to_mem or read_from_file), assertion_warning
+        if read_from_file:
+            self._matrixInterface.read_from_file(read_from_file)
 
     def set_logging(self):
         '''
@@ -156,110 +148,6 @@ class TransitMatrix():
         self.sl_data.rename(columns=clean_names, inplace=True)
 
         self.sl_data = self.sl_data[['street_name', 'speed_limit']]
-
-    # pylint disable=undefined-variable,invalid-name,logging-not-lazy
-    def _validate_csv(self, source_data):
-        '''
-        Still in use?
-        '''
-
-        # Gather input file basic counts
-        record_count = source_data.shape[0]
-        self.logger.info("record_count: " + str(record_count))
-        column_count = source_data.shape[1]
-        self.logger.info("column_count: " + str(column_count))
-        cell_count = record_count * column_count
-        self.logger.info("cell_count: " + str(cell_count))
-
-        # Set total error counter to 0
-        invalid_count = 0
-
-        # Gather null counts
-        index_null_count = pd.isnull(source_data[[idx]]).sum()[0]
-        self.logger.info("index_null_count: " + str(index_null_count))
-        invalid_count += index_null_count
-
-        lat_null_count = pd.isnull(source_data[[lat]]).sum()[0]
-        self.logger.info("lat_null_count: " + str(lat_null_count))
-        invalid_count += lat_null_count
-
-        lon_null_count = pd.isnull(source_data[[lon]]).sum()[0]
-        self.logger.info("lon_null_count: " + str(lon_null_count))
-        invalid_count += lon_null_count
-
-        # Coerce numeric fields to numeric type and collect invalid values
-        source_data[lat] = pd.to_numeric(source_data[lat], errors="coerce")
-        invalid_lat = pd.isnull(source_data[[lat]]).sum()[0] - lat_null_count
-        self.logger.info("invalid_lat: " + str(invalid_lat))
-        invalid_count += invalid_lat
-
-        source_data[lon] = pd.to_numeric(source_data[lon], errors="coerce")
-        invalid_lon = pd.isnull(source_data[[lon]]).sum()[0] - lon_null_count
-        self.logger.info("invalid_lon: " + str(invalid_lon))
-        invalid_count += invalid_lon
-
-        source_data[idx] = pd.to_numeric(source_data[idx], errors="coerce")
-        invalid_index = pd.isnull(source_data[[idx]]).sum()[
-            0] - index_null_count
-        self.logger.info("invalid_index: " + str(invalid_index))
-        invalid_count += invalid_index
-
-        # Having coerced to numeric, now check for invalid values
-        # check for 0 coordinates
-        lat_zero_count = (source_data[[lat]] == 0).sum(axis=1).sum()
-        self.logger.info("lat_zero_count: " + str(lat_zero_count))
-        invalid_count += lat_zero_count
-
-        lon_zero_count = (source_data[[lon]] == 0).sum(axis=1).sum()
-        self.logger.info("lon_zero_count: " + str(lon_zero_count))
-        invalid_count += lon_zero_count
-
-        # check for coordinates with values out of bounds
-        current_record_count = source_data.shape[0]
-        lat_out_of_bounds_count = current_record_count - \
-            source_data[lat].between(-180, 180).sum() - invalid_lat - lat_null_count
-        self.logger.info(
-            "lat_out_of_bounds_count: " +
-            str(lat_out_of_bounds_count))
-        invalid_count += lat_out_of_bounds_count
-
-        lon_out_of_bounds_count = current_record_count - \
-            source_data[lon].between(-180, 180).sum() - invalid_lon - lon_null_count
-        self.logger.info(
-            "lon_out_of_bounds_count: " +
-            str(lon_out_of_bounds_count))
-        invalid_count += lon_out_of_bounds_count
-
-        # Drop records
-
-        # Replace 0 and other invalid values in coordinate fields with n/a
-        cols = [lat, lon]
-        source_data.loc[source_data[lat] > 180, lat] = 0
-        source_data.loc[source_data[lat] < -180, lat] = 0
-        source_data.loc[source_data[lon] > 180, lon] = 0
-        source_data.loc[source_data[lon] < -180, lon] = 0
-        source_data[cols] = source_data[cols].replace({0: np.nan})
-
-        pre_drop_indices = source_data.index
-        pre_drop = len(source_data)
-        source_data.dropna(subset=[xcol, ycol], axis='index', inplace=True)
-        post_drop_indices = source_data.index
-        post_drop = len(source_data)
-
-        dropped_lines = pre_drop - len(source_data)
-        self.logger.info(
-            'Total number of rows in the dataset: %d', pre_drop)
-        self.logger.info(
-            'Complete number of rows for computing the matrix: %d', post_drop)
-        self.logger.info(
-            "Rows dropped due to missing latitude or longitude values: %d", dropped_lines)
-
-        # Drop records with n/a values in the index/coordinate fields
-        source_data.dropna(subset=[idx, lat, lon], axis='index', inplace=True)
-        source_data.set_index(idx, inplace=True)
-
-        # Drop records with a duplicate index value, keeping only the first
-        source_data = source_data[~source_data.index.duplicated(keep='first')]
 
     def _parse_csv(self, primary):
         '''
@@ -636,43 +524,38 @@ class TransitMatrix():
 
         # create a mapping of each node to every other connected node
         # transform them by cost model as well
-        with open(self.network_filename, 'w') as csvfile:
-            writer = csv.writer(csvfile)
-            for data in self._networkInterface.edges.itertuples():
-                from_idx = data[FROM_IDX]
-                to_idx = data[TO_IDX]
-                if self.node_pair_to_speed:
-                    impedence = self._cost_model(
-                        data[DISTANCE], self.node_pair_to_speed[(from_idx, to_idx)])
-                else:
-                    highway_tag = data[HIGHWAY]
-                    if highway_tag is None or highway_tag not in self.speed_limit_dictionary[
-                            "urban"]:
-                        highway_tag = "unclassified"
-                    impedence = self._cost_model(data[DISTANCE], float(
+        for data in self._networkInterface.edges.itertuples():
+            from_idx = data[FROM_IDX]
+            to_idx = data[TO_IDX]
+            if use_meters:
+                impedence = data[DISTANCE]
+            elif self.node_pair_to_speed:
+                impedence = self._cost_model(
+                    data[DISTANCE], self.node_pair_to_speed[(from_idx, to_idx)])
+            else:
+                highway_tag = data[HIGHWAY]
+                if highway_tag is None or highway_tag not in self.speed_limit_dictionary[
+                        "urban"]:
+                    highway_tag = "unclassified"
+                impedence = self._cost_model(data[DISTANCE], float(
                         self.speed_limit_dictionary["urban"][highway_tag]))
 
-                oneway = data[ONEWAY]
+            oneway = data[ONEWAY]
 
-                # checking if edge connects any of the disconnected nodes. If
-                # not, don't consider it.
-                if self.comp_id[from_idx] != self.rem_id or self.comp_id[to_idx] != self.rem_id:
-                    continue
+            # checking if edge connects any of the disconnected nodes. If
+            # not, don't consider it.
+            if self.comp_id[from_idx] != self.rem_id or self.comp_id[to_idx] != self.rem_id:
+                continue
+            is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
+            self._networkInterface._transit_matrix.addEdgeToGraph(self.node_index_to_loc[from_idx],
+                             self.node_index_to_loc[to_idx], impedence, is_bidirectional)
 
-                writer.writerow([self.node_index_to_loc[from_idx],
-                                 self.node_index_to_loc[to_idx], impedence])
-
-                if oneway != 'yes' or self.network_type != 'drive':
-                    writer.writerow([self.node_index_to_loc[to_idx],
-                                     self.node_index_to_loc[from_idx], impedence])
 
         self.logger.info(
-            "Prepared raw network in {:,.2f} seconds and wrote to: %s",
-                time.time() - start_time,
-                self.network_filename)
+            "Prepared raw network in {:,.2f} seconds", time.time() - start_time)
 
 
-    def _match_nn(self, secondary):
+    def _match_nn(self, isPrimary=True, noSecondaryExists=True):
         '''
         Maps each the index of each node in the raw distance
         matrix to a tuple
@@ -682,16 +565,10 @@ class TransitMatrix():
         between the (primary/secondary) source and its nearest OSM node.
         '''
 
-        if secondary:
-            self.nn_secondary_filename = self._get_output_filename(
-                "nn_secondary")
-            data = self.secondary_data
-            filename = self.nn_secondary_filename
-        else:
-            self.nn_primary_filename = self._get_output_filename("nn_primary")
-            self.nn_secondary_filename = self.nn_primary_filename
+        if isPrimary:
             data = self.primary_data
-            filename = self.nn_primary_filename
+        else:
+            data = self.secondary_data
 
         nodes = self._networkInterface.nodes[['x', 'y']]
 
@@ -706,74 +583,29 @@ class TransitMatrix():
         # map each node in the source/dest data to the nearest
         # corresponding node in the OSM network
         # and write to file
-        with open(filename, 'w') as csvfile_w:
-            writer = csv.writer(csvfile_w)
-            for row in data.itertuples():
-                origin_id, origin_y, origin_x = row
-                latlong_diff, node_loc = kd_tree.query( # pylint: disable=unused-variable
-                    [origin_x, origin_y], k=1)
-                node_number = node_indices[node_loc]
-                distance = vincenty(
-                    (origin_y, origin_x), (nodes.loc[node_number].y, nodes.loc[node_number].x)).km
+        for row in data.itertuples():
+            origin_id, origin_y, origin_x = row
+            latlong_diff, node_loc = kd_tree.query( # pylint: disable=unused-variable
+                [origin_x, origin_y], k=1)
+            node_number = node_indices[node_loc]
+            distance = vincenty(
+                (origin_y, origin_x), (nodes.loc[node_number].y, nodes.loc[node_number].x)).km
 
-                distance = int(distance * KM_TO_METERS)
-
-                writer.writerow([node_loc, origin_id, distance])
+            #distance is a misnomer. this is meters or seconds, depending on config interface settings
+            distance = int(distance * KM_TO_METERS / self._configInterface.defaultImpedenceForNetworkType)
+            if isPrimary:
+                self._matrixInterface._transit_matrix.addToUserSourceDataContainer(node_loc, 
+                                                                                   origin_id, 
+                                                                                   distance, 
+                                                                                   noSecondaryExists)
+            else:
+                self._matrixInterface._transit_matrix.addToUserDestDataContainer(node_loc,
+                                                                                 origin_id,
+                                                                                 distance)
 
         self.logger.info(
             'Nearest Neighbor matching completed in {:,.2f} seconds', 
                 time.time() - start_time)
-
-    @staticmethod
-    def _cleanup_artifacts():
-        '''
-        Cleanup the files left over from computation.
-        '''
-        files = os.listdir("data")
-        for file in files:
-            if 'raw_network' in file or 'nn_primary' in file or 'nn_secondary' in file:
-                os.remove('data/matrices/' + file)
-        if os.path.isfile('p2p.log'):
-            os.remove('p2p.log')
-        if os.path.isfile('logs'):
-            os.rmdir('logs')
-        if os.path.isfile('__pycache__'):
-            os.rmdir('__pycache__')
-        print("Cleaned up calculation artifacts")
-
-    def _construct_matrix(self):
-        '''
-        Construct the transit matrix using the Matrix Interface.
-        '''
-
-        num_nodes = self._networkInterface.number_of_nodes()
-
-        if self.network_type == 'walk':
-            impedence_value = self._configInterface.WALK_CONSTANT
-        elif self.network_type == 'bike':
-            impedence_value = self._configInterface.BIKE_CONSTANT
-        else:
-            impedence_value = self._configInterface.DRIVE_CONSTANT
-
-        outer_node_rows = len(self.primary_data)
-        if self.secondary_input:
-            outer_node_cols = len(self.secondary_data)
-        else:
-            outer_node_cols = len(self.primary_data)
-
-
-        self._matrixInterface.build_matrix(network_filename=self.network_filename,
-                                           nn_primary_filename=self.nn_primary_filename,
-                                           nn_secondary_filename=self.nn_secondary_filename,
-                                           output_filename=self.output_filename,
-                                           num_nodes=num_nodes,
-                                           impedence_value=impedence_value,
-                                           outer_node_rows=outer_node_rows,
-                                           outer_node_cols=outer_node_cols,
-                                           write_to_file=self.write_to_file,
-                                           load_to_mem=self.load_to_mem,
-                                           read_from_file=False)
-
 
     def process(self, speed_limit_filename=None, output_filename=None,
                 cleanup=True):
@@ -781,15 +613,6 @@ class TransitMatrix():
         Process the data.
         '''
         start_time = time.time()
-
-
-        # load from file if given
-        if self.read_from_file:
-            self.logger.info(
-                'Loading data from file: %s',
-                    self.read_from_file)
-            self._matrixInterface.read_matrix_from_file(self.read_from_file)
-            return
 
         self.logger.info(
             "Processing network (%s) with epsilon: %f",
@@ -807,15 +630,15 @@ class TransitMatrix():
                                             self.secondary_input,
                                             self.epsilon)
 
+        self._matrixInterface.prepare_matrix(self._networkInterface.number_of_nodes())
+
         self._parse_network()
 
-        self._match_nn(False)
+        self._match_nn(True, not self.secondary_input)
         if self.secondary_input:
-            self._match_nn(True)
+            self._match_nn(False, self.secondary_input)
 
-        self._construct_matrix()
-        if cleanup:
-            self._cleanup_artifacts()
+        self._matrixInterface.build_matrix()
 
         self.logger.info(
             'All operations completed in {:,.2f} seconds',

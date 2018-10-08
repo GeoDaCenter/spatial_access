@@ -239,11 +239,9 @@ dataFrame::~dataFrame(void) {
 
 /* insert a value with row_id, col_id */
 void dataFrame::insertRow(std::unordered_map<std::string, int> row_data, std::string source_id) {
-    std::cout << "in insertRow for source_id:" << source_id << std::endl;
     auto rowNum = rows[source_id];
     for (std::pair<std::string, int> element : row_data)
     {
-        std::cout << element.first << ":" << element.second << std::endl;
         data[rowNum *  n_cols + cols[element.first]] = element.second;
     }
 }

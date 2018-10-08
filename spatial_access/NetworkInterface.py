@@ -18,7 +18,7 @@ class NetworkInterface():
     def __init__(self, network_type, logger=None):
         self.logger = logger
         self.network_type = network_type
-        assert(type(network_type) == str)
+        assert isinstance(network_type, str)
         self.bbox = None
         self.cache_filename = 'osm_query_cache/'
         self._try_create_cache()
@@ -32,9 +32,9 @@ class NetworkInterface():
         try:
             import shutil
             shutil.rmtree(self.cache_filename)
-        except:
+        except BaseException:
             if self.logger:
-                console.error('Unable to remove cache')
+                self.logger.error('Unable to remove cache')
 
 
     def _try_create_cache(self):
@@ -107,11 +107,10 @@ class NetworkInterface():
         servers if not.
         Returns: nodes, edges (pandas df's)
         '''
-        assert(type(primary_data) == pd.DataFrame)
-        assert(type(secondary_data) == pd.DataFrame or type(secondary_data) == type(None))
-        assert(type(secondary_input) == bool)
-        assert(type(epsilon) == float or type(epsilon) == int)
-
+        assert isinstance(primary_data, pd.DataFrame)
+        assert isinstance(secondary_input, (pd.DataFrame, None))
+        assert isinstance(secondary_input, bool)
+        assert isinstance(epsilon, (float, int))
 
         self._try_create_cache()
         self._get_bbox(primary_data, secondary_data,
@@ -120,7 +119,7 @@ class NetworkInterface():
             node_filename = self.get_nodes_filename()
             edge_filename = self.get_edges_filename()
 
-            self.nodes =  pd.read_csv(node_filename)
+            self.nodes = pd.read_csv(node_filename)
             self.edges = pd.read_csv(edge_filename)
             if self.logger:
                 self.logger.debug('Read nodes from %s', node_filename)
