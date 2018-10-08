@@ -1,4 +1,4 @@
-import spatial_access.CommunityAnalytics
+from spatial_access.CommunityAnalytics import CommunityAnalytics
 
 
 def test_1():
