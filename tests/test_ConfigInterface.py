@@ -1,3 +1,4 @@
+# pylint: skip-file
 from spatial_access.ConfigInterface import ConfigInterface
 
 def test_1():

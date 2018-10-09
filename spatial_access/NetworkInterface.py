@@ -2,6 +2,7 @@
 An interface for a network query to OSM. Caches results and
 returns the local resources if available.
 """
+# pylint: skip-file
 
 import os
 import sys

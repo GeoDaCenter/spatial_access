@@ -1,3 +1,4 @@
+# pylint: skip-file
 from spatial_access.p2p import TransitMatrix
 
 class TestClass():

@@ -1,3 +1,4 @@
+# pylint: skip-file
 from spatial_access.NetworkInterface import NetworkInterface
 import pandas as pd
 import pytest

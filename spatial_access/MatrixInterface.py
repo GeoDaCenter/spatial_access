@@ -5,7 +5,7 @@ import multiprocessing
 import time
 import sys
 try:
-    from transitMatrixAdapter import pyTransitMatrix #pylint disable=no-name-in-module
+    from transitMatrixAdapter import pyTransitMatrix
 except BaseException:
     print('Unable to import pyengine. Try running setup.py again')
 
@@ -17,7 +17,7 @@ class MatrixInterface():
 
     def __init__(self, logger):
         self.logger = logger
-        self._transit_matrix = None
+        self.transit_matrix = None
 
     @staticmethod
     def _get_thread_limit():
@@ -41,7 +41,7 @@ class MatrixInterface():
         '''
         start_time = time.time()
         try:
-            self._transit_matrix = pyTransitMatrix(infile=bytes(outfile))
+            self.transit_matrix = pyTransitMatrix(infile=bytes(outfile))
             logger_vars = time.time() - start_time
             self.logger.info(
                 'Shortest path matrix loaded from disk in {:,.2f} seconds', logger_vars)
@@ -54,8 +54,13 @@ class MatrixInterface():
         '''
         Instantiate a pyTransitMatrix with the available nodes
         '''
-        self._transit_matrix = pyTransitMatrix(vertices=num_nodes)
+        self.transit_matrix = pyTransitMatrix(vertices=num_nodes)
 
+    def write_to_csv(self, outfile):
+        '''
+        Write the data frame to csv
+        '''
+        self.transit_matrix.writeCSV(bytes(outfile))
 
     def build_matrix(self):
         '''
@@ -65,7 +70,7 @@ class MatrixInterface():
 
         start_time = time.time()
 
-        self._transit_matrix.compute(self._get_thread_limit())
+        self.transit_matrix.compute(self._get_thread_limit())
 
         logger_vars = time.time() - start_time
         self.logger.info(
@@ -76,7 +81,7 @@ class MatrixInterface():
         Fetch the time value associated with the source, dest pair.
         '''
         try:
-            return self._transit_matrix.get(bytes(str(source))), bytes(str(dest))
+            return self.transit_matrix.get(bytes(str(source))), bytes(str(dest))
         except BaseException:
             if self.logger:
                 self.logger.error('Source, dest pair could not be found')

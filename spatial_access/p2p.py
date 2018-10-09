@@ -8,7 +8,6 @@ Also many thanks to OSM for supplying data: www.openstreetmap.org
 
 import time
 import sys
-import csv
 import logging
 import os
 from collections import deque
@@ -16,7 +15,6 @@ import ast
 import scipy.spatial
 from geopy.distance import vincenty
 from jellyfish import jaro_winkler
-import numpy as np
 import pandas as pd
 
 from spatial_access.MatrixInterface import MatrixInterface
@@ -42,7 +40,6 @@ class TransitMatrix():
             secondary_input=None,
             secondary_input_field_mapping=None,
             read_from_file=None,
-            write_to_file=False,
             primary_hints=None,
             secondary_hints=None,
             use_meters=False,
@@ -51,7 +48,7 @@ class TransitMatrix():
         #arguments
         self.network_type = network_type
         self.epsilon = epsilon
-        self.walk_speed=walk_speed
+        self.walk_speed = walk_speed
         self.primary_input = primary_input
         self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
@@ -66,7 +63,6 @@ class TransitMatrix():
         self.sl_data = None
         self.primary_data = None
         self.secondary_data = None
-        self.output_filename = None
         self.node_pair_to_speed = {}
         self.node_index_to_loc = {}
         self.speed_limit_dictionary = None
@@ -83,7 +79,7 @@ class TransitMatrix():
             'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
 
         if read_from_file:
-            self._matrixInterface.read_from_file(read_from_file)
+            self._matrixInterface.read_matrix_from_file(read_from_file)
 
     def set_logging(self):
         '''
@@ -248,18 +244,6 @@ class TransitMatrix():
                 "Unable to Load inputs: %s", exception)
             sys.exit()
 
-
-    def _set_output_filename(self, output_filename):
-        '''
-        Set the output filename to a default value or given.
-        '''
-        if not output_filename:
-            key_phrase = '{}_full_results'.format(self.network_type)
-            self.output_filename = self._get_output_filename(key_phrase)
-        else:
-            self.output_filename = output_filename
-
-
     def _clean_speed_limits(self):
         '''
         Map road segments to speed limits.
@@ -353,13 +337,11 @@ class TransitMatrix():
                 (distance /
                  self._configInterface.WALK_CONSTANT) +
                 self._configInterface.WALK_NODE_PENALTY)
-            # TODO (lmnoel): Implement meters/seconds choice
         elif self.network_type == 'bike':
             return int(
                 (distance /
                  self._configInterface.BIKE_CONSTANT) +
                 self._configInterface.BIKE_NODE_PENALTY)
-            # TODO (lmnoel): Implement meters/seconds choice
         else:
             if sl:
                 edge_speed_limit = sl
@@ -373,7 +355,7 @@ class TransitMatrix():
                 edge_speed_limit = self._configInterface.DEFAULT_DRIVE_SPEED
             drive_constant = (edge_speed_limit / self._configInterface.ONE_HOUR) * self._configInterface.ONE_KM
             return int((distance / drive_constant) + self._configInterface.DRIVE_NODE_PENALTY)
-            # TODO (lmnoel): Implement meters/seconds choice
+           
 
     # pylint: disable=attribute-defined-outside-init,invalid-name
     def dfs(self, ve):
@@ -527,7 +509,7 @@ class TransitMatrix():
         for data in self._networkInterface.edges.itertuples():
             from_idx = data[FROM_IDX]
             to_idx = data[TO_IDX]
-            if use_meters:
+            if self.use_meters:
                 impedence = data[DISTANCE]
             elif self.node_pair_to_speed:
                 impedence = self._cost_model(
@@ -547,7 +529,7 @@ class TransitMatrix():
             if self.comp_id[from_idx] != self.rem_id or self.comp_id[to_idx] != self.rem_id:
                 continue
             is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
-            self._networkInterface._transit_matrix.addEdgeToGraph(self.node_index_to_loc[from_idx],
+            self._matrixInterface._transit_matrix.addEdgeToGraph(self.node_index_to_loc[from_idx],
                              self.node_index_to_loc[to_idx], impedence, is_bidirectional)
 
 
@@ -594,12 +576,12 @@ class TransitMatrix():
             #distance is a misnomer. this is meters or seconds, depending on config interface settings
             distance = int(distance * KM_TO_METERS / self._configInterface.defaultImpedenceForNetworkType)
             if isPrimary:
-                self._matrixInterface._transit_matrix.addToUserSourceDataContainer(node_loc, 
+                self._matrixInterface.transit_matrix.addToUserSourceDataContainer(node_loc, 
                                                                                    origin_id, 
                                                                                    distance, 
                                                                                    noSecondaryExists)
             else:
-                self._matrixInterface._transit_matrix.addToUserDestDataContainer(node_loc,
+                self._matrixInterface.transit_matrix.addToUserDestDataContainer(node_loc,
                                                                                  origin_id,
                                                                                  distance)
 
@@ -607,8 +589,18 @@ class TransitMatrix():
             'Nearest Neighbor matching completed in {:,.2f} seconds', 
                 time.time() - start_time)
 
-    def process(self, speed_limit_filename=None, output_filename=None,
-                cleanup=True):
+    def write_to_file(self, outfile=None):
+        '''
+        Write the transit matrix to csv.
+        Arguments:
+            outfile- optional string
+        '''
+        if not outfile:
+            outfile = self._get_output_filename(self.network_type)
+        self._matrixInterface.write_to_csv(outfile)
+        self.logger.info("Wrote file to %s", outfile)
+
+    def process(self, speed_limit_filename=None):
         '''
         Process the data.
         '''
@@ -622,8 +614,6 @@ class TransitMatrix():
         self._load_inputs()
 
         self._load_sl_data(speed_limit_filename)
-
-        self._set_output_filename(output_filename)
 
         self._networkInterface.load_network(self.primary_data, 
                                             self.secondary_data, 

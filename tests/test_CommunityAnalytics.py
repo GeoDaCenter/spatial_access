@@ -1,3 +1,4 @@
+# pylint: skip-file
 from spatial_access.CommunityAnalytics import CoverageModel, AccessModel
 
 
