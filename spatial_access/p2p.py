@@ -73,8 +73,7 @@ class TransitMatrix():
         self._configInterface = ConfigInterface(network_type, self.logger)
         self._networkInterface = NetworkInterface(network_type, self.logger)
         self._matrixInterface = MatrixInterface(self.logger)
-
-        assert network_type != 'bike', "bike mode is temporarily disabled"
+        
         assert network_type in [
             'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
 

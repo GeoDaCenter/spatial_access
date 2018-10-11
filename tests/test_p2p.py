@@ -77,11 +77,24 @@ class TestClass():
 
     def test_5(self):
         '''
-        Tests that calling the _parse_network method does not cause
-        failure
+        Tests the use_meters flag.
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('walk', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
+            primary_hints=hints, secondary_hints=hints, 
+            use_meters=True)
+        transit_matrix_1.process()
+
+        assert True
+
+    def test_6(self):
+        '''
+        Tests bike network
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('bike', 
             primary_input='tests/test_data/sources.csv',
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)

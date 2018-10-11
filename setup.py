@@ -48,6 +48,7 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'psutil>=5.4.3',
                          'pandas>=0.19.2',
                          'numpy>=1.12.0',
+                         'osmnet>=0.1.4'
                          'pandana>=0.4.0',
                          'scipy>=0.18.1',
                          'geopy>=1.11.0',

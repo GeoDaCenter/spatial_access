@@ -134,7 +134,8 @@ class NetworkInterface():
         '''
         try:
             if self.network_type == 'bike':
-                osm_bike_filter = '[maxsize:2000000000][out:json][timeout:900];(way["highway"]["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["bicycle"!~"no"];>;);out;'
+                osm_bike_filter = '["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["foot"!~"no"]["bicycle"!~"no"]'
+                #osm_bike_filter = '[maxsize:2000000000][out:json][timeout:900];(way["highway"]["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["bicycle"!~"no"];>;);out;'
                 self.nodes, self.edges = osm.network_from_bbox(
                 lat_min=self.bbox[0], lng_min=self.bbox[1],
                 lat_max=self.bbox[2], lng_max=self.bbox[3],
