@@ -4,7 +4,6 @@ import os
 
 class TestClass():
 
-    @staticmethod
     def test_1(self):
         '''
         Test adding edges to graph, computing, retrieving

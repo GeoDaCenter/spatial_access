@@ -133,10 +133,17 @@ class NetworkInterface():
         current query
         '''
         try:
-            self.nodes, self.edges = osm.network_from_bbox(
+            if self.network_type == 'bike':
+                osm_bike_filter = '[maxsize:2000000000][out:json][timeout:900];(way["highway"]["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["bicycle"!~"no"];>;);out;'
+                self.nodes, self.edges = osm.network_from_bbox(
                 lat_min=self.bbox[0], lng_min=self.bbox[1],
                 lat_max=self.bbox[2], lng_max=self.bbox[3],
-                network_type=self.network_type)
+                custom_osm_filter=osm_bike_filter)
+            else:
+                self.nodes, self.edges = osm.network_from_bbox(
+                    lat_min=self.bbox[0], lng_min=self.bbox[1],
+                    lat_max=self.bbox[2], lng_max=self.bbox[3],
+                    network_type=self.network_type)
             node_filename = self.get_nodes_filename()
             edge_filename = self.get_edges_filename()
             self.nodes.to_csv(node_filename)
