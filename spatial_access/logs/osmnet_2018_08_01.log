@@ -1,2 +1,0 @@
-2018-08-01 11:12:38,853 INFO osmnet Requesting network data within bounding box from Overpass API in 1 request(s)
-2018-08-01 11:12:38,854 INFO osmnet Posting to http://www.overpass-api.de/api/interpreter with timeout=180, "{'data': '[out:json][timeout:180];(way["highway"]["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["foot"!~"no"]["pedestrians"!~"no"](41.60021990,-87.85448850,42.07126140,-87.58049640);>;);out;'}"
