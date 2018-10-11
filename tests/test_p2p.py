@@ -55,38 +55,38 @@ class TestClass():
         assert transit_matrix_1._networkInterface.number_of_nodes() > 0
         assert transit_matrix_1._networkInterface.number_of_edges() > 0
 
-    def test_4(self):
-        '''
-        Tests that calling the _parse_network method does not cause
-        failure
-        '''
-        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
-        transit_matrix_1 = TransitMatrix('walk', 
-            primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/dests.csv',
-            primary_hints=hints, secondary_hints=hints)
-        transit_matrix_1._load_inputs()
-        transit_matrix_1._networkInterface.load_network(transit_matrix_1.primary_data, 
-                                                        transit_matrix_1.secondary_data, 
-                                                        secondary_input=True,
-                                                        epsilon=transit_matrix_1.epsilon)
+    # def test_4(self):
+    #     '''
+    #     Tests that calling the _parse_network method does not cause
+    #     failure
+    #     '''
+    #     hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+    #     transit_matrix_1 = TransitMatrix('walk', 
+    #         primary_input='tests/test_data/sources.csv',
+    #         secondary_input='tests/test_data/dests.csv',
+    #         primary_hints=hints, secondary_hints=hints)
+    #     transit_matrix_1._load_inputs()
+    #     transit_matrix_1._networkInterface.load_network(transit_matrix_1.primary_data, 
+    #                                                     transit_matrix_1.secondary_data, 
+    #                                                     secondary_input=True,
+    #                                                     epsilon=transit_matrix_1.epsilon)
 
-        transit_matrix_1._parse_network()
+    #     transit_matrix_1._parse_network()
 
-        assert True
+    #     assert True
 
-    def test_5(self):
-        '''
-        Tests that calling the _parse_network method does not cause
-        failure
-        '''
-        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
-        transit_matrix_1 = TransitMatrix('walk', 
-            primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/dests.csv',
-            primary_hints=hints, secondary_hints=hints)
-        transit_matrix_1.process()
+    # def test_5(self):
+    #     '''
+    #     Tests that calling the _parse_network method does not cause
+    #     failure
+    #     '''
+    #     hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+    #     transit_matrix_1 = TransitMatrix('walk', 
+    #         primary_input='tests/test_data/sources.csv',
+    #         secondary_input='tests/test_data/dests.csv',
+    #         primary_hints=hints, secondary_hints=hints)
+    #     transit_matrix_1.process()
 
-        assert True
+    #     assert True
 
-    
+    # 

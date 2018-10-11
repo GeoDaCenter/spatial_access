@@ -1,5 +1,6 @@
 # pylint: skip-file
 from transitMatrixAdapter import pyTransitMatrix
+import os
 
 class TestClass():
 
@@ -29,16 +30,28 @@ class TestClass():
 
         assert matrix.get(b"A",b"A") == 0
         assert matrix.get(b"A",b"B") == 8
-        assert matrix.get(b"D",b"C") == 20
-
-        matrix.writeCSV(b"test_outfile_1.csv");
+        assert matrix.get(B"D",b"C") == 20
+        os.mkdir('tmp/')
+        matrix.writeCSV(b"tmp/test_outfile_1.csv");
 
         assert True
 
     def test_2(self):
 
-        matrix = pyTransitMatrix(infile=b"test_outfile_1.csv")
+        matrix = pyTransitMatrix(infile=b"tmp/test_outfile_1.csv")
 
         assert matrix.get(b"A",b"A") == 0
         assert matrix.get(b"A",b"B") == 8
         assert matrix.get(b"D",b"C") == 20
+
+    def test_3(self):
+        '''
+        Cleanup.
+        '''
+        try:
+            import shutil
+            shutil.rmtree('tmp/')
+        except BaseException:
+            pass
+
+        assert True

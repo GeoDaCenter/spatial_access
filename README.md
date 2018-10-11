@@ -48,17 +48,11 @@ The package is written in Python 3.6, C++ 11 and Cython. Currently, the only sup
 ----
 1. Clone this directory
 2. Requirements: python3, pip3
-3. `sudo pip install .` (may require sudo)
+3. `sudo pip install .` (note the .)
 
-## Installing from pre-loaded Ubuntu 16.04 LTS disk image
+PyPi Distribution is planned eventually.
 
-1. Download and install VirtualBox: https://www.virtualbox.org
-2. Download CSDSVM.ova (currently on Box)
-3. File->Import Applicance and choose the .ova
-4. Select the imported image and go to Settings->System. Adjust "Base Memory" under the Motherboard tab and "processors" under the Processor tab. This will tell VirtualBox how much of your machine's resources to dedicate to the application.
-5. Start the image, and navigate to contracts/analytics directory and run `bash ubuntu_easy_update.sh` (do this every time you use the software)
-
-## Installing Ubuntu 18 LTS with dependencies from scratch
+## Installing Ubuntu 18 LTS with dependencies from scratch (recommended for Windows users)
 
 1. Follow the instructions at this link: https://linus.nci.nih.gov/bdge/installUbuntu.html to set up a virtual machine
 2. `sudo apt-get install git`

@@ -12,7 +12,7 @@ class CustomInstallCommand(install):
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
-            os.system('yes | sudo apt-get install libspatialindex-dev')
+            os.system('sudo apt install python3-rtree')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
                                    platform. Note: We DO NOT support Windows.'''
@@ -21,8 +21,10 @@ class CustomInstallCommand(install):
         install.run(self)
 
 ouff_mac = []
+extra_dependency = []
 if sys.platform == "darwin":
   ouff_mac = ['-mmacosx-version-min=10.9']
+  extra_dependency = ['rtree>=0.8.3']
 
 EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',
@@ -46,7 +48,6 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'psutil>=5.4.3',
                          'pandas>=0.19.2',
                          'numpy>=1.12.0',
-                         'rtree>=0.8.3',
                          'pandana>=0.4.0',
                          'scipy>=0.18.1',
                          'geopy>=1.11.0',
@@ -54,8 +55,9 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'scikit_learn>=0.19.1',
                          'atlas>=0.27.0',
                          'jupyter_contrib_nbextensions>=0.5.0',
-                         'jupyter_nbextensions_configurator>=0.1.7'
-]
+                         'jupyter_nbextensions_configurator>=0.1.7']
+
+REQUIRED_DEPENDENCIES += extra_dependency
 
 SUBMODULE_NAMES = ['spatial_access.p2p', 
                    'spatial_access.ScoreModel', 

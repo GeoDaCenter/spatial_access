@@ -1,5 +1,6 @@
 # pylint: skip-file
 from transitMatrixAdapter import pyTransitMatrix
+import os
 
 class TestClass():
 
@@ -8,7 +9,7 @@ class TestClass():
     def test_1(self):
         '''
         Test adding edges to graph, computing, retrieving
-        values and writing to .csv.
+        values, writing to and reading from .csv.
         '''
         matrix = pyTransitMatrix(vertices=5)
 
@@ -29,23 +30,18 @@ class TestClass():
         assert matrix.get(b"A", b"B") == 8
         assert matrix.get(b"D", b"C") == 20
         assert matrix.get(b"B", b"D") == 14
-     
-        matrix.writeCSV(b"test_1_outfile.csv")
+        os.mkdir('tmp/')
+        matrix.writeCSV(b"tmp/test_1_outfile.csv")
+
+        matrix2 = pyTransitMatrix(infile=b"tmp/test_1_outfile.csv")
+
+        assert matrix2.get(b"A", b"A") == 0
+        assert matrix2.get(b"A", b"B") == 8
+        assert matrix2.get(b"D", b"C") == 20
+        assert matrix2.get(b"B", b"D") == 14
+
 
     def test_2(self):
-        '''
-        Test reading from csv and retrieving values.
-        '''
-
-        matrix = pyTransitMatrix(infile=b"test_1_outfile.csv")
-
-        assert matrix.get(b"A", b"A") == 0
-        assert matrix.get(b"A", b"B") == 8
-        assert matrix.get(b"D", b"C") == 20
-        assert matrix.get(b"B", b"D") == 14
-
-
-    def test_3(self):
         '''
         Test multithreaded computation.
         '''
@@ -69,4 +65,16 @@ class TestClass():
         assert matrix.get(b"A", b"B") == 8
         assert matrix.get(b"D", b"C") == 20
         assert matrix.get(b"B", b"D") == 14
+
+    def test_3(self):
+        '''
+        Cleanup.
+        '''
+        try:
+            import shutil
+            shutil.rmtree('tmp/')
+        except BaseException:
+            pass
+
+        assert True
      
