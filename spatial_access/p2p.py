@@ -10,6 +10,7 @@ import time
 import sys
 import logging
 import os
+import json
 from collections import deque
 import ast
 import scipy.spatial
@@ -64,7 +65,6 @@ class TransitMatrix():
         self.primary_data = None
         self.secondary_data = None
         self.node_pair_to_speed = {}
-        self.node_index_to_loc = {}
         self.speed_limit_dictionary = None
 
         #instantiate interfaces
@@ -208,10 +208,9 @@ class TransitMatrix():
         dropped_lines = pre_drop - len(source_data)
         self.logger.info(
             'Total number of rows in the dataset: %d', pre_drop)
-        self.logger.info(
-            'Complete number of rows for computing the matrix: %d', post_drop)
-        self.logger.info(
-            "Rows dropped due to missing latitude or longitude values: %d", dropped_lines)
+        if dropped_lines > 0:
+            self.logger.warning(
+                "Rows dropped due to missing latitude or longitude values: %d", dropped_lines)
 
         # set index and clean
         source_data.set_index(idx, inplace=True)
@@ -358,20 +357,26 @@ class TransitMatrix():
         
 
     def _read_in_speed_limit_dictionary(self):
+        filename = 'data/speed_limit_dictionary.json'
 
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        speed_limit_dictionary_file = os.path.join(
-            dir_path, "speed_limit_dictionary.txt")
+        try:
+            with open(filename, "r") as f:
+                self.speed_limit_dictionary = json.load(f)
+        except FileNotFoundError:
+            self.logger.error('%s not found, using defaults', filename)
+   
 
-        with open(speed_limit_dictionary_file, "r") as f:
-            speed_limit_dictionary_text = f.read()
-            self.speed_limit_dictionary = ast.literal_eval(
-                speed_limit_dictionary_text)
+    def _reduce_node_indeces(self):
+        simple_node_indeces = {}
+        for position, id_ in enumerate(self._networkInterface.nodes['id']):
+            simple_node_indeces[id_] = position
+        return simple_node_indeces
+
 
     # pylint: disable=too-many-branches,too-many-statements,invalid-name,attribute-defined-outside-init
     def _parse_network(self):
         '''
-        Cleans the network and generates the csv for the network
+        Cleans and generates the city network.
         '''
 
         start_time = time.time()
@@ -384,8 +389,7 @@ class TransitMatrix():
 
     
         # map index name to position
-        for i, index_name in enumerate(self._networkInterface.nodes.index):
-            self.node_index_to_loc[index_name] = i
+        simple_node_indeces = self._reduce_node_indeces()
 
         # read in the dictionary of speed limit values used to calculate edge
         # impedences
@@ -412,12 +416,12 @@ class TransitMatrix():
             oneway = data[ONEWAY]
 
             is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
-            self._matrixInterface._transit_matrix.addEdgeToGraph(self.node_index_to_loc[from_idx],
-                             self.node_index_to_loc[to_idx], impedence, is_bidirectional)
+            self._matrixInterface.transit_matrix.addEdgeToGraph(simple_node_indeces[from_idx],
+                             simple_node_indeces[to_idx], impedence, is_bidirectional)
 
 
         self.logger.info(
-            "Prepared raw network in {:,.2f} seconds", time.time() - start_time)
+            "Prepared raw network in {:,.2f} seconds".format(time.time() - start_time))
 
 
     def _match_nn(self, isPrimary=True, noSecondaryExists=True):
@@ -458,14 +462,15 @@ class TransitMatrix():
 
             #distance is a misnomer. this is meters or seconds, depending on config interface settings
             distance = int(distance * KM_TO_METERS / self._configInterface.defaultImpedenceForNetworkType)
+            self.logger.info('origin_id: {}, type: {}'.format(origin_id, type(origin_id)))
             if isPrimary:
                 self._matrixInterface.transit_matrix.addToUserSourceDataContainer(node_loc, 
-                                                                                   origin_id, 
+                                                                                   bytes(origin_id, 'utf-8'), 
                                                                                    distance, 
                                                                                    noSecondaryExists)
             else:
                 self._matrixInterface.transit_matrix.addToUserDestDataContainer(node_loc,
-                                                                                 origin_id,
+                                                                                 bytes(origin_id, 'utf-8'),
                                                                                  distance)
 
         self.logger.info(

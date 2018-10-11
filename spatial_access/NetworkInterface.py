@@ -119,8 +119,6 @@ class NetworkInterface():
         if self._network_exists():
             node_filename = self.get_nodes_filename()
             edge_filename = self.get_edges_filename()
-            print('Read nodes from %s', node_filename)
-            print('Read edges from %s', edge_filename)
             self.nodes = pd.read_csv(node_filename)
             self.edges = pd.read_csv(edge_filename)
             if self.logger:
