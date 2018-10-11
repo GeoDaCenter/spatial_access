@@ -25,6 +25,7 @@ class NetworkInterface():
         self._try_create_cache()
         self.nodes = None
         self.edges = None
+        self.area_threshold = 1000000
 
     def clear_cache(self):
         '''
@@ -37,6 +38,14 @@ class NetworkInterface():
             if self.logger:
                 self.logger.error('Unable to remove cache')
 
+    def _approximate_bbox_area(self):
+        '''
+        Calculate the approximate area of the 
+        bounding box in square kilometers.
+        '''
+        square_kms_in_one_square_degree = 69 **2
+        square_degrees = abs(self.bbox[0] - self.bbox[2]) * abs(self.bbox[1] - self.bbox[3])
+        return square_degrees * square_kms_in_one_square_degree
 
     def _try_create_cache(self):
         '''
@@ -64,13 +73,20 @@ class NetworkInterface():
             composite_x = list(primary_data.x)
             composite_y = list(primary_data.y)
 
-        lat_max = max(composite_x) + epsilon
-        lat_min = min(composite_x) - epsilon
+        lon_max = max(composite_x) + epsilon
+        lon_min = min(composite_x) - epsilon
 
-        lon_max = max(composite_y) + epsilon
-        lon_min = min(composite_y) - epsilon
+        lat_max = max(composite_y) + epsilon
+        lat_min = min(composite_y) - epsilon
 
-        self.bbox = [lat_min, lon_min, lat_max, lon_max]
+        self.bbox = [lon_min, lat_min, lon_max, lat_max]
+        approx_area = self._approximate_bbox_area()
+        if approx_area > self.area_threshold:
+            if self.logger:
+                warning_message = '''DANGER! Your bounding box is too large and 
+                will likely not be able to compute
+                '''
+                self.logger.warning(warning_message)
         if self.logger:
             self.logger.debug('set bbox: {}'.format(self.bbox))
 

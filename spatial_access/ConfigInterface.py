@@ -16,7 +16,7 @@ class ConfigInterface():
         self.logger = logger
         self.ONE_HOUR = 3600 # seconds
         self.ONE_KM = 1000 # meters
-        self.defaultImpedenceForNetworkType = None
+        self.default_edge_cost = None
         self.load_from_file()
 
 
@@ -46,11 +46,11 @@ class ConfigInterface():
                 self.DRIVE_CONSTANT = (
                     self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
             if self.network_type == 'walk':
-                self.defaultImpedenceForNetworkType = self.WALK_CONSTANT
+                self.default_edge_cost = self.WALK_CONSTANT
             elif self.network_type == 'drive':
-                self.defaultImpedenceForNetworkType = self.DRIVE_CONSTANT
+                self.default_edge_cost = self.DRIVE_CONSTANT
             elif self.network_type == 'bike':
-                self.defaultImpedenceForNetworkType = self.BIKE_CONSTANT
+                self.default_edge_cost = self.BIKE_CONSTANT
             else:
                 self.logger.error("Invalid network type")
                 raise EnvironmentError("Invalid network type")

@@ -46,14 +46,14 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1._load_inputs()
-        transit_matrix_1._networkInterface.load_network(transit_matrix_1.primary_data, 
+        transit_matrix_1._network_interface.load_network(transit_matrix_1.primary_data, 
                                                         transit_matrix_1.secondary_data, 
                                                         secondary_input=True,
                                                         epsilon=transit_matrix_1.epsilon)
 
 
-        assert transit_matrix_1._networkInterface.number_of_nodes() > 0
-        assert transit_matrix_1._networkInterface.number_of_edges() > 0
+        assert transit_matrix_1._network_interface.number_of_nodes() > 0
+        assert transit_matrix_1._network_interface.number_of_edges() > 0
 
     def test_4(self):
         '''
@@ -66,11 +66,11 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1._load_inputs()
-        transit_matrix_1._networkInterface.load_network(transit_matrix_1.primary_data, 
+        transit_matrix_1._network_interface.load_network(transit_matrix_1.primary_data, 
                                                         transit_matrix_1.secondary_data, 
                                                         secondary_input=True,
                                                         epsilon=transit_matrix_1.epsilon)
-        transit_matrix_1._matrixInterface.prepare_matrix(transit_matrix_1._networkInterface.number_of_nodes())
+        transit_matrix_1._matrix_interface.prepare_matrix(transit_matrix_1._network_interface.number_of_nodes())
         transit_matrix_1._parse_network()
 
         assert True

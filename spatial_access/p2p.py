@@ -1,3 +1,4 @@
+#pylint disable=invalid-name
 """
 Program to calculate the network time between every point in a set, hence: "p2p".
 Written by Logan Noel for the Center for Spatial Data Science, 2018.
@@ -5,14 +6,11 @@ Written by Logan Noel for the Center for Spatial Data Science, 2018.
 
 Also many thanks to OSM for supplying data: www.openstreetmap.org
 """
-
 import time
 import sys
 import logging
 import os
 import json
-from collections import deque
-import ast
 import scipy.spatial
 from geopy.distance import vincenty
 from jellyfish import jaro_winkler
@@ -22,15 +20,14 @@ from spatial_access.MatrixInterface import MatrixInterface
 from spatial_access.NetworkInterface import NetworkInterface
 from spatial_access.ConfigInterface import ConfigInterface
 
-
 class TransitMatrix():
+
     '''
     A unified class to manage all aspects of computing a transit time matrix.
     Arguments:
         -network_type: 'walk', 'drive' or 'bike'
         -epsilon: [optional] smooth out the network edges
     '''
-
     def __init__(
             self,
             network_type,
@@ -54,7 +51,7 @@ class TransitMatrix():
         self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
         self.secondary_input_field_mapping = secondary_input_field_mapping
-        self.read_from_file = read_from_file        
+        self.read_from_file = read_from_file
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
         self.use_meters = use_meters
@@ -68,17 +65,16 @@ class TransitMatrix():
         self.speed_limit_dictionary = None
 
         #instantiate interfaces
-        self.INFINITY = -1
         self.set_logging()
-        self._configInterface = ConfigInterface(network_type, self.logger)
-        self._networkInterface = NetworkInterface(network_type, self.logger)
-        self._matrixInterface = MatrixInterface(self.logger)
-        
+        self._config_interface = ConfigInterface(network_type, self.logger)
+        self._network_interface = NetworkInterface(network_type, self.logger)
+        self._matrix_interface = MatrixInterface(self.logger)
+
         assert network_type in [
             'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
 
         if read_from_file:
-            self._matrixInterface.read_matrix_from_file(read_from_file)
+            self._matrix_interface.read_matrix_from_file(read_from_file)
 
     def set_logging(self):
         '''
@@ -144,6 +140,7 @@ class TransitMatrix():
 
         self.sl_data = self.sl_data[['street_name', 'speed_limit']]
 
+    # pylint disable=too-many-branches
     def _parse_csv(self, primary):
         '''
         Load source data from .csv. Identify long, lat and id columns.
@@ -184,8 +181,8 @@ class TransitMatrix():
         # if the web app is instantiating a TransitMatrix object/calling this code,
         # a field_mapping dictionary should be present
         if field_mapping:
-            xcol = field_mapping["lat"]
-            ycol = field_mapping["lon"]
+            xcol = field_mapping["lon"]
+            ycol = field_mapping["lat"]
             idx = field_mapping["idx"]
 
         if not skip_user_input:
@@ -193,16 +190,15 @@ class TransitMatrix():
             for var in source_data_columns:
                 print('> ', var)
             while xcol not in source_data_columns:
-                xcol = input('Enter the latitude coordinate: ')
+                xcol = input('Enter the longitude coordinate: ')
             while ycol not in source_data_columns:
-                ycol = input('Enter the longitude coordinate: ')
+                ycol = input('Enter the latitude coordinate: ')
             while idx not in source_data_columns:
                 idx = input('Enter the index name: ')
 
         # drop nan lines
         pre_drop = len(source_data)
         source_data.dropna(subset=[xcol, ycol], axis='index', inplace=True)
-        post_drop = len(source_data)
 
         dropped_lines = pre_drop - len(source_data)
         self.logger.info(
@@ -242,13 +238,13 @@ class TransitMatrix():
                 "Unable to Load inputs: %s", exception)
             sys.exit()
 
+    # pylint disable=too-many-locals
     def _clean_speed_limits(self):
         '''
         Map road segments to speed limits.
         '''
-        edges = self._networkInterface.edges
+        edges = self._network_interface.edges
         sl_file = self.sl_data
-
         start_time = time.time()
 
         # clean the table and standardize names
@@ -264,20 +260,17 @@ class TransitMatrix():
             limits[row[1]] = row[2]
 
         # extract edge names/ids from OSM network and assign defaut speed
-        street_name_column_index = edges.columns.get_loc('name') + 1
+        str_name_idx = edges.columns.get_loc('name') + 1
         network_streets = {}
         for data in edges.itertuples():
-            network_streets[data[street_name_column_index]] = 25
+            network_streets[data[str_name_idx]] = self._config_interface.DEFAULT_DRIVE_SPEED
 
         remaining_names = set(limits.keys())
 
-        perfect_match = 0
-        great_match = 0
-        good_match = 0
-        non_match = 0
+        perfect_match, great_match, good_match, non_match = 0, 0, 0, 0
 
         # assign default value
-        network_streets['PRIVATE'] = self._configInterface.DEFAULT_DRIVE_SPEED
+        network_streets['PRIVATE'] = self._config_interface.DEFAULT_DRIVE_SPEED
 
         # attempt to match edges in OSM to known street names
         # and assign corresponding speed limit
@@ -304,14 +297,14 @@ class TransitMatrix():
                         good_match += 1
                     else:
                         non_match += 1
-                        network_streets[name] = 25
+                        network_streets[name] = self._config_interface.DEFAULT_DRIVE_SPEED
 
         node_pair_to_speed = {}
         for data in edges.itertuples():
-            if data[STR_NAME] in network_streets.keys():
-                speed = network_streets[data[STR_NAME]]
+            if data[str_name_idx] in network_streets.keys():
+                speed = network_streets[data[str_name_idx]]
             else:
-                speed = 25
+                speed = self._config_interface.DEFAULT_DRIVE_SPEED
             node_pair_to_speed[(data[0][0], data[0][1])] = speed
             node_pair_to_speed[(data[0][1], data[0][0])] = speed
 
@@ -319,30 +312,24 @@ class TransitMatrix():
             '''Matching street network completed in
             {:,.2f} seconds: %d perfect matches, %d near perfect matches,
             %d good matches and %d non matches''', time.time() - start_time,
-                                                   perfect_match,
-                                                   great_match,
-                                                   good_match,
-                                                   non_match)
+            perfect_match, great_match, good_match, non_match)
 
         self.node_pair_to_speed = node_pair_to_speed
 
-    def _cost_model(self, distance, sl):
+    def _cost_model(self, distance, speed_limit):
         '''
         Return the edge impedence as specified by the cost model.
         '''
         if self.network_type == 'walk':
-            return int(
-                (distance /
-                 self._configInterface.WALK_CONSTANT) +
-                self._configInterface.WALK_NODE_PENALTY)
+            return int((distance / self._config_interface.WALK_CONSTANT) +
+                       self._config_interface.WALK_NODE_PENALTY)
+        # pylint disable=no-else-return
         elif self.network_type == 'bike':
-            return int(
-                (distance /
-                 self._configInterface.BIKE_CONSTANT) +
-                self._configInterface.BIKE_NODE_PENALTY)
+            return int((distance / self._config_interface.BIKE_CONSTANT) +
+                       self._config_interface.BIKE_NODE_PENALTY)
         else:
-            if sl:
-                edge_speed_limit = sl
+            if speed_limit:
+                edge_speed_limit = speed_limit
             else:
                 # Logic reading in speed limits from either the user-supplied speed limit file or
                 # the default speed limit dictionary should guarantee that the below code will
@@ -350,24 +337,24 @@ class TransitMatrix():
                 # needed.
                 self.logger.warning(
                     'Using default drive speed. Results will be inaccurate')
-                edge_speed_limit = self._configInterface.DEFAULT_DRIVE_SPEED
-            drive_constant = (edge_speed_limit / self._configInterface.ONE_HOUR) * self._configInterface.ONE_KM
-            return int((distance / drive_constant) + self._configInterface.DRIVE_NODE_PENALTY)
-        
+                edge_speed_limit = self._config_interface.DEFAULT_DRIVE_SPEED
+            drive_constant = (edge_speed_limit / self._config_interface.ONE_HOUR)
+            drive_constant *= self._config_interface.ONE_KM
+            return int((distance / drive_constant) + self._config_interface.DRIVE_NODE_PENALTY)
+
 
     def _read_in_speed_limit_dictionary(self):
         filename = 'data/speed_limit_dictionary.json'
 
         try:
-            with open(filename, "r") as f:
-                self.speed_limit_dictionary = json.load(f)
+            with open(filename, "r") as file:
+                self.speed_limit_dictionary = json.load(file)
         except FileNotFoundError:
             self.logger.error('%s not found, using defaults', filename)
-   
 
     def _reduce_node_indeces(self):
         simple_node_indeces = {}
-        for position, id_ in enumerate(self._networkInterface.nodes['id']):
+        for position, id_ in enumerate(self._network_interface.nodes['id']):
             simple_node_indeces[id_] = position
         return simple_node_indeces
 
@@ -380,13 +367,12 @@ class TransitMatrix():
 
         start_time = time.time()
 
-        DISTANCE = self._networkInterface.edges.columns.get_loc('distance') + 1
-        FROM_IDX = self._networkInterface.edges.columns.get_loc('from') + 1
-        TO_IDX = self._networkInterface.edges.columns.get_loc('to') + 1
-        ONEWAY = self._networkInterface.edges.columns.get_loc('oneway') + 1
-        HIGHWAY = self._networkInterface.edges.columns.get_loc('highway') + 1
+        DISTANCE = self._network_interface.edges.columns.get_loc('distance') + 1
+        FROM_IDX = self._network_interface.edges.columns.get_loc('from') + 1
+        TO_IDX = self._network_interface.edges.columns.get_loc('to') + 1
+        ONEWAY = self._network_interface.edges.columns.get_loc('oneway') + 1
+        HIGHWAY = self._network_interface.edges.columns.get_loc('highway') + 1
 
-    
         # map index name to position
         simple_node_indeces = self._reduce_node_indeces()
 
@@ -396,7 +382,7 @@ class TransitMatrix():
 
         # create a mapping of each node to every other connected node
         # transform them by cost model as well
-        for data in self._networkInterface.edges.itertuples():
+        for data in self._network_interface.edges.itertuples():
             from_idx = data[FROM_IDX]
             to_idx = data[TO_IDX]
             if self.use_meters:
@@ -410,20 +396,20 @@ class TransitMatrix():
                         "urban"]:
                     highway_tag = "unclassified"
                 impedence = self._cost_model(data[DISTANCE], float(
-                        self.speed_limit_dictionary["urban"][highway_tag]))
+                    self.speed_limit_dictionary["urban"][highway_tag]))
 
             oneway = data[ONEWAY]
 
             is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
-            self._matrixInterface.transit_matrix.addEdgeToGraph(simple_node_indeces[from_idx],
-                             simple_node_indeces[to_idx], impedence, is_bidirectional)
+            self._matrix_interface.transit_matrix.addEdgeToGraph(simple_node_indeces[from_idx],
+                                                                 simple_node_indeces[to_idx],
+                                                                 impedence, is_bidirectional)
+
+        time_delta = time.time() - start_time
+        self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
 
-        self.logger.info(
-            "Prepared raw network in {:,.2f} seconds".format(time.time() - start_time))
-
-
-    def _match_nn(self, isPrimary=True, noSecondaryExists=True):
+    def _match_nn(self, isPrimary=True, primary_only=True):
         '''
         Maps each the index of each node in the raw distance
         matrix to a tuple
@@ -438,43 +424,46 @@ class TransitMatrix():
         else:
             data = self.secondary_data
 
-        nodes = self._networkInterface.nodes[['x', 'y']]
+        nodes = self._network_interface.nodes[['x', 'y']]
 
-        node_indices = nodes.index
         start_time = time.time()
         KM_TO_METERS = 1000 #pylint: disable=invalid-name
 
         # make a kd tree in the lat, long dimension
         node_array = pd.DataFrame.as_matrix(nodes)
-        kd_tree = scipy.spatial.cKDTree(node_array)
+        kd_tree = scipy.spatial.cKDTree(node_array) # pylint: disable=not-callable
 
         # map each node in the source/dest data to the nearest
         # corresponding node in the OSM network
         # and write to file
         for row in data.itertuples():
             origin_id, origin_y, origin_x = row
-            latlong_diff, node_loc = kd_tree.query( # pylint: disable=unused-variable
-                [origin_x, origin_y], k=1)
-            node_number = node_indices[node_loc]
-            distance = vincenty(
-                (origin_y, origin_x), (nodes.loc[node_number].y, nodes.loc[node_number].x)).km
+            # pylint: disable=unused-variable
+            latlong_diff, node_loc = kd_tree.query([origin_x, origin_y], k=1)
+            node_number = nodes.index[node_loc]
+            distance = vincenty((origin_y, origin_x), (nodes.loc[node_number].y,
+                                                       nodes.loc[node_number].x)).km
 
-            #distance is a misnomer. this is meters or seconds, depending on config interface settings
-            distance = int(distance * KM_TO_METERS / self._configInterface.defaultImpedenceForNetworkType)
-            self.logger.info('origin_id: {}, type: {}'.format(origin_id, type(origin_id)))
+            # distance is a misnomer. this is meters or seconds
+            # depending on config interface settings
+            distance = int(distance * KM_TO_METERS / self._config_interface.default_edge_cost)
             if isPrimary:
-                self._matrixInterface.transit_matrix.addToUserSourceDataContainer(node_loc, 
-                                                                                   bytes(origin_id, 'utf-8'), 
-                                                                                   distance, 
-                                                                                   noSecondaryExists)
+                byte_id = bytes(origin_id, 'utf-8')
+                # pylint disable=line-too-long
+                self._matrix_interface.transit_matrix.addToUserSourceDataContainer(node_loc,
+                                                                                   byte_id,
+                                                                                   distance,
+                                                                                   primary_only)
             else:
-                self._matrixInterface.transit_matrix.addToUserDestDataContainer(node_loc,
-                                                                                 bytes(origin_id, 'utf-8'),
+                byte_id = bytes(origin_id, 'utf-8')
+                # pylint disable=line-too-long
+                self._matrix_interface.transit_matrix.addToUserDestDataContainer(node_loc,
+                                                                                 byte_id,
                                                                                  distance)
 
+        time_delta = time.time() - start_time
         self.logger.info(
-            'Nearest Neighbor matching completed in {:,.2f} seconds', 
-                time.time() - start_time)
+            'Nearest Neighbor matching completed in {:,.2f} seconds'.format(time_delta))
 
     def write_to_file(self, outfile=None):
         '''
@@ -484,7 +473,7 @@ class TransitMatrix():
         '''
         if not outfile:
             outfile = self._get_output_filename(self.network_type)
-        self._matrixInterface.write_to_csv(outfile)
+        self._matrix_interface.write_to_csv(outfile)
         self.logger.info("Wrote file to %s", outfile)
 
     def process(self, speed_limit_filename=None):
@@ -493,21 +482,19 @@ class TransitMatrix():
         '''
         start_time = time.time()
 
-        self.logger.info(
-            "Processing network (%s) with epsilon: %f",
-            self.network_type,
-            self.epsilon)
+        self.logger.info("Processing network (%s) with epsilon: %f",
+                         self.network_type, self.epsilon)
 
         self._load_inputs()
 
         self._load_sl_data(speed_limit_filename)
 
-        self._networkInterface.load_network(self.primary_data, 
-                                            self.secondary_data, 
-                                            self.secondary_input is not None,
-                                            self.epsilon)
+        self._network_interface.load_network(self.primary_data,
+                                             self.secondary_data,
+                                             self.secondary_input is not None,
+                                             self.epsilon)
 
-        self._matrixInterface.prepare_matrix(self._networkInterface.number_of_nodes())
+        self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes())
 
         self._parse_network()
 
@@ -515,8 +502,6 @@ class TransitMatrix():
         if self.secondary_input:
             self._match_nn(False, self.secondary_input)
 
-        self._matrixInterface.build_matrix()
-
-        self.logger.info(
-            'All operations completed in {:,.2f} seconds',
-                time.time() - start_time)
+        self._matrix_interface.build_matrix()
+        time_delta = time.time() - start_time
+        self.logger.info('All operations completed in {:,.2f} seconds'.format(time_delta))
