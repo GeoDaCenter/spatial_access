@@ -119,12 +119,15 @@ class NetworkInterface():
         if self._network_exists():
             node_filename = self.get_nodes_filename()
             edge_filename = self.get_edges_filename()
-
+            print('Read nodes from %s', node_filename)
+            print('Read edges from %s', edge_filename)
             self.nodes = pd.read_csv(node_filename)
             self.edges = pd.read_csv(edge_filename)
             if self.logger:
                 self.logger.debug('Read nodes from %s', node_filename)
                 self.logger.debug('Read edges from %s', edge_filename)
+        else:
+            self._request_network()
 
     def _request_network(self):
         '''
@@ -136,9 +139,14 @@ class NetworkInterface():
                 lat_min=self.bbox[0], lng_min=self.bbox[1],
                 lat_max=self.bbox[2], lng_max=self.bbox[3],
                 network_type=self.network_type)
-            self.nodes.to_csv(self.get_nodes_filename())
-            self.edges.to_csv(self.get_edges_filename())
-
+            node_filename = self.get_nodes_filename()
+            edge_filename = self.get_edges_filename()
+            self.nodes.to_csv(node_filename)
+            self.edges.to_csv(edge_filename)
+            if self.logger:
+                self.logger.info('Queried OSM...')
+                self.logger.debug('Cached nodes to %s', node_filename)
+                self.logger.debug('Cached edges to %s', edge_filename)
         except BaseException:
             request_error = '''Error trying to download OSM network.
             Did you reverse lat/long?

@@ -21,7 +21,7 @@ class TestClass(object):
         except BaseException:
             assert False
 
-    @pytest.mark.timeout(4)
+    @pytest.mark.timeout(8)
     def test_2(self):
         walk_interface = NetworkInterface('walk')
         source_df = self.create_example_source_table()

@@ -355,32 +355,7 @@ class TransitMatrix():
                 edge_speed_limit = self._configInterface.DEFAULT_DRIVE_SPEED
             drive_constant = (edge_speed_limit / self._configInterface.ONE_HOUR) * self._configInterface.ONE_KM
             return int((distance / drive_constant) + self._configInterface.DRIVE_NODE_PENALTY)
-           
-
-    # pylint: disable=attribute-defined-outside-init,invalid-name
-    def dfs(self, ve):
-        '''
-        runs a depth first search from given vertex ve
-        Way to traverse an entire graph: checking for normal weak connection
-        '''
-        size = 0
-        stack = [ve]
-        while stack:
-            v = stack.pop()
-            if self.visited[v]:
-                continue
-            self.visited[v] = True
-            size = size + 1
-
-            self.comp_id[v] = self.idd  # gives compnent id to each vertex
-            if v in self.rev_adj.keys():
-                for nbr in self.rev_adj[v]:
-                    if self.visited[nbr] == False:
-                        stack.append(nbr)
-        if size > self.max_size:
-            self.max_size = size
-            self.rem_id = self.idd
-        return
+        
 
     def _read_in_speed_limit_dictionary(self):
 
@@ -407,95 +382,7 @@ class TransitMatrix():
         ONEWAY = self._networkInterface.edges.columns.get_loc('oneway') + 1
         HIGHWAY = self._networkInterface.edges.columns.get_loc('highway') + 1
 
-        # creating adjacency list from osmnet nodes and edges
-        self.adj = {}
-        self.rev_adj = {}
-        self.max_size = 0
-        self.rem_id = 0
-        self.node = set()
-        c = 0
-        self.visited = {}
-        self.visited2 = {}
-        self.comp_id = {}
-        for data in self._networkInterface.edges.itertuples():
-            so = data[FROM_IDX]
-            de = data[TO_IDX]
-            if so not in self.adj.keys():
-                self.adj[so] = []
-            if so not in self.rev_adj.keys():
-                self.rev_adj[so] = []
-            if de not in self.adj.keys():
-                self.adj[de] = []
-            if de not in self.rev_adj.keys():
-                self.rev_adj[de] = []
-            oneway = data[ONEWAY]
-            self.adj[so].append(de)
-            self.rev_adj[de].append(so)
-            self.node.add(so)
-            # if it's not driving mode then directionality doesn't matter or if
-            # road isn't oneway
-            if oneway != 'yes' or self.network_type != 'drive':
-                self.adj[de].append(so)
-                self.rev_adj[so].append(de)
-                self.node.add(de)
-            self.visited[so] = False
-            self.visited[de] = False
-            self.visited2[so] = False
-            self.visited2[de] = False
-
-        # Iterative dfs (with finish times)
-        # First dfs as part of KOSARAJUs algorithm to give us a stack with
-        # finished times.
-        time2 = 0
-        finish_time_dic = {}
-        self.stack2 = []
-        for i in self.node:
-            if not self.visited2[i]:
-                start = i
-                # print('source',start)
-                q = deque([start])
-                while q:
-                    v = q.popleft()
-                    if not self.visited2[v]:
-                        # print(v)
-                        self.visited2[v] = True
-                    #q = [v] + q
-                        q.appendleft(v)
-                        if v in self.adj.keys():
-                            for w in self.adj[v]:
-                                if not self.visited2[w]:
-                                    #q = [w[0]] + q
-                                    q.appendleft(w)
-                    else:
-                        if v not in finish_time_dic:
-                            finish_time_dic[v] = time2
-                            time2 += 1
-                            self.stack2.append(v)
-
-        # Second dfs
-        # Connected components check using depth first search of graph
-        self.idd = 0
-        for source in self.node:
-            self.visited[source] = False
-        c = 0
-
-        while self.stack2:
-            source = self.stack2.pop()
-            if not self.visited[source]:
-                # self.logger.info(source)
-                self.dfs(source)
-                c = c + 1
-                self.idd = self.idd + 1
-        self.logger.info("Number of islands initially found: %d", c)
-        #print("Removing id:",self.rem_id)
-        count = 0
-        # Remove disconnected nodes
-        for index, row in self._networkInterface.nodes.iterrows():
-            if self.comp_id[index] != self.rem_id:
-                count = count + 1
-                self._networkInterface.nodes = self._networkInterface.nodes.drop(index)
-        self.logger.info("Number of disconnected nodes removed: %d", count)
-
+    
         # map index name to position
         for i, index_name in enumerate(self._networkInterface.nodes.index):
             self.node_index_to_loc[index_name] = i
@@ -524,10 +411,6 @@ class TransitMatrix():
 
             oneway = data[ONEWAY]
 
-            # checking if edge connects any of the disconnected nodes. If
-            # not, don't consider it.
-            if self.comp_id[from_idx] != self.rem_id or self.comp_id[to_idx] != self.rem_id:
-                continue
             is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
             self._matrixInterface._transit_matrix.addEdgeToGraph(self.node_index_to_loc[from_idx],
                              self.node_index_to_loc[to_idx], impedence, is_bidirectional)
