@@ -24,13 +24,13 @@ enum currentState
 class dataFrame {
 private:
     int * data;
-    std::unordered_map <std::string, int> rows;
-    std::unordered_map <std::string, int> cols;
+    std::unordered_map <unsigned long int, int> rows;
+    std::unordered_map <unsigned long int, int> cols;
 
-    std::vector<std::string> row_labels;
-    std::vector<std::string> col_labels;
-    std::set<std::string> row_contents;
-    std::set<std::string> col_contents;
+    std::vector<unsigned long int> row_labels;
+    std::vector<unsigned long int> col_labels;
+    std::set<unsigned long int> row_contents;
+    std::set<unsigned long int> col_contents;
 
     int n_rows;
     int n_cols;
@@ -41,14 +41,14 @@ public:
     dataFrame(void);
     ~dataFrame(void);
     bool loadFromDisk(std::string infile);
-    void insert(int val, std::string row_id, std::string col_id);
-    void insertRow(std::unordered_map<std::string, int> row_data, std::string source_id);
+    void insert(int val, unsigned long int row_id, unsigned long int col_id);
+    void insertRow(std::unordered_map<unsigned long int, int> row_data, unsigned long int source_id);
     void insertLoc(int val, int row_loc, int col_loc);
-    void reserve(std::vector<std::string> primary_ids, std::vector<std::string> secondary_ids);
-    int retrieve(std::string row_id, std::string col_id);
-    int retrieveSafe(std::string row_id, std::string col_id);
+    void reserve(std::vector<unsigned long int> primary_ids, std::vector<unsigned long int> secondary_ids);
+    int retrieve(unsigned long int row_id, unsigned long int col_id);
+    int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
     void manualDelete(void);
-    bool validKey(std::string row_id, std::string col_id);
+    bool validKey(unsigned long int row_id, unsigned long int col_id);
     bool writeCSV(std::string outfile);
     void printDataFrame();
 };
@@ -111,7 +111,7 @@ dataFrame::dataFrame(void) {
 
 
 
-void printArray(std::vector<std::string> data)
+void printArray(std::vector<unsigned long int> data)
 {
     for (auto element : data)
     {
@@ -127,8 +127,8 @@ bool dataFrame::loadFromDisk(std::string infile) {
         state = ERROR;
         return false;
     }
-    std::vector<std::string> infileColLabels;
-    std::vector<std::string> infileRowLabels;
+    std::vector<unsigned long int> infileColLabels;
+    std::vector<unsigned long int> infileRowLabels;
     std::string line;
     n_rows = 0, n_cols = 0;
     bool first_row = true;
@@ -139,24 +139,28 @@ bool dataFrame::loadFromDisk(std::string infile) {
         std::istringstream stream(line);
         if (first_row) {
             first_row = false;
-            std::string col_id;
+            std::string tmp_col_id;
+            unsigned long int col_id;
             n_cols = 0;
             bool first_col = true;
-            while (getline(stream, col_id, ',')) {
+            while (getline(stream, tmp_col_id, ',')) {
                 if (first_col) {
 
                     first_col = false;
                 } else {
+                    col_id = stoul(tmp_col_id);
                     infileColLabels.push_back(col_id);
                 }
             }
         } else {
-            std::string row_id;
-            getline(stream, row_id,',');
-            if (!row_id.size())
+            std::string tmp_row_id;
+            unsigned long int row_id;
+            getline(stream, tmp_row_id,',');
+            if (!tmp_row_id.size())
             {
                 break;
             }
+            row_id = stoul(tmp_row_id);
             infileRowLabels.push_back(row_id);
             
         }
@@ -185,9 +189,9 @@ bool dataFrame::loadFromDisk(std::string infile) {
         while (getline(stream, input, ',')) {
             if (first_col) {
                 first_col = false;
-                row_id = input;
+                row_id = stoul(input);
             } else {
-                value = stoull(input);
+                value = stoul(input);
                 insertLoc(value, row_counter, col_counter);
                 col_counter++;
             }
@@ -202,11 +206,11 @@ bool dataFrame::loadFromDisk(std::string infile) {
 }
 
 // use when creating a new data frame
-void dataFrame::reserve(std::vector<std::string> primary_ids, std::vector<std::string> secondary_ids) {
+void dataFrame::reserve(std::vector<unsigned long int> primary_ids, std::vector<unsigned long int> secondary_ids) {
     n_rows = primary_ids.size();
     n_cols = secondary_ids.size();
 
-    std::string row_id, col_id;
+    unsigned long int row_id, col_id;
     for (int row_idx = 0; row_idx < n_rows; row_idx++) {
         row_id = primary_ids.at(row_idx);
         rows[row_id] = row_idx;
@@ -238,9 +242,9 @@ dataFrame::~dataFrame(void) {
 }
 
 /* insert a value with row_id, col_id */
-void dataFrame::insertRow(std::unordered_map<std::string, int> row_data, std::string source_id) {
+void dataFrame::insertRow(std::unordered_map<unsigned long int, int> row_data, unsigned long int source_id) {
     auto rowNum = rows[source_id];
-    for (std::pair<std::string, int> element : row_data)
+    for (std::pair<unsigned long int, int> element : row_data)
     {
         data[rowNum *  n_cols + cols[element.first]] = element.second;
     }
@@ -248,7 +252,7 @@ void dataFrame::insertRow(std::unordered_map<std::string, int> row_data, std::st
 
 
 /* insert a value with row_id, col_id */
-void dataFrame::insert(int val, std::string row_id, std::string col_id) {
+void dataFrame::insert(int val, unsigned long int row_id, unsigned long int col_id) {
     data[rows[row_id] *  n_cols + cols[col_id]] = val;
 }
 
@@ -262,13 +266,13 @@ void dataFrame::insertLoc(int val, int row_loc, int col_loc) {
 /* warning: this method is UNSAFE. Results are undefined*/
 /* if keys are not present in dataframe */
 /* for safe retrieval, use retrieveSafe */
-int dataFrame::retrieve(std::string row_id, std::string col_id) {
+int dataFrame::retrieve(unsigned long int row_id, unsigned long int col_id) {
     return data[rows[row_id] * n_cols + cols[col_id]];
 }
 
 
 /* check if a key pair is valid (both are in the data frame) */
-bool dataFrame::validKey(std::string row_id, std::string col_id) {
+bool dataFrame::validKey(unsigned long int row_id, unsigned long int col_id) {
     if (row_contents.find(row_id) == row_contents.end()) {
         return false;
     }
@@ -282,7 +286,7 @@ bool dataFrame::validKey(std::string row_id, std::string col_id) {
 /* retrieve a value with row_id, col_id */
 /* this method is SAFE, and will throw an error*/
 /* if keys are undefined*/
-int dataFrame::retrieveSafe(std::string row_id, std::string col_id) {
+int dataFrame::retrieveSafe(unsigned long int row_id, unsigned long int col_id) {
     if (!validKey(row_id, col_id)) {
         throw std::runtime_error("row or col id does not exist");
     }

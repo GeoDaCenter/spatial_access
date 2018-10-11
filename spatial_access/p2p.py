@@ -210,7 +210,7 @@ class TransitMatrix():
         # set index and clean
         source_data.set_index(idx, inplace=True)
         source_data.rename(columns={xcol: 'x', ycol: 'y'}, inplace=True)
-        source_data.index = source_data.index.map(str)
+
         if primary:
             self.primary_data = source_data[['x', 'y']]
         else:
@@ -447,19 +447,13 @@ class TransitMatrix():
             # distance is a misnomer. this is meters or seconds
             # depending on config interface settings
             distance = int(distance * KM_TO_METERS / self._config_interface.default_edge_cost)
+            self.logger.warning('origin_id: {}, type: {}'.format(origin_id, type(origin_id)))
             if isPrimary:
-                byte_id = bytes(origin_id, 'utf-8')
                 # pylint disable=line-too-long
-                self._matrix_interface.transit_matrix.addToUserSourceDataContainer(node_loc,
-                                                                                   byte_id,
-                                                                                   distance,
-                                                                                   primary_only)
+                self._matrix_interface.add_user_source_data(node_loc, origin_id, distance, primary_only)
             else:
-                byte_id = bytes(origin_id, 'utf-8')
                 # pylint disable=line-too-long
-                self._matrix_interface.transit_matrix.addToUserDestDataContainer(node_loc,
-                                                                                 byte_id,
-                                                                                 distance)
+                self._matrix_interface.add_user_dest_data(node_loc, origin_id, distance)
 
         time_delta = time.time() - start_time
         self.logger.info(

@@ -7,11 +7,11 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
     cdef cppclass transitMatrix:
         transitMatrix(string) except +
         transitMatrix(int) except +
-        void addToUserSourceDataContainer(int, string, int, bool) except +
-        void addToUserDestDataContainer(int, string, int) except +
+        void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
+        void addToUserDestDataContainer(int, unsigned long int, int) except +
         void addEdgeToGraph(int, int, int, bool) except +
         void compute(int) except +
-        int get(string, string) except +
+        int get(unsigned long int, unsigned long int) except +
         bool writeCSV(string) except +
         void printDataFrame() except +
 

@@ -19,18 +19,18 @@ class TestClass():
         matrix.addEdgeToGraph(2, 4, 4, False)
         matrix.addEdgeToGraph(3, 4, 3, True)
 
-        matrix.addToUserSourceDataContainer(1, b"A", 1, True)
-        matrix.addToUserSourceDataContainer(0, b"B", 2, True)
-        matrix.addToUserSourceDataContainer(4, b"C", 3, True)
-        matrix.addToUserSourceDataContainer(1, b"D", 7, True)
+        matrix.addToUserSourceDataContainer(1, 11, 1, True)
+        matrix.addToUserSourceDataContainer(0, 12, 2, True)
+        matrix.addToUserSourceDataContainer(4, 13, 3, True)
+        matrix.addToUserSourceDataContainer(1, 14, 7, True)
 
         matrix.compute(1);
 
         matrix.printDataFrame();
 
-        assert matrix.get(b"A",b"A") == 0
-        assert matrix.get(b"A",b"B") == 8
-        assert matrix.get(B"D",b"C") == 20
+        assert matrix.get(11, 11) == 0
+        assert matrix.get(11, 12) == 8
+        assert matrix.get(14 , 13) == 20
         os.mkdir('tmp/')
         matrix.writeCSV(b"tmp/test_outfile_1.csv");
 
@@ -40,9 +40,9 @@ class TestClass():
 
         matrix = pyTransitMatrix(infile=b"tmp/test_outfile_1.csv")
 
-        assert matrix.get(b"A",b"A") == 0
-        assert matrix.get(b"A",b"B") == 8
-        assert matrix.get(b"D",b"C") == 20
+        assert matrix.get(11, 11) == 0
+        assert matrix.get(11, 12) == 8
+        assert matrix.get(14 , 13) == 20
 
     def test_3(self):
         '''

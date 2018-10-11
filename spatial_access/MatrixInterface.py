@@ -18,6 +18,13 @@ class MatrixInterface():
     def __init__(self, logger):
         self.logger = logger
         self.transit_matrix = None
+        self._internal_index_counter = 0
+        self._int_id_map = {}
+        self._warned_once = False
+        self._string_id_warning = '''
+        Using string ids is very slow. 
+        You should map noninteger ids to integers instead
+        '''
 
     @staticmethod
     def _get_thread_limit():
@@ -35,11 +42,59 @@ class MatrixInterface():
 
         return no_cores
 
+    def _get_internal_int_id(self, user_id):
+        '''
+        Map the user's string id to an internal
+        int id.
+        '''
+        if user_id in self._int_id_map:
+            return self._int_id_map[user_id]
+        else:
+            self._int_id_map[user_id] = self._internal_index_counter
+            new_id = self._internal_index_counter
+            self._internal_index_counter += 1
+            return new_id
+
+
+    def add_user_source_data(self, network_id, user_id, distance, primary_only):
+        '''
+        Add the user's source data point to the pyTransitMatrix.
+        If the given user_id is a string, first map to an
+        internally held int id.
+        '''
+        if isinstance(user_id, str):
+            if self.logger and not self._warned_once:
+                self.logger.warning(self._string_id_warning)
+                self._warned_once = True
+            user_id = self._get_internal_int_id(user_id)
+        else:
+            self.transit_matrix.addToUserSourceDataContainer(network_id, user_id,
+                                                             distance, primary_only)
+
+    def add_user_dest_data(self, network_id, user_id, distance):
+        '''
+        Add the user's dest data point to the pyTransitMatrix.
+        If the given user_id is a string, first map to an
+        internally held int id.
+        '''
+        if isinstance(user_id, str):
+            if self.logger and not self._warned_once:
+                self.logger.warning(self._string_id_warning)
+                self._warned_once = True
+            user_id = self._get_internal_int_id(user_id)
+        else:
+            self.transit_matrix.addToUserDestDataContainer(network_id, user_id,
+                                                           distance)
+
     def read_matrix_from_file(self, outfile):
         '''
         Load a matrix from file
         '''
         start_time = time.time()
+        if self.logger:
+            warning_message = '''In this version of spatial_access, you cannot read a matrix
+                                 from file if your data have non-integer indeces'''
+            self.logger.warning(warning_message)
         try:
             self.transit_matrix = pyTransitMatrix(infile=bytes(outfile))
             logger_vars = time.time() - start_time
@@ -80,8 +135,12 @@ class MatrixInterface():
         '''
         Fetch the time value associated with the source, dest pair.
         '''
+        if isinstance(source, str):
+            source = self._get_internal_int_id(source)
+        if isinstance(source, str):
+            dest = self._get_internal_int_id(dest)
         try:
-            return self.transit_matrix.get(bytes(str(source))), bytes(str(dest))
+            return self.transit_matrix.get(source, dest)
         except BaseException:
             if self.logger:
                 self.logger.error('Source, dest pair could not be found')

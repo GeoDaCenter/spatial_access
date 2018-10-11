@@ -10,12 +10,12 @@ class userDataPoint
 {
 public:
     int networkNodeId;
-    std::string id;
+    unsigned long int id;
     int lastMileDistance;
-    userDataPoint(int networkNodeId, std::string id, int lastMileDistance);
+    userDataPoint(int networkNodeId, unsigned long int id, int lastMileDistance);
 };
 
-userDataPoint::userDataPoint(int networkNodeId, std::string id, int lastMileDistance)
+userDataPoint::userDataPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
 {
     this->networkNodeId = networkNodeId;
     this->id = id;
@@ -67,19 +67,19 @@ class userDataContainer
 public:
     std::unordered_map<int, userDataTract> data;
     std::vector<int> allNetworkNodeIds;
-    std::vector<std::string> ids;
+    std::vector<unsigned long int> ids;
     std::vector<int> uniqueNetworkNodeIds;
     userDataContainer();
-    void addPoint(int networkNodeId, std::string id, int lastMileDistance);
+    void addPoint(int networkNodeId, unsigned long int id, int lastMileDistance);
     bool containsTract(int networkNodeId);
     userDataTract retrieveTract(int networkNodeId);
-    const std::vector<std::string>& retrieveAllUserDataIds();
+    const std::vector<unsigned long int>& retrieveAllUserDataIds();
     const std::vector<int>& retrieveAllNetworkNodeIds();
     const std::vector<int>& retrieveUniqueNetworkNodeIds();
     void print();
 };
 
-const std::vector<std::string>& userDataContainer::retrieveAllUserDataIds()
+const std::vector<unsigned long int>& userDataContainer::retrieveAllUserDataIds()
 {
     return this->ids;
 }
@@ -102,7 +102,7 @@ bool userDataContainer::containsTract(int networkNodeId)
     // improve search time using set
     return data.find(networkNodeId) != data.end();
 }
-void userDataContainer::addPoint(int networkNodeId, std::string id, int lastMileDistance)
+void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
 {
     ids.push_back(id);
     allNetworkNodeIds.push_back(networkNodeId);

@@ -101,3 +101,16 @@ class TestClass():
         transit_matrix_1.process()
 
         assert True
+
+    def test_7(self):
+        '''
+        Tests string labels.
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('bike', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests_a.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+
+        assert True

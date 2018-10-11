@@ -74,7 +74,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
 
-        std::unordered_map<std::string, int> row_data;
+        std::unordered_map<unsigned long int, int> row_data;
         for (auto destNodeId : destNodeIds)
         {
             std::vector<userDataPoint> destPoints = wa->userDestData.retrieveTract(destNodeId).retrieveDataPoints();
@@ -194,14 +194,14 @@ public:
     userDataContainer userDestDataContainer;
     Graph graph;
     int numNodes;
-    void addToUserSourceDataContainer(int networkNodeId, std::string id, int lastMileDistance, bool isBidirectional);
-    void addToUserDestDataContainer(int networkNodeId, std::string id, int lastMileDistance);
+    void addToUserSourceDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional);
+    void addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V);
     transitMatrix(std::string infile);
     void compute(int numThreads);
     transitMatrix(void);
-    int get(const std::string &source, const std::string &dest);
+    int get(unsigned long int source, unsigned long intdest);
     void loadFromDisk(void);
     void prepareDataFrame();
     bool writeCSV(const std::string &outfile);
@@ -240,12 +240,12 @@ void transitMatrix::compute(int numThreads)
     wq.start(workerHandler, &wa);
 }
 
-void transitMatrix::addToUserDestDataContainer(int networkNodeId, std::string id, int lastMileDistance)
+void transitMatrix::addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance)
 {
     userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);
 }
 
-void transitMatrix::addToUserSourceDataContainer(int networkNodeId, std::string id, int lastMileDistance, bool isBidirectional)
+void transitMatrix::addToUserSourceDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional)
 {
     userSourceDataContainer.addPoint(networkNodeId, id, lastMileDistance);
     if (isBidirectional)
@@ -278,7 +278,7 @@ void transitMatrix::printDataFrame(){
 }
 
 // change ids to ints to speed up a lot
-int transitMatrix::get(const std::string &source, const std::string &dest) {
+int transitMatrix::get(unsigned long int source, unsigned long int dest) {
     return df.retrieveSafe(source, dest);
 }
 
