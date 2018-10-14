@@ -54,6 +54,8 @@ class ConfigInterface():
             else:
                 self.logger.error("Invalid network type")
                 raise EnvironmentError("Invalid network type")
+            if self.logger:
+                self.logger.debug('Set default_edge_cost: {}'.format(self.default_edge_cost))
         except FileNotFoundError as error:
             if self.logger:
                 self.logger.error(error)

@@ -62,6 +62,8 @@ class MatrixInterface():
         If the given user_id is a string, first map to an
         internally held int id.
         '''
+        if self.logger:
+            self.logger.debug('network_id:{}, user_id: {}, distance: {}'.format(network_id, user_id, distance))
         if isinstance(user_id, str):
             if self.logger and not self._warned_once:
                 self.logger.warning(self._string_id_warning)
@@ -76,6 +78,8 @@ class MatrixInterface():
         If the given user_id is a string, first map to an
         internally held int id.
         '''
+        if self.logger:
+            self.logger.debug('network_id:{}, user_id: {}, distance: {}'.format(network_id, user_id, distance))
         if isinstance(user_id, str):
             if self.logger and not self._warned_once:
                 self.logger.warning(self._string_id_warning)
@@ -137,7 +141,7 @@ class MatrixInterface():
         logger_vars = time.time() - start_time
         if self.logger:
             self.logger.info(
-            'Shortest path matrix computed in {:,.2f} seconds', logger_vars)
+            'Shortest path matrix computed in {:,.2f} seconds'.format(logger_vars))
 
     def get(self, source, dest):
         '''

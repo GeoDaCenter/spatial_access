@@ -58,7 +58,6 @@ class TransitMatrix():
         self.debug = debug
 
         #member variables
-        self.sl_data = None
         self.primary_data = None
         self.secondary_data = None
         self.node_pair_to_speed = {}
@@ -105,41 +104,7 @@ class TransitMatrix():
 
         return filename
 
-    def _load_sl_data(self, sl_filename):
-        '''
-        Load speed limit data from .csv. Identify street name and speed
-        limit columns.
-        '''
-        if not sl_filename:
-            return
-
-        # sanity check & load data
-        assertion_warning = "Selected 'drive' cost model but didn't provide speed limit file"
-        assert (self.network_type == 'drive' and sl_filename) or (self.network_type !=
-                                                                  'drive'), assertion_warning
-        assert os.path.exists(
-            sl_filename), "Unable to locate provided speed limit file"
-        self.sl_data = pd.read_csv(sl_filename)
-        source_data_columns = self.sl_data.columns.values
-
-        # extract column names
-        street_name = ''
-        speed_limit = ''
-
-        print('The variable names in your speed limit data set are:')
-        for var in source_data_columns:
-            print('> ', var)
-        while street_name not in source_data_columns:
-            street_name = input('Enter the street name variable name: ')
-        while speed_limit not in source_data_columns:
-            speed_limit = input('Enter the speed limit variable name: ')
-
-        # clean the data frame
-        clean_names = {street_name: 'street_name', speed_limit: 'speed_limit'}
-        self.sl_data.rename(columns=clean_names, inplace=True)
-
-        self.sl_data = self.sl_data[['street_name', 'speed_limit']]
-
+    
     # pylint disable=too-many-branches
     def _parse_csv(self, primary):
         '''
@@ -238,83 +203,6 @@ class TransitMatrix():
                 "Unable to Load inputs: %s", exception)
             sys.exit()
 
-    # pylint disable=too-many-locals
-    def _clean_speed_limits(self):
-        '''
-        Map road segments to speed limits.
-        '''
-        edges = self._network_interface.edges
-        sl_file = self.sl_data
-        start_time = time.time()
-
-        # clean the table and standardize names
-        sl_file.dropna(inplace=True, axis=0, how='any')
-        sl_file['street_name'] = sl_file['street_name'].str.upper()
-        edges['name'].fillna('PRIVATE', inplace=True)
-        edges['name'] = edges['name'].str.upper()
-        sl_file = sl_file[sl_file['speed_limit'] > 0]
-
-        # load mappings for easy use
-        limits = {}
-        for row in sl_file.itertuples():
-            limits[row[1]] = row[2]
-
-        # extract edge names/ids from OSM network and assign defaut speed
-        str_name_idx = edges.columns.get_loc('name') + 1
-        network_streets = {}
-        for data in edges.itertuples():
-            network_streets[data[str_name_idx]] = self._config_interface.DEFAULT_DRIVE_SPEED
-
-        remaining_names = set(limits.keys())
-
-        perfect_match, great_match, good_match, non_match = 0, 0, 0, 0
-
-        # assign default value
-        network_streets['PRIVATE'] = self._config_interface.DEFAULT_DRIVE_SPEED
-
-        # attempt to match edges in OSM to known street names
-        # and assign corresponding speed limit
-        for name in network_streets:
-            if name != 'PRIVATE':
-                if name in remaining_names:
-                    network_streets[name] = limits[name]
-                    perfect_match += 1
-                else:
-                    best_distance = 0
-                    best_match = None
-                    for potential_match in remaining_names:
-                        distance = jaro_winkler(name, potential_match)
-                        if distance >= 0.97:
-                            best_distance = distance
-                            best_match = potential_match
-                            great_match += 1
-                            break
-                        if distance > best_distance:
-                            best_distance = distance
-                            best_match = potential_match
-                    if best_match and best_distance > 0.9:
-                        network_streets[name] = limits[best_match]
-                        good_match += 1
-                    else:
-                        non_match += 1
-                        network_streets[name] = self._config_interface.DEFAULT_DRIVE_SPEED
-
-        node_pair_to_speed = {}
-        for data in edges.itertuples():
-            if data[str_name_idx] in network_streets.keys():
-                speed = network_streets[data[str_name_idx]]
-            else:
-                speed = self._config_interface.DEFAULT_DRIVE_SPEED
-            node_pair_to_speed[(data[0][0], data[0][1])] = speed
-            node_pair_to_speed[(data[0][1], data[0][0])] = speed
-
-        self.logger.info(
-            '''Matching street network completed in
-            {:,.2f} seconds: %d perfect matches, %d near perfect matches,
-            %d good matches and %d non matches''', time.time() - start_time,
-            perfect_match, great_match, good_match, non_match)
-
-        self.node_pair_to_speed = node_pair_to_speed
 
     def _cost_model(self, distance, speed_limit):
         '''
@@ -323,24 +211,22 @@ class TransitMatrix():
         if self.network_type == 'walk':
             return int((distance / self._config_interface.WALK_CONSTANT) +
                        self._config_interface.WALK_NODE_PENALTY)
-        # pylint disable=no-else-return
         elif self.network_type == 'bike':
             return int((distance / self._config_interface.BIKE_CONSTANT) +
                        self._config_interface.BIKE_NODE_PENALTY)
+        if speed_limit:
+            edge_speed_limit = speed_limit
         else:
-            if speed_limit:
-                edge_speed_limit = speed_limit
-            else:
-                # Logic reading in speed limits from either the user-supplied speed limit file or
-                # the default speed limit dictionary should guarantee that the below code will
-                # never execute.  Keep in for testing purposes until no longer
-                # needed.
-                self.logger.warning(
-                    'Using default drive speed. Results will be inaccurate')
-                edge_speed_limit = self._config_interface.DEFAULT_DRIVE_SPEED
-            drive_constant = (edge_speed_limit / self._config_interface.ONE_HOUR)
-            drive_constant *= self._config_interface.ONE_KM
-            return int((distance / drive_constant) + self._config_interface.DRIVE_NODE_PENALTY)
+            # Logic reading in speed limits from either the user-supplied speed limit file or
+            # the default speed limit dictionary should guarantee that the below code will
+            # never execute.  Keep in for testing purposes until no longer
+            # needed.
+            self.logger.warning(
+                'Using default drive speed. Results will be inaccurate')
+            edge_speed_limit = self._config_interface.DEFAULT_DRIVE_SPEED
+        drive_constant = (edge_speed_limit / self._config_interface.ONE_HOUR)
+        drive_constant *= self._config_interface.ONE_KM
+        return int((distance / drive_constant) + self._config_interface.DRIVE_NODE_PENALTY)
 
 
     def _read_in_speed_limit_dictionary(self):
@@ -353,6 +239,9 @@ class TransitMatrix():
             self.logger.error('%s not found, using defaults', filename)
 
     def _reduce_node_indeces(self):
+        '''
+        Map the network indeces to location.
+        '''
         simple_node_indeces = {}
         for position, id_ in enumerate(self._network_interface.nodes['id']):
             simple_node_indeces[id_] = position
@@ -427,7 +316,6 @@ class TransitMatrix():
         nodes = self._network_interface.nodes[['x', 'y']]
 
         start_time = time.time()
-        KM_TO_METERS = 1000 #pylint: disable=invalid-name
 
         # make a kd tree in the lat, long dimension
         node_array = pd.DataFrame.as_matrix(nodes)
@@ -437,23 +325,24 @@ class TransitMatrix():
         # corresponding node in the OSM network
         # and write to file
         for row in data.itertuples():
-            origin_id, origin_y, origin_x = row
+            origin_id, origin_x, origin_y = row
             # pylint: disable=unused-variable
             latlong_diff, node_loc = kd_tree.query([origin_x, origin_y], k=1)
             node_number = nodes.index[node_loc]
-            distance = vincenty((origin_y, origin_x), (nodes.loc[node_number].y,
-                                                       nodes.loc[node_number].x)).km
+            origin_location = (origin_y, origin_x)
+            closest_node_location = (nodes.loc[node_number].y,
+                                                       nodes.loc[node_number].x)
 
-            # distance is a misnomer. this is meters or seconds
-            # depending on config interface settings
-            distance = int(distance * KM_TO_METERS / self._config_interface.default_edge_cost)
-            self.logger.warning('origin_id: {}, type: {}'.format(origin_id, type(origin_id)))
+            distance = vincenty(origin_location, closest_node_location).m
+
+            edge_weight = int(distance / self._config_interface.default_edge_cost)
+
             if isPrimary:
                 # pylint disable=line-too-long
-                self._matrix_interface.add_user_source_data(node_loc, origin_id, distance, primary_only)
+                self._matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
             else:
                 # pylint disable=line-too-long
-                self._matrix_interface.add_user_dest_data(node_loc, origin_id, distance)
+                self._matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
 
         time_delta = time.time() - start_time
         self.logger.info(
@@ -470,7 +359,7 @@ class TransitMatrix():
         self._matrix_interface.write_to_csv(outfile)
         self.logger.info("Wrote file to %s", outfile)
 
-    def process(self, speed_limit_filename=None):
+    def process(self,):
         '''
         Process the data.
         '''
@@ -480,8 +369,6 @@ class TransitMatrix():
                          self.network_type, self.epsilon)
 
         self._load_inputs()
-
-        self._load_sl_data(speed_limit_filename)
 
         self._network_interface.load_network(self.primary_data,
                                              self.secondary_data,
