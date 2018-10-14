@@ -6,12 +6,12 @@ class MinHeapNode
 {
 public:
     int v;
-    int dist;
-    MinHeapNode(int v, int dist);
+    unsigned short int dist;
+    MinHeapNode(int v, unsigned short int dist);
     MinHeapNode();
 };
 
-MinHeapNode::MinHeapNode(int v, int dist)
+MinHeapNode::MinHeapNode(int v, unsigned short int dist)
 {
     this->v = v;
     this->dist = dist;
@@ -34,7 +34,7 @@ public:
     void minHeapify(int idx);
     bool isEmpty();
     MinHeapNode extractMin();
-    void decreaseKey(int v, int dist);
+    void decreaseKey(int v, unsigned short int dist);
     bool isInMinHeap(int v);
 };
 
@@ -141,7 +141,7 @@ MinHeapNode MinHeap::extractMin()
  
 /* Function to decreasy dist value of a given vertex v. This function*/
 /* uses pos[] of min heap to get the current index of node in min heap*/
-void MinHeap::decreaseKey(int v, int dist)
+void MinHeap::decreaseKey(int v, unsigned short int dist)
 {
     // Get the index of v in  heap array
     int i = this->pos[v];

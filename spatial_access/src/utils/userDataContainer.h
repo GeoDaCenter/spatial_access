@@ -23,8 +23,6 @@ userDataPoint::userDataPoint(int networkNodeId, unsigned long int id, int lastMi
 }
 
 
-
-
 class userDataTract
 {
 public:

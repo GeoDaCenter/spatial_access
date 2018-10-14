@@ -17,7 +17,6 @@
 #include "utils/MinHeap.h"
 #include "utils/userDataContainer.h"
 
-#define UNDEFINED (-1)
 
 /* struct to represent a single source associated with */
 /* a single network node */
@@ -63,7 +62,7 @@ workerArgs::~workerArgs(void) {
 /*write_row: write a row to file*/
 void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
 
-    int src_imp, dst_imp, calc_imp, fin_imp;
+    unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
 
@@ -74,7 +73,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
 
-        std::unordered_map<unsigned long int, int> row_data;
+        std::unordered_map<unsigned long int, unsigned short int> row_data;
         for (auto destNodeId : destNodeIds)
         {
             std::vector<userDataPoint> destPoints = wa->userDestData.retrieveTract(destNodeId).retrieveDataPoints();
@@ -88,9 +87,9 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
                 else 
                 {
                     dst_imp = destDataPoint.lastMileDistance;
-                    if (calc_imp == INT_MAX)
+                    if (calc_imp == USHRT_MAX)
                     {
-                        fin_imp = UNDEFINED;
+                        fin_imp = USHRT_MAX;
                     }
                     else
                     {
@@ -116,7 +115,7 @@ void dijkstra(int src, workerArgs *wa) {
 
     int V = wa->graph.V;// Get the number of vertices in graph
     
-    std::vector<int> dist(V, INT_MAX);
+    std::vector<int> dist(V, USHRT_MAX);
 
     // minHeap represents set E
     MinHeap minHeap(V);
@@ -154,7 +153,7 @@ void dijkstra(int src, workerArgs *wa) {
  
             // If shortest distance to v is not finalized yet, and distance to v
             // through u is less than its previously calculated distance
-            if (minHeap.isInMinHeap(v) && dist[u] != INT_MAX && 
+            if (minHeap.isInMinHeap(v) && dist[u] != USHRT_MAX && 
                                           pCrawl->weight + dist[u] < dist[v])
             {
                 dist[v] = dist[u] + pCrawl->weight;

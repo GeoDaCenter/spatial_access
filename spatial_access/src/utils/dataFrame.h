@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <vector>
 
-#define UNDEFINED (-1)
+#define UNDEFINED (0)
 
 enum currentState
 {
@@ -23,7 +23,7 @@ enum currentState
 /* a pandas-like dataFrame */
 class dataFrame {
 private:
-    int * data;
+    unsigned short int * data;
     std::unordered_map <unsigned long int, int> rows;
     std::unordered_map <unsigned long int, int> cols;
 
@@ -41,12 +41,12 @@ public:
     dataFrame(void);
     ~dataFrame(void);
     bool loadFromDisk(std::string infile);
-    void insert(int val, unsigned long int row_id, unsigned long int col_id);
-    void insertRow(std::unordered_map<unsigned long int, int> row_data, unsigned long int source_id);
-    void insertLoc(int val, int row_loc, int col_loc);
+    void insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
+    void insertRow(std::unordered_map<unsigned long int, unsigned short int> row_data, unsigned long int source_id);
+    void insertLoc(unsigned short int val, int row_loc, int col_loc);
     void reserve(std::vector<unsigned long int> primary_ids, std::vector<unsigned long int> secondary_ids);
-    int retrieve(unsigned long int row_id, unsigned long int col_id);
-    int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
+    unsigned short int retrieve(unsigned long int row_id, unsigned long int col_id);
+    unsigned short int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
     void manualDelete(void);
     bool validKey(unsigned long int row_id, unsigned long int col_id);
     bool writeCSV(std::string outfile);
@@ -175,7 +175,7 @@ bool dataFrame::loadFromDisk(std::string infile) {
         return false;
     }
     int row_counter = 0;
-    int value;
+    unsigned short int value;
     first_row = true;
     while (getline(fileINB, line)) {
         std::istringstream stream(line);
@@ -225,8 +225,8 @@ void dataFrame::reserve(std::vector<unsigned long int> primary_ids, std::vector<
         col_labels.push_back(col_id);
     }
 
-    data = new int[n_rows * n_cols];
-    memset(data, UNDEFINED, sizeof(int) * n_rows * n_cols);
+    data = new unsigned short int[n_rows * n_cols];
+    memset(data, UNDEFINED, sizeof(unsigned short int) * n_rows * n_cols);
     state = RESERVED;
 }
 
@@ -242,9 +242,9 @@ dataFrame::~dataFrame(void) {
 }
 
 /* insert a value with row_id, col_id */
-void dataFrame::insertRow(std::unordered_map<unsigned long int, int> row_data, unsigned long int source_id) {
+void dataFrame::insertRow(std::unordered_map<unsigned long int, unsigned short int> row_data, unsigned long int source_id) {
     auto rowNum = rows[source_id];
-    for (std::pair<unsigned long int, int> element : row_data)
+    for (std::pair<unsigned long int, unsigned short int> element : row_data)
     {
         data[rowNum *  n_cols + cols[element.first]] = element.second;
     }
@@ -252,13 +252,13 @@ void dataFrame::insertRow(std::unordered_map<unsigned long int, int> row_data, u
 
 
 /* insert a value with row_id, col_id */
-void dataFrame::insert(int val, unsigned long int row_id, unsigned long int col_id) {
+void dataFrame::insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id) {
     data[rows[row_id] *  n_cols + cols[col_id]] = val;
 }
 
 
 /* insert a value with row_loc, col_loc */
-void dataFrame::insertLoc(int val, int row_loc, int col_loc) {
+void dataFrame::insertLoc(unsigned short int val, int row_loc, int col_loc) {
     data[row_loc *  n_cols + col_loc] = val;
 }
 
@@ -266,7 +266,7 @@ void dataFrame::insertLoc(int val, int row_loc, int col_loc) {
 /* warning: this method is UNSAFE. Results are undefined*/
 /* if keys are not present in dataframe */
 /* for safe retrieval, use retrieveSafe */
-int dataFrame::retrieve(unsigned long int row_id, unsigned long int col_id) {
+unsigned short int dataFrame::retrieve(unsigned long int row_id, unsigned long int col_id) {
     return data[rows[row_id] * n_cols + cols[col_id]];
 }
 
@@ -286,7 +286,7 @@ bool dataFrame::validKey(unsigned long int row_id, unsigned long int col_id) {
 /* retrieve a value with row_id, col_id */
 /* this method is SAFE, and will throw an error*/
 /* if keys are undefined*/
-int dataFrame::retrieveSafe(unsigned long int row_id, unsigned long int col_id) {
+unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned long int col_id) {
     if (!validKey(row_id, col_id)) {
         throw std::runtime_error("row or col id does not exist");
     }

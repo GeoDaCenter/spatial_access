@@ -10,12 +10,12 @@
 struct AdjListNode 
 { 
     int dest; 
-    int weight; 
+    unsigned short int weight; 
     struct AdjListNode* next; 
 }; 
 
 // A utility function to create a new adjacency list node 
-struct AdjListNode* newAdjListNode(int dest, int weight) 
+struct AdjListNode* newAdjListNode(int dest, unsigned short int weight) 
 { 
     struct AdjListNode* newNode = new AdjListNode; 
     newNode->dest = dest; 
@@ -43,7 +43,7 @@ public:
     Graph();
     void initializeGraph(int vertices);
     ~Graph();
-    void addEdge(int src, int dest, int weight);
+    void addEdge(int src, int dest, unsigned short int weight);
     void readCSV(const std::string &infile);
     void print();
     Graph(Graph const & other);
@@ -106,7 +106,7 @@ void Graph::initializeGraph(int V)
 
 
 /* Adds an edge to an undirected graph */
-void Graph::addEdge(int src, int dest, int weight)
+void Graph::addEdge(int src, int dest, unsigned short int weight)
 {
     struct AdjListNode* newNode = newAdjListNode(dest, weight); 
     this->nodePointers.push_back(newNode);
@@ -118,7 +118,8 @@ void Graph::addEdge(int src, int dest, int weight)
 void Graph::readCSV(const std::string& infile) {
     std::ifstream fileIN;
 
-    int src, dst, edge_weight;
+    int src, dst;
+    unsigned short int edge_weight;
 
     fileIN.open(infile);
     if (fileIN.fail()) {
@@ -135,7 +136,7 @@ void Graph::readCSV(const std::string& infile) {
         getline(stream, input,',');
         dst = (int) stoi(input);
         getline(stream, input,',');
-        edge_weight = (int) stoi(input);
+        edge_weight = (unsigned short int) stoi(input);
         addEdge(src, dst, edge_weight);
 
     }
