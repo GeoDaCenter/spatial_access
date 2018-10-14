@@ -15,7 +15,7 @@ class MatrixInterface():
     A wrapper for C++ based pandas DataFrame like matrix.
     '''
 
-    def __init__(self, logger):
+    def __init__(self, logger=None):
         self.logger = logger
         self.transit_matrix = None
         self._internal_index_counter = 0
@@ -67,9 +67,8 @@ class MatrixInterface():
                 self.logger.warning(self._string_id_warning)
                 self._warned_once = True
             user_id = self._get_internal_int_id(user_id)
-        else:
-            self.transit_matrix.addToUserSourceDataContainer(network_id, user_id,
-                                                             distance, primary_only)
+        self.transit_matrix.addToUserSourceDataContainer(network_id, user_id,
+                                                         distance, primary_only)
 
     def add_user_dest_data(self, network_id, user_id, distance):
         '''
@@ -82,11 +81,17 @@ class MatrixInterface():
                 self.logger.warning(self._string_id_warning)
                 self._warned_once = True
             user_id = self._get_internal_int_id(user_id)
-        else:
-            self.transit_matrix.addToUserDestDataContainer(network_id, user_id,
-                                                           distance)
+        self.transit_matrix.addToUserDestDataContainer(network_id, user_id,
+                                                       distance)
 
-    def read_matrix_from_file(self, outfile):
+    def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
+        '''
+        Add an edge to the graph.
+        '''
+        self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
+
+
+    def read_from_csv(self, infile):
         '''
         Load a matrix from file
         '''
@@ -96,13 +101,15 @@ class MatrixInterface():
                                  from file if your data have non-integer indeces'''
             self.logger.warning(warning_message)
         try:
-            self.transit_matrix = pyTransitMatrix(infile=bytes(outfile))
+            self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'))
             logger_vars = time.time() - start_time
-            self.logger.info(
+            if self.logger:
+                self.logger.info(
                 'Shortest path matrix loaded from disk in {:,.2f} seconds', logger_vars)
             return
         except BaseException as exception:
-            self.logger.error('Unable to load matrix from file: %s', exception)
+            if self.logger:
+                self.logger.error('Unable to load matrix from file: %s', exception)
             sys.exit()
 
     def prepare_matrix(self, num_nodes):
@@ -115,7 +122,7 @@ class MatrixInterface():
         '''
         Write the data frame to csv
         '''
-        self.transit_matrix.writeCSV(bytes(outfile))
+        self.transit_matrix.writeCSV(bytes(outfile, 'utf-8'))
 
     def build_matrix(self):
         '''
@@ -128,16 +135,18 @@ class MatrixInterface():
         self.transit_matrix.compute(self._get_thread_limit())
 
         logger_vars = time.time() - start_time
-        self.logger.info(
+        if self.logger:
+            self.logger.info(
             'Shortest path matrix computed in {:,.2f} seconds', logger_vars)
 
     def get(self, source, dest):
         '''
         Fetch the time value associated with the source, dest pair.
         '''
+        #import pdb; pdb.set_trace()
         if isinstance(source, str):
             source = self._get_internal_int_id(source)
-        if isinstance(source, str):
+        if isinstance(dest, str):
             dest = self._get_internal_int_id(dest)
         try:
             return self.transit_matrix.get(source, dest)

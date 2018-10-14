@@ -51,8 +51,8 @@ class TestClass(object):
     @staticmethod
     def create_example_source_table():
         data = {'name':['regenstein', 'booth', 'uchicago_medicine', 'smart_museum'],
-                'x': [41.791986, 41.789134, 41.788989, 41.793279],
-                'y': [-87.600212, -87.596212, -87.604949, -87.600277]}
+                'y': [41.791986, 41.789134, 41.788989, 41.793279],
+                'x': [-87.600212, -87.596212, -87.604949, -87.600277]}
 
         df = pd.DataFrame.from_dict(data)
         return df
@@ -60,8 +60,8 @@ class TestClass(object):
     @staticmethod
     def create_example_dest_table():
         data = {'name':['medici', 'shfe', 'quad_club'],
-                'x': [41.791442, 41.789822, 41.791430],
-                'y': [-87.593769, -87.596445, -87.597717]}
+                'y': [41.791442, 41.789822, 41.791430],
+                'x': [-87.593769, -87.596445, -87.597717]}
 
         df = pd.DataFrame.from_dict(data)
         return df

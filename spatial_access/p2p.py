@@ -401,9 +401,9 @@ class TransitMatrix():
             oneway = data[ONEWAY]
 
             is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
-            self._matrix_interface.transit_matrix.addEdgeToGraph(simple_node_indeces[from_idx],
-                                                                 simple_node_indeces[to_idx],
-                                                                 impedence, is_bidirectional)
+            self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
+                                                     simple_node_indeces[to_idx],
+                                                     impedence, is_bidirectional)
 
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))

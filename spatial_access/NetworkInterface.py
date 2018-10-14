@@ -74,11 +74,11 @@ class NetworkInterface():
             composite_x = list(primary_data.x)
             composite_y = list(primary_data.y)
 
-        lon_max = max(composite_x) + epsilon
-        lon_min = min(composite_x) - epsilon
+        lat_max = max(composite_x) + epsilon
+        lat_min = min(composite_x) - epsilon
 
-        lat_max = max(composite_y) + epsilon
-        lat_min = min(composite_y) - epsilon
+        lon_max = max(composite_y) + epsilon
+        lon_min = min(composite_y) - epsilon
 
         self.bbox = [lon_min, lat_min, lon_max, lat_max]
         approx_area = self._approximate_bbox_area()
@@ -97,7 +97,7 @@ class NetworkInterface():
         query.
         '''
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
-        return 'data/osm_query_cache' + self.network_type + '_nodes' + bbox_string + '.csv'
+        return 'data/osm_query_cache/' + self.network_type + '_nodes' + bbox_string + '.csv'
 
     def get_edges_filename(self):
         '''
@@ -105,7 +105,7 @@ class NetworkInterface():
         query.
         '''
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
-        return 'data/osm_query_cache' + self.network_type + '_edges' + bbox_string + '.csv'
+        return 'data/osm_query_cache/' + self.network_type + '_edges' + bbox_string + '.csv'
 
     def _network_exists(self):
         '''
