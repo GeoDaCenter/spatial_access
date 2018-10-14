@@ -19,13 +19,12 @@ class NetworkInterface():
     def __init__(self, network_type, logger=None):
         self.logger = logger
         self.network_type = network_type
-        assert isinstance(network_type, str)
         self.bbox = None
-        self.cache_filename = 'osm_query_cache/'
-        self._try_create_cache()
         self.nodes = None
         self.edges = None
         self.area_threshold = 1000000
+        assert isinstance(network_type, str)
+        self._try_create_cache()
 
     def clear_cache(self):
         '''
@@ -52,8 +51,10 @@ class NetworkInterface():
         Create the directory for the cache
         if it does not already exist.
         '''
-        if not os.path.exists(self.cache_filename):
-            os.makedirs(self.cache_filename)
+        if not os.path.exists('data/'):
+            os.makedirs('data/')
+        if not os.path.exists('data/osm_query_cache'):
+            os.makedirs('data/osm_query_cache')
 
     def _get_bbox(self, primary_data, secondary_data,
                   secondary_input, epsilon):
@@ -96,7 +97,7 @@ class NetworkInterface():
         query.
         '''
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
-        return self.cache_filename + self.network_type + '_nodes' + bbox_string + '.csv'
+        return 'data/osm_query_cache' + self.network_type + '_nodes' + bbox_string + '.csv'
 
     def get_edges_filename(self):
         '''
@@ -104,7 +105,7 @@ class NetworkInterface():
         query.
         '''
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
-        return self.cache_filename + self.network_type + '_edges' + bbox_string + '.csv'
+        return 'data/osm_query_cache' + self.network_type + '_edges' + bbox_string + '.csv'
 
     def _network_exists(self):
         '''
