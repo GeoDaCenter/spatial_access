@@ -76,7 +76,8 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
         std::unordered_map<unsigned long int, unsigned short int> row_data;
         for (auto destNodeId : destNodeIds)
         {
-            std::vector<userDataPoint> destPoints = wa->userDestData.retrieveTract(destNodeId).retrieveDataPoints();
+            auto destTract = wa->userDestData.retrieveTract(destNodeId);
+            auto destPoints = destTract.retrieveDataPoints();
             for (auto destDataPoint : destPoints)
             {
                 calc_imp = dist.at(destNodeId);
@@ -197,7 +198,7 @@ public:
     void addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V);
-    transitMatrix(std::string infile);
+    transitMatrix(const std::string &infile);
     void compute(int numThreads);
     transitMatrix(void);
     int get(unsigned long int source, unsigned long intdest);
@@ -263,7 +264,7 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
 }
 
 
-transitMatrix::transitMatrix(std::string infile) 
+transitMatrix::transitMatrix(const std::string &infile) 
 {
     if (!df.loadFromDisk(infile)) 
     {

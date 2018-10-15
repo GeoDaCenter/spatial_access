@@ -31,7 +31,7 @@ public:
     userDataTract(int networkNodeId);
     void addPoint(userDataPoint userData);
     void print();
-    const std::vector<userDataPoint> & retrieveDataPoints();
+    const std::vector<userDataPoint>& retrieveDataPoints();
 };
 
 const std::vector<userDataPoint>& userDataTract::retrieveDataPoints()
@@ -70,7 +70,7 @@ public:
     userDataContainer();
     void addPoint(int networkNodeId, unsigned long int id, int lastMileDistance);
     bool containsTract(int networkNodeId);
-    userDataTract retrieveTract(int networkNodeId);
+    const userDataTract& retrieveTract(int networkNodeId);
     const std::vector<unsigned long int>& retrieveAllUserDataIds();
     const std::vector<int>& retrieveAllNetworkNodeIds();
     const std::vector<int>& retrieveUniqueNetworkNodeIds();
@@ -120,7 +120,7 @@ void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int la
 
 }
 
-userDataTract userDataContainer::retrieveTract(int networkNodeId)
+const userDataTract& userDataContainer::retrieveTract(int networkNodeId)
 {
     return data.at(networkNodeId);
 }

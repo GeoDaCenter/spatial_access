@@ -40,20 +40,20 @@ private:
 public:
     dataFrame(void);
     ~dataFrame(void);
-    bool loadFromDisk(std::string infile);
+    bool loadFromDisk(const std::string &infile);
     void insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
-    void insertRow(std::unordered_map<unsigned long int, unsigned short int> row_data, unsigned long int source_id);
+    void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
     void insertLoc(unsigned short int val, int row_loc, int col_loc);
-    void reserve(std::vector<unsigned long int> primary_ids, std::vector<unsigned long int> secondary_ids);
+    void reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids);
     unsigned short int retrieve(unsigned long int row_id, unsigned long int col_id);
     unsigned short int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
     void manualDelete(void);
     bool validKey(unsigned long int row_id, unsigned long int col_id);
-    bool writeCSV(std::string outfile);
+    bool writeCSV(const std::string &outfile);
     void printDataFrame();
 };
 
-bool dataFrame::writeCSV(std::string outfile)
+bool dataFrame::writeCSV(const std::string &outfile)
 {
     std::ofstream Ofile;
     Ofile.open(outfile);
@@ -106,12 +106,12 @@ void dataFrame::printDataFrame()
 
 
 /* void constructor */
-dataFrame::dataFrame(void) {
+dataFrame::dataFrame() {
 }
 
 
 
-void printArray(std::vector<unsigned long int> data)
+void printArray(const std::vector<unsigned long int> &data)
 {
     for (auto element : data)
     {
@@ -120,7 +120,7 @@ void printArray(std::vector<unsigned long int> data)
 }
 
 
-bool dataFrame::loadFromDisk(std::string infile) {
+bool dataFrame::loadFromDisk(const std::string &infile) {
     std::ifstream fileINA, fileINB;
     fileINA.open(infile);
     if (fileINA.fail()) {
@@ -206,7 +206,7 @@ bool dataFrame::loadFromDisk(std::string infile) {
 }
 
 // use when creating a new data frame
-void dataFrame::reserve(std::vector<unsigned long int> primary_ids, std::vector<unsigned long int> secondary_ids) {
+void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids) {
     n_rows = primary_ids.size();
     n_cols = secondary_ids.size();
 
@@ -242,7 +242,7 @@ dataFrame::~dataFrame(void) {
 }
 
 /* insert a value with row_id, col_id */
-void dataFrame::insertRow(std::unordered_map<unsigned long int, unsigned short int> row_data, unsigned long int source_id) {
+void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id) {
     auto rowNum = rows[source_id];
     for (std::pair<unsigned long int, unsigned short int> element : row_data)
     {
