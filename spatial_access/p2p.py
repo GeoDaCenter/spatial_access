@@ -134,13 +134,15 @@ class TransitMatrix():
                 xcol = self.primary_hints['xcol']
                 ycol = self.primary_hints['ycol']
                 idx = self.primary_hints['idx']
+                skip_user_input = True
             elif not primary and self.secondary_hints:
                 xcol = self.secondary_hints['xcol']
                 ycol = self.secondary_hints['ycol']
                 idx = self.secondary_hints['idx']
-            skip_user_input = True
+                skip_user_input = True
 
         except BaseException:
+            skip_user_input = False
             pass
 
         # if the web app is instantiating a TransitMatrix object/calling this code,
