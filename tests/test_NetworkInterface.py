@@ -23,7 +23,7 @@ class TestClass(object):
 
     @pytest.mark.timeout(8)
     def test_2(self):
-        walk_interface = NetworkInterface('walk')
+        walk_interface = NetworkInterface('bike')
         source_df = self.create_example_source_table()
 
         walk_interface.load_network(source_df, None, False, 0.005)

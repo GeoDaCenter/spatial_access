@@ -97,7 +97,7 @@ class NetworkInterface():
         query.
         '''
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
-        return 'data/osm_query_cache/' + self.network_type + '_nodes' + bbox_string + '.csv'
+        return 'data/osm_query_cache/' + self.network_type + '_nodes' + bbox_string + '.h5'
 
     def get_edges_filename(self):
         '''
@@ -105,7 +105,7 @@ class NetworkInterface():
         query.
         '''
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
-        return 'data/osm_query_cache/' + self.network_type + '_edges' + bbox_string + '.csv'
+        return 'data/osm_query_cache/' + self.network_type + '_edges' + bbox_string + '.h5'
 
     def _network_exists(self):
         '''
@@ -136,8 +136,8 @@ class NetworkInterface():
         if self._network_exists():
             node_filename = self.get_nodes_filename()
             edge_filename = self.get_edges_filename()
-            self.nodes = pd.read_csv(node_filename)
-            self.edges = pd.read_csv(edge_filename)
+            self.nodes = pd.read_hdf(node_filename, 'df')
+            self.edges = pd.read_hdf(edge_filename, 'df')
             if self.logger:
                 self.logger.debug('Read nodes from %s', node_filename)
                 self.logger.debug('Read edges from %s', edge_filename)
@@ -152,7 +152,6 @@ class NetworkInterface():
         try:
             if self.network_type == 'bike':
                 osm_bike_filter = '["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["foot"!~"no"]["bicycle"!~"no"]'
-                #osm_bike_filter = '[maxsize:2000000000][out:json][timeout:900];(way["highway"]["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["bicycle"!~"no"];>;);out;'
                 self.nodes, self.edges = osm.network_from_bbox(
                 lat_min=self.bbox[0], lng_min=self.bbox[1],
                 lat_max=self.bbox[2], lng_max=self.bbox[3],
@@ -162,10 +161,14 @@ class NetworkInterface():
                     lat_min=self.bbox[0], lng_min=self.bbox[1],
                     lat_max=self.bbox[2], lng_max=self.bbox[3],
                     network_type=self.network_type)
+                if self.network_type == 'drive':
+                    self.edges.drop(['access', 'hgv', 'lanes', 'maxspeed', 'tunnel'], inplace=True, axis=1)
+                else:
+                    self.edges.drop(['access', 'bridge', 'lanes', 'service', 'tunnel'], inplace=True, axis=1)
             node_filename = self.get_nodes_filename()
             edge_filename = self.get_edges_filename()
-            self.nodes.to_csv(node_filename)
-            self.edges.to_csv(edge_filename)
+            self.nodes.to_hdf(node_filename, 'df')
+            self.edges.to_hdf(edge_filename, 'df')
             if self.logger:
                 self.logger.info('Queried OSM...')
                 self.logger.debug('Cached nodes to %s', node_filename)
