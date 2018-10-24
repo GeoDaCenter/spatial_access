@@ -202,15 +202,20 @@ public:
     void compute(int numThreads);
     transitMatrix(void);
     int get(unsigned long int source, unsigned long intdest);
-    void loadFromDisk(void);
     void prepareDataFrame();
     bool writeCSV(const std::string &outfile);
+    bool writeTMX(const std::string &outfile);
     void printDataFrame();
 };
 
 bool transitMatrix::writeCSV(const std::string &outfile)
 {
     return this->df.writeCSV(outfile);
+}
+
+bool transitMatrix::writeTMX(const std::string &outfile)
+{
+    return this->df.writeTMX(outfile);
 }
 
 transitMatrix::transitMatrix(int V)
@@ -266,9 +271,27 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
 
 transitMatrix::transitMatrix(const std::string &infile) 
 {
-    if (!df.loadFromDisk(infile)) 
+    auto infileSize = infile.size();
+    if (infile.find(".tmx") != infileSize)
     {
-        throw std::runtime_error("failed to load dataFrame from file");
+        // load from .tmx
+        if (!df.loadTMX(infile)) 
+        {
+            throw std::runtime_error("failed to load dataFrame from .tmx");
+        }
+    }
+    else if (infile.find(".csv") != infileSize)
+    {
+        // load from .csv
+        if (!df.loadCSV(infile)) 
+        {
+            throw std::runtime_error("failed to load dataFrame from .csv");
+        }
+    }
+    else
+    {
+        // unexpected type
+        throw std::runtime_error("unexpected file type");
     }
 
 }

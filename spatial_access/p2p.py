@@ -361,6 +361,8 @@ class TransitMatrix():
         self._matrix_interface.write_to_csv(outfile)
         self.logger.info("Wrote file to %s", outfile)
 
+        return outfile
+
     def process(self,):
         '''
         Process the data.

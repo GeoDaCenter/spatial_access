@@ -28,9 +28,9 @@ if sys.platform == "darwin":
 
 EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapter.pyx'],
+    sources = ['spatial_access/transitMatrixAdapter.pyx', 'spatial_access/src/utils/serializer/p2p.pb.cc'],
     extra_compile_args = ['-Wno-unused-function', 
-                          '-std=c++11', '-Wall', '-O3'
+                          '-std=c++11', '-Wall', '-O3', '-lprotobuf'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac

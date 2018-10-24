@@ -36,7 +36,6 @@ class ModelData(object):
         self.use_n_nearest = 10
         self.output_filename = None
 
-        self.sources_nn = {}
         self.idx_2_col = {}
 
         self.source_id_list = []
@@ -146,8 +145,6 @@ class ModelData(object):
             else:
                 self.cat2dests[str(data[CAT])] = [data[ID]]
                 included_cats.add(data[CAT])
-                nearest_cat_template[data[CAT]] = None
-                n_dests_in_range_template[data[CAT]] = 0
 
               
         #creating source to dest dictionary for times within self.upper using sorting and binary search
@@ -273,7 +270,7 @@ class ModelData(object):
         self.logger = logging.getLogger(__name__)
 
 
-    def load_sp_matrix(self, filename=None):
+    def load_sp_matrix(self, filename=None, write_to_file=False):
         '''
         Load the shortest path matrix; if a filename is supplied,
         ModelData will attempt to load from file.
@@ -283,87 +280,29 @@ class ModelData(object):
 
         #try to load from file if given
         if filename:
-            start_time=time.time()
-            self.dicto = {}  #Dictionary storing matrix travel times from each source to each dest
-            
-            
-            self.source_2 = [] #source id list
-            
-            
-            with open(filename, 'r') as File:
-                
-                reader = csv.reader(File)
-                self.dest_2 = next(reader)
-                #convert csv into our useful matrix dictionary
-                for row in reader:
-                    if row[0] in self.dicto.keys():
-                        print('Warning: Check for duplicates in your ID.')
-                    self.dicto[row[0]] = {}
-                    self.source_2.append(row[0])
-                    self.no_dest = len(row)
-                    for i in range(1, len(row)):
-                        self.dicto[row[0]][int(float(self.dest_2[i]))] = int(float(row[i]))     
-            end_time=time.time()
-
+            self.sp_matrix = TransitMatrix(network_type=self.network_type, 
+                                           read_from_file=filename)
             self.logger.info('Loaded sp matrix from file: {}'.format(filename))
-            self.logger.info('Finished loading sp_matrix in {:,.2f} seconds'.format(end_time - start_time))
         else:
             assert self.sources_good, 'load sources before this step'
             assert self.dests_good, 'load destinations before this step'
-            
             self.sp_matrix = TransitMatrix(network_type=self.network_type,
                 primary_input=self.source_filename,
                 secondary_input=self.dest_filename,
-                write_to_file=True, load_to_mem=True, 
                 primary_hints=self.primary_hints, 
                 secondary_hints=self.secondary_hints)
 
-            sl_file = None
+            self.sp_matrix.process()
 
-            #need to load up speed limit table
-            if self.network_type == 'drive':
-                sl_file = 'BAH'
-                while not os.path.isfile(sl_file):
-                    sl_file = input('Please enter the filename of the speed limit table: ')
-            self.sp_matrix.process(speed_limit_filename=sl_file)
+            if write_to_file:
+                output_filename = self.sp_matrix.write_to_file()
 
-            self.logger.info('Generated sp matrix to file: {}'.format(self.sp_matrix.output_filename))
+                self.logger.info('Wrote generated sp matrix to file: {}'.format(output_filename))
 
         self.sp_matrix_good = True
 
 
-    def load_sources_nn(self, use_n_nearest=10 ,filename='data/sources_nn_0.json'):
-        '''
-        This method will probably be deleted
-        '''
-    
-        start = time.time()
-        self.use_n_nearest = use_n_nearest
-        if filename:
-            self.sources_nn = json.load(open(filename))
-            self.logger.info('loaded source nn data from file')
-        else:
-            assert self.sources_good, 'Load sources first'
-            output_filename = self.get_output_filename('sources_nn', 'json')
-            if self.network_type == 'drive':
-                sl_file = 'BAH'
-                while not os.path.isfile(sl_file):
-                    sl_file = input('Please enter the filename of the speed limit table: ')
-            else:
-                sl_file = None
-
-            tm = TransitMatrix(network_type=self.network_type, 
-                primary_input=self.source_filename, 
-                secondary_input=self.source_filename, output_type='json', 
-                n_best_matches=use_n_nearest, epsilon=0.05)
-            tm.process(speed_limit_filename=sl_file, output_filename=output_filename)
-
-            self.sources_nn = json.load(open(output_filename))
-            self.logger.info('Generated source relational data to file {}'.format(output_filename))
-
-
-    def load_sources(self, filename=None, 
-                     shapefile='resources/chi_comm_boundaries', field_mapping=None):
+    def load_sources(self, filename=None, field_mapping=None):
         '''
         Load the source points for the model (from csv).
         For each point, the table should contain:
@@ -386,7 +325,6 @@ class ModelData(object):
         idx = ''
         lat = ''
         lon = ''
-
 
         #if the command line is being used to call the code...
         if field_mapping is None:
@@ -415,11 +353,9 @@ class ModelData(object):
                 self.sources['lower_areal_unit'] = 1
                 self.valid_lower_areal_unit = False
 
-            
         
         #otherwise, if the web app is being used to call the code...
         else:
-
             idx = field_mapping['idx']
             population = field_mapping['population']
             lower_areal_unit = 'skip'
@@ -433,7 +369,7 @@ class ModelData(object):
             self.valid_population = False
 
         #store the col names for later use
-        self.primary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
+        self.primary_hints = {'xcol':lon, 'ycol':lat,'idx':idx}
 
         #rename columns, clean the data frame
         if population == 'skip':
@@ -445,27 +381,13 @@ class ModelData(object):
         self.sources.set_index(idx, inplace=True)
         self.sources.rename(columns=rename_cols,inplace=True)
         self.sources = self.sources.reindex(columns=['lat','lon','population', 'lower_areal_unit'])
-
-        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
-        #join source table with shapefile
-        #copy = self.sources.copy(deep=True)
-        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        #crs = {'init':'epsg:4326'}
-        #copy = self.sources.copy(deep=True)
-        #geo_sources = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        #boundaries_gdf = gpd.read_file(shapefile)
-        #geo_sources = gpd.sjoin(boundaries_gdf, geo_sources, how='inner', 
-        #                            op='intersects')
-        #geo_sources.set_index('index_right', inplace=True)
-        #self.sources = geo_sources[['community','population','lat','lon','geometry']]
         
         self.source_id_list = self.sources.index
         self.sources_good = True
         self.source_filename = filename
 
 
-    def load_dests(self, filename=None, 
-        shapefile='resources/chi_comm_boundaries', subset=None, field_mapping=None):
+    def load_dests(self, filename=None, subset=None, field_mapping=None):
         '''
         Load the destination points for the model (from csv).
         For each point, the table should contain:
@@ -516,17 +438,15 @@ class ModelData(object):
             while lon not in dest_data_columns:
                 lon = input('Enter the longitude variable: ')
 
-        
-
             if target == 'skip':
                 target_name = 'target'
             else:
                 target_name = target
 
         
-        #otherwise, if the web app is being used to call the code, get field names from field_mapping (supplied by the web app)
+        # If the web app is being used to call the code,
+        # use supplied mappings
         else:
-
             idx = field_mapping['idx']
             target = field_mapping['target']
             target_name = target
@@ -539,7 +459,7 @@ class ModelData(object):
 
 
         #store the col names for later use
-        self.secondary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
+        self.secondary_hints = {'xcol':lon, 'ycol':lat,'idx':idx}
 
         if category == 'skip':
             category_name = 'category'
@@ -571,17 +491,6 @@ class ModelData(object):
 
         self.dests['category'].apply(str)
         self.category_set = set(self.dests['category'])
-
-        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
-        #join dest table with shapefile
-        #copy = self.dests.copy(deep=True)
-        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        #crs = {'init':'epsg:4326'}
-        #geo_dests = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        #boundaries_gdf = gpd.read_file(shapefile)
-        #geo_dests = gpd.sjoin(boundaries_gdf, geo_dests, how='inner', op='intersects')
-        #geo_dests.set_index('index_right', inplace=True)
-        #self.dests = geo_dests[['category','lat','lon','target','community',]]
 
         self.dest_id_list = self.dests.index
         self.dests_good = True

@@ -7,6 +7,7 @@
 #include <cstring>
 #include <fstream>
 
+/* Node of an adjacency list */
 struct AdjListNode 
 { 
     int dest; 
@@ -14,7 +15,7 @@ struct AdjListNode
     struct AdjListNode* next; 
 }; 
 
-// A utility function to create a new adjacency list node 
+/* A utility function to create a new adjacency list node */
 struct AdjListNode* newAdjListNode(int dest, unsigned short int weight) 
 { 
     struct AdjListNode* newNode = new AdjListNode; 
@@ -24,7 +25,7 @@ struct AdjListNode* newAdjListNode(int dest, unsigned short int weight)
     return newNode; 
 } 
 
-
+/* Adjacency list wrapper class */
 class AdjList
 {
 public:
@@ -50,22 +51,21 @@ public:
     Graph & operator=(Graph const & other);
 };
 
-void Graph::print()
-{
 
-}
-
- 
+/* Constructor for when the number of vertices is known at instantiation */ 
 Graph::Graph(int V)
 {
     initializeGraph(V);
 }
 
+/* Constructor for when the number of vertices is not known at instantiation */ 
 Graph::Graph()
 {
 
 }
 
+
+/* Copy constructor */
 Graph::Graph(Graph const & other)
 {
     this->V = other.V;
@@ -73,6 +73,8 @@ Graph::Graph(Graph const & other)
     std::memcpy(this->array, other.array, this->V * sizeof(AdjList));
 }
 
+
+/* Assignment operator */
 Graph & Graph::operator=(Graph const & other)
 {
     V = other.V;
@@ -81,6 +83,7 @@ Graph & Graph::operator=(Graph const & other)
     return *this;
 }
 
+/* Initialize graph when number of vertices isn't known at instantiation */
 void Graph::initializeGraph(int V)
 {
     this->V = V;
@@ -95,13 +98,12 @@ void Graph::initializeGraph(int V)
 }
 
  
-/* free a graph struct*/
+/* Destructor h*/
  Graph::~Graph() {
     for (auto nodePointer : nodePointers)
     {
         delete nodePointer;
     }
-    // delete this->array;
 }
 
 
@@ -113,6 +115,7 @@ void Graph::addEdge(int src, int dest, unsigned short int weight)
     newNode->next = this->array[src].head; 
     this->array[src].head = newNode; 
 }
+
 
 /* Utility function to read edge list from .csv*/
 void Graph::readCSV(const std::string& infile) {

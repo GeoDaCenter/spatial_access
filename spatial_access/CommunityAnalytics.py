@@ -42,17 +42,14 @@ def root_decay_function(time, upper):
 
 def logit_decay_function(time, upper):
     '''
-    Logit distance decay function.
+    Logit distance decay function. 
+    Attempts to replicate the Walk Score distance
+    decay function.
     '''
     if time > upper:
         return 0
     else:
         return 1-(1/(math.exp((upper/180)-(.48/60)*(time))+1))
-        #return 1-(1/(math.exp((upper/450)-(.3/60)*(time))+1))
-        #return 1-(1/(math.exp((upper/300)-(.3/60)*(time))+1))
-        #return 1-(1/(math.exp((upper/300)-(.4/60)*(time))+1))
-        #return (100-(100/(math.exp((upper/300)-(.0065)*(time))+1))/100)
-
 
 class CoverageModel(ModelData):
     '''

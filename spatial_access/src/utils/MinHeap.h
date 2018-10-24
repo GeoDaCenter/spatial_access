@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 
+
 class MinHeapNode
 {
 public:
@@ -11,12 +12,14 @@ public:
     MinHeapNode();
 };
 
+/* Actual Constructor */
 MinHeapNode::MinHeapNode(int v, unsigned short int dist)
 {
     this->v = v;
     this->dist = dist;
 }
 
+/* Default Constructor */
 MinHeapNode::MinHeapNode()
 {
     
@@ -49,9 +52,8 @@ MinHeap::MinHeap(int capacity)
 
 
 /* free a minHeap struct*/
-MinHeap::~MinHeap() {
-    // delete [] this->array;
-    // delete this->pos;
+MinHeap::~MinHeap() 
+{
 }
 
 
