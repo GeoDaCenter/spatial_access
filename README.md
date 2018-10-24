@@ -1,6 +1,6 @@
 
 
-# spatial_access: Large Scale Python spatial analysis toolkit
+# spatial_access: Large scale Python spatial access toolkit
 
 <table>
 <tr>
