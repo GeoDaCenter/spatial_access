@@ -81,7 +81,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
             for (auto destDataPoint : destPoints)
             {
                 calc_imp = dist.at(destNodeId);
-                if (destDataPoint.id == sourceDataPoint.id)
+                if ((wa->df.isSymmetric) && (destDataPoint.id == sourceDataPoint.id))
                 {
                     fin_imp = 0;
                 }
@@ -192,13 +192,14 @@ public:
     dataFrame df;
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
+    bool isSymmetric;
     Graph graph;
     int numNodes;
     void addToUserSourceDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional);
     void addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
-    transitMatrix(int V);
-    transitMatrix(const std::string &infile);
+    transitMatrix(int V, bool isSymmetric);
+    transitMatrix(const std::string &infile, bool isSymmetric);
     void compute(int numThreads);
     transitMatrix(void);
     int get(unsigned long int source, unsigned long intdest);
@@ -213,9 +214,10 @@ bool transitMatrix::writeCSV(const std::string &outfile)
     return this->df.writeCSV(outfile);
 }
 
-transitMatrix::transitMatrix(int V)
+transitMatrix::transitMatrix(int V, bool isSymmetric)
 {
     this->numNodes = V;
+    this->isSymmetric = isSymmetric;
     graph.initializeGraph(V);
 }
 
@@ -223,6 +225,7 @@ void transitMatrix::prepareDataFrame()
 {
     auto userSourceIds = userSourceDataContainer.retrieveAllUserDataIds();
     auto userDestIds = userDestDataContainer.retrieveAllUserDataIds();
+    df.setSymmetric(this->isSymmetric);
     df.reserve(userSourceIds, userDestIds);
 }
 
@@ -264,8 +267,9 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
 }
 
 
-transitMatrix::transitMatrix(const std::string &infile) 
+transitMatrix::transitMatrix(const std::string &infile, bool isSymmetric) 
 {
+    this->isSymmetric = isSymmetric;
     if (!df.loadFromDisk(infile)) 
     {
         throw std::runtime_error("failed to load dataFrame from file");

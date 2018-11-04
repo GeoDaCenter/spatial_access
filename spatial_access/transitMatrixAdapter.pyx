@@ -5,8 +5,8 @@ from libcpp cimport bool
 cdef extern from "src/transitMatrix.h" namespace "lmnoel":
 
     cdef cppclass transitMatrix:
-        transitMatrix(string) except +
-        transitMatrix(int) except +
+        transitMatrix(string, bool isSymmetric) except +
+        transitMatrix(int, bool isSymmetric) except +
         void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
         void addToUserDestDataContainer(int, unsigned long int, int) except +
         void addEdgeToGraph(int, int, int, bool) except +
@@ -18,12 +18,12 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, string infile = "", int vertices = -1):
+    def __cinit__(self, string infile = "", int vertices = -1, bool isSymmetric = False):
         if vertices > 0:
-            self.thisptr = new transitMatrix(vertices)
+            self.thisptr = new transitMatrix(vertices, isSymmetric)
         else:
 
-            self.thisptr = new transitMatrix(infile)
+            self.thisptr = new transitMatrix(infile, isSymmetric)
 
     def __dealloc__(self):
         del self.thisptr

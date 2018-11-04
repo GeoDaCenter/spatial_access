@@ -11,7 +11,7 @@ class TestClass():
         produces the expected result.
         '''
         interface = MatrixInterface()
-        interface.prepare_matrix(5)
+        interface.prepare_matrix(5, isSymmetric=True)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -53,7 +53,7 @@ class TestClass():
         '''
 
         interface = MatrixInterface()
-        interface.prepare_matrix(5)
+        interface.prepare_matrix(5, isSymmetric=True)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -69,7 +69,7 @@ class TestClass():
         interface.build_matrix()
 
         val_1 =  interface.get("agency_a", "agency_a")
-        print(val_1)
+        
         assert interface.get("agency_a", "agency_b") == 8
         assert interface.get("agency_d" , "agency_c") == 20
 

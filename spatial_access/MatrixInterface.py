@@ -116,11 +116,11 @@ class MatrixInterface():
                 self.logger.error('Unable to load matrix from file: %s', exception)
             sys.exit()
 
-    def prepare_matrix(self, num_nodes):
+    def prepare_matrix(self, num_nodes, isSymmetric=False):
         '''
         Instantiate a pyTransitMatrix with the available nodes
         '''
-        self.transit_matrix = pyTransitMatrix(vertices=num_nodes)
+        self.transit_matrix = pyTransitMatrix(vertices=num_nodes, isSymmetric=isSymmetric)
 
     def write_to_csv(self, outfile):
         '''
@@ -147,7 +147,6 @@ class MatrixInterface():
         '''
         Fetch the time value associated with the source, dest pair.
         '''
-        #import pdb; pdb.set_trace()
         if isinstance(source, str):
             source = self._get_internal_int_id(source)
         if isinstance(dest, str):

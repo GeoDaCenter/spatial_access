@@ -37,7 +37,9 @@ private:
 
     currentState state = UNRESERVED;
 
+
 public:
+    bool isSymmetric;
     dataFrame(void);
     ~dataFrame(void);
     bool loadFromDisk(const std::string &infile);
@@ -51,7 +53,13 @@ public:
     bool validKey(unsigned long int row_id, unsigned long int col_id);
     bool writeCSV(const std::string &outfile);
     void printDataFrame();
+    void setSymmetric(bool isSymmetric);
 };
+
+void dataFrame::setSymmetric(bool isSymmetric)
+{
+    this->isSymmetric = isSymmetric;
+}
 
 bool dataFrame::writeCSV(const std::string &outfile)
 {

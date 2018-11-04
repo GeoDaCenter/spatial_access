@@ -9,7 +9,7 @@ class TestClass():
         Test adding edges to graph, computing, retrieving
         values, writing to and reading from .csv.
         '''
-        matrix = pyTransitMatrix(vertices=5)
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
 
         matrix.addEdgeToGraph(0, 1, 5, True)
         matrix.addEdgeToGraph(1, 2, 6, True)
@@ -43,7 +43,7 @@ class TestClass():
         '''
         Test multithreaded computation.
         '''
-        matrix = pyTransitMatrix(vertices=5)
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
 
         matrix.addEdgeToGraph(0, 1, 5, True)
         matrix.addEdgeToGraph(1, 2, 6, True)

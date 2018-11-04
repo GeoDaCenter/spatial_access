@@ -376,8 +376,9 @@ class TransitMatrix():
                                              self.secondary_data,
                                              self.secondary_input is not None,
                                              self.epsilon)
-
-        self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes())
+        isSymmetric = self.secondary_input is None
+        self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(), 
+                                              isSymmetric)
 
         self._parse_network()
 
