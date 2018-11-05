@@ -14,38 +14,55 @@
 /* a pandas-like dataFrame */
 class dataFrame {
 private:
-    unsigned short int * data;
-    std::unordered_map <unsigned long int, int> rows;
-    std::unordered_map <unsigned long int, int> cols;
+    std::vector<unsigned short int> data;
+    std::unordered_map <unsigned long int, unsigned int> rows;
+    std::unordered_map <unsigned long int, unsigned int> cols;
 
     std::vector<unsigned long int> row_labels;
     std::vector<unsigned long int> col_labels;
     std::set<unsigned long int> row_contents;
     std::set<unsigned long int> col_contents;
 
-    int n_rows;
-    int n_cols;
-
-
+    unsigned int n_rows;
+    unsigned int n_cols;
 
 public:
     bool isSymmetric;
+    unsigned int sizeOfData;
     dataFrame(void);
-    ~dataFrame(void);
     bool loadFromDisk(const std::string &infile);
     void insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
+    void insertSafe(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
     void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
-    void insertLoc(unsigned short int val, int row_loc, int col_loc);
+    void insertLoc(unsigned short int val, unsigned int row_loc, unsigned int col_loc);
     void reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids);
     unsigned short int retrieve(unsigned long int row_id, unsigned long int col_id);
-    unsigned short int retrieveLoc(int row_id, int col_id);
+    unsigned short int retrieveLoc(unsigned int row_id, unsigned int col_id);
     unsigned short int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
-    void manualDelete(void);
     bool validKey(unsigned long int row_id, unsigned long int col_id);
     bool writeCSV(const std::string &outfile);
     void printDataFrame();
+    void printCols();
+    void printRows();
     void setSymmetric(bool isSymmetric);
+    unsigned int symmetricEquivalentLoc(unsigned int row_loc, unsigned int col_loc);
 };
+
+void dataFrame::printCols()
+{
+    for (auto element : cols)
+    {
+        std::cout << element.first << std::endl;
+    }
+}
+
+void dataFrame::printRows()
+{
+    for (auto element : rows)
+    {
+        std::cout << element.first << std::endl;
+    }
+}
 
 void dataFrame::setSymmetric(bool isSymmetric)
 {
@@ -65,10 +82,10 @@ bool dataFrame::writeCSV(const std::string &outfile)
         Ofile << col_label << ",";
     }
     Ofile << std::endl;
-    for (int row_index = 0; row_index < n_rows; row_index++)
+    for (unsigned int row_index = 0; row_index < n_rows; row_index++)
     {
         Ofile << row_labels[row_index] << ",";
-        for (int col_index = 0; col_index < n_cols; col_index++)
+        for (unsigned int col_index = 0; col_index < n_cols; col_index++)
         {
             Ofile << this->retrieveLoc(row_index, col_index) << ","; 
         }
@@ -91,10 +108,10 @@ void dataFrame::printDataFrame()
         std::cout << col_label << ",";
     }
     std::cout << std::endl;
-    for (int row_index = 0; row_index < n_rows; row_index++)
+    for (unsigned int row_index = 0; row_index < n_rows; row_index++)
     {
         std::cout << row_labels[row_index] << ",";
-        for (int col_index = 0; col_index < n_cols; col_index++)
+        for (unsigned int col_index = 0; col_index < n_cols; col_index++)
         {
             std::cout << this->retrieveLoc(row_index, col_index) << ","; 
         }
@@ -105,7 +122,8 @@ void dataFrame::printDataFrame()
 
 
 /* void constructor */
-dataFrame::dataFrame() {
+dataFrame::dataFrame() 
+{
 }
 
 
@@ -171,7 +189,7 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
     if (fileINB.fail()) {
         return false;
     }
-    int row_counter = 0;
+    unsigned int row_counter = 0;
     unsigned short int value;
     first_row = true;
     while (getline(fileINB, line)) {
@@ -181,7 +199,7 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
             continue;
         }
         std::string row_id, input;
-        int col_counter = 0;
+        unsigned int col_counter = 0;
         bool first_col = true;
         while (getline(stream, input, ',')) {
             if (first_col) {
@@ -209,43 +227,40 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
 
 
     unsigned long int row_id, col_id;
-    for (int row_idx = 0; row_idx < n_rows; row_idx++) {
+    for (unsigned int row_idx = 0; row_idx < n_rows; row_idx++) {
         row_id = primary_ids.at(row_idx);
         rows[row_id] = row_idx;
         row_contents.insert(row_id);
         row_labels.push_back(row_id);
     }
 
-    for (int col_idx = 0; col_idx < n_cols; col_idx++) {
+    for (unsigned int col_idx = 0; col_idx < n_cols; col_idx++) {
         col_id = secondary_ids.at(col_idx);
         cols[col_id] = col_idx;
         col_contents.insert(col_id);
         col_labels.push_back(col_id);
     }
 
-    int sizeOfData;
+
     if (this->isSymmetric)
     {
-        sizeOfData = n_rows * (n_rows + 1) / 2;
+        this->sizeOfData = n_rows * (n_rows + 1) / 2;
     }
     else
     {
-        sizeOfData = n_rows * n_cols;
+        this->sizeOfData = n_rows * n_cols;
     }
-    data = new unsigned short int[sizeOfData];
-    memset(data, UNDEFINED, sizeof(unsigned short int) * sizeOfData);
+
+    // allocate data
+    this->data.reserve(this->sizeOfData);
+    for (unsigned int i = 0; i < this->sizeOfData; i++)
+    {
+        this->data.push_back(0);
+    }
+
 }
 
-void dataFrame::manualDelete(void) {
-     delete [] data;
-}
 
-
-/* destructor */
-
-dataFrame::~dataFrame(void) {
-    // delete [] data;
-}
 
 /* insert a value with row_id, col_id */
 void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id) {
@@ -256,23 +271,45 @@ void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned s
 }
 
 
+/* insert a value and throw an exception if the indeces don't exist */
+void dataFrame::insertSafe(unsigned short int val, unsigned long int row_id, unsigned long int col_id)
+{
+    try
+    {
+        insertLoc(val, rows.at(row_id), cols.at(col_id));
+    }
+    catch (...)
+    {
+        throw std::runtime_error("row or col id does not exist");
+    }
+}
 
-/* insert a value with row_id, col_id */
+/* insert a value with row_id, col_id. Undefined behavior if indeces don't exist */
 void dataFrame::insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id) 
 {
     insertLoc(val, rows.at(row_id), cols.at(col_id));
+
 }
 
 
+/* calculate the flat array index of a coordinate pair for a symmetric matrix */
+unsigned int dataFrame::symmetricEquivalentLoc(unsigned int row_loc, unsigned int col_loc)
+{
+    return col_loc - row_loc + this->sizeOfData - (this->n_rows - row_loc) * (this->n_rows - row_loc + 1) / 2;
+}
+
 /* insert a value with row_loc, col_loc */
-void dataFrame::insertLoc(unsigned short int val, int row_loc, int col_loc) {
-    if ((this->isSymmetric) && (row_loc > col_loc))
+void dataFrame::insertLoc(unsigned short int val, unsigned int row_loc, unsigned int col_loc) {
+    if (this->isSymmetric)
     {
-        data[col_loc * n_cols + row_loc] = val;
+        if (col_loc >= row_loc)
+        {
+            data.at(this->symmetricEquivalentLoc(row_loc, col_loc)) = val;
+        }
     }
     else
     {
-        data[row_loc * n_cols + col_loc] = val;
+        data.at(row_loc * n_cols + col_loc) = val;
     }
 }
 
@@ -289,14 +326,20 @@ unsigned short int dataFrame::retrieve(unsigned long int row_id, unsigned long i
 /* return the value by location. Respects return the converse if symmetric
  * and below the diagonal
  */
-unsigned short int dataFrame::retrieveLoc(int row_loc, int col_loc)
+unsigned short int dataFrame::retrieveLoc(unsigned int row_loc, unsigned int col_loc)
 {
-    if ((isSymmetric) && (row_loc > col_loc))
+    if (isSymmetric)
     {
-        //take the complimentary position
-        return data[col_loc * n_cols + row_loc];
+        if (row_loc > col_loc)
+        {
+            return data.at(this->symmetricEquivalentLoc(row_loc, col_loc));
+        }
+        else
+        {
+            return data.at(this->symmetricEquivalentLoc(col_loc, row_loc));   
+        }
     }
-    return data[row_loc * n_cols + col_loc];
+    return data.at(row_loc * n_cols + col_loc);
 }
 
 
@@ -317,9 +360,13 @@ bool dataFrame::validKey(unsigned long int row_id, unsigned long int col_id)
 /* this method is SAFE, and will throw an error*/
 /* if keys are undefined*/
 unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned long int col_id) {
-    if (!validKey(row_id, col_id)) {
+    try
+    {
+        return this->retrieve(row_id, col_id);    
+    }
+    catch (const std::exception& e)
+    {
         throw std::runtime_error("row or col id does not exist");
     }
-    return this->retrieve(row_id, col_id);
-    
+   
 }
