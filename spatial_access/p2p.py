@@ -320,7 +320,7 @@ class TransitMatrix():
         start_time = time.time()
 
         # make a kd tree in the lat, long dimension
-        node_array = pd.DataFrame.as_matrix(nodes)
+        node_array = nodes.values
         kd_tree = scipy.spatial.cKDTree(node_array) # pylint: disable=not-callable
 
         # map each node in the source/dest data to the nearest
