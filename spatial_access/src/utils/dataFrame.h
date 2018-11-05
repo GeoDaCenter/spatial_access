@@ -295,7 +295,9 @@ void dataFrame::insert(unsigned short int val, unsigned long int row_id, unsigne
 /* calculate the flat array index of a coordinate pair for a symmetric matrix */
 unsigned int dataFrame::symmetricEquivalentLoc(unsigned int row_loc, unsigned int col_loc)
 {
-    return col_loc - row_loc + this->sizeOfData - (this->n_rows - row_loc) * (this->n_rows - row_loc + 1) / 2;
+    auto index = col_loc - row_loc + this->sizeOfData - (this->n_rows - row_loc) * (this->n_rows - row_loc + 1) / 2;
+   // std::cout << index << std::endl;
+    return index;
 }
 
 /* insert a value with row_loc, col_loc */
@@ -304,7 +306,8 @@ void dataFrame::insertLoc(unsigned short int val, unsigned int row_loc, unsigned
     {
         if (col_loc >= row_loc)
         {
-            data.at(this->symmetricEquivalentLoc(row_loc, col_loc)) = val;
+            auto index = this->symmetricEquivalentLoc(row_loc, col_loc);
+            data.at(index) = val;
         }
     }
     else
@@ -330,7 +333,7 @@ unsigned short int dataFrame::retrieveLoc(unsigned int row_loc, unsigned int col
 {
     if (isSymmetric)
     {
-        if (row_loc > col_loc)
+        if (col_loc >= row_loc)
         {
             return data.at(this->symmetricEquivalentLoc(row_loc, col_loc));
         }
