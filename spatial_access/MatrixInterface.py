@@ -96,7 +96,7 @@ class MatrixInterface():
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
 
-    def read_from_csv(self, infile):
+    def read_from_csv(self, infile, isSymmetric=False):
         '''
         Load a matrix from file
         '''
@@ -106,7 +106,7 @@ class MatrixInterface():
                                  from file if your data have non-integer indeces'''
             self.logger.warning(warning_message)
         try:
-            self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'))
+            self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'), isSymmetric=isSymmetric)
             logger_vars = time.time() - start_time
             if self.logger:
                 self.logger.info(
@@ -129,15 +129,16 @@ class MatrixInterface():
         '''
         self.transit_matrix.writeCSV(bytes(outfile, 'utf-8'))
 
-    def build_matrix(self):
+    def build_matrix(self, thread_limit=None):
         '''
         Outsources the work of computing the shortest path matrix
         to a C++ module.
         '''
 
         start_time = time.time()
-
-        self.transit_matrix.compute(self._get_thread_limit())
+        if thread_limit is None:
+            thread_limit = self._get_thread_limit()
+        self.transit_matrix.compute(thread_limit)
 
         logger_vars = time.time() - start_time
         if self.logger:
@@ -157,3 +158,9 @@ class MatrixInterface():
         except BaseException:
             if self.logger:
                 self.logger.error('Source, dest pair could not be found')
+
+    def printDataFrame(self):
+        '''
+        Print the underlying data frame.
+        '''
+        self.transit_matrix.printDataFrame()

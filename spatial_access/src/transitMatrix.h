@@ -270,6 +270,7 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
 transitMatrix::transitMatrix(const std::string &infile, bool isSymmetric) 
 {
     this->isSymmetric = isSymmetric;
+    this->df.setSymmetric(isSymmetric);
     if (!df.loadFromDisk(infile)) 
     {
         throw std::runtime_error("failed to load dataFrame from file");
