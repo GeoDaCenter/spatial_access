@@ -61,7 +61,6 @@ class TransitMatrix():
         self.primary_data = None
         self.secondary_data = None
         self.node_pair_to_speed = {}
-        self.speed_limit_dictionary = None
 
         #instantiate interfaces
         self.set_logging()
@@ -231,15 +230,6 @@ class TransitMatrix():
         return int((distance / drive_constant) + self._config_interface.DRIVE_NODE_PENALTY)
 
 
-    def _read_in_speed_limit_dictionary(self):
-        filename = 'data/speed_limit_dictionary.json'
-
-        try:
-            with open(filename, "r") as file:
-                self.speed_limit_dictionary = json.load(file)
-        except FileNotFoundError:
-            self.logger.error('%s not found, using defaults', filename)
-
     def _reduce_node_indeces(self):
         '''
         Map the network indeces to location.
@@ -267,9 +257,6 @@ class TransitMatrix():
         # map index name to position
         simple_node_indeces = self._reduce_node_indeces()
 
-        # read in the dictionary of speed limit values used to calculate edge
-        # impedences
-        self._read_in_speed_limit_dictionary()
 
         # create a mapping of each node to every other connected node
         # transform them by cost model as well
@@ -283,11 +270,10 @@ class TransitMatrix():
                     data[DISTANCE], self.node_pair_to_speed[(from_idx, to_idx)])
             else:
                 highway_tag = data[HIGHWAY]
-                if highway_tag is None or highway_tag not in self.speed_limit_dictionary[
-                        "urban"]:
+                if highway_tag is None or highway_tag not in self._config_interface.speed_limit_dict["urban"]:
                     highway_tag = "unclassified"
-                impedence = self._cost_model(data[DISTANCE], float(
-                    self.speed_limit_dictionary["urban"][highway_tag]))
+                impedence = self._cost_model(data[DISTANCE],
+                    self._config_interface.speed_limit_dict["urban"][highway_tag])
 
             oneway = data[ONEWAY]
 

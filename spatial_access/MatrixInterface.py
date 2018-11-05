@@ -102,6 +102,7 @@ class MatrixInterface():
         '''
         start_time = time.time()
         if self.logger:
+            self.logger.debug('isSymmetric:{}'.format(isSymmetric))
             warning_message = '''In this version of spatial_access, you cannot read a matrix
                                  from file if your data have non-integer indeces'''
             self.logger.warning(warning_message)
@@ -121,6 +122,8 @@ class MatrixInterface():
         '''
         Instantiate a pyTransitMatrix with the available nodes
         '''
+        if self.logger:
+            self.logger.debug('isSymmetric:{}'.format(isSymmetric))
         self.transit_matrix = pyTransitMatrix(vertices=num_nodes, isSymmetric=isSymmetric)
 
     def write_to_csv(self, outfile):
@@ -143,7 +146,7 @@ class MatrixInterface():
         logger_vars = time.time() - start_time
         if self.logger:
             self.logger.info(
-            'Shortest path matrix computed in {:,.2f} seconds'.format(logger_vars))
+            'Shortest path matrix computed in {:,.2f} seconds using {} threads'.format(logger_vars, thread_limit))
 
     def get(self, source, dest):
         '''
