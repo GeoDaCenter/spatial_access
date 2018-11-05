@@ -154,8 +154,8 @@ void dijkstra(int src, workerArgs *wa) {
  
             // If shortest distance to v is not finalized yet, and distance to v
             // through u is less than its previously calculated distance
-            if (minHeap.isInMinHeap(v) && dist[u] != USHRT_MAX && 
-                                          pCrawl->weight + dist[u] < dist[v])
+            if (minHeap.isInMinHeap(v) && (dist[u] != USHRT_MAX) && 
+                                          (pCrawl->weight + dist[u] < dist[v]))
             {
                 dist[v] = dist[u] + pCrawl->weight;
  

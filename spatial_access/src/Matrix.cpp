@@ -4,12 +4,12 @@
 
 int main()
 {
-    // lmnoel::transitMatrix matrix("outfile.csv");
+
     lmnoel::transitMatrix matrix(5, true);
     matrix.addEdgeToGraph(0, 1, 5, true);
     matrix.addEdgeToGraph(1, 2, 6, true);
     matrix.addEdgeToGraph(2, 3, 2, true);
-    matrix.addEdgeToGraph(2, 4, 4, true);
+    matrix.addEdgeToGraph(2, 4, 4, false);
     matrix.addEdgeToGraph(3, 4, 3, true);
 
     matrix.addToUserSourceDataContainer(1, 10, 1, true);

@@ -64,7 +64,7 @@ class TestClass():
         assert matrix.get(1, 3) == 17
 
 
-    def test_2(self):
+    def test_3(self):
         '''
         Test symmetric matrix optimization
         '''

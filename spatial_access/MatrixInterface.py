@@ -69,6 +69,7 @@ class MatrixInterface():
                 self.logger.warning(self._string_id_warning)
                 self._warned_once = True
             user_id = self._get_internal_int_id(user_id)
+
         self.transit_matrix.addToUserSourceDataContainer(network_id, user_id,
                                                          distance, primary_only)
 

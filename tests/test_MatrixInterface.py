@@ -11,7 +11,7 @@ class TestClass():
         produces the expected result.
         '''
         interface = MatrixInterface()
-        interface.prepare_matrix(5, isSymmetric=True)
+        interface.prepare_matrix(5, isSymmetric=False)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -19,17 +19,18 @@ class TestClass():
         interface.add_edge_to_graph(2, 4, 4, False)
         interface.add_edge_to_graph(3, 4, 5, True)
 
-        interface.add_user_source_data(1, 11, 1, True)
-        interface.add_user_source_data(0, 12, 2, True)
-        interface.add_user_source_data(4, 13, 3, True)
-        interface.add_user_source_data(1, 14, 7, True)
+        interface.add_user_source_data(1, 11, 1, False)
+        interface.add_user_source_data(0, 12, 2, False)
+        interface.add_user_dest_data(4, 13, 3)
+        interface.add_user_dest_data(1, 14, 7)
 
         interface.build_matrix()
 
         interface.transit_matrix.printDataFrame()
-        assert interface.get(11, 11) == 0
-        assert interface.get(11, 12) == 8
-        assert interface.get(14 , 13) == 20
+        assert interface.get(11, 13) == 14
+        assert interface.get(11, 14) == 8
+        assert interface.get(12, 13) == 20
+        assert interface.get(12, 14) == 14
 
 
         os.mkdir('tmp/')
@@ -44,9 +45,10 @@ class TestClass():
         interface = MatrixInterface()
         interface.read_from_csv("tmp/test_outfile_1.csv")
 
-        assert interface.get(11, 11) == 0
-        assert interface.get(11, 12) == 8
-        assert interface.get(14, 13) == 20
+        assert interface.get(11, 13) == 14
+        assert interface.get(11, 14) == 8
+        assert interface.get(12, 13) == 20
+        assert interface.get(12, 14) == 14
 
     def test_3(self):
         '''
@@ -60,8 +62,8 @@ class TestClass():
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
         interface.add_edge_to_graph(2, 3, 2, True)
-        interface.add_edge_to_graph(2, 4, 4, False)
-        interface.add_edge_to_graph(3, 4, 8, True)
+        interface.add_edge_to_graph(2, 4, 4, True)
+        interface.add_edge_to_graph(3, 4, 3, True)
 
         interface.add_user_source_data(1, "agency_a", 1, True)
         interface.add_user_source_data(0, "agency_b", 2, True)
@@ -69,11 +71,12 @@ class TestClass():
         interface.add_user_source_data(1, "agency_d", 7, True)
 
         interface.build_matrix()
+        interface.transit_matrix.printDataFrame()
 
-        val_1 =  interface.get("agency_a", "agency_a")
-        
+    
+        assert interface.get("agency_a", "agency_a") == 0
+        assert interface.get("agency_a", "agency_d") == 8    
         assert interface.get("agency_a", "agency_b") == 8
-        print(interface.get("agency_d", "agency_c"))
         assert interface.get("agency_d" , "agency_c") == 20
 
         assert True

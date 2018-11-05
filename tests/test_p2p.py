@@ -104,12 +104,51 @@ class TestClass():
 
     def test_7(self):
         '''
+        Tests symmetric bike network
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('bike', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/sources.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+
+        assert True
+
+    def test_8(self):
+        '''
         Tests string labels.
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('bike', 
             primary_input='tests/test_data/sources.csv',
             secondary_input='tests/test_data/dests_a.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+
+        assert True
+
+    def test_9(self):
+        '''
+        Tests driving assymetric network.
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('drive', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests_a.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+
+        assert True
+
+    def test_10(self):
+        '''
+        Tests driving symmetric network.
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('drive', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/sources.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
 

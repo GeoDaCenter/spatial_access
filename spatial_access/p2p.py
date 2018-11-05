@@ -376,7 +376,7 @@ class TransitMatrix():
                                              self.secondary_data,
                                              self.secondary_input is not None,
                                              self.epsilon)
-        isSymmetric = self.secondary_input is None
+        isSymmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
         self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(), 
                                               isSymmetric)
 
