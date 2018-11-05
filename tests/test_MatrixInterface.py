@@ -17,7 +17,7 @@ class TestClass():
         interface.add_edge_to_graph(1, 2, 6, True)
         interface.add_edge_to_graph(2, 3, 2, True)
         interface.add_edge_to_graph(2, 4, 4, False)
-        interface.add_edge_to_graph(3, 4, 3, True)
+        interface.add_edge_to_graph(3, 4, 5, True)
 
         interface.add_user_source_data(1, 11, 1, True)
         interface.add_user_source_data(0, 12, 2, True)
@@ -26,9 +26,11 @@ class TestClass():
 
         interface.build_matrix()
 
+        interface.transit_matrix.printDataFrame()
         assert interface.get(11, 11) == 0
         assert interface.get(11, 12) == 8
         assert interface.get(14 , 13) == 20
+
 
         os.mkdir('tmp/')
         interface.write_to_csv("tmp/test_outfile_1.csv");
@@ -44,7 +46,7 @@ class TestClass():
 
         assert interface.get(11, 11) == 0
         assert interface.get(11, 12) == 8
-        assert interface.get(14 , 13) == 20
+        assert interface.get(14, 13) == 20
 
     def test_3(self):
         '''
@@ -59,7 +61,7 @@ class TestClass():
         interface.add_edge_to_graph(1, 2, 6, True)
         interface.add_edge_to_graph(2, 3, 2, True)
         interface.add_edge_to_graph(2, 4, 4, False)
-        interface.add_edge_to_graph(3, 4, 3, True)
+        interface.add_edge_to_graph(3, 4, 8, True)
 
         interface.add_user_source_data(1, "agency_a", 1, True)
         interface.add_user_source_data(0, "agency_b", 2, True)
@@ -71,6 +73,7 @@ class TestClass():
         val_1 =  interface.get("agency_a", "agency_a")
         
         assert interface.get("agency_a", "agency_b") == 8
+        print(interface.get("agency_d", "agency_c"))
         assert interface.get("agency_d" , "agency_c") == 20
 
         assert True

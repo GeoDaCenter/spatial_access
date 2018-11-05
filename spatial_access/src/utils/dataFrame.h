@@ -10,15 +10,6 @@
 
 #define UNDEFINED (0)
 
-enum currentState
-{
-    UNRESERVED,
-    RESERVED,
-    LOADED_FROM_DISK,
-    FREED,
-    ERROR
-};
- 
 
 /* a pandas-like dataFrame */
 class dataFrame {
@@ -35,7 +26,6 @@ private:
     int n_rows;
     int n_cols;
 
-    currentState state = UNRESERVED;
 
 
 public:
@@ -48,6 +38,7 @@ public:
     void insertLoc(unsigned short int val, int row_loc, int col_loc);
     void reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids);
     unsigned short int retrieve(unsigned long int row_id, unsigned long int col_id);
+    unsigned short int retrieveLoc(int row_id, int col_id);
     unsigned short int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
     void manualDelete(void);
     bool validKey(unsigned long int row_id, unsigned long int col_id);
@@ -79,7 +70,7 @@ bool dataFrame::writeCSV(const std::string &outfile)
         Ofile << row_labels[row_index] << ",";
         for (int col_index = 0; col_index < n_cols; col_index++)
         {
-            Ofile << data[row_index * n_cols + col_index] << ","; 
+            Ofile << this->retrieveLoc(row_index, col_index) << ","; 
         }
         Ofile << std::endl;
     }
@@ -105,7 +96,7 @@ void dataFrame::printDataFrame()
         std::cout << row_labels[row_index] << ",";
         for (int col_index = 0; col_index < n_cols; col_index++)
         {
-            std::cout << data[row_index * n_cols + col_index] << ","; 
+            std::cout << this->retrieveLoc(row_index, col_index) << ","; 
         }
         std::cout << std::endl;
     }
@@ -132,7 +123,6 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
     std::ifstream fileINA, fileINB;
     fileINA.open(infile);
     if (fileINA.fail()) {
-        state = ERROR;
         return false;
     }
     std::vector<unsigned long int> infileColLabels;
@@ -179,7 +169,6 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
 
     fileINB.open(infile);
     if (fileINB.fail()) {
-        state = ERROR;
         return false;
     }
     int row_counter = 0;
@@ -207,7 +196,6 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
         row_counter++;
     }
     fileINB.close();
-    state = LOADED_FROM_DISK;
 
     return true;
 
@@ -215,8 +203,10 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
 
 // use when creating a new data frame
 void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids) {
+
     n_rows = primary_ids.size();
     n_cols = secondary_ids.size();
+
 
     unsigned long int row_id, col_id;
     for (int row_idx = 0; row_idx < n_rows; row_idx++) {
@@ -233,9 +223,17 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
         col_labels.push_back(col_id);
     }
 
-    data = new unsigned short int[n_rows * n_cols];
-    memset(data, UNDEFINED, sizeof(unsigned short int) * n_rows * n_cols);
-    state = RESERVED;
+    int sizeOfData;
+    if (this->isSymmetric)
+    {
+        sizeOfData = n_rows * (n_rows + 1) / 2;
+    }
+    else
+    {
+        sizeOfData = n_rows * n_cols;
+    }
+    data = new unsigned short int[sizeOfData];
+    memset(data, UNDEFINED, sizeof(unsigned short int) * sizeOfData);
 }
 
 void dataFrame::manualDelete(void) {
@@ -251,36 +249,60 @@ dataFrame::~dataFrame(void) {
 
 /* insert a value with row_id, col_id */
 void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id) {
-    auto rowNum = rows[source_id];
-    for (std::pair<unsigned long int, unsigned short int> element : row_data)
+    for (auto element : row_data)
     {
-        data[rowNum *  n_cols + cols[element.first]] = element.second;
+        this->insert(element.second, source_id, element.first);
     }
 }
 
 
+
 /* insert a value with row_id, col_id */
-void dataFrame::insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id) {
-    data[rows[row_id] *  n_cols + cols[col_id]] = val;
+void dataFrame::insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id) 
+{
+    insertLoc(val, rows.at(row_id), cols.at(col_id));
 }
 
 
 /* insert a value with row_loc, col_loc */
 void dataFrame::insertLoc(unsigned short int val, int row_loc, int col_loc) {
-    data[row_loc *  n_cols + col_loc] = val;
+    if ((this->isSymmetric) && (row_loc > col_loc))
+    {
+        data[col_loc * n_cols + row_loc] = val;
+    }
+    else
+    {
+        data[row_loc * n_cols + col_loc] = val;
+    }
 }
 
 /* retrieve a value with row_id, col_id */
 /* warning: this method is UNSAFE. Results are undefined*/
 /* if keys are not present in dataframe */
 /* for safe retrieval, use retrieveSafe */
-unsigned short int dataFrame::retrieve(unsigned long int row_id, unsigned long int col_id) {
-    return data[rows[row_id] * n_cols + cols[col_id]];
+unsigned short int dataFrame::retrieve(unsigned long int row_id, unsigned long int col_id) 
+{
+    return retrieveLoc(rows.at(row_id), cols.at(col_id));
+}
+
+
+/* return the value by location. Respects return the converse if symmetric
+ * and below the diagonal
+ */
+unsigned short int dataFrame::retrieveLoc(int row_loc, int col_loc)
+{
+    if ((isSymmetric) && (row_loc > col_loc))
+    {
+        //take the complimentary position
+        return data[col_loc * n_cols + row_loc];
+    }
+    return data[row_loc * n_cols + col_loc];
 }
 
 
 /* check if a key pair is valid (both are in the data frame) */
-bool dataFrame::validKey(unsigned long int row_id, unsigned long int col_id) {
+bool dataFrame::validKey(unsigned long int row_id, unsigned long int col_id) 
+{
     if (row_contents.find(row_id) == row_contents.end()) {
         return false;
     }
@@ -298,6 +320,6 @@ unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned lo
     if (!validKey(row_id, col_id)) {
         throw std::runtime_error("row or col id does not exist");
     }
-    return data[rows[row_id] * n_cols + cols[col_id]];
+    return this->retrieve(row_id, col_id);
     
 }
