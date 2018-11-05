@@ -26,7 +26,6 @@ class TestClass():
 
         interface.build_matrix()
 
-        interface.transit_matrix.printDataFrame()
         assert interface.get(11, 13) == 14
         assert interface.get(11, 14) == 8
         assert interface.get(12, 13) == 20
@@ -71,8 +70,6 @@ class TestClass():
         interface.add_user_source_data(1, "agency_d", 7, True)
 
         interface.build_matrix()
-        interface.transit_matrix.printDataFrame()
-
     
         assert interface.get("agency_a", "agency_a") == 0
         assert interface.get("agency_a", "agency_d") == 8    
