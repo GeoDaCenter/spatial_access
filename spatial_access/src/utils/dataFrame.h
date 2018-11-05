@@ -280,7 +280,7 @@ void dataFrame::insertSafe(unsigned short int val, unsigned long int row_id, uns
     }
     catch (...)
     {
-        throw std::runtime_error("row or col id does not exist");
+        throw std::runtime_error("index is out of bounds:" + std::to_string(row_id) + "," + std::to_string(col_id));
     }
 }
 
@@ -364,9 +364,9 @@ unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned lo
     {
         return this->retrieve(row_id, col_id);    
     }
-    catch (const std::exception& e)
+    catch (...)
     {
-        throw std::runtime_error("row or col id does not exist");
+        throw std::runtime_error("index is out of bounds:" + std::to_string(row_id) + "," + std::to_string(col_id));
     }
    
 }
