@@ -141,6 +141,8 @@ class MatrixInterface():
         start_time = time.time()
         if thread_limit is None:
             thread_limit = self._get_thread_limit()
+        if self.logger:
+            self.logger.info('Processing matrix with {} threads'.format(thread_limit))
         self.transit_matrix.compute(thread_limit)
 
         logger_vars = time.time() - start_time

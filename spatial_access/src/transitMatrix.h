@@ -9,6 +9,7 @@
 #include <unordered_set>
 #include <vector>
 #include <utility>
+#include <climits>
 #include <mutex>
 
 #include "utils/threadUtilities.h"
@@ -61,16 +62,16 @@ workerArgs::~workerArgs(void) {
 
 /*write_row: write a row to file*/
 void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
-
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
-
     for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
     {
+
         src_imp = sourceDataPoint.lastMileDistance;
 
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
+
         // iterate through each dest tract
 
         std::unordered_map<unsigned long int, unsigned short int> row_data;
@@ -100,6 +101,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
                 }
                 row_data.insert(std::make_pair(destDataPoint.id, fin_imp));
 
+
             }
 
         }
@@ -113,7 +115,6 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 void dijkstra(int src, workerArgs *wa) {
-
     int V = wa->graph.V;// Get the number of vertices in graph
     
     std::vector<int> dist(V, USHRT_MAX);
@@ -200,6 +201,7 @@ public:
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V, bool isSymmetric);
     transitMatrix(const std::string &infile, bool isSymmetric);
+    transitMatrix(const std::string &infile);
     void compute(int numThreads);
     transitMatrix(void);
     int get(unsigned long int source, unsigned long intdest);
@@ -232,15 +234,12 @@ void transitMatrix::prepareDataFrame()
 void transitMatrix::compute(int numThreads)
 {
     prepareDataFrame();
-
     workerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
         numNodes, df);
-
     wa.initialize();  
-
     workerQueue wq(numThreads);
-
     wq.start(workerHandler, &wa);
+
 }
 
 void transitMatrix::addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance)
@@ -266,6 +265,17 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
     }
 }
 
+
+transitMatrix::transitMatrix(const std::string &infile)
+{
+    this->isSymmetric = true;
+
+    if (!df.readTransitCSV(infile)) 
+    {
+        throw std::runtime_error("failed to load dataFrame from file");
+    }
+
+}
 
 transitMatrix::transitMatrix(const std::string &infile, bool isSymmetric) 
 {

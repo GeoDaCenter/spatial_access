@@ -4,12 +4,13 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <set>
+#include <unordered_set>
 #include <stdexcept>
 #include <vector>
+#include <cmath>
+#include <utility>
 
 #define UNDEFINED (0)
-
 
 /* a pandas-like dataFrame */
 class dataFrame {
@@ -20,8 +21,8 @@ private:
 
     std::vector<unsigned long int> row_labels;
     std::vector<unsigned long int> col_labels;
-    std::set<unsigned long int> row_contents;
-    std::set<unsigned long int> col_contents;
+    std::unordered_set<unsigned long int> row_contents;
+    std::unordered_set<unsigned long int> col_contents;
 
     unsigned long int n_rows;
     unsigned long int n_cols;
@@ -29,7 +30,7 @@ private:
 public:
     bool isSymmetric;
     unsigned long int sizeOfData;
-    dataFrame(void);
+    dataFrame();
     bool loadFromDisk(const std::string &infile);
     void insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
     void insertSafe(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
@@ -46,7 +47,65 @@ public:
     void printRows();
     void setSymmetric(bool isSymmetric);
     unsigned long int symmetricEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc);
+    bool readTransitCSV(const std::string& infile);
 };
+
+bool dataFrame::readTransitCSV(const std::string& infile)
+{
+    // std::ifstream Ifile;
+    // Ifile.open(infile);
+    // if (Ifile.fail()) {
+    //     Ifile.close();
+    //     return false;
+    // }
+    // std::string line;
+    // std::string srcId;
+    // std::string dstId;
+    // std::string weight;
+    // unsigned long int table_rows = 0;
+    // std::unordered_map<std::pair<unsigned long int, unsigned long int>, unsigned short int, pair_hash> input_data;
+    // //read the file
+    // while (getline(Ifile, line))
+    // {
+    //     std::istringstream stream(line);
+    //     getline(stream, srcId, ',');
+    //     getline(stream, dstId, ',');
+    //     getline(stream, weight, '\n');
+    //     table_rows++;
+    //     unsigned long int srcIdInt = stoul(srcId);
+    //     unsigned long int dstIdInt = stoul(dstId);
+    //     unsigned short int weightInt = stoi(weight);
+    //     input_data.insert(std::make_pair(std::make_pair(srcIdInt, dstIdInt), weightInt));
+    // }
+    // Ifile.close();
+
+    // // ensure the table is symmetric by verifying the number of rows
+    // // read in is a perfect square
+    // unsigned long int table_rows_sqrt = sqrt(table_rows);
+    // if (table_rows_sqrt * table_rows_sqrt != table_rows)
+    // {
+    //     throw std::runtime_error("Input table was not symmetrical");
+    // }
+    // this->n_rows = table_rows_sqrt;
+    // this->n_cols = table_rows_sqrt;
+    // this->isSymmetric = true;
+
+    // std::vector<unsigned long int> srcIdVector;
+    // std::vector<unsigned long int> dstIdVector;
+    // for (auto key : input_data)
+    // {
+    //     unsigned long int srcInt = key.first.first;
+    //     unsigned long int dstInt = key.first.second;
+    //     srcIdVector.push_back(srcInt);
+    //     dstIdVector.push_back(dstInt);
+    // }
+    // this->reserve(srcIdVector, dstIdVector);
+    // for (auto pair : input_data)
+    // {
+    //     this->insertSafe(pair.first.first, pair.first.second, pair.second);
+    // }
+    return true;
+}
 
 void dataFrame::printCols()
 {
@@ -74,6 +133,7 @@ bool dataFrame::writeCSV(const std::string &outfile)
     std::ofstream Ofile;
     Ofile.open(outfile);
     if (Ofile.fail()) {
+        Ofile.close();
         throw std::runtime_error("Could not open output file");
     }
     Ofile << ",";
@@ -141,6 +201,7 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
     std::ifstream fileINA, fileINB;
     fileINA.open(infile);
     if (fileINA.fail()) {
+        fileINA.close();
         return false;
     }
     std::vector<unsigned long int> infileColLabels;
@@ -187,6 +248,7 @@ bool dataFrame::loadFromDisk(const std::string &infile) {
 
     fileINB.open(infile);
     if (fileINB.fail()) {
+        fileINB.close();
         return false;
     }
     unsigned long int row_counter = 0;
@@ -241,7 +303,7 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
         col_labels.push_back(col_id);
     }
 
-
+    // determine the size of the flat array
     if (this->isSymmetric)
     {
         this->sizeOfData = n_rows * (n_rows + 1) / 2;
@@ -250,14 +312,11 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
     {
         this->sizeOfData = n_rows * n_cols;
     }
-
-    // allocate data
-    this->data.reserve(this->sizeOfData + 1);
-    for (unsigned long int i = 0; i < this->sizeOfData + 1; i++)
+    this->data.reserve(this->sizeOfData);
+    for (unsigned long int i = 0; i < this->sizeOfData; i++)
     {
-        this->data.push_back(0);
+        this->data.push_back(UNDEFINED);
     }
-
 }
 
 
@@ -322,18 +381,19 @@ unsigned long int dataFrame::symmetricEquivalentLoc(unsigned long int row_loc, u
     return col_loc - row_loc + this->sizeOfData - (this->n_rows - row_loc) * (this->n_rows - row_loc + 1) / 2;
 }
 
+
 /* insert a value with row_loc, col_loc */
 void dataFrame::insertLoc(unsigned short int val, unsigned long int row_loc, unsigned long int col_loc) {
     if (this->isSymmetric)
     {
         if (col_loc >= row_loc)
         {
-            data.at(this->symmetricEquivalentLoc(row_loc, col_loc)) = val;
+            this->data.at(this->symmetricEquivalentLoc(row_loc, col_loc)) = val;
         }
     }
     else
     {
-        data.at(row_loc * n_cols + col_loc) = val;
+        this->data.at(row_loc * n_cols + col_loc) = val;
     }
 }
 
@@ -356,14 +416,14 @@ unsigned short int dataFrame::retrieveLoc(unsigned long int row_loc, unsigned lo
     {
         if (col_loc >= row_loc)
         {
-            return data.at(this->symmetricEquivalentLoc(row_loc, col_loc));
+            return this->data.at(this->symmetricEquivalentLoc(row_loc, col_loc));
         }
         else
-        {
-            return data.at(this->symmetricEquivalentLoc(col_loc, row_loc));   
+        {   
+            return this->data.at(this->symmetricEquivalentLoc(col_loc, row_loc));   
         }
     }
-    return data.at(row_loc * n_cols + col_loc);
+    return this->data.at(row_loc * n_cols + col_loc);
 }
 
 
