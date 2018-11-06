@@ -71,7 +71,6 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
         src_imp = sourceDataPoint.lastMileDistance;
 
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
-
         // iterate through each dest tract
 
         std::unordered_map<unsigned long int, unsigned short int> row_data;
@@ -81,6 +80,13 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
             auto destPoints = destTract.retrieveDataPoints();
             for (auto destDataPoint : destPoints)
             {
+                if (wa->df.isSymmetric)
+                {
+                    if (wa->df.getRowIndexLoc(sourceDataPoint.id) > wa->df.getColIndexLoc(destDataPoint.id))
+                    {
+                        continue;
+                    }
+                }
                 calc_imp = dist.at(destNodeId);
                 if ((wa->df.isSymmetric) && (destDataPoint.id == sourceDataPoint.id))
                 {
@@ -292,7 +298,7 @@ void transitMatrix::printDataFrame(){
     this->df.printDataFrame();
 }
 
-// change ids to ints to speed up a lot
+
 int transitMatrix::get(unsigned long int source, unsigned long int dest) {
     return df.retrieveSafe(source, dest);
 }

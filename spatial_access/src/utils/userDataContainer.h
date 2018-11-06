@@ -63,6 +63,7 @@ void userDataTract::addPoint(userDataPoint userData)
 class userDataContainer
 {
 public:
+    bool isSymmetric;
     std::unordered_map<int, userDataTract> data;
     std::vector<int> allNetworkNodeIds;
     std::vector<unsigned long int> ids;
@@ -93,13 +94,14 @@ void userDataContainer::print()
 
 userDataContainer::userDataContainer()
 {
-
+    this->isSymmetric = false;
 }
+
 bool userDataContainer::containsTract(int networkNodeId)
 {
-    // improve search time using set
     return data.find(networkNodeId) != data.end();
 }
+
 void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
 {
     ids.push_back(id);

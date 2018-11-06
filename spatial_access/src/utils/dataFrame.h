@@ -31,6 +31,8 @@ public:
     bool isSymmetric;
     unsigned long int sizeOfData;
     dataFrame();
+    unsigned long int getRowIndexLoc(unsigned long int row_index);
+    unsigned long int getColIndexLoc(unsigned long int col_index);
     bool loadFromDisk(const std::string &infile);
     void insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
     void insertSafe(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
@@ -49,6 +51,16 @@ public:
     unsigned long int symmetricEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc);
     bool readTransitCSV(const std::string& infile);
 };
+
+unsigned long int dataFrame::getRowIndexLoc(unsigned long int row_index)
+{
+    return rows.at(row_index);
+}
+
+unsigned long int dataFrame::getColIndexLoc(unsigned long int col_index)
+{
+    return cols.at(col_index);
+}
 
 bool dataFrame::readTransitCSV(const std::string& infile)
 {

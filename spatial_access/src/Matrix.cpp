@@ -23,7 +23,8 @@ int main()
     matrix.writeCSV("outfile.csv");
     matrix.printDataFrame();
 
-
+    // lmnoel::transitMatrix matrix("example_Data/example_transit.csv");
+    // matrix.printDataFrame();
 
     return 0;
 }
