@@ -9,13 +9,14 @@ except:
 class CustomInstallCommand(install):
     """Customized setuptools install command"""
     def run(self):
+        print('running CustomInstallCommand')
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
             os.system('sudo apt install python3-rtree')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
-                                   platform. Note: We DO NOT support Windows.'''
+                                   platform. Note: This package does not support Windows.'''
 
             raise Exception(exception_message, os.system)
         install.run(self)
@@ -28,7 +29,7 @@ if sys.platform == "darwin":
 
 EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapter.pyx'],
+    sources = ['spatial_access/transitMatrixAdapter.pyx', 'spatial_access/src/utils/serializer/p2p.pb.cc'],
     extra_compile_args = ['-Wno-unused-function', 
                           '-std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
