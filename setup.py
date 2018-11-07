@@ -13,6 +13,7 @@ class CustomInstallCommand(install):
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
+            os.system('sudo apt-get install protobuf-dev')
             os.system('sudo apt install python3-rtree')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
@@ -31,7 +32,7 @@ EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',
     sources = ['spatial_access/transitMatrixAdapter.pyx', 'spatial_access/src/utils/serializer/p2p.pb.cc'],
     extra_compile_args = ['-Wno-unused-function', 
-                          '-std=c++11', '-Wall', '-O3'
+                          '-std=c++11', '-Wall', '-O3', '-lprotobuf'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
