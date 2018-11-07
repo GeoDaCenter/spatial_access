@@ -13,7 +13,6 @@ class CustomInstallCommand(install):
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
-            os.system('sudo apt-get install protobuf-dev')
             os.system('sudo apt install python3-rtree')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
@@ -38,9 +37,7 @@ EXTENSION = distutils.extension.Extension(
     extra_link_args    = ouff_mac
     )
 
-EXT_MODULES=Cython.Build.cythonize([EXTENSION],
-                                    #include_path = ["/usr/local/include/"],
-                                   language='c++')
+EXT_MODULES=Cython.Build.cythonize([EXTENSION])
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'cython>=0.28.2',

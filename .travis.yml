@@ -6,8 +6,11 @@ os:
 python:
 - "3.6"
 
-install:
+before install:
+- sudo apt-get install libprotobuf-dev protobuf-compiler
 - pip3 install Cython
+
+install:
 - pip3 install pylint
 - pip3 install . 
 
