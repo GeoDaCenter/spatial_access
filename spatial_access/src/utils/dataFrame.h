@@ -10,8 +10,6 @@
 #include <cmath>
 #include <utility>
 
-#include "serializer/p2p.pb.h"
-
 #define UNDEFINED (0)
 
 /* a pandas-like dataFrame */
@@ -362,29 +360,29 @@ unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned lo
 /* Write the dataFrame to a .tmx (a custom binary format) */
 bool dataFrame::writeTMX(const std::string &outfile)
 {
-    p2p::dataFrame df;
-    for (auto row_label : this->row_labels)
-    {
-        df.add_row_label(row_label);
-    }
-    for (auto col_label : this->col_labels)
-    {
-        df.add_col_label(col_label);
-    }
-    for (unsigned long int i = 0; i < n_rows; i++)
-    {
-        auto new_row = df.add_row();
-        for (unsigned long int j = 0; j < n_cols; j++)
-        {
-            new_row->add_column(this->retrieveLoc(i, j));
-        }
-    }
-    std::fstream output(outfile, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!df.SerializeToOstream(&output)) {
-        std::cerr << "Failed to write .tmx" << std::endl;
-        return false;
-    }
-    output.close();
+    // p2p::dataFrame df;
+    // for (auto row_label : this->row_labels)
+    // {
+    //     df.add_row_label(row_label);
+    // }
+    // for (auto col_label : this->col_labels)
+    // {
+    //     df.add_col_label(col_label);
+    // }
+    // for (unsigned long int i = 0; i < n_rows; i++)
+    // {
+    //     auto new_row = df.add_row();
+    //     for (unsigned long int j = 0; j < n_cols; j++)
+    //     {
+    //         new_row->add_column(this->retrieveLoc(i, j));
+    //     }
+    // }
+    // std::fstream output(outfile, std::ios::out | std::ios::trunc | std::ios::binary);
+    // if (!df.SerializeToOstream(&output)) {
+    //     std::cerr << "Failed to write .tmx" << std::endl;
+    //     return false;
+    // }
+    // output.close();
     return true;
 
 }
@@ -393,37 +391,37 @@ bool dataFrame::writeTMX(const std::string &outfile)
 /* Read the dataFrame from a .tmx (a custom binary format) */
 bool dataFrame::readTMX(const std::string& infile)
 {
-    p2p::dataFrame df;
-    std::fstream inputFile(infile, std::ios::in | std::ios::binary);
+    // p2p::dataFrame df;
+    // std::fstream inputFile(infile, std::ios::in | std::ios::binary);
 
-    if (!df.ParseFromIstream(&inputFile)) {
-        std::cerr << "Failed to load .tmx" << std::endl;
-        return false;
-    }    
-    std::vector<unsigned long int> infileRowLabels;
-    std::vector<unsigned long int> infileColLabels;
+    // if (!df.ParseFromIstream(&inputFile)) {
+    //     std::cerr << "Failed to load .tmx" << std::endl;
+    //     return false;
+    // }    
+    // std::vector<unsigned long int> infileRowLabels;
+    // std::vector<unsigned long int> infileColLabels;
 
-    this->n_rows = df.row_label_size();
-    this->n_cols = df.col_label_size();
-    for (unsigned long int i = 0; i < this->n_rows; i++)
-    {
-        infileRowLabels.push_back(df.row_label(i));
-    }
-    for (unsigned long int j = 0; j < this->n_cols; j++)
-    {
-        infileColLabels.push_back(df.col_label(j));
-    }
-    this->reserve(infileRowLabels, infileColLabels);
+    // this->n_rows = df.row_label_size();
+    // this->n_cols = df.col_label_size();
+    // for (unsigned long int i = 0; i < this->n_rows; i++)
+    // {
+    //     infileRowLabels.push_back(df.row_label(i));
+    // }
+    // for (unsigned long int j = 0; j < this->n_cols; j++)
+    // {
+    //     infileColLabels.push_back(df.col_label(j));
+    // }
+    // this->reserve(infileRowLabels, infileColLabels);
 
-    for (unsigned long int i = 0; i < this->n_rows; i++)
-    {
-        auto matrix_row = df.row(i);
-        for (unsigned long int j = 0; j < this->n_cols; j++)
-        {
-            this->insertLoc(matrix_row.column(j), i, j);
-        }
-    }
-    inputFile.close();
+    // for (unsigned long int i = 0; i < this->n_rows; i++)
+    // {
+    //     auto matrix_row = df.row(i);
+    //     for (unsigned long int j = 0; j < this->n_cols; j++)
+    //     {
+    //         this->insertLoc(matrix_row.column(j), i, j);
+    //     }
+    // }
+    // inputFile.close();
     return true;
 }
 
