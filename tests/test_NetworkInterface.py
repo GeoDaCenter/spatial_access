@@ -48,6 +48,21 @@ class TestClass(object):
         except BaseException:
             assert False
 
+    def test_4(self):
+        '''
+        Tests that we catch bounding boxes which are too
+        large to handle.
+        '''
+        drive_interface = NetworkInterface('drive')
+        source_df = self.create_very_large_table()
+        try:
+            drive_interface.load_network(source_df, None, False, 0.005)
+            assert False
+        except Exception:
+            assert True
+        
+
+
     @staticmethod
     def create_example_source_table():
         data = {'name':['regenstein', 'booth', 'uchicago_medicine', 'smart_museum'],
@@ -62,6 +77,15 @@ class TestClass(object):
         data = {'name':['medici', 'shfe', 'quad_club'],
                 'y': [41.791442, 41.789822, 41.791430],
                 'x': [-87.593769, -87.596445, -87.597717]}
+
+        df = pd.DataFrame.from_dict(data)
+        return df
+
+    @staticmethod
+    def create_very_large_table():
+        data = {'name':['washington', 'florida'],
+                'y': [48.448324, 25.233228],
+                'x': [-124.768930, -80.705327]}
 
         df = pd.DataFrame.from_dict(data)
         return df

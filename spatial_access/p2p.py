@@ -41,6 +41,7 @@ class TransitMatrix():
             primary_hints=None,
             secondary_hints=None,
             use_meters=False,
+            disable_area_threshold=False,
             debug=False):
 
         #arguments
@@ -64,9 +65,10 @@ class TransitMatrix():
 
         #instantiate interfaces
         self.set_logging()
-        self._config_interface = ConfigInterface(network_type, self.logger)
-        self._network_interface = NetworkInterface(network_type, self.logger)
-        self._matrix_interface = MatrixInterface(self.logger)
+        self._config_interface = ConfigInterface(network_type, logger=self.logger)
+        self._network_interface = NetworkInterface(network_type, logger=self.logger, 
+                                                   disable_area_threshold=disable_area_threshold)
+        self._matrix_interface = MatrixInterface(logger=self.logger)
 
         assert network_type in [
             'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "

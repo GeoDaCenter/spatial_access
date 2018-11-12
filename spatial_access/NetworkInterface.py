@@ -8,6 +8,7 @@ import os
 import sys
 import pandas as pd
 from pandana.loaders import osm
+from geopy.distance import vincenty
 
 class NetworkInterface():
     '''
@@ -16,13 +17,13 @@ class NetworkInterface():
     networks.
     '''
 
-    def __init__(self, network_type, logger=None):
+    def __init__(self, network_type, logger=None, disable_area_threshold=False):
         self.logger = logger
         self.network_type = network_type
         self.bbox = None
         self.nodes = None
         self.edges = None
-        self.area_threshold = 1000000
+        self.area_threshold = None if disable_area_threshold else 2000 #km
         assert isinstance(network_type, str)
         self._try_create_cache()
 
@@ -42,9 +43,15 @@ class NetworkInterface():
         Calculate the approximate area of the 
         bounding box in square kilometers.
         '''
-        square_kms_in_one_square_degree = 69 **2
-        square_degrees = abs(self.bbox[0] - self.bbox[2]) * abs(self.bbox[1] - self.bbox[3])
-        return square_degrees * square_kms_in_one_square_degree
+        lower_left_point = (self.bbox[1], self.bbox[0])
+        lower_right_point = (self.bbox[3], self.bbox[0])
+        upper_left_point = (self.bbox[1], self.bbox[2])
+        lower_edge = vincenty(lower_left_point, lower_right_point).km
+        left_edge = vincenty(lower_left_point, upper_left_point).km
+        area = lower_edge * left_edge
+        if self.logger:
+            self.logger.info('Downloading bounding box with area: {} sq. km'.format(area))
+        return area
 
     def _try_create_cache(self):
         '''
@@ -81,13 +88,13 @@ class NetworkInterface():
         lon_min = min(composite_y) - epsilon
 
         self.bbox = [lon_min, lat_min, lon_max, lat_max]
-        approx_area = self._approximate_bbox_area()
-        if approx_area > self.area_threshold:
-            if self.logger:
-                warning_message = '''DANGER! Your bounding box is too large and 
-                will likely not be able to compute
-                '''
-                self.logger.warning(warning_message)
+        if self.area_threshold:
+            approx_area = self._approximate_bbox_area()
+            if approx_area > self.area_threshold:
+                if self.logger:
+                    self.logger.error('Supplied coordinates span too large an area')
+                    self.logger.error('You can set disable_area_threshold to True if this is intentional')
+                raise Exception('Bounding box contains too large an area')
         if self.logger:
             self.logger.debug('set bbox: {}'.format(self.bbox))
 
