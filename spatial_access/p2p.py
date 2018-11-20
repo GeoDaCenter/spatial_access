@@ -349,7 +349,19 @@ class TransitMatrix():
         self._matrix_interface.write_to_csv(outfile)
         self.logger.info("Wrote file to %s", outfile)
 
-    def process(self,):
+    def prefetch_network(self):
+        '''
+        Fetch and cache the osm network.
+
+        '''
+        self._load_inputs()
+
+        self._network_interface.load_network(self.primary_data,
+                                             self.secondary_data,
+                                             self.secondary_input is not None,
+                                             self.epsilon)
+
+    def process(self):
         '''
         Process the data.
         '''
@@ -358,12 +370,7 @@ class TransitMatrix():
         self.logger.info("Processing network (%s) with epsilon: %f",
                          self.network_type, self.epsilon)
 
-        self._load_inputs()
-
-        self._network_interface.load_network(self.primary_data,
-                                             self.secondary_data,
-                                             self.secondary_input is not None,
-                                             self.epsilon)
+        self.prefetch_network()
         isSymmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
         self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(), 
                                               isSymmetric)

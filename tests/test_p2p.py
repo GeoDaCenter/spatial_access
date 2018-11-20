@@ -153,3 +153,18 @@ class TestClass():
         transit_matrix_1.process()
 
         assert True
+
+
+    def test_11(self):
+        '''
+        Tests driving symmetric network.
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('drive', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/sources.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.prefetch_network()
+
+        assert transit_matrix_1._network_interface.number_of_nodes() > 0
+        assert transit_matrix_1._network_interface.number_of_edges() > 0

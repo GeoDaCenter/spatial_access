@@ -8,7 +8,7 @@ import os
 import sys
 import pandas as pd
 from pandana.loaders import osm
-from geopy.distance import vincenty
+from geopy import distance
 
 class NetworkInterface():
     '''
@@ -46,8 +46,8 @@ class NetworkInterface():
         lower_left_point = (self.bbox[1], self.bbox[0])
         lower_right_point = (self.bbox[3], self.bbox[0])
         upper_left_point = (self.bbox[1], self.bbox[2])
-        lower_edge = vincenty(lower_left_point, lower_right_point).km
-        left_edge = vincenty(lower_left_point, upper_left_point).km
+        lower_edge = distance.distance(lower_left_point, lower_right_point).km
+        left_edge = distance.distance(lower_left_point, upper_left_point).km
         area = lower_edge * left_edge
         if self.logger:
             self.logger.info('Downloading bounding box with area: {} sq. km'.format(area))
