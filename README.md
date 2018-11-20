@@ -6,7 +6,7 @@
 <tr>
   <td>Version</td>
   <td>
-    0.1.3
+    0.1.4
   </td>
 </tr>    
 <tr>
