@@ -8,10 +8,11 @@ python:
 
 before install:
 - sudo apt install python3-rtree
+- sudo apt-get install libprotobuf-dev protobuf-compiler
 - pip3 install Cython
 
 install:
-- pip3 install pylint
+- pip3 install .
 - python3 setup.py install
 
 script:
