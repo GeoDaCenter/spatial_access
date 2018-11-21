@@ -8,7 +8,6 @@ python:
 
 before install:
 - sudo apt install python3-rtree
-- sudo apt-get install libprotobuf-dev protobuf-compiler
 - pip3 install Cython
 
 install:
