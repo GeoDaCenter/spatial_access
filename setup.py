@@ -34,7 +34,7 @@ EXTENSION = distutils.extension.Extension(
                           '-std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
+    extra_link_args    = ouff_mac + ['-lprotobuf']
     )
 
 EXT_MODULES=Cython.Build.cythonize([EXTENSION])

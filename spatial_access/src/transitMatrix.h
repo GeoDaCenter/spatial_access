@@ -214,12 +214,18 @@ public:
     void loadFromDisk(void);
     void prepareDataFrame();
     bool writeCSV(const std::string &outfile);
+    bool writeTMX(const std::string &outfile);
     void printDataFrame();
 };
 
 bool transitMatrix::writeCSV(const std::string &outfile)
 {
     return this->df.writeCSV(outfile);
+}
+
+bool transitMatrix::writeTMX(const std::string &outfile)
+{
+    return this->df.writeTMX(outfile);
 }
 
 transitMatrix::transitMatrix(int V, bool isSymmetric)
@@ -287,9 +293,23 @@ transitMatrix::transitMatrix(const std::string &infile, bool isSymmetric)
 {
     this->isSymmetric = isSymmetric;
     this->df.setSymmetric(isSymmetric);
-    if (!df.readCSV(infile)) 
+    if (infile.find(".tmx") != std::string::npos)
     {
-        throw std::runtime_error("failed to load dataFrame from file");
+        if (!df.readTMX(infile)) 
+        {
+            throw std::runtime_error("failed to load dataFrame from file");
+        }
+    }
+    else if (infile.find(".csv") != std::string::npos)
+    {
+        if (!df.readCSV(infile)) 
+        {
+            throw std::runtime_error("failed to load dataFrame from file");
+        }
+    }
+    else
+    {
+        throw std::runtime_error("Input file has unrecognized extension");
     }
 
 }

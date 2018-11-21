@@ -95,8 +95,7 @@ class MatrixInterface():
         '''
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-
-    def read_from_csv(self, infile, isSymmetric=False):
+    def read_from_file(self, infile, isSymmetric=False):
         '''
         Load a matrix from file
         '''
@@ -118,6 +117,18 @@ class MatrixInterface():
                 self.logger.error('Unable to load matrix from file: %s', exception)
             sys.exit()
 
+    def read_from_csv(self, infile, isSymmetric=False):
+        '''
+        Load a matrix from csv (synonymous to read_from_file)
+        '''
+        self.read_from_file(infile, isSymmetric)
+
+    def read_from_tmx(self, infile, isSymmetric=False):
+        '''
+        Load a matrix from tmx (synonymous to read_from_file)
+        '''
+        self.read_from_file(infile, isSymmetric)
+
     def prepare_matrix(self, num_nodes, isSymmetric=False):
         '''
         Instantiate a pyTransitMatrix with the available nodes
@@ -131,6 +142,12 @@ class MatrixInterface():
         Write the data frame to csv
         '''
         self.transit_matrix.writeCSV(bytes(outfile, 'utf-8'))
+
+    def write_to_tmx(self, outfile):
+        '''
+        Write the data frame to csv
+        '''
+        self.transit_matrix.writeTMX(bytes(outfile, 'utf-8'))
 
     def build_matrix(self, thread_limit=None):
         '''
