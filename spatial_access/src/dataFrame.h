@@ -10,7 +10,7 @@
 #include <cmath>
 #include <utility>
 
-#include "serializer/p2p.pb.h"
+#include "protobuf/p2p.pb.h"
 
 #define UNDEFINED (0)
 

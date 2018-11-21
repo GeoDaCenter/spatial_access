@@ -12,11 +12,11 @@
 #include <climits>
 #include <mutex>
 
-#include "utils/threadUtilities.h"
-#include "utils/dataFrame.h"
-#include "utils/Graph.h"
-#include "utils/MinHeap.h"
-#include "utils/userDataContainer.h"
+#include "threadUtilities.h"
+#include "dataFrame.h"
+#include "Graph.h"
+#include "MinHeap.h"
+#include "userDataContainer.h"
 
 
 /* struct to represent a single source associated with */

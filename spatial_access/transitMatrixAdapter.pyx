@@ -2,7 +2,7 @@
 from libcpp.string cimport string
 from libcpp cimport bool
 
-cdef extern from "src/utils/serializer/p2p.pb.cc" namespace "p2p":
+cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
     cdef cppclass dataFrame:
         dataFrame()
 
