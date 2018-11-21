@@ -14,6 +14,7 @@ class CustomInstallCommand(install):
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
             os.system('sudo apt install python3-rtree')
+            os.system('sudo apt-get install libprotobuf-dev protobuf-compiler')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
                                    platform. Note: This package does not support Windows.'''
