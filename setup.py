@@ -10,13 +10,11 @@ class CustomInstallCommand(install):
     """Customized setuptools install command"""
     def run(self):
         if sys.platform == "darwin":
-            os.system('brew install spatialindex')
-            os.system('brew install protobuf')
-            os.system('protoc --cpp_out=. spatial_access/src/utils/serializer/p2p.proto')
+            pass
+            #os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
-            os.system('sudo apt install python3-rtree')
-            os.system('sudo apt-get install libprotobuf-dev protobuf-compiler')
-            os.system('protoc --cpp_out=. spatial_access/src/utils/serializer/p2p.proto')
+            pass
+            #os.system('sudo apt install python3-rtree')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
                                    platform. Note: This package does not support Windows.'''
@@ -39,7 +37,7 @@ EXTENSION = distutils.extension.Extension(
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac + ['-lprotobuf']
     )
-
+print('cythonizing')
 EXT_MODULES=Cython.Build.cythonize([EXTENSION])
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
