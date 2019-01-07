@@ -12,10 +12,10 @@ before install:
 
 install:
 - bash install-proto.sh
-- python3 setup.py install
+- pip3 install .
 
 script:
-- pytest
+- pytest tests/
 
 addons:
   homebrew:
