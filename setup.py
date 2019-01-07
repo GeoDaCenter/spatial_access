@@ -39,7 +39,9 @@ EXTENSION = distutils.extension.Extension(
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac + ['-lprotobuf']
     )
-
+print('*******')
+print('current directory:', os.getcwd())
+print('contents of spatial_access/src/protobuf:', os.listdir('spatial_access/src/protobuf'))
 EXT_MODULES=Cython.Build.cythonize([EXTENSION])
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
