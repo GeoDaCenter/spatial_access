@@ -91,7 +91,7 @@ class TestClass():
 
     def test_6(self):
         '''
-        Tests bike network
+        Tests bike network and write_csv.
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('bike', 
@@ -104,7 +104,7 @@ class TestClass():
 
     def test_7(self):
         '''
-        Tests symmetric bike network
+        Tests symmetric bike network and write_tmx
         '''
         hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
         transit_matrix_1 = TransitMatrix('bike', 
@@ -168,3 +168,35 @@ class TestClass():
 
         assert transit_matrix_1._network_interface.number_of_nodes() > 0
         assert transit_matrix_1._network_interface.number_of_edges() > 0
+
+    def test_12(self):
+        '''
+        Tests write_csv.
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('bike', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+        transit_matrix_1.write_csv('tests/test_12_file.csv')
+
+        transit_matrix_2 = TransitMatrix('bike', read_from_file='tests/test_12_file.csv')
+
+        assert True
+
+    def test_13(self):
+        '''
+        Tests write_tmx.
+        '''
+        hints = {'idx':'name', 'ycol':'y', 'xcol':'x'}
+        transit_matrix_1 = TransitMatrix('bike', 
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+        transit_matrix_1.write_tmx('tests/test_13_file.tmx')
+
+        transit_matrix_2 = TransitMatrix('bike', read_from_file='tests/test_13_file.tmx')
+
+        assert True

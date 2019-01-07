@@ -12,11 +12,6 @@ class CustomInstallCommand(install):
         os.chdir('spatial_access/src/protobuf')
         os.system('protoc --cpp_out=. p2p.proto')
         os.chdir('../../..')
-        print('******************************')
-        print('current directory:', os.getcwd())
-        print('contents of spatial_access/src/protobuf:', os.listdir('spatial_access/src/protobuf'))
-        print('first 10 lines of p2p.pb.cc:')
-        print(os.system('head spatial_access/src/protobuf/p2p.pb.cc'))
         if sys.platform == "darwin":
             pass
             #os.system('brew install spatialindex')

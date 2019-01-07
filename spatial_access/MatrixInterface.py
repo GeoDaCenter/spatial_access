@@ -141,13 +141,19 @@ class MatrixInterface():
         '''
         Write the data frame to csv
         '''
+        start = time.time()
         self.transit_matrix.writeCSV(bytes(outfile, 'utf-8'))
+        if self.logger:
+            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
 
     def write_to_tmx(self, outfile):
         '''
-        Write the data frame to csv
+        Write the data frame to tmx
         '''
+        start = time.time()
         self.transit_matrix.writeTMX(bytes(outfile, 'utf-8'))
+        if self.logger:
+            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
 
     def build_matrix(self, thread_limit=None):
         '''

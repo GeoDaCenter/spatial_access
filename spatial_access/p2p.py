@@ -74,7 +74,7 @@ class TransitMatrix():
             'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
 
         if read_from_file:
-            self._matrix_interface.read_matrix_from_file(read_from_file)
+            self._matrix_interface.read_from_file(read_from_file)
 
     def set_logging(self):
         '''
@@ -90,7 +90,7 @@ class TransitMatrix():
             self.logger.debug("Running in debug mode")
 
     @staticmethod
-    def _get_output_filename(keyword, extension='csv'):
+    def _get_output_filename(keyword, extension):
         '''
         Given a keyword, find an unused filename.
         '''
@@ -338,16 +338,36 @@ class TransitMatrix():
         self.logger.info(
             'Nearest Neighbor matching completed in {:,.2f} seconds'.format(time_delta))
 
-    def write_to_file(self, outfile=None):
+    def write_csv(self, outfile=None):
         '''
         Write the transit matrix to csv.
+
+        Note: Use write_tmx (as opposed to this method) to
+        save the transit matrix unless exporting for external use.
+
         Arguments:
-            outfile- optional string
+            outfile-optional string
         '''
         if not outfile:
-            outfile = self._get_output_filename(self.network_type)
+            outfile = self._get_output_filename(self.network_type, extension='csv')
+        assert '.csv' in outfile, 'Error: given filename does not have the correct extension (.csv)'
         self._matrix_interface.write_to_csv(outfile)
-        self.logger.info("Wrote file to %s", outfile)
+
+    def write_tmx(self, outfile=None):
+        '''
+        Write the transit matrix to tmx.
+
+        Note: Use this method (as opposed to write_csv) to 
+        save the transit matrix unless exporting data for 
+        external use.
+
+        Arguments:
+            outfile-optional string
+        '''
+        if not outfile:
+            outfile = self._get_output_filename(self.network_type, extension='tmx')
+        assert '.tmx' in outfile, 'Error: given filename does not have the correct extension (.tmx)'
+        self._matrix_interface.write_to_tmx(outfile)
 
     def prefetch_network(self):
         '''
