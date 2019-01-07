@@ -12,6 +12,11 @@ class CustomInstallCommand(install):
         os.chdir('spatial_access/src/protobuf')
         os.system('protoc --cpp_out=. p2p.proto')
         os.chdir('../../..')
+        print('******************************')
+        print('current directory:', os.getcwd())
+        print('contents of spatial_access/src/protobuf:', os.listdir('spatial_access/src/protobuf'))
+        print('first 10 lines of p2p.pb.cc:')
+        print(os.system('head spatial_access/src/protobuf/p2p.pb.cc'))
         if sys.platform == "darwin":
             pass
             #os.system('brew install spatialindex')
@@ -39,9 +44,6 @@ EXTENSION = distutils.extension.Extension(
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac + ['-lprotobuf']
     )
-print('*******')
-print('current directory:', os.getcwd())
-print('contents of spatial_access/src/protobuf:', os.listdir('spatial_access/src/protobuf'))
 EXT_MODULES=Cython.Build.cythonize([EXTENSION])
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
