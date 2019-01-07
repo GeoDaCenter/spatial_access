@@ -155,5 +155,3 @@ class TestClass():
         assert interface2.get(11, 14) == 8
         assert interface2.get(12, 13) == 20
         assert interface2.get(12, 14) == 14
-
-        assert True
