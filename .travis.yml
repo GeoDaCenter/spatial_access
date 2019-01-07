@@ -9,9 +9,9 @@ python:
 before install:
 - sudo apt install python3-rtree
 - pip3 install Cython
-- bash install-proto.sh
 
 install:
+- bash install-proto.sh
 - python3 setup.py install
 
 script:
