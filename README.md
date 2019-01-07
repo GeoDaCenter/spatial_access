@@ -48,7 +48,8 @@ If you are a Windows user, instructions for installing Ubuntu on a virtual machi
 ----
 1. Clone this directory
 2. Requirements: python3, pip3
-3. `sudo pip install .` (note the .)
+3. (On Linux) `bash install-proto.sh`
+4. `sudo pip install .` (note the .)
 
 PyPi Distribution will come soon.
 

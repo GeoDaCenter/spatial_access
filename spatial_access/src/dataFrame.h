@@ -17,12 +17,13 @@
 /* a pandas-like dataFrame */
 class dataFrame {
 private:
-    std::vector<unsigned short int> data;
+    //std::vector<unsigned short int> data;
     std::unordered_map <unsigned long int, unsigned long int> rows;
     std::unordered_map <unsigned long int, unsigned long int> cols;
 
-    std::vector<unsigned long int> row_labels;
-    std::vector<unsigned long int> col_labels;
+    //std::vector<unsigned long int> row_labels;
+    //std::vector<unsigned long int> col_labels;
+    p2p::dataFrame proto_data;
     std::unordered_set<unsigned long int> row_contents;
     std::unordered_set<unsigned long int> col_contents;
 
@@ -125,6 +126,7 @@ bool dataFrame::readTransitCSV(const std::string& infile)
 
 void dataFrame::printCols()
 {
+
     for (auto element : cols)
     {
         std::cout << element.first << std::endl;
@@ -149,14 +151,15 @@ void dataFrame::printDataFrame()
 {
 
     std::cout << ",";
-    for (auto col_label : col_labels)
+    for (auto col_index = 0; col_index < proto_data.col_label.size())
+    //for (unsigned long int col_label : proto_data.row_label)
     {
-        std::cout << col_label << ",";
+        std::cout << proto_data.col_label(col_index) << ",";
     }
     std::cout << std::endl;
     for (unsigned long int row_index = 0; row_index < n_rows; row_index++)
     {
-        std::cout << row_labels[row_index] << ",";
+        std::cout << proto_data.row_label(row_index) << ",";
         for (unsigned long int col_index = 0; col_index < n_cols; col_index++)
         {
             std::cout << this->retrieveLoc(row_index, col_index) << ","; 
@@ -193,16 +196,18 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
     unsigned long int row_id, col_id;
     for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
         row_id = primary_ids.at(row_idx);
+        proto_data.add_row_label(row_id);
         rows[row_id] = row_idx;
         row_contents.insert(row_id);
-        row_labels.push_back(row_id);
+        //row_labels.push_back(row_id);
     }
 
     for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
         col_id = secondary_ids.at(col_idx);
+        proto_data.add_col_label(col_id);
         cols[col_id] = col_idx;
         col_contents.insert(col_id);
-        col_labels.push_back(col_id);
+        //col_labels.push_back(col_id);
     }
 
     // determine the size of the flat array
@@ -214,11 +219,12 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
     {
         this->sizeOfData = n_rows * n_cols;
     }
-    this->data.reserve(this->sizeOfData);
-    for (unsigned long int i = 0; i < this->sizeOfData; i++)
-    {
-        this->data.push_back(UNDEFINED);
-    }
+    proto_data.mutable_data_cell()->Reserve(sizeOfData);
+    //this->data.reserve(this->sizeOfData);
+    //for (unsigned long int i = 0; i < this->sizeOfData; i++)
+    //{
+    //    this->data.push_back(UNDEFINED);
+    //}
 }
 
 
@@ -290,12 +296,16 @@ void dataFrame::insertLoc(unsigned short int val, unsigned long int row_loc, uns
     {
         if (col_loc >= row_loc)
         {
-            this->data.at(this->symmetricEquivalentLoc(row_loc, col_loc)) = val;
+            //this->data.at(this->symmetricEquivalentLoc(row_loc, col_loc)) = val;
+            auto index = this->symmetricEquivalentLoc(row_loc, col_loc);
+            this->proto_data.mutable_data_cell()[index] = val;
         }
     }
     else
     {
-        this->data.at(row_loc * n_cols + col_loc) = val;
+        //this->data.at(row_loc * n_cols + col_loc) = val;
+        auto index = row_loc * n_cols + col_loc;
+        this->proto_data.mutable_data_cell()[index] = val;
     }
 }
 
@@ -309,7 +319,7 @@ unsigned short int dataFrame::retrieve(unsigned long int row_id, unsigned long i
 }
 
 
-/* return the value by location. Respects return the converse if symmetric
+/* return the value by location. Return the converse if symmetric
  * and below the diagonal
  */
 unsigned short int dataFrame::retrieveLoc(unsigned long int row_loc, unsigned long int col_loc)
@@ -318,14 +328,21 @@ unsigned short int dataFrame::retrieveLoc(unsigned long int row_loc, unsigned lo
     {
         if (col_loc >= row_loc)
         {
-            return this->data.at(this->symmetricEquivalentLoc(row_loc, col_loc));
+            auto index = this->symmetricEquivalentLoc(row_loc, col_loc);
+            //return this->data.at(this->symmetricEquivalentLoc(row_loc, col_loc));
         }
         else
         {   
-            return this->data.at(this->symmetricEquivalentLoc(col_loc, row_loc));   
+            auto index = this->symmetricEquivalentLoc(col_loc, row_loc);
+            //return this->data.at(this->symmetricEquivalentLoc(col_loc, row_loc));   
         }
     }
-    return this->data.at(row_loc * n_cols + col_loc);
+    else
+    {
+        auto index = row_loc * n_cols + col_loc;
+    }
+    //return this->data.at(row_loc * n_cols + col_loc);
+    return this->proto_data.mutable_data_cell()->Get(index);
 }
 
 
@@ -362,25 +379,9 @@ unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned lo
 /* Write the dataFrame to a .tmx (a custom binary format) */
 bool dataFrame::writeTMX(const std::string &outfile)
 {
-    p2p::dataFrame df;
-    for (auto row_label : this->row_labels)
-    {
-        df.add_row_label(row_label);
-    }
-    for (auto col_label : this->col_labels)
-    {
-        df.add_col_label(col_label);
-    }
-    for (unsigned long int i = 0; i < n_rows; i++)
-    {
-        auto new_row = df.add_row();
-        for (unsigned long int j = 0; j < n_cols; j++)
-        {
-            new_row->add_column(this->retrieveLoc(i, j));
-        }
-    }
+    
     std::fstream output(outfile, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!df.SerializeToOstream(&output)) {
+    if (!proto_data.SerializeToOstream(&output)) {
         std::cerr << "Failed to write .tmx" << std::endl;
         return false;
     }
@@ -393,10 +394,9 @@ bool dataFrame::writeTMX(const std::string &outfile)
 /* Read the dataFrame from a .tmx (a custom binary format) */
 bool dataFrame::readTMX(const std::string& infile)
 {
-    p2p::dataFrame df;
     std::fstream inputFile(infile, std::ios::in | std::ios::binary);
 
-    if (!df.ParseFromIstream(&inputFile)) {
+    if (!proto_data.ParseFromIstream(&inputFile)) {
         std::cerr << "Failed to load .tmx" << std::endl;
         return false;
     }    

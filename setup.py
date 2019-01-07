@@ -9,9 +9,12 @@ except:
 class CustomInstallCommand(install):
     """Customized setuptools install command"""
     def run(self):
-        os.chdir('spatial_access/src/protobuf')
-        os.system('protoc --cpp_out=. p2p.proto')
-        os.chdir('../../..')
+        try:
+            os.chdir('spatial_access/src/protobuf')
+            os.system('protoc --cpp_out=. p2p.proto')
+            os.chdir('../../..')
+        except:
+            raise Exception('Error compiling p2p.proto. Make sure protobuf2 is installed and compiled.')
         if sys.platform == "darwin":
             pass
             #os.system('brew install spatialindex')
