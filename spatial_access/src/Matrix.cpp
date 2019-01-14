@@ -17,14 +17,15 @@ int main()
     matrix.addToUserSourceDataContainer(4, 12, 3, true);
     matrix.addToUserSourceDataContainer(1, 13, 7, true);
 
-    // matrix.userDestDataContainer.print();
-
     matrix.compute(1);
-    // matrix.writeCSV("outfile.csv");
+    matrix.writeCSV("outfile.csv");
+    // matrix.writeTMX("outfile.tmx"); 
+    std::cout << "df1:" << std::endl;
     matrix.printDataFrame();
 
-    // lmnoel::transitMatrix matrix("example_Data/example_transit.csv");
-    // matrix.printDataFrame();
+    lmnoel::transitMatrix matrix2("outfile.csv");
+    std::cout << "df2:" << std::endl;
+    matrix2.printDataFrame();
 
     return 0;
 }

@@ -9,7 +9,7 @@ cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
 cdef extern from "src/transitMatrix.h" namespace "lmnoel":
 
     cdef cppclass transitMatrix:
-        transitMatrix(string, bool isSymmetric) except +
+        transitMatrix(string) except +
         transitMatrix(int, bool isSymmetric) except +
         void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
         void addToUserDestDataContainer(int, unsigned long int, int) except +
@@ -28,7 +28,7 @@ cdef class pyTransitMatrix:
             self.thisptr = new transitMatrix(vertices, isSymmetric)
         else:
 
-            self.thisptr = new transitMatrix(infile, isSymmetric)
+            self.thisptr = new transitMatrix(infile)
 
     def __dealloc__(self):
         del self.thisptr

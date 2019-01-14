@@ -80,7 +80,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
             auto destPoints = destTract.retrieveDataPoints();
             for (auto destDataPoint : destPoints)
             {
-                if (wa->df.isSymmetric)
+                if (wa->df.isSymmetric())
                 {
                     if (wa->df.getRowIndexLoc(sourceDataPoint.id) > wa->df.getColIndexLoc(destDataPoint.id))
                     {
@@ -88,7 +88,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
                     }
                 }
                 calc_imp = dist.at(destNodeId);
-                if ((wa->df.isSymmetric) && (destDataPoint.id == sourceDataPoint.id))
+                if ((wa->df.isSymmetric()) && (destDataPoint.id == sourceDataPoint.id))
                 {
                     fin_imp = 0;
                 }
@@ -206,7 +206,6 @@ public:
     void addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V, bool isSymmetric);
-    transitMatrix(const std::string &infile, bool isSymmetric);
     transitMatrix(const std::string &infile);
     void compute(int numThreads);
     transitMatrix(void);
@@ -277,28 +276,16 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
     }
 }
 
-
-transitMatrix::transitMatrix(const std::string &infile)
+transitMatrix::transitMatrix(const std::string &infile) 
 {
-    this->isSymmetric = true;
-
-    if (!df.readTransitCSV(infile)) 
-    {
-        throw std::runtime_error("failed to load dataFrame from file");
-    }
-
-}
-
-transitMatrix::transitMatrix(const std::string &infile, bool isSymmetric) 
-{
-    this->isSymmetric = isSymmetric;
-    this->df.setSymmetric(isSymmetric);
     if (infile.find(".tmx") != std::string::npos)
     {
         if (!df.readTMX(infile)) 
         {
             throw std::runtime_error("failed to load dataFrame from file");
         }
+        // set the transitMatrix's symmetric boolean based on tmx file
+        this->isSymmetric = df.isSymmetric();
     }
     else if (infile.find(".csv") != std::string::npos)
     {
@@ -306,6 +293,9 @@ transitMatrix::transitMatrix(const std::string &infile, bool isSymmetric)
         {
             throw std::runtime_error("failed to load dataFrame from file");
         }
+        // assume dataFrame read from csv is not symmetric because it has
+        // no metadata
+        this->isSymmetric = false;
     }
     else
     {
