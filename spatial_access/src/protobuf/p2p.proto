@@ -2,9 +2,22 @@ syntax = "proto2";
 
 package p2p;
 
+message label {
+	optional int64 int_label = 1;
+	optional string string_label = 2;
+}
+
 message  dataFrame {
-    repeated int64 row_label = 1;
-    repeated int64 col_label = 2;
+    repeated label row_label = 1;
+    repeated label col_label = 2;
     repeated int32 data_cell = 3;
+
+    enum labelType {
+	   	STRING = 1;
+	   	INT = 2;
+	}
+
+    required labelType row_label_type = 4;
+    required labelType col_label_type = 5;
 }
 

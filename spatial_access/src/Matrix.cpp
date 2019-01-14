@@ -17,10 +17,10 @@ int main()
     matrix.addToUserSourceDataContainer(4, 12, 3, true);
     matrix.addToUserSourceDataContainer(1, 13, 7, true);
 
-    matrix.userDestDataContainer.print();
+    // matrix.userDestDataContainer.print();
 
     matrix.compute(1);
-    matrix.writeCSV("outfile.csv");
+    // matrix.writeCSV("outfile.csv");
     matrix.printDataFrame();
 
     // lmnoel::transitMatrix matrix("example_Data/example_transit.csv");
