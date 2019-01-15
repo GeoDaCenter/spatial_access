@@ -19,15 +19,14 @@ class dataFrame {
 private:
 
     // TODO: Eliminate redundancy with templates
-    std::unordered_map <unsigned long int, unsigned long int> row_id_map_int;
-    std::unordered_map <unsigned long int, unsigned long int> col_id_map_int;
-    std::unordered_map <std::string, unsigned long int> row_id_map_string;
-    std::unordered_map <std::string, unsigned long int> col_id_map_string;
+    std::unordered_map <unsigned long int, p2p::dataFrame> row_id_map_int;
+    std::unordered_map <std::string, p2p::dataFrame> row_id_map_string;
 
-    p2p::dataFrame proto_data;
+    // Map the column id to a location in an array
+    std::unordered_map<unsigned long int, unsigned long int> col_id_int_to_loc;
+    std::unordered_map<std::string, unsigned long int> col_id_string_to_loc;
 
-    unsigned long int n_rows;
-    unsigned long int n_cols;
+    p2p::metaData;
 
 public:
     unsigned long int sizeOfData;
@@ -96,102 +95,131 @@ void dataFrame::initializeSizeOfData()
     }
 }
 
-void dataFrame::initializeDataCells()
+// void dataFrame::initializeDataCells()
+// {
+//     proto_data.mutable_data_cell()->Resize(sizeOfData, UNDEFINED);
+// }
+
+unsigned short int retrieveValue(unsigned long int row_id, unsigned long int col_id)
 {
-    proto_data.mutable_data_cell()->Resize(sizeOfData, UNDEFINED);
+    if (metaData.isSymmetric() and this->isUnderDiagonal())
+    {
+        auto rowData = row_id_map_int.at(col_id);
+        auto col_loc = col_id_int_to_loc[row_id];
+        return rowData.value(col_loc);
+    } else
+    {
+        auto rowData = row_id_map_int.at(row_id);
+        auto col_loc = col_id_int_to_loc[col_id];
+        return rowData.value(col_loc);
+    }
 }
 
 /* reserve a data frame according to the given indeces */
 void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids) 
 {
-    n_rows = primary_ids.size();
-    n_cols = secondary_ids.size();
-
-    // preallocate row index structures
-    for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-        proto_data.add_row_label_int(primary_ids.at(row_idx));
-        row_id_map_int[primary_ids.at(row_idx)] = row_idx;
+    // initialize metaData
+    for (auto row_id : primary_ids)
+    {
+        metaData.add_row_label_string(row_id);
     }
 
-    // preallocate col index structures
-    for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-        proto_data.add_col_label_int(secondary_ids.at(col_idx));
-        col_id_map_int[secondary_ids.at(col_idx)] = col_idx;
+    // build col_id -> col_loc map
+    for (unsigned long int col_loc = 0; col_loc < secondary_ids.size(); col_loc++)
+    {
+        metaData.add_col_label_string(secondary_ids.at(col_loc));
+        col_id_int_to_loc[col_loc] = secondary_ids.at(col_loc);
     }
 
-    proto_data.set_row_label_type(p2p::dataFrame::INT);
-    proto_data.set_col_label_type(p2p::dataFrame::INT);
+    // preallocate row map row_id -> dataRow
+    auto numberOfRows = primary_ids.size();
+    auto numberOfCols = secondary_ids.size();
+    for (unsigned long int row_idx = 0; row_idx < numberOfRows; row_idx++) {
+        row_id_map_int[primary_ids.at(row_idx)] = p2p::dataFrame;
 
-    initializeSizeOfData();
-    initializeDataCells();
+        // if the dataFrame is symmetric, the size of each dataRow depends on
+        // the current row
+        if (metaData.isSymmetric())
+        {
+            auto columnsToAllocate = numberOfCols - row_idx;    
+        }
+        else
+        {
+            auto columnsToAllocate = numberOfCols;
+        }
+        row_id_map_int[primary_ids.at(row_idx)]->mutable_value()->Resize(columnsToAllocate, UNDEFINED);
+    }
+
+    metaData.set_row_label_type(p2p::dataFrame::INT);
+    metaData.set_col_label_type(p2p::dataFrame::INT);
 }
 
-void dataFrame::reserve(const std::vector<std::string> &primary_ids, const std::vector<std::string> &secondary_ids)
-{
-    n_rows = primary_ids.size();
-    n_cols = secondary_ids.size();
+// void dataFrame::reserve(const std::vector<std::string> &primary_ids, const std::vector<std::string> &secondary_ids)
+// {
+//     n_rows = primary_ids.size();
+//     n_cols = secondary_ids.size();
 
-    // preallocate row index structures
-    for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-        proto_data.add_row_label_string(primary_ids.at(row_idx));
-        row_id_map_string[primary_ids.at(row_idx)] = row_idx;
-    }
+//     // preallocate row index structures
+//     for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
+//         proto_data.add_row_label_string(primary_ids.at(row_idx));
+//         row_id_map_string[primary_ids.at(row_idx)] = row_idx;
+//     }
 
-    // preallocate col index structures
-    for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-        proto_data.add_col_label_string(secondary_ids.at(col_idx));
-        col_id_map_string[secondary_ids.at(col_idx)] = col_idx;
-    }
+//     // preallocate col index structures
+//     for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
+//         proto_data.add_col_label_string(secondary_ids.at(col_idx));
+//         col_id_map_string[secondary_ids.at(col_idx)] = col_idx;
+//     }
 
-    proto_data.set_row_label_type(p2p::dataFrame::STRING);
-    proto_data.set_col_label_type(p2p::dataFrame::STRING);
+//     proto_data.set_row_label_type(p2p::dataFrame::STRING);
+//     proto_data.set_col_label_type(p2p::dataFrame::STRING);
 
-    initializeSizeOfData();
-    initializeDataCells();
-}
+//     initializeSizeOfData();
+//     initializeDataCells();
+// }
 
 // Similar to reserve but used when a .tmx is loaded from file,
 // so only the dataFrame's additional index structures need to
 // be loaded
-void dataFrame::reserveIndexStructures()
-{
-    initializeSizeOfData();
-    if (proto_data.row_label_type() == p2p::dataFrame::STRING)
-    {
-        // preallocate row index structures
-        for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-            row_id_map_string[proto_data.row_label_string(row_idx)] = row_idx;
-        }
+// void dataFrame::reserveIndexStructures()
+// {
+//     initializeSizeOfData();
+//     if (proto_data.row_label_type() == p2p::dataFrame::STRING)
+//     {
+//         // preallocate row index structures
+//         for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
+//             row_id_map_string[proto_data.row_label_string(row_idx)] = row_idx;
+//         }
 
-        // preallocate col index structures
-        for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-            col_id_map_string[proto_data.col_label_string(col_idx)] = col_idx;
-        }
-    } else
-    {
-        // preallocate row index structures
-        for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-            row_id_map_int[proto_data.row_label_int(row_idx)] = row_idx;
-        }
+//         // preallocate col index structures
+//         for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
+//             col_id_map_string[proto_data.col_label_string(col_idx)] = col_idx;
+//         }
+//     } else
+//     {
+//         // preallocate row index structures
+//         for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
+//             row_id_map_int[proto_data.row_label_int(row_idx)] = row_idx;
+//         }
 
-        // preallocate col index structures
-        for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-            col_id_map_int[proto_data.col_label_int(col_idx)] = col_idx;
-        }
-    }
-}
+//         // preallocate col index structures
+//         for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
+//             col_id_map_int[proto_data.col_label_int(col_idx)] = col_idx;
+//         }
+//     }
+// }
 
 // Getters and Setters:
 
-void dataFrame::setSymmetric(bool isSymmetric)
-{
-    proto_data.set_is_symmetric(isSymmetric);
-}
+// void dataFrame::setSymmetric(bool isSymmetric)
+// {
+//     proto_data.set_is_symmetric(isSymmetric);
+// }
 
-bool dataFrame::isSymmetric()
-{
-    return proto_data.is_symmetric();
-}
+// bool dataFrame::isSymmetric()
+// {
+//     return proto_data.is_symmetric();
+// }
 
 unsigned long int dataFrame::getRowIndexLoc(unsigned long int row_index)
 {
@@ -446,7 +474,7 @@ bool dataFrame::writeTMX(const std::string &outfile)
     }
     output.close();
     return true;
-
+    std::cout << "finished writing tmx" << std::endl;
 }
 
 

@@ -2,20 +2,24 @@ syntax = "proto2";
 
 package p2p;
 
-message  dataFrame {
-    repeated int64 row_label_int = 1;
-    repeated string row_label_string = 2;
-    repeated int64 col_label_int = 3;
-    repeated string col_label_string = 4;
-    repeated int32 data_cell = 5;
+message metaData {
 
-    enum labelType {
+	required bool isSymmetric = 1;
+	enum labelType {
 	   	STRING = 1;
 	   	INT = 2;
 	}
+	required labelType row_label_type = 2;
+	required labelType col_label_type = 3;
+	repeated string row_label_string = 4;
+	repeated int64 row_label_int = 5;
+	repeated string col_label_string = 6;
+	repeated int64 col_label_int = 7;
+}
 
-    required labelType row_label_type = 6;
-    required labelType col_label_type = 7;
-    required bool is_symmetric = 8;
+message  dataRow {
+	required row_label_string = 1;
+	required row_label_int = 2;
+    repeated int32 value = 3;
 }
 

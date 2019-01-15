@@ -110,11 +110,11 @@ class MatrixInterface():
             logger_vars = time.time() - start_time
             if self.logger:
                 self.logger.info(
-                'Shortest path matrix loaded from disk in {:,.2f} seconds', logger_vars)
+                'Shortest path matrix loaded from disk in {:,.2f} seconds'.format(logger_vars))
             return
         except BaseException as exception:
             if self.logger:
-                self.logger.error('Unable to load matrix from file: %s', exception)
+                self.logger.error('Unable to load matrix from file: {}'.format(exception))
             sys.exit()
 
     def read_from_csv(self, infile, isSymmetric=False):
