@@ -308,6 +308,7 @@ bool dataFrame::isUnderDiagonal(const std::string& row_id, const std::string& co
 bool dataFrame::writeMetadata(const std::string &outfile)
 {
     std::string filename = outfile + "/meta";
+    std::cerr << "writing meta to:" << filename << std::endl;
     std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
     if (!metaData.SerializeToOstream(&output)) {
         std::cerr << "Failed to write to " << filename << std::endl;
@@ -415,7 +416,7 @@ bool dataFrame::readTMX(const std::string& infile)
     if (metaData.row_label_type() == p2p::metaData::STRING)
     {
         // build col_id -> col_loc map
-        for (unsigned long int col_loc = 0; col_loc < metaData.col_label_string_size(); col_loc++)
+        for (signed long int col_loc = 0; col_loc < metaData.col_label_string_size(); col_loc++)
         {
             col_id_string_to_loc[metaData.col_label_string(col_loc)] = col_loc;
         }
@@ -428,7 +429,7 @@ bool dataFrame::readTMX(const std::string& infile)
     else
     {
         // build col_id -> col_loc map
-        for (unsigned long int col_loc = 0; col_loc < metaData.col_label_int_size(); col_loc++)
+        for (signed long int col_loc = 0; col_loc < metaData.col_label_int_size(); col_loc++)
         {
             col_id_int_to_loc[metaData.col_label_int(col_loc)] = col_loc;
         }
@@ -507,6 +508,7 @@ void dataFrame::printDataFrame()
 
 /* Read the dataFrame from a .csv */
 bool dataFrame::readCSV(const std::string &infile) {
+    std::cout << "entered readCSV" << std::endl;
     // std::ifstream fileINA, fileINB;
     // fileINA.open(infile);
     // if (fileINA.fail()) {

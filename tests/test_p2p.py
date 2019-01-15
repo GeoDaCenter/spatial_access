@@ -195,9 +195,9 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        transit_matrix_1.write_tmx('tests/test_13_file.tmx')
+        transit_matrix_1.write_tmx('tests/test_13_file')
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_file='tests/test_13_file.tmx')
+        transit_matrix_2 = TransitMatrix('bike', read_from_file='tests/test_13_file')
 
         assert True
 
@@ -211,8 +211,8 @@ class TestClass():
             secondary_input='tests/test_data/sources.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        transit_matrix_1.write_tmx('tests/test_14_file.tmx')
+        transit_matrix_1.write_tmx('tests/test_14_file')
 
-        transit_matrix_2 = TransitMatrix('walk', read_from_file='tests/test_14_file.tmx')
+        transit_matrix_2 = TransitMatrix('walk', read_from_file='tests/test_14_file')
 
         assert True

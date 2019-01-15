@@ -4,6 +4,7 @@ Abstract interface for the c++ implementation of a matrix.
 import multiprocessing
 import time
 import sys
+import os
 try:
     from transitMatrixAdapter import pyTransitMatrix
 except BaseException:
@@ -150,10 +151,13 @@ class MatrixInterface():
         '''
         Write the data frame to tmx
         '''
+        if not os.path.exists(outfile):
+            os.mkdir(outfile)
         start = time.time()
         self.transit_matrix.writeTMX(bytes(outfile, 'utf-8'))
         if self.logger:
             self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
+        
 
     def build_matrix(self, thread_limit=None):
         '''

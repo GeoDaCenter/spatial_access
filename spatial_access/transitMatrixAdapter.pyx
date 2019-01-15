@@ -27,7 +27,6 @@ cdef class pyTransitMatrix:
         if vertices > 0:
             self.thisptr = new transitMatrix(vertices, isSymmetric)
         else:
-
             self.thisptr = new transitMatrix(infile)
 
     def __dealloc__(self):

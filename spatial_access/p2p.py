@@ -96,11 +96,18 @@ class TransitMatrix():
         '''
         if not os.path.exists("data/matrices/"):
             os.makedirs("data/matrices/")
-        filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
+        if extension is None:
+            filename = 'data/matrices/{}_0'.format(keyword)
+        else:
+            filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
-            filename = 'data/matrices/{}_{}.{}'.format(
-                keyword, counter, extension)
+            if extension is None:
+                filename = 'data/matrices/{}_{}'.format(
+                keyword, counter)
+            else:    
+                filename = 'data/matrices/{}_{}.{}'.format(
+                    keyword, counter, extension)
             counter += 1
 
         return filename
@@ -365,8 +372,8 @@ class TransitMatrix():
             outfile-optional string
         '''
         if not outfile:
-            outfile = self._get_output_filename(self.network_type, extension='tmx')
-        assert '.tmx' in outfile, 'Error: given filename does not have the correct extension (.tmx)'
+            outfile = self._get_output_filename(self.network_type, extension=None)
+        assert '.' not in outfile, 'Error: output filename must be a directory'
         self._matrix_interface.write_to_tmx(outfile)
 
     def prefetch_network(self):
