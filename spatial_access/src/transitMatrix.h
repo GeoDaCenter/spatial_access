@@ -278,7 +278,7 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
 
 transitMatrix::transitMatrix(const std::string &infile) 
 {
-    if (infile.find(".csv") == std::string::npos)
+    if (infile.find(".csv") != std::string::npos)
     {
         if (!df.readCSV(infile)) 
         {

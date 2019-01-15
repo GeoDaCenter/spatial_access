@@ -18,12 +18,12 @@ int main()
     matrix.addToUserSourceDataContainer(1, 13, 7, true);
 
     matrix.compute(1);
-    // matrix.writeCSV("outfile.csv");
-    matrix.writeTMX("outfile1"); 
+    matrix.writeCSV("outfile.csv");
+    // matrix.writeTMX("outfile1"); 
     std::cout << "df1:" << std::endl;
     matrix.printDataFrame();
 
-    lmnoel::transitMatrix matrix2("outfile1");
+    lmnoel::transitMatrix matrix2("outfile.csv");
     std::cout << "df2:" << std::endl;
     matrix2.printDataFrame();
 

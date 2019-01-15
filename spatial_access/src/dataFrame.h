@@ -308,7 +308,6 @@ bool dataFrame::isUnderDiagonal(const std::string& row_id, const std::string& co
 bool dataFrame::writeMetadata(const std::string &outfile)
 {
     std::string filename = outfile + "/meta";
-    std::cerr << "writing meta to:" << filename << std::endl;
     std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
     if (!metaData.SerializeToOstream(&output)) {
         std::cerr << "Failed to write to " << filename << std::endl;
@@ -507,84 +506,95 @@ void dataFrame::printDataFrame()
 } 
 
 /* Read the dataFrame from a .csv */
-bool dataFrame::readCSV(const std::string &infile) {
-    std::cout << "entered readCSV" << std::endl;
-    // std::ifstream fileINA, fileINB;
-    // fileINA.open(infile);
-    // if (fileINA.fail()) {
-    //     return false;
-    // }
-    // std::vector<unsigned long int> infileColLabels;
-    // std::vector<unsigned long int> infileRowLabels;
-    // std::string line;
-    // n_rows = 0, n_cols = 0;
-    // bool first_row = true;
+bool dataFrame::readCSV(const std::string &infile) 
+{
+    std::ifstream fileINA, fileINB;
+    fileINA.open(infile);
+    if (fileINA.fail()) {
+        return false;
+    }
+    std::vector<unsigned long int> infileColLabels;
+    std::vector<unsigned long int> infileRowLabels;
+    std::string line;
+    bool first_row = true;
 
-    // // first pass through to allocate matrix and load
-    // // columns/rows
-    // while (getline(fileINA, line)) {
-    //     std::istringstream stream(line);
-    //     if (first_row) {
-    //         first_row = false;
-    //         std::string tmp_col_id;
-    //         unsigned long int col_id;
-    //         n_cols = 0;
-    //         bool first_col = true;
-    //         while (getline(stream, tmp_col_id, ',')) {
-    //             if (first_col) {
+    // first pass through to allocate matrix and load
+    // columns/rows
+    while (getline(fileINA, line)) {
+        std::istringstream stream(line);
+        if (first_row) {
+            first_row = false;
+            std::string tmp_col_id;
+            unsigned long int col_id;
+            n_cols = 0;
+            bool first_col = true;
+            while (getline(stream, tmp_col_id, ',')) {
+                if (first_col) {
 
-    //                 first_col = false;
-    //             } else {
-    //                 col_id = stoul(tmp_col_id);
-    //                 infileColLabels.push_back(col_id);
-    //             }
-    //         }
-    //     } else {
-    //         std::string tmp_row_id;
-    //         unsigned long int row_id;
-    //         getline(stream, tmp_row_id,',');
-    //         if (!tmp_row_id.size())
-    //         {
-    //             break;
-    //         }
-    //         row_id = stoul(tmp_row_id);
-    //         infileRowLabels.push_back(row_id);
+                    first_col = false;
+                } else {
+                    col_id = stoul(tmp_col_id);
+                    infileColLabels.push_back(col_id);
+                }
+            }
+        } else {
+            std::string tmp_row_id;
+            unsigned long int row_id;
+            getline(stream, tmp_row_id,',');
+            if (!tmp_row_id.size())
+            {
+                break;
+            }
+            row_id = stoul(tmp_row_id);
+            infileRowLabels.push_back(row_id);
             
-    //     }
-    // }
-    // reserve(infileRowLabels, infileColLabels);
+        }
+    }
+    setSymmetric(false);
+    reserve(infileRowLabels, infileColLabels);
+    metaData.set_col_label_type(p2p::metaData::INT);
+    metaData.set_row_label_type(p2p::metaData::INT);
 
-    // fileINA.close();
+    fileINA.close();
 
-    // fileINB.open(infile);
-    // if (fileINB.fail()) {
-    //     return false;
-    // }
-    // int row_counter = 0;
-    // unsigned short int value;
-    // first_row = true;
-    // while (getline(fileINB, line)) {
-    //     std::istringstream stream(line);
-    //     if (first_row) {
-    //         first_row = false;
-    //         continue;
-    //     }
-    //     std::string row_id, input;
-    //     int col_counter = 0;
-    //     bool first_col = true;
-    //     while (getline(stream, input, ',')) {
-    //         if (first_col) {
-    //             first_col = false;
-    //             row_id = stoul(input);
-    //         } else {
-    //             value = stoul(input);
-    //             insertLoc(value, row_counter, col_counter);
-    //             col_counter++;
-    //         }
-    //     }
-    //     row_counter++;
-    // }
-    // fileINB.close();
+    fileINB.open(infile);
+    if (fileINB.fail()) {
+        return false;
+    }
+    int row_counter = 0;
+    unsigned short int value;
+    first_row = true;
+    while (getline(fileINB, line)) {
+        std::istringstream stream(line);
+        if (first_row) {
+            first_row = false;
+            continue;
+        }
+        std::string input;
+        unsigned long int row_id;
+        int col_counter = 0;
+        bool first_col = true;
+        while (getline(stream, input, ',')) {
+            if (first_col) {
+                first_col = false;
+                row_id = stoul(input);
+            } else {
+                value = stoul(input);
+                if (metaData.row_label_type() == p2p::metaData::INT)
+                {
+                    unsigned long int col_id = infileColLabels.at(col_counter);
+                    insertValue(value, row_id, col_id);
+                }
+                else
+                {
+                    throw std::runtime_error("not yet implemented");
+                }
+                col_counter++;
+            }
+        }
+        row_counter++;
+    }
+    fileINB.close();
     return true;
 
 }

@@ -107,7 +107,6 @@ class TestClass():
 
         interface2 = MatrixInterface()
         interface2.read_from_csv('test_outfile_2.csv')
-        #os.remove('test_outfile_2.csv')
 
         assert interface2.get(11, 11) == 0
         assert interface2.get(11, 14) == 8    
@@ -145,11 +144,11 @@ class TestClass():
         assert interface.get(12, 13) == 20
         assert interface.get(12, 14) == 14
 
-        interface.write_to_tmx("test_outfile_1.tmx");
+        interface.write_to_tmx("test_outfile_1");
 
         interface2 = MatrixInterface()
-        interface2.read_from_tmx("test_outfile_1.tmx")
-        os.remove('test_outfile_1.tmx')
+        interface2.read_from_tmx("test_outfile_1")
+
 
         assert interface2.get(11, 13) == 14
         assert interface2.get(11, 14) == 8
