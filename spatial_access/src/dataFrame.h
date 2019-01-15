@@ -9,6 +9,7 @@
 #include <vector>
 #include <cmath>
 #include <utility>
+#include <sys/stat.h>
 
 #include "protobuf/p2p.pb.h"
 
@@ -19,14 +20,14 @@ class dataFrame {
 private:
 
     // TODO: Eliminate redundancy with templates
-    std::unordered_map <unsigned long int, p2p::dataFrame> row_id_map_int;
-    std::unordered_map <std::string, p2p::dataFrame> row_id_map_string;
+    std::unordered_map <unsigned long int, p2p::dataRow> row_id_map_int;
+    std::unordered_map <std::string, p2p::dataRow> row_id_map_string;
 
     // Map the column id to a location in an array
     std::unordered_map<unsigned long int, unsigned long int> col_id_int_to_loc;
     std::unordered_map<std::string, unsigned long int> col_id_string_to_loc;
 
-    p2p::metaData;
+    p2p::metaData metaData;
 
 public:
     unsigned long int sizeOfData;
@@ -35,44 +36,39 @@ public:
     dataFrame();
     void reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids);
     void reserve(const std::vector<std::string> &primary_ids, const std::vector<std::string> &secondary_ids);
-    void initializeDataCells();
-    void initializeSizeOfData();
-    void reserveIndexStructures();
-
+    
     // Getters and Setters:
-    void setSymmetric(bool isSymmetric);
+    unsigned short int retrieveValue(unsigned long int row_id, unsigned long int col_id);
+    unsigned short int retrieveValue(const std::string& row_id, const std::string& col_id);
+    void insertValue(unsigned short int value, unsigned long int row_id, unsigned long int col_id);
+    void insertValue(unsigned short int value, const std::string& row_id, const std::string& col_id);
     bool isSymmetric();
-    void insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
-    void insert(unsigned short int val, std::string row_id, std::string col_id);
-    void insertSafe(unsigned short int val, unsigned long int row_id, unsigned long int col_id);
-    void insertSafe(unsigned short int val, std::string row_id, std::string col_id);
+    void setSymmetric(bool isSymmetric);
     void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
-    void insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, std::string source_id);
-    void insertLoc(unsigned short int val, unsigned long int row_loc, unsigned long int col_loc);
-    unsigned short int retrieve(unsigned long int row_id, unsigned long int col_id);
-    unsigned short int retrieve(std::string, std::string);
-    unsigned short int retrieveLoc(unsigned long int row_loc, unsigned long int col_loc);
-    unsigned short int retrieveSafe(unsigned long int row_id, unsigned long int col_id);
-    unsigned short int retrieveSafe(std::string row_id, std::string col_id);
-    bool validKey(unsigned long int row_id, unsigned long int col_id);
-    bool validKey(std::string row_id, std::string col_id);
-    unsigned long int symmetricEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc);
-    unsigned long int getRowIndexLoc(unsigned long int row_index);
-    unsigned long int getRowIndexLoc(std::string row_index);
-    unsigned long int getColIndexLoc(unsigned long int col_index);
-    unsigned long int getColIndexLoc(std::string col_index);
+    void insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, const std::string& source_id);
 
     // Input/Output:
     bool readCSV(const std::string &infile);
     bool readTMX(const std::string &infile);
     bool writeCSV(const std::string &outfile);
     bool writeTMX(const std::string &outfile);
+    bool writeMetadata(const std::string &outfile);
+    bool writeRowdata(const std::string &outfile, unsigned long int row_id);
+    bool writeRowdata(const std::string &outfile, const std::string &row_id);
+    bool readMetadata(const std::string &outfile);
+    bool readRowdata(const std::string &outfile, unsigned long int row_id);
+    bool readRowdata(const std::string &outfile, const std::string &row_id);
     void printDataFrame();
     bool readTransitCSV(const std::string& infile);
+
+    // Utility
+    bool isUnderDiagonal(unsigned long int row_id, unsigned long int col_id);
+    bool isUnderDiagonal(const std::string& row_id, const std::string& col_id);
 
 private:
     // Input/Output
     bool writeToStream(std::ostream& streamToWrite);
+
 };
 
 // Initialization:
@@ -82,41 +78,47 @@ dataFrame::dataFrame()
 {
 }
 
-void dataFrame::initializeSizeOfData()
+/* reserve a data frame according to the given indeces */
+void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids) 
 {
-    // determine the size of the flat array
-    if (proto_data.is_symmetric())
+    // initialize metaData
+    for (auto row_id : primary_ids)
     {
-        this->sizeOfData = n_rows * (n_rows + 1) / 2;
+        metaData.add_row_label_int(row_id);
     }
-    else
-    {
-        this->sizeOfData = n_rows * n_cols;
-    }
-}
 
-// void dataFrame::initializeDataCells()
-// {
-//     proto_data.mutable_data_cell()->Resize(sizeOfData, UNDEFINED);
-// }
-
-unsigned short int retrieveValue(unsigned long int row_id, unsigned long int col_id)
-{
-    if (metaData.isSymmetric() and this->isUnderDiagonal())
+    // build col_id -> col_loc map
+    for (unsigned long int col_loc = 0; col_loc < secondary_ids.size(); col_loc++)
     {
-        auto rowData = row_id_map_int.at(col_id);
-        auto col_loc = col_id_int_to_loc[row_id];
-        return rowData.value(col_loc);
-    } else
-    {
-        auto rowData = row_id_map_int.at(row_id);
-        auto col_loc = col_id_int_to_loc[col_id];
-        return rowData.value(col_loc);
+        metaData.add_col_label_int(secondary_ids.at(col_loc));
+        col_id_int_to_loc[secondary_ids.at(col_loc)] = col_loc;
     }
+
+    // preallocate row map row_id -> dataRow
+    auto numberOfRows = primary_ids.size();
+    auto numberOfCols = secondary_ids.size();
+    for (unsigned long int row_idx = 0; row_idx < numberOfRows; row_idx++) {
+
+        // if the dataFrame is symmetric, the size of each dataRow depends on
+        // the current row
+        if (metaData.is_symmetric())
+        {
+            auto columnsToAllocate = numberOfCols - row_idx;
+            row_id_map_int[primary_ids.at(row_idx)].mutable_value()->Resize(columnsToAllocate, UNDEFINED);    
+        }
+        else
+        {
+            row_id_map_int[primary_ids.at(row_idx)].mutable_value()->Resize(numberOfCols, UNDEFINED);
+        }
+        
+    }
+
+    metaData.set_row_label_type(p2p::metaData::INT);
+    metaData.set_col_label_type(p2p::metaData::INT);
 }
 
 /* reserve a data frame according to the given indeces */
-void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids) 
+void dataFrame::reserve(const std::vector<std::string> &primary_ids, const std::vector<std::string> &secondary_ids) 
 {
     // initialize metaData
     for (auto row_id : primary_ids)
@@ -128,384 +130,313 @@ void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const
     for (unsigned long int col_loc = 0; col_loc < secondary_ids.size(); col_loc++)
     {
         metaData.add_col_label_string(secondary_ids.at(col_loc));
-        col_id_int_to_loc[col_loc] = secondary_ids.at(col_loc);
+        col_id_string_to_loc[secondary_ids.at(col_loc)] = col_loc;
     }
 
     // preallocate row map row_id -> dataRow
     auto numberOfRows = primary_ids.size();
     auto numberOfCols = secondary_ids.size();
     for (unsigned long int row_idx = 0; row_idx < numberOfRows; row_idx++) {
-        row_id_map_int[primary_ids.at(row_idx)] = p2p::dataFrame;
 
         // if the dataFrame is symmetric, the size of each dataRow depends on
         // the current row
-        if (metaData.isSymmetric())
+        if (metaData.is_symmetric())
         {
-            auto columnsToAllocate = numberOfCols - row_idx;    
+            auto columnsToAllocate = numberOfCols - row_idx;
+            row_id_map_string[primary_ids.at(row_idx)].mutable_value()->Resize(columnsToAllocate, UNDEFINED);    
         }
         else
         {
-            auto columnsToAllocate = numberOfCols;
+            row_id_map_string[primary_ids.at(row_idx)].mutable_value()->Resize(numberOfCols, UNDEFINED);
         }
-        row_id_map_int[primary_ids.at(row_idx)]->mutable_value()->Resize(columnsToAllocate, UNDEFINED);
+        
     }
 
-    metaData.set_row_label_type(p2p::dataFrame::INT);
-    metaData.set_col_label_type(p2p::dataFrame::INT);
+    metaData.set_row_label_type(p2p::metaData::STRING);
+    metaData.set_col_label_type(p2p::metaData::STRING);
 }
 
-// void dataFrame::reserve(const std::vector<std::string> &primary_ids, const std::vector<std::string> &secondary_ids)
-// {
-//     n_rows = primary_ids.size();
-//     n_cols = secondary_ids.size();
+// Getters/Setters
 
-//     // preallocate row index structures
-//     for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-//         proto_data.add_row_label_string(primary_ids.at(row_idx));
-//         row_id_map_string[primary_ids.at(row_idx)] = row_idx;
-//     }
-
-//     // preallocate col index structures
-//     for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-//         proto_data.add_col_label_string(secondary_ids.at(col_idx));
-//         col_id_map_string[secondary_ids.at(col_idx)] = col_idx;
-//     }
-
-//     proto_data.set_row_label_type(p2p::dataFrame::STRING);
-//     proto_data.set_col_label_type(p2p::dataFrame::STRING);
-
-//     initializeSizeOfData();
-//     initializeDataCells();
-// }
-
-// Similar to reserve but used when a .tmx is loaded from file,
-// so only the dataFrame's additional index structures need to
-// be loaded
-// void dataFrame::reserveIndexStructures()
-// {
-//     initializeSizeOfData();
-//     if (proto_data.row_label_type() == p2p::dataFrame::STRING)
-//     {
-//         // preallocate row index structures
-//         for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-//             row_id_map_string[proto_data.row_label_string(row_idx)] = row_idx;
-//         }
-
-//         // preallocate col index structures
-//         for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-//             col_id_map_string[proto_data.col_label_string(col_idx)] = col_idx;
-//         }
-//     } else
-//     {
-//         // preallocate row index structures
-//         for (unsigned long int row_idx = 0; row_idx < n_rows; row_idx++) {
-//             row_id_map_int[proto_data.row_label_int(row_idx)] = row_idx;
-//         }
-
-//         // preallocate col index structures
-//         for (unsigned long int col_idx = 0; col_idx < n_cols; col_idx++) {
-//             col_id_map_int[proto_data.col_label_int(col_idx)] = col_idx;
-//         }
-//     }
-// }
-
-// Getters and Setters:
-
-// void dataFrame::setSymmetric(bool isSymmetric)
-// {
-//     proto_data.set_is_symmetric(isSymmetric);
-// }
-
-// bool dataFrame::isSymmetric()
-// {
-//     return proto_data.is_symmetric();
-// }
-
-unsigned long int dataFrame::getRowIndexLoc(unsigned long int row_index)
+unsigned short int dataFrame::retrieveValue(unsigned long int row_id, unsigned long int col_id)
 {
-    return row_id_map_int.at(row_index);
+    if (metaData.is_symmetric())
+    {
+        // flip the row_id and col_id if under the diagonal
+        if (this->isUnderDiagonal(row_id, col_id))
+        {
+            auto rowData = row_id_map_int.at(col_id);
+            // real col_loc is current col_loc - current row_loc (to account for diagonal)
+            auto col_loc = col_id_int_to_loc[row_id] - col_id_int_to_loc[col_id];
+            return rowData.value(col_loc);
+        }
+        else
+        {
+            auto rowData = row_id_map_int.at(row_id);
+            // real col_loc is current col_loc - current row_loc (to account for diagonal)
+            auto col_loc = col_id_int_to_loc[col_id] - col_id_int_to_loc[row_id];
+            return rowData.value(col_loc);
+        }
+    } else
+    {
+        auto rowData = row_id_map_int.at(row_id);
+        auto col_loc = col_id_int_to_loc[col_id];
+        return rowData.value(col_loc);
+    }
 }
 
-unsigned long int dataFrame::getRowIndexLoc(std::string row_index)
+unsigned short int dataFrame::retrieveValue(const std::string& row_id, const std::string& col_id)
 {
-    return row_id_map_string.at(row_index);
+    if (metaData.is_symmetric())
+    {
+        // flip the row_id and col_id if under the diagonal
+        if (this->isUnderDiagonal(row_id, col_id))
+        {
+            auto rowData = row_id_map_string.at(col_id);
+            // real col_loc is current col_loc - current row_loc (to account for diagonal)
+            auto col_loc = col_id_string_to_loc[row_id] - col_id_string_to_loc[col_id];
+            return rowData.value(col_loc);
+        }
+        else
+        {
+            auto rowData = row_id_map_string.at(row_id);
+            // real col_loc is current col_loc - current row_loc (to account for diagonal)
+            auto col_loc = col_id_string_to_loc[col_id] - col_id_string_to_loc[row_id];
+            return rowData.value(col_loc);
+        }
+    } else
+    {
+        auto rowData = row_id_map_string.at(row_id);
+        auto col_loc = col_id_string_to_loc[col_id];
+        return rowData.value(col_loc);
+    }
 }
 
-unsigned long int dataFrame::getColIndexLoc(unsigned long int col_index)
+void dataFrame::insertValue(unsigned short int value, unsigned long int row_id, unsigned long int col_id)
 {
-    return col_id_map_int.at(col_index);
+    if (metaData.is_symmetric())
+    {
+        // flip the row_id and col_id if under the diagonal
+        if (this->isUnderDiagonal(row_id, col_id))
+        {
+            // no need to insert, it is duplicate
+            return;
+        }
+        else
+        {
+            // real col_loc is current col_loc - current row_loc (to account for diagonal)
+            auto col_loc = col_id_int_to_loc[col_id] - col_id_int_to_loc[row_id];
+            row_id_map_int.at(row_id).set_value(col_loc, value);
+        }
+    } else
+    {
+        auto col_loc = col_id_int_to_loc[col_id];
+        row_id_map_int.at(row_id).set_value(col_loc, value);
+    }
 }
 
-unsigned long int dataFrame::getColIndexLoc(std::string col_index)
+void dataFrame::insertValue(unsigned short int value, const std::string& row_id, const std::string& col_id)
 {
-    return col_id_map_string.at(col_index);
+    if (metaData.is_symmetric())
+    {
+        // flip the row_id and col_id if under the diagonal
+        if (this->isUnderDiagonal(row_id, col_id))
+        {
+            // no need to insert, it is duplicate
+            return;
+        }
+        else
+        {
+            // real col_loc is current col_loc - current row_loc (to account for diagonal)
+            auto col_loc = col_id_string_to_loc[col_id] - col_id_string_to_loc[row_id];
+            row_id_map_string.at(row_id).set_value(col_loc, value);
+        }
+    } else
+    {
+        auto col_loc = col_id_string_to_loc[col_id];
+        row_id_map_string.at(row_id).set_value(col_loc, value);
+    }
 }
 
-
-/* insert a value with row_id, col_id */
-void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id) 
+void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id)
 {
     for (auto element : row_data)
     {
-        this->insert(element.second, source_id, element.first);
+        this->insertValue(element.second, source_id, element.first);
     }
 }
 
-
-/* insert a value and throw an exception if the indeces don't exist */
-void dataFrame::insertSafe(unsigned short int val, unsigned long int row_id, unsigned long int col_id)
+void dataFrame::insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, const std::string& source_id)
 {
-    if (row_id_map_int.find(row_id) == row_id_map_int.end())
+    for (auto element : row_data)
     {
-        throw std::runtime_error("row_id does not exist:" + std::to_string(row_id));
-    }
-    if (col_id_map_int.find(col_id) == col_id_map_int.end())
-    {
-        throw std::runtime_error("col_id does not exist:" + std::to_string(col_id));
-    }
-    try
-    {
-        insertLoc(val, col_id_map_int.at(row_id), col_id_map_int.at(col_id));
-    }
-    catch (...)
-    {
-        auto errorMessage = "index is out of bounds:" + std::to_string(row_id) + "," + std::to_string(col_id) + "\n";
-        errorMessage += "row_loc:" + std::to_string(row_id_map_int.at(row_id)) + "\n";
-        errorMessage += "col_loc:" + std::to_string(col_id_map_int.at(col_id)) + "\n";
-        if (proto_data.is_symmetric())
-        {
-            if (col_id_map_int.at(col_id) >= row_id_map_int.at(row_id))
-            {
-                errorMessage += "symmetric equivalent (over diagonal):" + std::to_string(symmetricEquivalentLoc(row_id_map_int.at(row_id), col_id_map_int.at(col_id))) + "\n";
-            }
-            else
-            {
-                errorMessage += "symmetric equivalent (under diagonal):" + std::to_string(symmetricEquivalentLoc(col_id_map_int.at(col_id), row_id_map_int.at(row_id))) + "\n";   
-            }
-            errorMessage += "out of: " + std::to_string(this->sizeOfData) + "\n"; 
-        }
-        throw std::runtime_error(errorMessage);
+        this->insertValue(element.second, source_id, element.first);
     }
 }
 
-/* insert a value and throw an exception if the indeces don't exist */
-void dataFrame::insertSafe(unsigned short int val, std::string row_id, std::string col_id)
+
+bool dataFrame::isSymmetric()
 {
-    if (row_id_map_string.find(row_id) == row_id_map_string.end())
-    {
-        throw std::runtime_error("row_id does not exist:" + row_id);
-    }
-    if (col_id_map_string.find(col_id) == col_id_map_string.end())
-    {
-        throw std::runtime_error("col_id does not exist:" + col_id);
-    }
-    try
-    {
-        insertLoc(val, row_id_map_string.at(row_id), col_id_map_string.at(col_id));
-    }
-    catch (...)
-    {
-        auto errorMessage = "index is out of bounds:" + row_id + "," + col_id + "\n";
-        errorMessage += "row_loc:" + std::to_string(row_id_map_string.at(row_id)) + "\n";
-        errorMessage += "col_loc:" + std::to_string(col_id_map_string.at(col_id)) + "\n";
-        if (proto_data.is_symmetric())
-        {
-            if (col_id_map_string.at(col_id) >= row_id_map_string.at(row_id))
-            {
-                errorMessage += "symmetric equivalent (over diagonal):" + std::to_string(symmetricEquivalentLoc(row_id_map_string.at(row_id), col_id_map_string.at(col_id))) + "\n";
-            }
-            else
-            {
-                errorMessage += "symmetric equivalent (under diagonal):" + std::to_string(symmetricEquivalentLoc(col_id_map_string.at(col_id), row_id_map_string.at(row_id))) + "\n";   
-            }
-            errorMessage += "out of: " + std::to_string(this->sizeOfData) + "\n"; 
-        }
-        throw std::runtime_error(errorMessage);
-    }
+    return metaData.is_symmetric();
 }
 
-/* insert a value with row_id, col_id. Undefined behavior if indeces don't exist */
-void dataFrame::insert(unsigned short int val, unsigned long int row_id, unsigned long int col_id) 
+void dataFrame::setSymmetric(bool isSymmetric)
 {
-    insertLoc(val, row_id_map_int.at(row_id), col_id_map_int.at(col_id));
+    metaData.set_is_symmetric(isSymmetric);
 }
 
-/* insert a value with row_id, col_id. Undefined behavior if indeces don't exist */
-void dataFrame::insert(unsigned short int val, std::string row_id, std::string col_id) 
+// Utilities
+
+/* return true if position is under the diagonal, else false */
+/* note: calling this method for an unsymmetric matrix will cause segfault */
+bool dataFrame::isUnderDiagonal(unsigned long int row_id, unsigned long int col_id)
 {
-    insertLoc(val, row_id_map_string.at(row_id), col_id_map_string.at(col_id));
+    return this->col_id_int_to_loc[row_id] > this->col_id_int_to_loc[col_id];
 }
 
-/* calculate the flat array index of a coordinate pair for a symmetric matrix */
-unsigned long int dataFrame::symmetricEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc)
+/* return true if position is under the diagonal, else false */
+/* note: calling this method for an unsymmetric matrix will cause segfault */
+bool dataFrame::isUnderDiagonal(const std::string& row_id, const std::string& col_id)
 {
-    return col_loc - row_loc + this->sizeOfData - (this->n_rows - row_loc) * (this->n_rows - row_loc + 1) / 2;
+    return this->col_id_string_to_loc[row_id] > this->col_id_string_to_loc[col_id];
 }
 
-
-/* insert a value with row_loc, col_loc */
-void dataFrame::insertLoc(unsigned short int val, unsigned long int row_loc, unsigned long int col_loc) {
-    if (proto_data.is_symmetric())
-    {
-        if (col_loc >= row_loc)
-        {
-            auto index = this->symmetricEquivalentLoc(row_loc, col_loc);
-            this->proto_data.mutable_data_cell()->Set(index, val);
-        }
-    }
-    else
-    {
-        auto index = row_loc * n_cols + col_loc;
-        this->proto_data.mutable_data_cell()->Set(index, val);
-    }
-}
-
-/* retrieve a value with row_id, col_id */
-/* warning: this method is UNSAFE. Results are undefined*/
-/* if keys are not present in dataframe */
-/* for safe retrieval, use retrieveSafe */
-unsigned short int dataFrame::retrieve(unsigned long int row_id, unsigned long int col_id) 
-{
-    return retrieveLoc(row_id_map_int.at(row_id), col_id_map_int.at(col_id));
-}
-
-/* retrieve a value with row_id, col_id */
-/* warning: this method is UNSAFE. Results are undefined*/
-/* if keys are not present in dataframe */
-/* for safe retrieval, use retrieveSafe */
-unsigned short int dataFrame::retrieve(std::string row_id, std::string col_id) 
-{
-    return retrieveLoc(row_id_map_string.at(row_id), col_id_map_string.at(col_id));
-}
-
-/* return the value by location. Return the converse if symmetric
- * and below the diagonal
- */
-unsigned short int dataFrame::retrieveLoc(unsigned long int row_loc, unsigned long int col_loc)
-{
-    unsigned long int index;
-    if (proto_data.is_symmetric())
-    {
-        if (col_loc >= row_loc)
-        {
-            index = this->symmetricEquivalentLoc(row_loc, col_loc);
-        }
-        else
-        {   
-            index = this->symmetricEquivalentLoc(col_loc, row_loc);
-        }
-    }
-    else
-    {
-        index = row_loc * n_cols + col_loc;
-    }
-    //return this->data.at(row_loc * n_cols + col_loc);
-    return this->proto_data.data_cell(index);
-}
-
-
-/* check if a key pair is valid (both are in the data frame) */
-bool dataFrame::validKey(unsigned long int row_id, unsigned long int col_id) 
-{
-    if (row_id_map_int.find(row_id) == row_id_map_int.end()) {
-        return false;
-    }
-    if (col_id_map_int.find(col_id) == col_id_map_int.end()) {
-        return false;
-    }
-
-    return true;
-}
-
-/* check if a key pair is valid (both are in the data frame) */
-bool dataFrame::validKey(std::string row_id, std::string col_id) 
-{
-    if (row_id_map_string.find(row_id) == row_id_map_string.end()) {
-        return false;
-    }
-    if (col_id_map_string.find(col_id) == col_id_map_string.end()) {
-        return false;
-    }
-
-    return true;
-}
-
-/* retrieve a value with row_id, col_id */
-/* this method is SAFE, and will throw an error*/
-/* if keys are undefined*/
-unsigned short int dataFrame::retrieveSafe(unsigned long int row_id, unsigned long int col_id) 
-{
-    try
-    {
-        return this->retrieve(row_id, col_id);    
-    }
-    catch (...)
-    {
-        throw std::runtime_error("index is out of bounds:" + std::to_string(row_id) + "," + std::to_string(col_id));
-    }
-}
-
-/* retrieve a value with row_id, col_id */
-/* this method is SAFE, and will throw an error*/
-/* if keys are undefined*/
-unsigned short int dataFrame::retrieveSafe(std::string row_id, std::string col_id) 
-{
-    try
-    {
-        return this->retrieve(row_id, col_id);    
-    }
-    catch (...)
-    {
-        throw std::runtime_error("index is out of bounds:" + row_id + "," + col_id);
-    }
-}
 
 
 // Input/Output:
 
-/* Write the dataFrame to a .tmx (a custom binary format) */
-bool dataFrame::writeTMX(const std::string &outfile)
+bool dataFrame::writeMetadata(const std::string &outfile)
 {
-    
-    std::fstream output(outfile, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!proto_data.SerializeToOstream(&output)) {
-        std::cerr << "Failed to write .tmx" << std::endl;
+    std::string filename = outfile + "/meta";
+    std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+    if (!metaData.SerializeToOstream(&output)) {
+        std::cerr << "Failed to write to " << filename << std::endl;
         return false;
     }
     output.close();
     return true;
-    std::cout << "finished writing tmx" << std::endl;
 }
 
+bool dataFrame::writeRowdata(const std::string &outfile, const std::string &row_id)
+{
+    std::string filename = outfile + "/" + row_id;
+    std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+    if (!row_id_map_string[row_id].SerializeToOstream(&output)) {
+        std::cerr << "Failed to write to " << filename << std::endl;
+        return false;
+    }
+    output.close();
+    return true;
+}
+
+bool dataFrame::writeRowdata(const std::string &outfile, unsigned long int row_id)
+{
+    std::string filename = outfile + "/" + std::to_string(row_id);
+    std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+    if (!row_id_map_int[row_id].SerializeToOstream(&output)) {
+        std::cerr << "Failed to write to " << filename << std::endl;
+        return false;
+    }
+    output.close();
+    return true;
+}
+
+/* Write the dataFrame to a .tmx (a custom binary format) */
+bool dataFrame::writeTMX(const std::string &outfile)
+{
+    const int dir_err = mkdir(outfile.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (-1 == dir_err)
+    {
+        if (errno != EEXIST)
+        {
+            throw std::runtime_error("error creating directory");
+        }
+    
+    }
+    writeMetadata(outfile);
+    if (metaData.row_label_type() == p2p::metaData::STRING)
+    {
+        for (std::string row_id : metaData.row_label_string())
+        {
+            writeRowdata(outfile, row_id);
+        }
+    }   
+    else
+    {
+        for (unsigned long int row_id : metaData.row_label_int())
+        {
+            writeRowdata(outfile, row_id);
+        }
+    }
+    return true;
+}
+
+bool dataFrame::readMetadata(const std::string &outfile)
+{
+    std::string filename = outfile + "/meta";
+    std::fstream input(filename, std::ios::in | std::ios::binary);
+    if (!metaData.ParseFromIstream(&input)) {
+        std::cerr << "Failed to read from " << filename << std::endl;
+        return false;
+    }
+    input.close();
+    return true;
+}
+
+bool dataFrame::readRowdata(const std::string &outfile, const std::string &row_id)
+{
+    std::string filename = outfile + "/" + row_id;
+    std::fstream input(filename, std::ios::in | std::ios::binary);
+    if (!row_id_map_string[row_id].ParseFromIstream(&input)) {
+        std::cerr << "Failed to read from " << filename << std::endl;
+        return false;
+    }
+    input.close();
+    return true;
+}
+
+bool dataFrame::readRowdata(const std::string &outfile, unsigned long int row_id)
+{
+    std::string filename = outfile + "/" + std::to_string(row_id);
+    std::fstream input(filename, std::ios::in | std::ios::binary);
+    if (!row_id_map_int[row_id].ParseFromIstream(&input)) {
+        std::cerr << "Failed to read from " << filename << std::endl;
+        return false;
+    }
+    input.close();
+    return true;
+}
 
 /* Read the dataFrame from a .tmx (a custom binary format) */
 bool dataFrame::readTMX(const std::string& infile)
 {
-    std::fstream inputFile(infile, std::ios::in | std::ios::binary);
+    readMetadata(infile);
 
-    if (!proto_data.ParseFromIstream(&inputFile)) {
-        std::cerr << "Failed to load .tmx" << std::endl;
-        return false;
-    }    
+    if (metaData.row_label_type() == p2p::metaData::STRING)
+    {
+        // build col_id -> col_loc map
+        for (unsigned long int col_loc = 0; col_loc < metaData.col_label_string_size(); col_loc++)
+        {
+            col_id_string_to_loc[metaData.col_label_string(col_loc)] = col_loc;
+        }
+        for (std::string row_id : metaData.row_label_string())
+        {
+            readRowdata(infile, row_id);
+        }
 
-    if (proto_data.row_label_type() == p2p::dataFrame::STRING)
+    }   
+    else
     {
-        // assume for now that type of row label is same for cols
-        this->n_rows = proto_data.row_label_string_size();
-        this->n_cols = proto_data.col_label_string_size();
+        // build col_id -> col_loc map
+        for (unsigned long int col_loc = 0; col_loc < metaData.col_label_int_size(); col_loc++)
+        {
+            col_id_int_to_loc[metaData.col_label_int(col_loc)] = col_loc;
+        }
+        for (unsigned long int row_id : metaData.row_label_int())
+        {
+            readRowdata(infile, row_id);
+        }
     }
-    else if (proto_data.row_label_type() == p2p::dataFrame::INT)
-    {
-        // assume for now that type of row label is same for cols
-        this->n_rows = proto_data.row_label_int_size();
-        this->n_cols = proto_data.col_label_int_size();
-    } else
-    {
-        inputFile.close();
-        throw std::runtime_error("Unrecognized enum");
-    }
-    this->reserveIndexStructures();
-    inputFile.close();
     return true;
 }
 
@@ -527,41 +458,41 @@ bool dataFrame::writeToStream(std::ostream& streamToWrite)
     streamToWrite << ",";
     
     // write the top row of column labels
-    if (proto_data.col_label_type() == p2p::dataFrame::STRING) 
+    if (metaData.col_label_type() == p2p::metaData::STRING) 
     {
-        for (auto col_label : proto_data.col_label_string())
+        for (auto col_label : metaData.col_label_string())
         {
             streamToWrite << col_label << ",";
         }
     } else {
-        for (auto col_label : proto_data.col_label_int())
+        for (auto col_label : metaData.col_label_int())
         {
             streamToWrite << col_label << ",";
         }
     }
     streamToWrite << std::endl;
 
-    // write the body of the table, each row has a row label and values
-    if (proto_data.row_label_type() == p2p::dataFrame::STRING)
+    // // write the body of the table, each row has a row label and values
+    if (metaData.row_label_type() == p2p::metaData::STRING)
     {
-        for (unsigned long int row_index = 0; row_index < n_rows; row_index++)
+        for (std::string row_id : metaData.row_label_string())
         {
-            streamToWrite << proto_data.row_label_string(row_index) << ",";
-            for (unsigned long int col_index = 0; col_index < n_cols; col_index++)
+            streamToWrite << row_id << ",";
+            for (std::string col_id : metaData.col_label_string())
             {
-                streamToWrite << this->retrieveLoc(row_index, col_index) << ","; 
+                streamToWrite << this->retrieveValue(row_id, col_id) << ","; 
             }
             streamToWrite << std::endl;
         }
 
     } else 
     {
-        for (unsigned long int row_index = 0; row_index < n_rows; row_index++)
+        for (unsigned long int row_id : metaData.row_label_int())
         {
-            streamToWrite << proto_data.row_label_int(row_index) << ",";
-            for (unsigned long int col_index = 0; col_index < n_cols; col_index++)
+            streamToWrite << std::to_string(row_id) << ",";
+            for (unsigned long int col_id : metaData.col_label_int())
             {
-                streamToWrite << this->retrieveLoc(row_index, col_index) << ","; 
+                streamToWrite << this->retrieveValue(row_id, col_id) << ","; 
             }
             streamToWrite << std::endl;
         }
@@ -576,82 +507,82 @@ void dataFrame::printDataFrame()
 
 /* Read the dataFrame from a .csv */
 bool dataFrame::readCSV(const std::string &infile) {
-    std::ifstream fileINA, fileINB;
-    fileINA.open(infile);
-    if (fileINA.fail()) {
-        return false;
-    }
-    std::vector<unsigned long int> infileColLabels;
-    std::vector<unsigned long int> infileRowLabels;
-    std::string line;
-    n_rows = 0, n_cols = 0;
-    bool first_row = true;
+    // std::ifstream fileINA, fileINB;
+    // fileINA.open(infile);
+    // if (fileINA.fail()) {
+    //     return false;
+    // }
+    // std::vector<unsigned long int> infileColLabels;
+    // std::vector<unsigned long int> infileRowLabels;
+    // std::string line;
+    // n_rows = 0, n_cols = 0;
+    // bool first_row = true;
 
-    // first pass through to allocate matrix and load
-    // columns/rows
-    while (getline(fileINA, line)) {
-        std::istringstream stream(line);
-        if (first_row) {
-            first_row = false;
-            std::string tmp_col_id;
-            unsigned long int col_id;
-            n_cols = 0;
-            bool first_col = true;
-            while (getline(stream, tmp_col_id, ',')) {
-                if (first_col) {
+    // // first pass through to allocate matrix and load
+    // // columns/rows
+    // while (getline(fileINA, line)) {
+    //     std::istringstream stream(line);
+    //     if (first_row) {
+    //         first_row = false;
+    //         std::string tmp_col_id;
+    //         unsigned long int col_id;
+    //         n_cols = 0;
+    //         bool first_col = true;
+    //         while (getline(stream, tmp_col_id, ',')) {
+    //             if (first_col) {
 
-                    first_col = false;
-                } else {
-                    col_id = stoul(tmp_col_id);
-                    infileColLabels.push_back(col_id);
-                }
-            }
-        } else {
-            std::string tmp_row_id;
-            unsigned long int row_id;
-            getline(stream, tmp_row_id,',');
-            if (!tmp_row_id.size())
-            {
-                break;
-            }
-            row_id = stoul(tmp_row_id);
-            infileRowLabels.push_back(row_id);
+    //                 first_col = false;
+    //             } else {
+    //                 col_id = stoul(tmp_col_id);
+    //                 infileColLabels.push_back(col_id);
+    //             }
+    //         }
+    //     } else {
+    //         std::string tmp_row_id;
+    //         unsigned long int row_id;
+    //         getline(stream, tmp_row_id,',');
+    //         if (!tmp_row_id.size())
+    //         {
+    //             break;
+    //         }
+    //         row_id = stoul(tmp_row_id);
+    //         infileRowLabels.push_back(row_id);
             
-        }
-    }
-    reserve(infileRowLabels, infileColLabels);
+    //     }
+    // }
+    // reserve(infileRowLabels, infileColLabels);
 
-    fileINA.close();
+    // fileINA.close();
 
-    fileINB.open(infile);
-    if (fileINB.fail()) {
-        return false;
-    }
-    int row_counter = 0;
-    unsigned short int value;
-    first_row = true;
-    while (getline(fileINB, line)) {
-        std::istringstream stream(line);
-        if (first_row) {
-            first_row = false;
-            continue;
-        }
-        std::string row_id, input;
-        int col_counter = 0;
-        bool first_col = true;
-        while (getline(stream, input, ',')) {
-            if (first_col) {
-                first_col = false;
-                row_id = stoul(input);
-            } else {
-                value = stoul(input);
-                insertLoc(value, row_counter, col_counter);
-                col_counter++;
-            }
-        }
-        row_counter++;
-    }
-    fileINB.close();
+    // fileINB.open(infile);
+    // if (fileINB.fail()) {
+    //     return false;
+    // }
+    // int row_counter = 0;
+    // unsigned short int value;
+    // first_row = true;
+    // while (getline(fileINB, line)) {
+    //     std::istringstream stream(line);
+    //     if (first_row) {
+    //         first_row = false;
+    //         continue;
+    //     }
+    //     std::string row_id, input;
+    //     int col_counter = 0;
+    //     bool first_col = true;
+    //     while (getline(stream, input, ',')) {
+    //         if (first_col) {
+    //             first_col = false;
+    //             row_id = stoul(input);
+    //         } else {
+    //             value = stoul(input);
+    //             insertLoc(value, row_counter, col_counter);
+    //             col_counter++;
+    //         }
+    //     }
+    //     row_counter++;
+    // }
+    // fileINB.close();
     return true;
 
 }

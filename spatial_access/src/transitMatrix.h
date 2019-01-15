@@ -82,7 +82,7 @@ void calculateRow(const std::vector<int> &dist, workerArgs *wa, int src) {
             {
                 if (wa->df.isSymmetric())
                 {
-                    if (wa->df.getRowIndexLoc(sourceDataPoint.id) > wa->df.getColIndexLoc(destDataPoint.id))
+                    if (wa->df.isUnderDiagonal(sourceDataPoint.id, destDataPoint.id))
                     {
                         continue;
                     }
@@ -278,29 +278,26 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
 
 transitMatrix::transitMatrix(const std::string &infile) 
 {
-    if (infile.find(".tmx") != std::string::npos)
-    {
-        if (!df.readTMX(infile)) 
-        {
-            throw std::runtime_error("failed to load dataFrame from file");
-        }
-        // set the transitMatrix's symmetric boolean based on tmx file
-        this->isSymmetric = df.isSymmetric();
-    }
-    else if (infile.find(".csv") != std::string::npos)
+    if (infile.find(".csv") != std::string::npos)
     {
         if (!df.readCSV(infile)) 
         {
-            throw std::runtime_error("failed to load dataFrame from file");
+            throw std::runtime_error("failed to load dataFrame from csv");
         }
         // assume dataFrame read from csv is not symmetric because it has
         // no metadata
         this->isSymmetric = false;
     }
-    else
+    else 
     {
-        throw std::runtime_error("Input file has unrecognized extension");
+        if (!df.readTMX(infile)) 
+        {
+            throw std::runtime_error("failed to load dataFrame from tmx");
+        }
+        // set the transitMatrix's symmetric boolean based on tmx file
+        this->isSymmetric = df.isSymmetric();
     }
+  
 
 }
 
@@ -310,7 +307,7 @@ void transitMatrix::printDataFrame(){
 
 
 int transitMatrix::get(unsigned long int source, unsigned long int dest) {
-    return df.retrieveSafe(source, dest);
+    return df.retrieveValue(source, dest);
 }
 
 } // namespace lnoel

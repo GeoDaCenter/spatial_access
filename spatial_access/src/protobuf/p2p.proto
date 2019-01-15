@@ -4,7 +4,7 @@ package p2p;
 
 message metaData {
 
-	required bool isSymmetric = 1;
+	required bool is_symmetric = 1;
 	enum labelType {
 	   	STRING = 1;
 	   	INT = 2;
@@ -18,8 +18,6 @@ message metaData {
 }
 
 message  dataRow {
-	required row_label_string = 1;
-	required row_label_int = 2;
-    repeated int32 value = 3;
+    repeated int32 value = 1;
 }
 
