@@ -526,7 +526,6 @@ bool dataFrame::readCSV(const std::string &infile)
             first_row = false;
             std::string tmp_col_id;
             unsigned long int col_id;
-            n_cols = 0;
             bool first_col = true;
             while (getline(stream, tmp_col_id, ',')) {
                 if (first_col) {
