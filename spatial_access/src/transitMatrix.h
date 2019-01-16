@@ -209,12 +209,12 @@ public:
     transitMatrix(const std::string &infile);
     void compute(int numThreads);
     transitMatrix(void);
-    int get(unsigned long int source, unsigned long intdest);
+    int get(unsigned long int source, unsigned long intdest) const;
     void loadFromDisk(void);
     void prepareDataFrame();
     bool writeCSV(const std::string &outfile);
     bool writeTMX(const std::string &outfile);
-    void printDataFrame();
+    void printDataFrame() const;
 };
 
 bool transitMatrix::writeCSV(const std::string &outfile)
@@ -301,12 +301,14 @@ transitMatrix::transitMatrix(const std::string &infile)
 
 }
 
-void transitMatrix::printDataFrame(){
+void transitMatrix::printDataFrame() const
+{
     this->df.printDataFrame();
 }
 
 
-int transitMatrix::get(unsigned long int source, unsigned long int dest) {
+int transitMatrix::get(unsigned long int source, unsigned long int dest) const
+{
     return df.retrieveValue(source, dest);
 }
 

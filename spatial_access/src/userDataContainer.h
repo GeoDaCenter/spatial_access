@@ -30,16 +30,16 @@ public:
     std::vector<userDataPoint> data;
     userDataTract(int networkNodeId);
     void addPoint(userDataPoint userData);
-    void print();
-    const std::vector<userDataPoint>& retrieveDataPoints();
+    void print() const;
+    const std::vector<userDataPoint>& retrieveDataPoints() const;
 };
 
-const std::vector<userDataPoint>& userDataTract::retrieveDataPoints()
+const std::vector<userDataPoint>& userDataTract::retrieveDataPoints() const
 {
     return data;
 }
 
-void userDataTract::print()
+void userDataTract::print() const
 {
     std::cout << networkNodeId << std::endl;
     for (auto dataPoint : data)
@@ -70,21 +70,21 @@ public:
     std::vector<int> uniqueNetworkNodeIds;
     userDataContainer();
     void addPoint(int networkNodeId, unsigned long int id, int lastMileDistance);
-    bool containsTract(int networkNodeId);
-    const userDataTract& retrieveTract(int networkNodeId);
-    const std::vector<unsigned long int>& retrieveAllUserDataIds();
-    const std::vector<int>& retrieveAllNetworkNodeIds();
-    const std::vector<int>& retrieveUniqueNetworkNodeIds();
-    void print();
+    bool containsTract(int networkNodeId) const;
+    const userDataTract& retrieveTract(int networkNodeId) const;
+    const std::vector<unsigned long int>& retrieveAllUserDataIds() const;
+    const std::vector<int>& retrieveAllNetworkNodeIds() const;
+    const std::vector<int>& retrieveUniqueNetworkNodeIds() const;
+    void print() const;
 };
 
-const std::vector<unsigned long int>& userDataContainer::retrieveAllUserDataIds()
+const std::vector<unsigned long int>& userDataContainer::retrieveAllUserDataIds() const
 {
     return this->ids;
 }
 
 
-void userDataContainer::print()
+void userDataContainer::print() const
 {
     for (auto entry : data)
     {
@@ -97,7 +97,7 @@ userDataContainer::userDataContainer()
     this->isSymmetric = false;
 }
 
-bool userDataContainer::containsTract(int networkNodeId)
+bool userDataContainer::containsTract(int networkNodeId) const
 {
     return data.find(networkNodeId) != data.end();
 }
@@ -122,18 +122,18 @@ void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int la
 
 }
 
-const userDataTract& userDataContainer::retrieveTract(int networkNodeId)
+const userDataTract& userDataContainer::retrieveTract(int networkNodeId) const
 {
     return data.at(networkNodeId);
 }
 
-const std::vector<int>& userDataContainer::retrieveAllNetworkNodeIds()
+const std::vector<int>& userDataContainer::retrieveAllNetworkNodeIds() const
 {
     return allNetworkNodeIds;
 }
 
 
-const std::vector<int>& userDataContainer::retrieveUniqueNetworkNodeIds()
+const std::vector<int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
 {
     return uniqueNetworkNodeIds;
 }

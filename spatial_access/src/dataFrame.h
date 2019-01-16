@@ -40,11 +40,11 @@ public:
     void reserve(const std::vector<std::string> &primary_ids, const std::vector<std::string> &secondary_ids);
     
     // Getters and Setters:
-    unsigned short int retrieveValue(unsigned long int row_id, unsigned long int col_id);
-    unsigned short int retrieveValue(const std::string& row_id, const std::string& col_id);
+    unsigned short int retrieveValue(unsigned long int row_id, unsigned long int col_id) const;
+    unsigned short int retrieveValue(const std::string& row_id, const std::string& col_id) const;
     void insertValue(unsigned short int value, unsigned long int row_id, unsigned long int col_id);
     void insertValue(unsigned short int value, const std::string& row_id, const std::string& col_id);
-    bool isSymmetric();
+    bool isSymmetric() const;
     void setSymmetric(bool isSymmetric);
     void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
     void insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, const std::string& source_id);
@@ -52,24 +52,24 @@ public:
     // Input/Output:
     bool readCSV(const std::string &infile);
     bool readTMX(const std::string &infile);
-    bool writeCSV(const std::string &outfile);
-    bool writeTMX(const std::string &outfile);
-    bool writeMetadata(const std::string &outfile);
-    bool writeRowdata(const std::string &outfile, unsigned long int row_id);
-    bool writeRowdata(const std::string &outfile, const std::string &row_id);
+    bool writeCSV(const std::string &outfile) const;
+    bool writeTMX(const std::string &outfile) const;
+    bool writeMetadata(const std::string &outfile) const;
+    bool writeRowdata(const std::string &outfile, unsigned long int row_id) const;
+    bool writeRowdata(const std::string &outfile, const std::string &row_id) const;
     bool readMetadata(const std::string &outfile);
     bool readRowdata(const std::string &outfile, unsigned long int row_id);
     bool readRowdata(const std::string &outfile, const std::string &row_id);
-    void printDataFrame();
+    void printDataFrame() const;
     bool readTransitCSV(const std::string& infile);
 
     // Utility
-    bool isUnderDiagonal(unsigned long int row_id, unsigned long int col_id);
-    bool isUnderDiagonal(const std::string& row_id, const std::string& col_id);
+    bool isUnderDiagonal(unsigned long int row_id, unsigned long int col_id) const;
+    bool isUnderDiagonal(const std::string& row_id, const std::string& col_id) const;
 
 private:
     // Input/Output
-    bool writeToStream(std::ostream& streamToWrite);
+    bool writeToStream(std::ostream& streamToWrite) const;
 
 };
 
@@ -160,7 +160,7 @@ void dataFrame::reserve(const std::vector<std::string> &primary_ids, const std::
 
 // Getters/Setters
 
-unsigned short int dataFrame::retrieveValue(unsigned long int row_id, unsigned long int col_id)
+unsigned short int dataFrame::retrieveValue(unsigned long int row_id, unsigned long int col_id) const
 {
     if (metaData.is_symmetric())
     {
@@ -169,25 +169,25 @@ unsigned short int dataFrame::retrieveValue(unsigned long int row_id, unsigned l
         {
             auto rowData = row_id_map_int.at(col_id);
             // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_int_to_loc[row_id] - col_id_int_to_loc[col_id];
+            auto col_loc = col_id_int_to_loc.at(row_id) - col_id_int_to_loc.at(col_id);
             return rowData.value(col_loc);
         }
         else
         {
             auto rowData = row_id_map_int.at(row_id);
             // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_int_to_loc[col_id] - col_id_int_to_loc[row_id];
+            auto col_loc = col_id_int_to_loc.at(col_id) - col_id_int_to_loc.at(row_id);
             return rowData.value(col_loc);
         }
     } else
     {
         auto rowData = row_id_map_int.at(row_id);
-        auto col_loc = col_id_int_to_loc[col_id];
+        auto col_loc = col_id_int_to_loc.at(col_id);
         return rowData.value(col_loc);
     }
 }
 
-unsigned short int dataFrame::retrieveValue(const std::string& row_id, const std::string& col_id)
+unsigned short int dataFrame::retrieveValue(const std::string& row_id, const std::string& col_id) const
 {
     if (metaData.is_symmetric())
     {
@@ -196,20 +196,20 @@ unsigned short int dataFrame::retrieveValue(const std::string& row_id, const std
         {
             auto rowData = row_id_map_string.at(col_id);
             // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_string_to_loc[row_id] - col_id_string_to_loc[col_id];
+            auto col_loc = col_id_string_to_loc.at(row_id) - col_id_string_to_loc.at(col_id);
             return rowData.value(col_loc);
         }
         else
         {
             auto rowData = row_id_map_string.at(row_id);
             // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_string_to_loc[col_id] - col_id_string_to_loc[row_id];
+            auto col_loc = col_id_string_to_loc.at(col_id) - col_id_string_to_loc.at(row_id);
             return rowData.value(col_loc);
         }
     } else
     {
         auto rowData = row_id_map_string.at(row_id);
-        auto col_loc = col_id_string_to_loc[col_id];
+        auto col_loc = col_id_string_to_loc.at(col_id);
         return rowData.value(col_loc);
     }
 }
@@ -277,7 +277,7 @@ void dataFrame::insertRow(const std::unordered_map<std::string, unsigned short i
 }
 
 
-bool dataFrame::isSymmetric()
+bool dataFrame::isSymmetric() const
 {
     return metaData.is_symmetric();
 }
@@ -291,23 +291,23 @@ void dataFrame::setSymmetric(bool isSymmetric)
 
 /* return true if position is under the diagonal, else false */
 /* note: calling this method for an unsymmetric matrix will cause segfault */
-bool dataFrame::isUnderDiagonal(unsigned long int row_id, unsigned long int col_id)
+bool dataFrame::isUnderDiagonal(unsigned long int row_id, unsigned long int col_id) const
 {
-    return this->col_id_int_to_loc[row_id] > this->col_id_int_to_loc[col_id];
+    return this->col_id_int_to_loc.at(row_id) > this->col_id_int_to_loc.at(col_id);
 }
 
 /* return true if position is under the diagonal, else false */
 /* note: calling this method for an unsymmetric matrix will cause segfault */
-bool dataFrame::isUnderDiagonal(const std::string& row_id, const std::string& col_id)
+bool dataFrame::isUnderDiagonal(const std::string& row_id, const std::string& col_id) const
 {
-    return this->col_id_string_to_loc[row_id] > this->col_id_string_to_loc[col_id];
+    return this->col_id_string_to_loc.at(row_id) > this->col_id_string_to_loc.at(col_id);
 }
 
 
 
 // Input/Output:
 
-bool dataFrame::writeMetadata(const std::string &outfile)
+bool dataFrame::writeMetadata(const std::string &outfile) const
 {
     std::string filename = outfile + "/meta";
     std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -319,11 +319,11 @@ bool dataFrame::writeMetadata(const std::string &outfile)
     return true;
 }
 
-bool dataFrame::writeRowdata(const std::string &outfile, const std::string &row_id)
+bool dataFrame::writeRowdata(const std::string &outfile, const std::string &row_id) const
 {
     std::string filename = outfile + "/" + row_id;
     std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!row_id_map_string[row_id].SerializeToOstream(&output)) {
+    if (!row_id_map_string.at(row_id).SerializeToOstream(&output)) {
         std::cerr << "Failed to write to " << filename << std::endl;
         return false;
     }
@@ -331,11 +331,11 @@ bool dataFrame::writeRowdata(const std::string &outfile, const std::string &row_
     return true;
 }
 
-bool dataFrame::writeRowdata(const std::string &outfile, unsigned long int row_id)
+bool dataFrame::writeRowdata(const std::string &outfile, unsigned long int row_id) const
 {
     std::string filename = outfile + "/" + std::to_string(row_id);
     std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!row_id_map_int[row_id].SerializeToOstream(&output)) {
+    if (!row_id_map_int.at(row_id).SerializeToOstream(&output)) {
         std::cerr << "Failed to write to " << filename << std::endl;
         return false;
     }
@@ -344,7 +344,7 @@ bool dataFrame::writeRowdata(const std::string &outfile, unsigned long int row_i
 }
 
 /* Write the dataFrame to a .tmx (a custom binary format) */
-bool dataFrame::writeTMX(const std::string &outfile)
+bool dataFrame::writeTMX(const std::string &outfile) const
 {
     const int dir_err = mkdir(outfile.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (-1 == dir_err)
@@ -443,7 +443,7 @@ bool dataFrame::readTMX(const std::string& infile)
 }
 
 
-bool dataFrame::writeCSV(const std::string &outfile)
+bool dataFrame::writeCSV(const std::string &outfile) const
 {
     std::ofstream Ofile;
     Ofile.open(outfile);
@@ -455,7 +455,7 @@ bool dataFrame::writeCSV(const std::string &outfile)
     return true;
 } 
 
-bool dataFrame::writeToStream(std::ostream& streamToWrite)
+bool dataFrame::writeToStream(std::ostream& streamToWrite) const
 {
     streamToWrite << ",";
     
@@ -502,7 +502,7 @@ bool dataFrame::writeToStream(std::ostream& streamToWrite)
     return true;
 }
 
-void dataFrame::printDataFrame()
+void dataFrame::printDataFrame() const
 {
     writeToStream(std::cout);
 } 
