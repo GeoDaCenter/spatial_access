@@ -147,7 +147,7 @@ void CSV::print() const
         std::cout << "," << label;
     }
     std::cout << std::endl;
-    for (auto row_number = 0; row_number < num_rows(); row_number++)
+    for (unsigned int row_number = 0; row_number < num_rows(); row_number++)
     {
         std::cout << row_labels.at(row_number);
         for (auto element : data.at(row_number))

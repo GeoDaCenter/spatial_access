@@ -11,6 +11,8 @@
 #include <utility>
 #include <sys/stat.h>
 
+#include "csv.h"
+
 #include "protobuf/p2p.pb.h"
 
 #define UNDEFINED (0)
@@ -508,92 +510,24 @@ void dataFrame::printDataFrame()
 /* Read the dataFrame from a .csv */
 bool dataFrame::readCSV(const std::string &infile) 
 {
-    std::ifstream fileINA, fileINB;
-    fileINA.open(infile);
-    if (fileINA.fail()) {
-        return false;
-    }
-    std::vector<unsigned long int> infileColLabels;
-    std::vector<unsigned long int> infileRowLabels;
-    std::string line;
-    bool first_row = true;
-
-    // first pass through to allocate matrix and load
-    // columns/rows
-    while (getline(fileINA, line)) {
-        std::istringstream stream(line);
-        if (first_row) {
-            first_row = false;
-            std::string tmp_col_id;
-            unsigned long int col_id;
-            bool first_col = true;
-            while (getline(stream, tmp_col_id, ',')) {
-                if (first_col) {
-
-                    first_col = false;
-                } else {
-                    col_id = stoul(tmp_col_id);
-                    infileColLabels.push_back(col_id);
-                }
-            }
-        } else {
-            std::string tmp_row_id;
-            unsigned long int row_id;
-            getline(stream, tmp_row_id,',');
-            if (!tmp_row_id.size())
-            {
-                break;
-            }
-            row_id = stoul(tmp_row_id);
-            infileRowLabels.push_back(row_id);
-            
-        }
-    }
-    setSymmetric(false);
-    reserve(infileRowLabels, infileColLabels);
-    metaData.set_col_label_type(p2p::metaData::INT);
+    CSV file(infile);
+    auto row_labels = file.get_row_labels_as_int();
+    auto col_labels = file.get_col_labels_as_int();
+    metaData.set_is_symmetric(false);
     metaData.set_row_label_type(p2p::metaData::INT);
-
-    fileINA.close();
-
-    fileINB.open(infile);
-    if (fileINB.fail()) {
-        return false;
-    }
-    int row_counter = 0;
-    unsigned short int value;
-    first_row = true;
-    while (getline(fileINB, line)) {
-        std::istringstream stream(line);
-        if (first_row) {
-            first_row = false;
-            continue;
+    metaData.set_col_label_type(p2p::metaData::INT);
+    reserve(row_labels, col_labels);
+    for (unsigned int row_loc = 0; row_loc < file.num_rows(); row_loc++)
+    {
+        auto row = file.get_row_by_index_as_int(row_loc);
+        for (unsigned int col_loc = 0; col_loc < file.num_cols(); col_loc++)
+        {
+            auto row_id = row_labels.at(row_loc);
+            auto col_id = col_labels.at(col_loc);
+            unsigned long int value = row.at(col_loc);
+            insertValue(value, row_id, col_id);
         }
-        std::string input;
-        unsigned long int row_id;
-        int col_counter = 0;
-        bool first_col = true;
-        while (getline(stream, input, ',')) {
-            if (first_col) {
-                first_col = false;
-                row_id = stoul(input);
-            } else {
-                value = stoul(input);
-                if (metaData.row_label_type() == p2p::metaData::INT)
-                {
-                    unsigned long int col_id = infileColLabels.at(col_counter);
-                    insertValue(value, row_id, col_id);
-                }
-                else
-                {
-                    throw std::runtime_error("not yet implemented");
-                }
-                col_counter++;
-            }
-        }
-        row_counter++;
     }
-    fileINB.close();
     return true;
 
 }
