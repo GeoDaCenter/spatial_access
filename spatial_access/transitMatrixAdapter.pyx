@@ -1,16 +1,16 @@
 # distutils: language=c++
 from libcpp.string cimport string
 from libcpp cimport bool
-from libcpp.vector cimport vector 
-from libcpp.vector cimport pair
+from libcpp.vector cimport vector
+from libcpp.map cimport map
 
 cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
     cdef cppclass dataFrame:
         dataFrame()
 
 cdef extern from "src/transitMatrix.h" namespace "lmnoel":
-
     cdef cppclass transitMatrix:
+        ctypedef unsigned long int label
         transitMatrix(int, bool isSymmetric) except +
         transitMatrix(string, bool isSymmetric, bool isOTPTransitMatrix) except +
         void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
@@ -21,7 +21,7 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         bool writeCSV(string) except +
         bool writeTMX(string) except +
         void printDataFrame() except +
-        vector[pair[int, unsigned short int]] getDestsInRange(unsigned long int, int) except +
+        map[unsigned long int, vector[label]] getDestsInRange(int) except +
 
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
@@ -36,8 +36,8 @@ cdef class pyTransitMatrix:
     def __dealloc__(self):
         del self.thisptr
 
-    def getDestsInRange(self, sourceID, range_):
-        return self.thisptr.getDestsInRange(sourceID, range_)
+    def getDestsInRange(self, range_):
+        return self.thisptr.getDestsInRange(range_)
 
     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance, isBidirectional):
         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance, isBidirectional)

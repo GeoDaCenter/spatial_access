@@ -193,9 +193,9 @@ void workerHandler(workerArgs* wa) {
 
 
 namespace lmnoel {
-
 class transitMatrix {
 public:
+    typedef unsigned long int label;
     dataFrame df;
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
@@ -215,28 +215,22 @@ public:
     bool writeCSV(const std::string &outfile);
     bool writeTMX(const std::string &outfile);
     void printDataFrame() const;
-    std::vector<std::pair<unsigned long int, unsigned short int>> getDestsInRange(unsigned long int sourceID, int range);
+    const std::map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(int range);
+    const std::map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(int range);
+private:
+    std::map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
+    std::map<unsigned long int, std::vector<unsigned long int>> destsInRange;
+    int previousThreshold;
 };
-
-bool transitMatrix::writeCSV(const std::string &outfile)
-{
-    return this->df.writeCSV(outfile);
-}
-
-bool transitMatrix::writeTMX(const std::string &outfile)
-{
-    return this->df.writeTMX(outfile);
-}
 
 transitMatrix::transitMatrix(int V, bool isSymmetric)
 {
-    this->numNodes = V;
-    this->isSymmetric = isSymmetric;
-    graph.initializeGraph(V);
+    this->previousThreshold = 0;
 }
 
 transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPTransitMatrix) 
 {
+    this->previousThreshold = 0;
     if (isOTPTransitMatrix)
     {
         this->isSymmetric = true;
@@ -268,6 +262,26 @@ transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool i
   
 
 }
+
+
+
+bool transitMatrix::writeCSV(const std::string &outfile)
+{
+    return this->df.writeCSV(outfile);
+}
+
+bool transitMatrix::writeTMX(const std::string &outfile)
+{
+    return this->df.writeTMX(outfile);
+}
+
+transitMatrix::transitMatrix(int V, bool isSymmetric)
+{
+    this->numNodes = V;
+    this->isSymmetric = isSymmetric;
+    graph.initializeGraph(V);
+}
+
 
 void transitMatrix::prepareDataFrame()
 {
@@ -322,9 +336,50 @@ int transitMatrix::get(unsigned long int source, unsigned long int dest) const
     return df.retrieveValue(source, dest);
 }
 
-std::vector<std::pair<unsigned long int, unsigned short int>> transitMatrix::getDestsInRange(unsigned long int sourceID, int range)
+void transitMatrix::calculateDestsInRange(int threshold)
 {
-    return df.getRowElementsInRange(sourceID, range);
+    // iterate through every row
+    for (auto element : this->df.row_id_map_int)
+    {
+        // iterate through every column
+        std::vector<unsigned long int> current_ids;
+        for (auto col_id : this->df.metaData.col_label_int())
+        {
+            // if the value at row_id, col_id is in range, add the column id to the current ids
+            if (this->df.retrieveValue(element.first, col_id) <= threshold)
+            {
+                current_ids.push_back(col_id);
+            }
+        }
+
+        // add the row_id->vector of col_ids to the return value
+        this->destsInRange.emplace(std::make_pair(element.first, current_ids));
+        this->sourcesInRange.emplace(std::make_pair(element.first, current_ids));
+    }
+    this->previousThreshold = threshold;
+}
+
+const std::map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(int threshold)
+{
+    // if transitMatrix has not yet calculated destsInRange for this value of 
+    // threshold (which defaults to zero if it has never been calcualtes)
+    if (this->previousThreshold != threshold)
+    {
+        calculateValuesInRange(threshold);
+    }
+    return this->destsInRange;
+}
+
+
+const std::map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(int threshold)
+{
+    // if transitMatrix has not yet calculated destsInRange for this value of 
+    // threshold (which defaults to zero if it has never been calcualtes)
+    if (this->previousThreshold != threshold)
+    {
+        calculateValuesInRange(threshold);
+    }
+    return this->sourcesInRange;
 }
 
 } // namespace lnoel

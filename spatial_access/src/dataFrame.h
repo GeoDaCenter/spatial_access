@@ -19,7 +19,7 @@
 
 /* a pandas-like dataFrame */
 class dataFrame {
-private:
+public:
 
     // TODO: Eliminate redundancy with templates
     std::unordered_map <unsigned long int, p2p::dataRow> row_id_map_int;
@@ -48,7 +48,6 @@ public:
     void setSymmetric(bool isSymmetric);
     void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
     void insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, const std::string& source_id);
-    std::vector<std::pair<unsigned long int, unsigned short int>> getRowElementsInRange(unsigned long int row_id, int range);
 
     // Input/Output:
     bool readCSV(const std::string &infile);
@@ -275,19 +274,6 @@ void dataFrame::insertRow(const std::unordered_map<std::string, unsigned short i
     {
         this->insertValue(element.second, source_id, element.first);
     }
-}
-
-std::vector<std::pair<unsigned long int, unsigned short int>> dataFrame::getRowElementsInRange(unsigned long int row_id, int range)
-{
-    std::vector<std::pair<unsigned long int, unsigned short int>> returnValue;
-    // for (auto element : row_id_map_int[row_id].value())
-    // {
-    //     if (element <= range)
-    //     {
-    //         returnValue.push_back(element);
-    //     }
-    // }
-    return returnValue;
 }
 
 
