@@ -19,7 +19,7 @@ public:
     std::vector<unsigned long int> get_row_labels_as_int() const;
     std::vector<unsigned long int> get_col_labels_as_int() const;
     const std::vector<std::string>& get_row_by_index(unsigned int index) const;
-    std::vector<unsigned long int> get_row_by_index_as_int(unsigned int index) const;
+    std::vector<unsigned short int> get_row_by_index_as_int(unsigned int index) const;
     const std::string& get_filename() const;
 
     // IO
@@ -52,7 +52,7 @@ CSV::CSV(const std::string& filename)
             std::string col_label;
             while (getline(stream, col_label, ',')) {
                 if (colNumber != 0) {
-                    // std::cout << "adding col:" << col_label << std::endl;
+                    
                     col_labels.push_back(col_label);
                 }
                 colNumber++;
@@ -74,6 +74,7 @@ CSV::CSV(const std::string& filename)
         }
     rowNumber++;
     }
+    fileIN.close();
 }
 
 // Getters
@@ -113,12 +114,12 @@ const std::vector<std::string>& CSV::get_row_by_index(unsigned int index) const
     return data.at(index);
 }
 
-std::vector<unsigned long int> CSV::get_row_by_index_as_int(unsigned int index) const
+std::vector<unsigned short int> CSV::get_row_by_index_as_int(unsigned int index) const
 {
-    std::vector<unsigned long int> values;
+    std::vector<unsigned short int> values;
     for (auto value : data.at(index))
     {
-        values.push_back(std::stoul(value));
+        values.push_back(std::stoi(value));
     }
     return values;
 }

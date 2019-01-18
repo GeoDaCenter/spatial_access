@@ -1,6 +1,8 @@
 # distutils: language=c++
 from libcpp.string cimport string
 from libcpp cimport bool
+from libcpp.vector cimport vector 
+from libcpp.vector cimport pair
 
 cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
     cdef cppclass dataFrame:
@@ -9,8 +11,8 @@ cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
 cdef extern from "src/transitMatrix.h" namespace "lmnoel":
 
     cdef cppclass transitMatrix:
-        transitMatrix(string) except +
         transitMatrix(int, bool isSymmetric) except +
+        transitMatrix(string, bool isSymmetric, bool isOTPTransitMatrix) except +
         void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
         void addToUserDestDataContainer(int, unsigned long int, int) except +
         void addEdgeToGraph(int, int, int, bool) except +
@@ -19,18 +21,23 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         bool writeCSV(string) except +
         bool writeTMX(string) except +
         void printDataFrame() except +
+        vector[pair[int, unsigned short int]] getDestsInRange(unsigned long int, int) except +
 
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, string infile = "", int vertices = -1, bool isSymmetric = False):
+    def __cinit__(self, string infile = "", int vertices = -1, bool isSymmetric = False, isOTPTransitMatrix = False):
         if vertices > 0:
             self.thisptr = new transitMatrix(vertices, isSymmetric)
         else:
-            self.thisptr = new transitMatrix(infile)
+            # pass
+            self.thisptr = new transitMatrix(infile, isSymmetric, isOTPTransitMatrix)
 
     def __dealloc__(self):
         del self.thisptr
+
+    def getDestsInRange(self, sourceID, range_):
+        return self.thisptr.getDestsInRange(sourceID, range_)
 
     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance, isBidirectional):
         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance, isBidirectional)

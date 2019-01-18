@@ -48,6 +48,7 @@ public:
     void setSymmetric(bool isSymmetric);
     void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
     void insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, const std::string& source_id);
+    std::vector<std::pair<unsigned long int, unsigned short int>> getRowElementsInRange(unsigned long int row_id, int range);
 
     // Input/Output:
     bool readCSV(const std::string &infile);
@@ -61,7 +62,7 @@ public:
     bool readRowdata(const std::string &outfile, unsigned long int row_id);
     bool readRowdata(const std::string &outfile, const std::string &row_id);
     void printDataFrame() const;
-    bool readTransitCSV(const std::string& infile);
+    bool readOTPTransitMatrix(const std::string& infile);
 
     // Utility
     bool isUnderDiagonal(unsigned long int row_id, unsigned long int col_id) const;
@@ -274,6 +275,19 @@ void dataFrame::insertRow(const std::unordered_map<std::string, unsigned short i
     {
         this->insertValue(element.second, source_id, element.first);
     }
+}
+
+std::vector<std::pair<unsigned long int, unsigned short int>> dataFrame::getRowElementsInRange(unsigned long int row_id, int range)
+{
+    std::vector<std::pair<unsigned long int, unsigned short int>> returnValue;
+    // for (auto element : row_id_map_int[row_id].value())
+    // {
+    //     if (element <= range)
+    //     {
+    //         returnValue.push_back(element);
+    //     }
+    // }
+    return returnValue;
 }
 
 
@@ -531,59 +545,93 @@ bool dataFrame::readCSV(const std::string &infile)
     return true;
 
 }
-bool dataFrame::readTransitCSV(const std::string& infile)
+bool dataFrame::readOTPTransitMatrix(const std::string& infile)
 {
-    // std::ifstream Ifile;
-    // Ifile.open(infile);
-    // if (Ifile.fail()) {
-    //     Ifile.close();
-    //     return false;
-    // }
-    // std::string line;
-    // std::string srcId;
-    // std::string dstId;
-    // std::string weight;
-    // unsigned long int table_rows = 0;
-    // std::unordered_map<std::pair<unsigned long int, unsigned long int>, unsigned short int, pair_hash> input_data;
-    // //read the file
-    // while (getline(Ifile, line))
-    // {
-    //     std::istringstream stream(line);
-    //     getline(stream, srcId, ',');
-    //     getline(stream, dstId, ',');
-    //     getline(stream, weight, '\n');
-    //     table_rows++;
-    //     unsigned long int srcIdInt = stoul(srcId);
-    //     unsigned long int dstIdInt = stoul(dstId);
-    //     unsigned short int weightInt = stoi(weight);
-    //     input_data.insert(std::make_pair(std::make_pair(srcIdInt, dstIdInt), weightInt));
-    // }
-    // Ifile.close();
+    std::ifstream fileIN;
+    fileIN.open(infile);
+    if (fileIN.fail()) {
+        throw std::runtime_error("unable to read OTPTransitMatrix");
+    }
 
-    // // ensure the table is symmetric by verifying the number of rows
-    // // read in is a perfect square
-    // unsigned long int table_rows_sqrt = sqrt(table_rows);
-    // if (table_rows_sqrt * table_rows_sqrt != table_rows)
-    // {
-    //     throw std::runtime_error("Input table was not symmetrical");
-    // }
-    // this->n_rows = table_rows_sqrt;
-    // this->n_cols = table_rows_sqrt;
-    // this->isSymmetric = true;
+    std::string line;
+    std::vector<unsigned long int> col_labels;
+    std::string row_label_string;
+    std::string col_label_string;
+    unsigned long int row_label_int;
+    unsigned long int col_label_int;
 
-    // std::vector<unsigned long int> srcIdVector;
-    // std::vector<unsigned long int> dstIdVector;
-    // for (auto key : input_data)
-    // {
-    //     unsigned long int srcInt = key.first.first;
-    //     unsigned long int dstInt = key.first.second;
-    //     srcIdVector.push_back(srcInt);
-    //     dstIdVector.push_back(dstInt);
-    // }
-    // this->reserve(srcIdVector, dstIdVector);
-    // for (auto pair : input_data)
-    // {
-    //     this->insertSafe(pair.first.first, pair.first.second, pair.second);
-    // }
+    // read through the first n rows to read in all columns
+    while (getline(fileIN, line)) 
+    {
+        std::istringstream stream(line);
+        if (not getline(stream, row_label_string, ','))
+        {
+            throw std::runtime_error("expected row label");
+        }
+        if (not getline(stream, col_label_string, ','))
+        {
+            throw std::runtime_error("expected col label");
+        }
+
+        col_label_int = stoul(col_label_string);
+
+        // If its not the first row of the file and we run into
+        // the first column label, break
+        if (col_labels.size() > 0)
+        {
+            if (col_label_int == col_labels.at(0))
+            {
+                break;
+            }
+        }
+        col_labels.push_back(col_label_int);
+            
+    }
+    fileIN.close(); 
+    reserve(col_labels, col_labels);
+    metaData.set_is_symmetric(true);
+    metaData.set_row_label_type(p2p::metaData::INT);
+    metaData.set_col_label_type(p2p::metaData::INT);
+    fileIN.open(infile);
+    if (fileIN.fail()) {
+        throw std::runtime_error("unable to read OTPTransitMatrix");
+    }
+
+    // read through the table a second time to load values into
+    // memory
+    std::string value_string;
+    unsigned short int value_int;
+    unsigned int numRowsReadIn = 0;
+    unsigned int expectedRowsToRead = col_labels.size() * col_labels.size();
+    while (getline(fileIN, line)) 
+    {
+        if (numRowsReadIn > col_labels.size())
+        {
+            throw std::runtime_error("encountered more rows than expected");
+        }
+        std::istringstream stream(line);
+        if (not getline(stream, row_label_string, ','))
+        {
+            throw std::runtime_error("expected row label");
+        }
+        if (not getline(stream, col_label_string, ','))
+        {
+            throw std::runtime_error("expected col label");
+        }
+        if (not getline(stream, value_string, ','))
+        {
+            throw std::runtime_error("expected value");
+        }
+        col_label_int = stoul(col_label_string);
+        row_label_int = stoul(row_label_string);
+        value_int = std::stoi(value_string);
+        this->insertValue(value_int, row_label_int, col_label_int);
+        numRowsReadIn++;
+    }
+    if (numRowsReadIn != expectedRowsToRead)
+    {
+        throw std::runtime_error("expected to read " + std::to_string(expectedRowsToRead) + " rows but found " + std::to_string(numRowsReadIn));
+    }
+    fileIN.close(); 
     return true;
 }

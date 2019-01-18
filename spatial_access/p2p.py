@@ -71,10 +71,12 @@ class TransitMatrix():
         self._matrix_interface = MatrixInterface(logger=self.logger)
 
         assert network_type in [
-            'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
+            'drive', 'walk', 'bike', 'transit'], "network_type is not one of: ['drive', 'walk', 'bike', 'transit'] "
 
+        if network_type is 'transit':
+            assert read_from_file is not None, "must include read_from_file for transit network_type"
         if read_from_file:
-            self._matrix_interface.read_from_file(read_from_file)
+            self._matrix_interface.read_from_file(read_from_file, network_type)
 
     def set_logging(self):
         '''
@@ -392,6 +394,8 @@ class TransitMatrix():
         '''
         Process the data.
         '''
+        assert self.network_type is not 'transit', 'OTP matrix does not need to be processed'
+
         start_time = time.time()
 
         self.logger.info("Processing network (%s) with epsilon: %f",

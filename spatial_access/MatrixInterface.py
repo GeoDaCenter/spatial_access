@@ -96,18 +96,25 @@ class MatrixInterface():
         '''
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-    def read_from_file(self, infile, isSymmetric=False):
+    def read_from_file(self, infile, networkType, isSymmetric=False):
         '''
         Load a matrix from file
         '''
         start_time = time.time()
+        assert type(infile) == str, 'infile should be a string'
+        assert type(networkType) == str, 'networkType should be a string'
+        assert type(isSymmetric) == bool, 'isSymmetric should be a bool'
+
         if self.logger:
             self.logger.debug('isSymmetric:{}'.format(isSymmetric))
             warning_message = '''In this version of spatial_access, you cannot read a matrix
                                  from file if your data have non-integer indeces'''
             self.logger.warning(warning_message)
         try:
-            self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'), isSymmetric=isSymmetric)
+            isOTPTransitMatrix = networkType == 'transit'
+            self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'), 
+                                                  isSymmetric=isSymmetric, 
+                                                  isOTPTransitMatrix=isOTPTransitMatrix)
             logger_vars = time.time() - start_time
             if self.logger:
                 self.logger.info(
