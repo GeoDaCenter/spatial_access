@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
+#include <stdexcept>
 
 #include "Graph.h"
 

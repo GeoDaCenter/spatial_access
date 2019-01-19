@@ -19,6 +19,10 @@ void dijkstra(int src, graphWorkerArgs *wa);
 
 void graphWorkerHandler(graphWorkerArgs* wa);
 
+void rangeWorkerHandler(rangeWorkerArgs* wa);
+
+void calculateValuesForOneRow(unsigned long int row_id, rangeWorkerArgs *wa);
+
 
 namespace lmnoel {
 class transitMatrix {

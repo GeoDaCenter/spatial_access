@@ -132,14 +132,34 @@ void dijkstra(int src, graphWorkerArgs *wa) {
 
 void graphWorkerHandler(graphWorkerArgs* wa) {
     int src;
+    bool endNow = false;
     while (!wa->jq.empty()) {
-        src = wa->jq.pop();
+        src = wa->jq.pop(endNow);
 
         //exit loop if job queue was empty
-        if (src < 0) {
+        if (endNow) {
             break;
         }
         dijkstra(src, wa);
+    }
+}
+
+void calculateValuesForOneRow(unsigned long int row_id, rangeWorkerArgs *wa)
+{
+
+}
+
+void rangeWorkerHandler(rangeWorkerArgs* wa) {
+    unsigned long int row_id;
+    bool endNow = false;
+    while (!wa->jq.empty()) {
+        row_id = wa->jq.pop(endNow);
+
+        //exit loop if job queue was empty
+        if (endNow) {
+            break;
+        }
+        calculateValuesForOneRow(row_id, wa);
     }
 }
 

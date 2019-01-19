@@ -11,20 +11,22 @@
 /* jobQueue: a thread-safe queue for dispensing integer jobs*/
 class jobQueue {
 private:
-    std::vector <int> data;
+    std::vector <unsigned long int> data;
     std::mutex lock;
 public:
     jobQueue(int size_in);
     jobQueue(void);
     ~jobQueue(void);
     void insert(int item);
-    int pop(void);
+    int pop(bool &endNow);
     int size(void);
     bool empty(void);
 };
 
 
 typedef class graphWorkerArgs graphWorkerArgs;
+
+typedef class rangeWorkerArgs rangeWorkerArgs;
 
 
 /* A pool of worker threads to execute a job (f_in), which takes arguments (wa)*/
@@ -37,6 +39,7 @@ public:
     workerQueue(int n_threads_in);
     ~workerQueue(void);
     void startGraphWorker(void (*f_in)(graphWorkerArgs*), graphWorkerArgs *wa);
+    void startRangeWorker(void (*f_in)(rangeWorkerArgs*), rangeWorkerArgs *wa);
 };
 
 
@@ -56,5 +59,15 @@ public:
     : graph(graph), df(df), userSourceData(userSourceData), userDestData(userDestData),
      numNodes(numNodes) {}
     ~graphWorkerArgs(void);
+    void initialize();
+};
+
+class rangeWorkerArgs {
+public:
+    std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows;
+    std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols;
+    jobQueue jq;
+    rangeWorkerArgs();
+    ~rangeWorkerArgs(void);
     void initialize();
 };

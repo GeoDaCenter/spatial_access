@@ -30,14 +30,14 @@ void jobQueue::insert(int item) {
 
 
 /* pop from the jobQueue. Returns -1 if Queue is empty*/
-int jobQueue::pop(void) {
+int jobQueue::pop(bool &endNow) {
     int res;
     lock.lock();
     if (!data.empty()) {
         res = data.front();
         data.erase(data.begin());
     } else {
-        res = -1;
+        endNow = false;
     }
     lock.unlock();
     return res;
