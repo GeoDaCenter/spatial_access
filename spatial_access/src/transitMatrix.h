@@ -215,18 +215,23 @@ public:
     bool writeCSV(const std::string &outfile);
     bool writeTMX(const std::string &outfile);
     void printDataFrame() const;
-    const std::map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(int range);
-    const std::map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(int range);
+    void calculateValuesInRange(int threshold);
+    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(int range);
+    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(int range);
 private:
-    std::map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
-    std::map<unsigned long int, std::vector<unsigned long int>> destsInRange;
+    std::unordered_map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
+    std::unordered_map<unsigned long int, std::vector<unsigned long int>> destsInRange;
     int previousThreshold;
 };
 
 transitMatrix::transitMatrix(int V, bool isSymmetric)
 {
     this->previousThreshold = 0;
+    this->numNodes = V;
+    this->isSymmetric = isSymmetric;
+    graph.initializeGraph(V);
 }
+
 
 transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPTransitMatrix) 
 {
@@ -275,12 +280,6 @@ bool transitMatrix::writeTMX(const std::string &outfile)
     return this->df.writeTMX(outfile);
 }
 
-transitMatrix::transitMatrix(int V, bool isSymmetric)
-{
-    this->numNodes = V;
-    this->isSymmetric = isSymmetric;
-    graph.initializeGraph(V);
-}
 
 
 void transitMatrix::prepareDataFrame()
@@ -336,30 +335,56 @@ int transitMatrix::get(unsigned long int source, unsigned long int dest) const
     return df.retrieveValue(source, dest);
 }
 
-void transitMatrix::calculateDestsInRange(int threshold)
+void transitMatrix::calculateValuesInRange(int threshold)
 {
-    // iterate through every row
-    for (auto element : this->df.row_id_map_int)
+    // Initialize maps
+    for (unsigned long int row_id : this->df.metaData.row_label_int())
     {
-        // iterate through every column
-        std::vector<unsigned long int> current_ids;
-        for (auto col_id : this->df.metaData.col_label_int())
+        std::vector<unsigned long int> valueData;
+        // If the map is uninitialized, emplace the keys
+        if (previousThreshold == 0)
         {
-            // if the value at row_id, col_id is in range, add the column id to the current ids
-            if (this->df.retrieveValue(element.first, col_id) <= threshold)
+            this->destsInRange.emplace(std::make_pair(row_id, valueData));
+        }
+        // otherwise, reset the values
+        else
+        {
+            this->destsInRange.at(row_id) = valueData;
+        }
+    }
+
+    for (unsigned long int col_id : this->df.metaData.col_label_int())
+    {
+        std::vector<unsigned long int> valueData;
+        // If the map is uninitialized, emplace the keys
+        if (previousThreshold == 0)
+        {
+            this->sourcesInRange.emplace(std::make_pair(col_id, valueData));
+        }
+        // otherwise, reset the values
+        else
+        {
+            this->sourcesInRange.at(col_id) = valueData;
+        }
+    } 
+    for (unsigned long int row_label : df.metaData.row_label_int())
+    {
+        for (unsigned long int col_label : df.metaData.col_label_int())
+        {
+            if ((df.retrieveValue(row_label, col_label) <= threshold) and (row_label != col_label))
             {
-                current_ids.push_back(col_id);
+                destsInRange.at(row_label).push_back(col_label);
+                sourcesInRange.at(col_label).push_back(row_label);
             }
         }
-
-        // add the row_id->vector of col_ids to the return value
-        this->destsInRange.emplace(std::make_pair(element.first, current_ids));
-        this->sourcesInRange.emplace(std::make_pair(element.first, current_ids));
-    }
+       
+    
     this->previousThreshold = threshold;
+    }
+
 }
 
-const std::map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(int threshold)
+const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(int threshold)
 {
     // if transitMatrix has not yet calculated destsInRange for this value of 
     // threshold (which defaults to zero if it has never been calcualtes)
@@ -371,7 +396,7 @@ const std::map<unsigned long int, std::vector<unsigned long int>>& transitMatrix
 }
 
 
-const std::map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(int threshold)
+const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(int threshold)
 {
     // if transitMatrix has not yet calculated destsInRange for this value of 
     // threshold (which defaults to zero if it has never been calcualtes)

@@ -91,9 +91,33 @@ class TestClass():
         assert matrix.get(4, 2) == 14
         assert matrix.get(4, 4) == 0
 
-
-
     def test_4(self):
+        '''
+        Test getSourcesInRange and getDestsInRange (including INF points)
+        '''
+        matrix = pyTransitMatrix(vertices=4, isSymmetric=False)
+
+        matrix.addEdgeToGraph(0, 1, 5, True)
+        matrix.addEdgeToGraph(1, 2, 6, False)
+        matrix.addEdgeToGraph(2, 3, 2, True)
+        matrix.addEdgeToGraph(2, 4, 4, True)
+        matrix.addEdgeToGraph(3, 4, 3, True)
+
+        matrix.addToUserSourceDataContainer(1, 1, 1, True)
+        matrix.addToUserSourceDataContainer(0, 2, 2, True)
+        matrix.addToUserSourceDataContainer(3, 3, 3, True)
+        matrix.addToUserSourceDataContainer(1, 4, 7, True)
+
+        matrix.compute(3)
+
+        sources_in_range = matrix.getSourcesInRange(12)
+        dests_in_range = matrix.getDestsInRange(12)
+
+        assert sources_in_range == {4: [1], 3: [1], 1: [2, 4], 2: [1]}
+        assert dests_in_range == {4: [1], 3: [], 1: [2, 3, 4], 2: [1]}
+
+
+    def test_5(self):
         '''
         Cleanup.
         '''

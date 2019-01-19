@@ -5,6 +5,7 @@ import multiprocessing
 import time
 import sys
 import os
+import json
 try:
     from transitMatrixAdapter import pyTransitMatrix
 except BaseException:
@@ -19,13 +20,65 @@ class MatrixInterface():
     def __init__(self, logger=None):
         self.logger = logger
         self.transit_matrix = None
-        self._internal_index_counter = 0
+        self._source_id_index = 0
+        self._dest_id_index = 0
         self._int_id_map = {}
+        self._source_id_remap = {}
+        self._dest_id_remap = {}
         self._warned_once = False
         self._string_id_warning = '''
-        Using string ids is very slow. 
-        You should map noninteger ids to integers instead
+        To optimize performance, your non-integer row and/or
+        column labels were remapped to integers. You can recover
+        the mapping of integer id to old string id using the following
+        methods:
+            - get_source_id_remap()
+            - get_dest_id_remap()
+            - write_source_id_remap_to_json(filename)
+            - write_dest_id_remap_to_json(filename)
         '''
+
+    def get_source_id_remap(self):
+        '''
+        Get the internal mapping of user string id to 
+        integer id for sources.
+        '''
+
+        return self._source_id_remap
+
+    def write_source_id_remap_to_json(self, filename):
+        '''
+        Write the internal mapping of user string id to 
+        integer id for sources to json.
+        '''
+        with open(filename, 'w') as jsonfile:
+            json.dump(self._source_id_remap, jsonfile)
+
+    def get_dest_id_remap(self):
+        '''
+        Get the internal mapping of user string id to 
+        integer id for dests.
+        '''
+
+        return self._dest_id_remap
+
+    def get_sources_in_range(self, threshold):
+        '''
+        '''
+        return self.transit_matrix.getSourcesInRange(threshold)
+
+    def get_dests_in_range(self, threshold):
+        '''
+        '''
+        return self.transit_matrix.getDestsInRange(threshold)
+
+    def write_dest_id_remap_to_json(self, filename):
+        '''
+        Write the internal mapping of user string id to 
+        integer id for dests to json.
+        '''
+        with open(filename, 'w') as jsonfile:
+            json.dump(self._dest_id_remap, jsonfile)
+
 
     @staticmethod
     def _get_thread_limit():
@@ -43,18 +96,25 @@ class MatrixInterface():
 
         return no_cores
 
-    def _get_internal_int_id(self, user_id):
+    def _get_internal_int_id(self, user_id, dest=False):
         '''
         Map the user's string id to an internal
-        int id.
+        int id (different sets for source/dest).
         '''
-        if user_id in self._int_id_map:
-            return self._int_id_map[user_id]
+        if not dest:
+            if user_id in self._source_id_remap:
+                return self._source_id_remap[user_id]
+            else:
+                self._source_id_remap[user_id] = self._source_id_index
+                self._source_id_index += 1
+                return self._source_id_index - 1
         else:
-            self._int_id_map[user_id] = self._internal_index_counter
-            new_id = self._internal_index_counter
-            self._internal_index_counter += 1
-            return new_id
+            if user_id in self._dest_id_remap:
+                return self._dest_id_remap[user_id]
+            else:
+                self._dest_id_remap[user_id] = self._dest_id_index
+                self._dest_id_index += 1
+                return self._dest_id_index - 1
 
 
     def add_user_source_data(self, network_id, user_id, distance, primary_only):
@@ -63,8 +123,6 @@ class MatrixInterface():
         If the given user_id is a string, first map to an
         internally held int id.
         '''
-        if self.logger:
-            self.logger.debug('network_id:{}, user_id: {}, distance: {}'.format(network_id, user_id, distance))
         if isinstance(user_id, str):
             if self.logger and not self._warned_once:
                 self.logger.warning(self._string_id_warning)
@@ -80,15 +138,14 @@ class MatrixInterface():
         If the given user_id is a string, first map to an
         internally held int id.
         '''
-        if self.logger:
-            self.logger.debug('network_id:{}, user_id: {}, distance: {}'.format(network_id, user_id, distance))
         if isinstance(user_id, str):
             if self.logger and not self._warned_once:
                 self.logger.warning(self._string_id_warning)
                 self._warned_once = True
-            user_id = self._get_internal_int_id(user_id)
+            user_id = self._get_internal_int_id(user_id, True)
         self.transit_matrix.addToUserDestDataContainer(network_id, user_id,
                                                        distance)
+
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
         '''
@@ -96,25 +153,25 @@ class MatrixInterface():
         '''
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-    def read_from_file(self, infile, networkType, isSymmetric=False):
+    def read_from_file(self, infile, isOTPMatrix=False, isSymmetric=False):
         '''
         Load a matrix from file
         '''
         start_time = time.time()
         assert type(infile) == str, 'infile should be a string'
-        assert type(networkType) == str, 'networkType should be a string'
+        assert type(isOTPMatrix) == bool, 'isOTPMatrix should be a bool'
         assert type(isSymmetric) == bool, 'isSymmetric should be a bool'
 
         if self.logger:
             self.logger.debug('isSymmetric:{}'.format(isSymmetric))
-            warning_message = '''In this version of spatial_access, you cannot read a matrix
-                                 from file if your data have non-integer indeces'''
+            warning_message = '''read_from_file will fail if rows or columns
+                                 have non-integer indeces'''
             self.logger.warning(warning_message)
         try:
-            isOTPTransitMatrix = networkType == 'transit'
+    
             self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'), 
                                                   isSymmetric=isSymmetric, 
-                                                  isOTPTransitMatrix=isOTPTransitMatrix)
+                                                  isOTPMatrix=isOTPMatrix)
             logger_vars = time.time() - start_time
             if self.logger:
                 self.logger.info(
@@ -129,13 +186,13 @@ class MatrixInterface():
         '''
         Load a matrix from csv (synonymous to read_from_file)
         '''
-        self.read_from_file(infile, isSymmetric)
+        self.read_from_file(infile, isSymmetric=isSymmetric)
 
     def read_from_tmx(self, infile, isSymmetric=False):
         '''
         Load a matrix from tmx (synonymous to read_from_file)
         '''
-        self.read_from_file(infile, isSymmetric)
+        self.read_from_file(infile, isSymmetric=isSymmetric)
 
     def prepare_matrix(self, num_nodes, isSymmetric=False):
         '''
@@ -184,6 +241,30 @@ class MatrixInterface():
             self.logger.info(
             'Shortest path matrix computed in {:,.2f} seconds using {} threads'.format(logger_vars, thread_limit))
 
+    def get_dests_in_range(self, threshold):
+        '''
+        Return a source_id->[array of dest_id]
+        map for dests under threshold distance
+        from source.
+        '''
+        start_time = time.time()
+        res = self.transit_matrix.getDestsInRange(threshold)
+        if self.logger:
+            self.logger.info('get_dests_in_range computed in {:,.2f} seconds'.format(time.time() - start_time))
+        return res
+
+    def get_sources_in_range(self, threshold):
+        '''
+        Return a dest_id->[array of source_id]
+        map for sources under threshold distance
+        from dest.
+        '''
+        start_time = time.time()
+        res = self.transit_matrix.getSourcesInRange(threshold)
+        if self.logger:
+            self.logger.info('get_sources_in_range computed in {:,.2f} seconds'.format(time.time() - start_time))
+        return res
+
     def get(self, source, dest):
         '''
         Fetch the time value associated with the source, dest pair.
@@ -203,3 +284,4 @@ class MatrixInterface():
         Print the underlying data frame.
         '''
         self.transit_matrix.printDataFrame()
+

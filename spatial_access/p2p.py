@@ -76,7 +76,7 @@ class TransitMatrix():
         if network_type is 'transit':
             assert read_from_file is not None, "must include read_from_file for transit network_type"
         if read_from_file:
-            self._matrix_interface.read_from_file(read_from_file, network_type)
+            self._matrix_interface.read_from_file(read_from_file, isOTPMatrix=network_type=='transit')
 
     def set_logging(self):
         '''
