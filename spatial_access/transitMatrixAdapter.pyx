@@ -2,7 +2,7 @@
 from libcpp.string cimport string
 from libcpp cimport bool
 from libcpp.vector cimport vector
-from libcpp.map cimport map
+from libcpp.unordered_map cimport unordered_map
 
 cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
     cdef cppclass dataFrame:
@@ -12,7 +12,7 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
     cdef cppclass transitMatrix:
         ctypedef unsigned long int label
         transitMatrix(int, bool isSymmetric) except +
-        transitMatrix(string, bool isSymmetric, bool isOTPTransitMatrix) except +
+        transitMatrix(string, bool isSymmetric, bool isOTPMatrix) except +
         void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
         void addToUserDestDataContainer(int, unsigned long int, int) except +
         void addEdgeToGraph(int, int, int, bool) except +
@@ -21,23 +21,27 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         bool writeCSV(string) except +
         bool writeTMX(string) except +
         void printDataFrame() except +
-        map[unsigned long int, vector[label]] getDestsInRange(int) except +
+        unordered_map[unsigned long int, vector[label]] getDestsInRange(int) except +
+        unordered_map[unsigned long int, vector[label]] getSourcesInRange(int) except +
 
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, string infile = "", int vertices = -1, bool isSymmetric = False, isOTPTransitMatrix = False):
+    def __cinit__(self, string infile = "", int vertices = -1, bool isSymmetric = False, isOTPMatrix = False):
         if vertices > 0:
             self.thisptr = new transitMatrix(vertices, isSymmetric)
         else:
             # pass
-            self.thisptr = new transitMatrix(infile, isSymmetric, isOTPTransitMatrix)
+            self.thisptr = new transitMatrix(infile, isSymmetric, isOTPMatrix)
 
     def __dealloc__(self):
         del self.thisptr
 
     def getDestsInRange(self, range_):
         return self.thisptr.getDestsInRange(range_)
+
+    def getSourcesInRange(self, range_):
+        return self.thisptr.getSourcesInRange(range_)
 
     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance, isBidirectional):
         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance, isBidirectional)
