@@ -206,7 +206,7 @@ public:
     void addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V, bool isSymmetric);
-    transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPTransitMatrix);
+    transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPMatrix);
     void compute(int numThreads);
     transitMatrix(void);
     int get(unsigned long int source, unsigned long intdest) const;
@@ -233,13 +233,13 @@ transitMatrix::transitMatrix(int V, bool isSymmetric)
 }
 
 
-transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPTransitMatrix) 
+transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPMatrix) 
 {
     this->previousThreshold = 0;
-    if (isOTPTransitMatrix)
+    if (isOTPMatrix)
     {
-        this->isSymmetric = true;
-        if (!df.readOTPTransitMatrix(infile))
+        this->isSymmetric = false;
+        if (!df.readOTPMatrix(infile))
         {
             throw std::runtime_error("failed to load dataFrame from OTP matrix");
         }   

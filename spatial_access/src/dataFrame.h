@@ -15,7 +15,7 @@
 
 #include "protobuf/p2p.pb.h"
 
-#define UNDEFINED (0)
+#define UNDEFINED (USHRT_MAX)
 
 /* a pandas-like dataFrame */
 class dataFrame {
@@ -61,7 +61,7 @@ public:
     bool readRowdata(const std::string &outfile, unsigned long int row_id);
     bool readRowdata(const std::string &outfile, const std::string &row_id);
     void printDataFrame() const;
-    bool readOTPTransitMatrix(const std::string& infile);
+    bool readOTPMatrix(const std::string& infile);
 
     // Utility
     bool isUnderDiagonal(unsigned long int row_id, unsigned long int col_id) const;
@@ -531,7 +531,7 @@ bool dataFrame::readCSV(const std::string &infile)
     return true;
 
 }
-bool dataFrame::readOTPTransitMatrix(const std::string& infile)
+bool dataFrame::readOTPMatrix(const std::string& infile)
 {
     std::ifstream fileIN;
     fileIN.open(infile);
@@ -540,9 +540,11 @@ bool dataFrame::readOTPTransitMatrix(const std::string& infile)
     }
 
     std::string line;
-    std::vector<unsigned long int> col_labels;
     std::string row_label_string;
     std::string col_label_string;
+    std::unordered_set<unsigned long int> row_label_set;
+    std::unordered_set<unsigned long int> col_label_set;
+
     unsigned long int row_label_int;
     unsigned long int col_label_int;
 
@@ -560,22 +562,16 @@ bool dataFrame::readOTPTransitMatrix(const std::string& infile)
         }
 
         col_label_int = stoul(col_label_string);
-
-        // If its not the first row of the file and we run into
-        // the first column label, break
-        if (col_labels.size() > 0)
-        {
-            if (col_label_int == col_labels.at(0))
-            {
-                break;
-            }
-        }
-        col_labels.push_back(col_label_int);
-            
+        row_label_int = stoul(row_label_string);
+        row_label_set.insert(row_label_int);
+        col_label_set.insert(col_label_int);
     }
+    std::vector<unsigned long int> row_labels(row_label_set.begin(), row_label_set.end());
+    std::vector<unsigned long int> col_labels(col_label_set.begin(), col_label_set.end());
+
     fileIN.close(); 
-    reserve(col_labels, col_labels);
-    metaData.set_is_symmetric(true);
+    reserve(row_labels, col_labels);
+    metaData.set_is_symmetric(false);
     metaData.set_row_label_type(p2p::metaData::INT);
     metaData.set_col_label_type(p2p::metaData::INT);
     fileIN.open(infile);
@@ -587,14 +583,8 @@ bool dataFrame::readOTPTransitMatrix(const std::string& infile)
     // memory
     std::string value_string;
     unsigned short int value_int;
-    unsigned int numRowsReadIn = 0;
-    unsigned int expectedRowsToRead = col_labels.size() * col_labels.size();
     while (getline(fileIN, line)) 
     {
-        if (numRowsReadIn > col_labels.size())
-        {
-            throw std::runtime_error("encountered more rows than expected");
-        }
         std::istringstream stream(line);
         if (not getline(stream, row_label_string, ','))
         {
@@ -612,12 +602,8 @@ bool dataFrame::readOTPTransitMatrix(const std::string& infile)
         row_label_int = stoul(row_label_string);
         value_int = std::stoi(value_string);
         this->insertValue(value_int, row_label_int, col_label_int);
-        numRowsReadIn++;
     }
-    if (numRowsReadIn != expectedRowsToRead)
-    {
-        throw std::runtime_error("expected to read " + std::to_string(expectedRowsToRead) + " rows but found " + std::to_string(numRowsReadIn));
-    }
+
     fileIN.close(); 
     return true;
 }

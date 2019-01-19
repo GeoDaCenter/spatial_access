@@ -223,29 +223,32 @@ class TestClass():
         will throw an assertion error when expected.
         '''
         # not specifying read_from_file throws an error
-        
+    
 
-        # deselected necaise otp read is broken
+        try:
+            transit_matrix_1 = TransitMatrix('transit')
+            assert False
+        except AssertionError:
+            assert True
 
-        # try:
-        #     transit_matrix_1 = TransitMatrix('transit')
-        #     assert False
-        # except AssertionError:
-        #     assert True
-
-        # #calling .process() throws an error
-        # try:
-        #     transit_matrix_1 = TransitMatrix('transit', 
-        #                                      read_from_file='tests/test_data/otp_transit_test.csv')
-        #     transit_matrix_1.process()
-        #     assert False
-        # except AssertionError:
-        #     assert True
+        #calling .process() throws an error
+        try:
+            transit_matrix_1 = TransitMatrix('transit', 
+                                             read_from_file='tests/test_data/sample_otp.csv')
+            transit_matrix_1.process()
+            assert False
+        except AssertionError:
+            assert True
 
 
     def test_16(self):
         '''
         Tests reading an OTP transit matrix.
         '''
-        
+        transit_matrix_1 = TransitMatrix('transit', read_from_file='tests/test_data/sample_otp.csv')
+
+        assert transit_matrix_1._matrix_interface.get(530330077002014, 530330077002014) == 0
+        assert transit_matrix_1._matrix_interface.get(530330077002014, 530330247021004) == 114
+        assert transit_matrix_1._matrix_interface.get(530330322102064, 530330222032019) == 65535
+
         assert True
