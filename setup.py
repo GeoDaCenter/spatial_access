@@ -36,7 +36,13 @@ if sys.platform == "darwin":
 
 EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapter.pyx'],
+    sources = ['spatial_access/transitMatrixAdapter.pyx', 
+               'spatial_access/src/Graph.cpp',
+               'spatial_access/src/MinHeap.cpp',
+               'spatial_access/src/userDataContainer.cpp',
+               'spatial_access/src/dataFrame.cpp',
+               'spatial_access/src/threadUtilities.cpp',
+               'spatial_access/src/transitMatrix.cpp'],
     extra_compile_args = ['-std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
