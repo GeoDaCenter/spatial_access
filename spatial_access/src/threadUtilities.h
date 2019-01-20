@@ -64,10 +64,15 @@ public:
 
 class rangeWorkerArgs {
 public:
+    jobQueue jq;
+    dataFrame &df;
+    int threshold;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols;
-    jobQueue jq;
-    rangeWorkerArgs();
+    rangeWorkerArgs(dataFrame &df, int threshold, 
+                    std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows,
+                    std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols) 
+                        : df(df), threshold(threshold), rows(rows), cols(cols) {}
     ~rangeWorkerArgs(void);
     void initialize();
 };

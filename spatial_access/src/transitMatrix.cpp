@@ -144,8 +144,16 @@ void graphWorkerHandler(graphWorkerArgs* wa) {
     }
 }
 
-void calculateValuesForOneRow(unsigned long int row_id, rangeWorkerArgs *wa)
+void calculateValuesForOneRow(unsigned long int row_label, rangeWorkerArgs *wa)
 {
+    for (unsigned long int col_label : wa->df.metaData.col_label_int())
+        {
+            if ((wa->df.retrieveValue(row_label, col_label) <= wa->threshold) and (row_label != col_label))
+            {
+                wa->rows.at(row_label).push_back(col_label);
+                // wa->cols.at(col_label).push_back(row_label);
+            }
+        }
 
 }
 
@@ -277,7 +285,7 @@ int transitMatrix::get(unsigned long int source, unsigned long int dest) const
     return df.retrieveValue(source, dest);
 }
 
-void transitMatrix::calculateValuesInRange(int threshold)
+void transitMatrix::calculateValuesInRange(int threshold, int numThreads)
 {
     // Initialize maps
     for (unsigned long int row_id : this->df.metaData.row_label_int())
@@ -308,43 +316,36 @@ void transitMatrix::calculateValuesInRange(int threshold)
         {
             this->sourcesInRange.at(col_id) = valueData;
         }
-    } 
-    for (unsigned long int row_label : df.metaData.row_label_int())
-    {
-        for (unsigned long int col_label : df.metaData.col_label_int())
-        {
-            if ((df.retrieveValue(row_label, col_label) <= threshold) and (row_label != col_label))
-            {
-                destsInRange.at(row_label).push_back(col_label);
-                sourcesInRange.at(col_label).push_back(row_label);
-            }
-        }
-       
-    
-    this->previousThreshold = threshold;
     }
+    
+    rangeWorkerArgs wa(this->df, threshold, this->destsInRange, this->sourcesInRange);
+    wa.initialize();
+    workerQueue wq(numThreads);
+    wq.startRangeWorker(rangeWorkerHandler, &wa);
+    this->previousThreshold = threshold;
+    
 
 }
 
-const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(int threshold)
+const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(int threshold, int numThreads)
 {
     // if transitMatrix has not yet calculated destsInRange for this value of 
     // threshold (which defaults to zero if it has never been calcualtes)
     if (this->previousThreshold != threshold)
     {
-        calculateValuesInRange(threshold);
+        calculateValuesInRange(threshold, numThreads);
     }
     return this->destsInRange;
 }
 
 
-const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(int threshold)
+const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(int threshold, int numThreads)
 {
     // if transitMatrix has not yet calculated destsInRange for this value of 
     // threshold (which defaults to zero if it has never been calcualtes)
     if (this->previousThreshold != threshold)
     {
-        calculateValuesInRange(threshold);
+        calculateValuesInRange(threshold, numThreads);
     }
     return this->sourcesInRange;
 }

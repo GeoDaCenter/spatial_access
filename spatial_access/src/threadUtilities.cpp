@@ -38,6 +38,7 @@ int jobQueue::pop(bool &endNow) {
         data.erase(data.begin());
     } else {
         endNow = false;
+        res = -1;
     }
     lock.unlock();
     return res;
@@ -82,6 +83,16 @@ void workerQueue::startGraphWorker(void (*f_in)(graphWorkerArgs*), graphWorkerAr
     }
 }
 
+/* start the workerQueue */
+void workerQueue::startRangeWorker(void (*f_in)(rangeWorkerArgs*), rangeWorkerArgs *wa) {
+    for (int i = 0; i < n_threads; i++) {
+        threadArray[i] = std::thread(f_in, wa);
+    }
+
+    for (int j = 0; j < n_threads; j++) {
+        threadArray[j].join();
+    }
+}
 
 /* delete the workerQueue */
 workerQueue::~workerQueue(void) {
@@ -99,5 +110,18 @@ void graphWorkerArgs::initialize()
 
 /* wa destructor */
 graphWorkerArgs::~graphWorkerArgs(void) {
+
+}
+
+void rangeWorkerArgs::initialize()
+{
+    //initialize job queue
+    for (auto i : df.metaData.row_label_int()) {
+        jq.insert(i);
+    }
+}
+
+/* wa destructor */
+rangeWorkerArgs::~rangeWorkerArgs(void) {
 
 }

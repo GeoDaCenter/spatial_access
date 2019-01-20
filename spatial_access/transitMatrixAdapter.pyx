@@ -21,8 +21,8 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         bool writeCSV(string) except +
         bool writeTMX(string) except +
         void printDataFrame() except +
-        unordered_map[unsigned long int, vector[label]] getDestsInRange(int) except +
-        unordered_map[unsigned long int, vector[label]] getSourcesInRange(int) except +
+        unordered_map[unsigned long int, vector[label]] getDestsInRange(int, int) except +
+        unordered_map[unsigned long int, vector[label]] getSourcesInRange(int, int) except +
 
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
@@ -37,11 +37,11 @@ cdef class pyTransitMatrix:
     def __dealloc__(self):
         del self.thisptr
 
-    def getDestsInRange(self, range_):
-        return self.thisptr.getDestsInRange(range_)
+    def getDestsInRange(self, range_, numThreads):
+        return self.thisptr.getDestsInRange(range_, numThreads)
 
-    def getSourcesInRange(self, range_):
-        return self.thisptr.getSourcesInRange(range_)
+    def getSourcesInRange(self, range_, numThreads):
+        return self.thisptr.getSourcesInRange(range_, numThreads)
 
     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance, isBidirectional):
         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance, isBidirectional)

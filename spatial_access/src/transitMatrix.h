@@ -47,9 +47,9 @@ public:
     bool writeCSV(const std::string &outfile);
     bool writeTMX(const std::string &outfile);
     void printDataFrame() const;
-    void calculateValuesInRange(int threshold);
-    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(int range);
-    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(int range);
+    void calculateValuesInRange(int threshold, int numThreads);
+    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(int range, int numThreads);
+    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(int range, int numThreads);
 private:
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> destsInRange;
