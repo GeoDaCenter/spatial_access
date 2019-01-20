@@ -17,8 +17,8 @@ public:
     jobQueue(int size_in);
     jobQueue(void);
     ~jobQueue(void);
-    void insert(int item);
-    int pop(bool &endNow);
+    void insert(unsigned long int item);
+    unsigned long int pop(bool &endNow);
     int size(void);
     bool empty(void);
 };

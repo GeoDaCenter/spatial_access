@@ -22,7 +22,7 @@ jobQueue::~jobQueue(void) {
 
 
 /* insert to the jobQueue */
-void jobQueue::insert(int item) {
+void jobQueue::insert(unsigned long int item) {
     lock.lock();
     data.insert(data.end(), item);
     lock.unlock();
@@ -30,8 +30,8 @@ void jobQueue::insert(int item) {
 
 
 /* pop from the jobQueue. Returns -1 if Queue is empty*/
-int jobQueue::pop(bool &endNow) {
-    int res;
+unsigned long int jobQueue::pop(bool &endNow) {
+    unsigned long int res;
     lock.lock();
     if (!data.empty()) {
         res = data.front();
