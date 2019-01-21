@@ -63,9 +63,7 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs *wa, int src) {
             }
 
         }
-        wa->writeLock.lock();
         wa->df.insertRow(row_data, sourceDataPoint.id);
-        wa->writeLock.unlock();
     }
 }
 

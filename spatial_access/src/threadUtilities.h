@@ -53,7 +53,6 @@ public:
     userDataContainer userSourceData;
     userDataContainer userDestData;
     int numNodes;
-    std:: mutex writeLock;
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
                        int numNodes, dataFrame &df) 

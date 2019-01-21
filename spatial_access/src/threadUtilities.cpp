@@ -23,9 +23,7 @@ jobQueue::~jobQueue(void) {
 
 /* insert to the jobQueue */
 void jobQueue::insert(unsigned long int item) {
-    lock.lock();
     data.insert(data.end(), item);
-    lock.unlock();
 }
 
 
@@ -136,6 +134,6 @@ rangeWorkerArgs::~rangeWorkerArgs(void)
 // initialize column_locks;
     for (auto col_label : df.metaData.col_label_int())
     {
-        column_locks.erase(col_label);
+        // column_locks.erase(col_label);
     }
 }

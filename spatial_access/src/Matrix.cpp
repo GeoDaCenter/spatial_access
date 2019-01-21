@@ -39,7 +39,7 @@ int main()
     // // matrix.addToUserDestDataContainer(3, 13, 3);
     // // matrix.addToUserDestDataContainer(1, 14, 7);
 
-    matrix.compute(1);
+    matrix.compute(19);
 
     auto destsInRange = matrix.getDestsInRange(13, 10);
     printMapOfArrays(destsInRange);

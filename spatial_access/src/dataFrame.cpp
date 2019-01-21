@@ -169,12 +169,12 @@ void dataFrame::insertValue(unsigned short int value, unsigned long int row_id, 
         else
         {
             // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_int_to_loc[col_id] - col_id_int_to_loc[row_id];
+            auto col_loc = col_id_int_to_loc.at(col_id) - col_id_int_to_loc.at(row_id);
             row_id_map_int.at(row_id).set_value(col_loc, value);
         }
     } else
     {
-        auto col_loc = col_id_int_to_loc[col_id];
+        auto col_loc = col_id_int_to_loc.at(col_id);
         row_id_map_int.at(row_id).set_value(col_loc, value);
     }
 }
@@ -192,12 +192,12 @@ void dataFrame::insertValue(unsigned short int value, const std::string& row_id,
         else
         {
             // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_string_to_loc[col_id] - col_id_string_to_loc[row_id];
+            auto col_loc = col_id_string_to_loc.at(col_id) - col_id_string_to_loc.at(row_id);
             row_id_map_string.at(row_id).set_value(col_loc, value);
         }
     } else
     {
-        auto col_loc = col_id_string_to_loc[col_id];
+        auto col_loc = col_id_string_to_loc.at(col_id);
         row_id_map_string.at(row_id).set_value(col_loc, value);
     }
 }
