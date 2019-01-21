@@ -3,6 +3,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <memory>
 
 #include "Graph.h"
 #include "userDataContainer.h"
@@ -69,10 +70,12 @@ public:
     int threshold;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols;
+    std::unordered_map<unsigned long int, std::unique_ptr<std::mutex>> column_locks;
     rangeWorkerArgs(dataFrame &df, int threshold, 
                     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows,
                     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols) 
                         : df(df), threshold(threshold), rows(rows), cols(cols) {}
+    
     ~rangeWorkerArgs(void);
     void initialize();
 };

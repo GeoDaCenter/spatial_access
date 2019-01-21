@@ -148,11 +148,12 @@ void calculateValuesForOneRow(unsigned long int row_label, rangeWorkerArgs *wa)
 {
     for (unsigned long int col_label : wa->df.metaData.col_label_int())
         {
-            // std::cout << "row: " << row_label << " col: " << col_label << std::endl;
             if ((wa->df.retrieveValue(row_label, col_label) <= wa->threshold) and (row_label != col_label))
             {
                 wa->rows.at(row_label).push_back(col_label);
-                // wa->cols.at(col_label).push_back(row_label);
+                wa->column_locks.at(col_label)->lock();
+                wa->cols.at(col_label).push_back(row_label);
+                wa->column_locks.at(col_label)->unlock();
             }
         }
 

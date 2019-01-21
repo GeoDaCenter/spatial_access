@@ -109,19 +109,33 @@ void graphWorkerArgs::initialize()
 }
 
 /* wa destructor */
-graphWorkerArgs::~graphWorkerArgs(void) {
+graphWorkerArgs::~graphWorkerArgs(void) 
+{
 
 }
 
 void rangeWorkerArgs::initialize()
 {
     //initialize job queue
-    for (auto i : df.metaData.row_label_int()) {
+    for (auto i : df.metaData.row_label_int()) 
+    {
         jq.insert(i);
+    }
+
+    // initialize column_locks;
+    for (auto col_label : df.metaData.col_label_int())
+    {
+        column_locks.emplace(col_label, new std::mutex);
     }
 }
 
-/* wa destructor */
-rangeWorkerArgs::~rangeWorkerArgs(void) {
 
+/* wa destructor */
+rangeWorkerArgs::~rangeWorkerArgs(void) 
+{
+// initialize column_locks;
+    for (auto col_label : df.metaData.col_label_int())
+    {
+        column_locks.erase(col_label);
+    }
 }
