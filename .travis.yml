@@ -1,4 +1,4 @@
-language: python
+language: python, cpp
 
 os:
 - linux
@@ -21,3 +21,8 @@ addons:
   homebrew:
     packages:
       spatialindex
+  apt:
+    packages:
+      - g++-7
+  env:
+    CXX='g++-7'
