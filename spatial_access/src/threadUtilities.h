@@ -69,7 +69,7 @@ public:
     int threshold;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols;
-    std::unordered_map<unsigned long int, std::unique_ptr<std::mutex>> column_locks;
+    std::mutex column_write_lock;
     rangeWorkerArgs(dataFrame &df, int threshold, 
                     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows,
                     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols) 

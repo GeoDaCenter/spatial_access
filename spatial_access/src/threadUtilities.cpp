@@ -120,20 +120,11 @@ void rangeWorkerArgs::initialize()
         jq.insert(i);
     }
 
-    // initialize column_locks;
-    for (auto col_label : df.metaData.col_label_int())
-    {
-        column_locks.emplace(col_label, new std::mutex);
-    }
 }
 
 
 /* wa destructor */
 rangeWorkerArgs::~rangeWorkerArgs(void) 
 {
-// initialize column_locks;
-    for (auto col_label : df.metaData.col_label_int())
-    {
-        column_locks.erase(col_label);
-    }
+
 }

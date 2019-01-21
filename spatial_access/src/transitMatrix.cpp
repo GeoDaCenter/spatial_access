@@ -149,9 +149,9 @@ void calculateValuesForOneRow(unsigned long int row_label, rangeWorkerArgs *wa)
             if ((wa->df.retrieveValue(row_label, col_label) <= wa->threshold) and (row_label != col_label))
             {
                 wa->rows.at(row_label).push_back(col_label);
-                wa->column_locks.at(col_label)->lock();
+                wa->column_write_lock.lock();
                 wa->cols.at(col_label).push_back(row_label);
-                wa->column_locks.at(col_label)->unlock();
+                wa->column_write_lock.unlock();
             }
         }
 
