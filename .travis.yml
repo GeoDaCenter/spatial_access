@@ -1,30 +1,27 @@
+language: pythonq
+
 os:
 - linux
 
-matrix:
-  include:
-    language: python
+python:
+- "3.6"
 
+before install:
+- sudo apt install python3-rtree
+- pip3 install Cython
+- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+- sudo apt-get update -q
+- sudo apt-get install gcc-7.3 -y
 
-    python:
-    - "3.6"
+install:
+- CC=gcc-7.3 CXX=g++7.3
+- bash install-proto.sh
+- pip3 install .
 
-    before install:
-    - sudo apt install python3-rtree
-    - pip3 install Cython
+script:
+- pytest tests/
 
-    install:
-    - bash install-proto.sh
-    - pip3 install .
-
-    script:
-    - pytest tests/
-
-    addons:
-      homebrew:
-        packages:
-          spatialindex
-
-    language: cpp
-      compiler: gcc
-      dist: trusty
+addons:
+  homebrew:
+    packages:
+      spatialindex
