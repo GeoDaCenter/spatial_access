@@ -3,6 +3,7 @@ from libcpp.string cimport string
 from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
+from libcpp.utility cimport pair
 
 cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
     cdef cppclass dataFrame:
@@ -11,6 +12,7 @@ cdef extern from "src/protobuf/p2p.pb.cc" namespace "p2p":
 cdef extern from "src/transitMatrix.h" namespace "lmnoel":
     cdef cppclass transitMatrix:
         ctypedef unsigned long int label
+        ctypedef unsigned short int value
         transitMatrix(int, bool isSymmetric) except +
         transitMatrix(string, bool isSymmetric, bool isOTPMatrix) except +
         void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
@@ -23,7 +25,8 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         void printDataFrame() except +
         unordered_map[unsigned long int, vector[label]] getDestsInRange(int, int) except +
         unordered_map[unsigned long int, vector[label]] getSourcesInRange(int, int) except +
-
+        vector[pair[label, value]] getValuesByDest(unsigned long int, bool) except +
+        vector[pair[label, value]] getValuesBySource(unsigned long int, bool) except +
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
@@ -42,6 +45,12 @@ cdef class pyTransitMatrix:
 
     def getSourcesInRange(self, range_, numThreads):
         return self.thisptr.getSourcesInRange(range_, numThreads)
+
+    def getValuesBySource(self, source_id, sort):
+        return self.thisptr.getValuesBySource(source_id, sort)
+
+    def getValuesByDest(self, dest_id, sort):
+        return self.thisptr.getValuesByDest(dest_id, sort)
 
     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance, isBidirectional):
         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance, isBidirectional)

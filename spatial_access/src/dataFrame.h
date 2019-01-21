@@ -34,6 +34,8 @@ public:
     void setSymmetric(bool isSymmetric);
     void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
     void insertRow(const std::unordered_map<std::string, unsigned short int> &row_data, const std::string& source_id);
+    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesByRow(unsigned long int row_id, bool sort);
+    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesByCol(unsigned long int row_id, bool sort);
 
     // Input/Output:
     bool readCSV(const std::string &infile);

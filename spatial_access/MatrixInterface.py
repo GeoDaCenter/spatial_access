@@ -61,6 +61,20 @@ class MatrixInterface():
 
         return self._dest_id_remap
 
+    def get_values_by_source(source_id, sort=False):
+        '''
+        Get a list of (dest_id, value) pairs, with the option
+        to sort in increasing order by value.
+        '''
+        return self.transit_matrix.getValuesBySource(source_id, sort)
+
+    def get_values_by_dest(dest_id, sort=False):
+        '''
+        Get a list of (source_id, value) pairs, with the option
+        to sort in increasing order by value.
+        '''
+        return self.transit_matrix.getValuesByDest(dest_id, sort)
+
     def get_sources_in_range(self, threshold):
         '''
         '''

@@ -350,4 +350,14 @@ const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& tra
     return this->sourcesInRange;
 }
 
+const std::vector<std::pair<unsigned long int, unsigned short int>> transitMatrix::getValuesBySource(unsigned long int source_id, bool sort)
+{
+    return this->df.getValuesByRow(source_id, sort);
+}
+
+const std::vector<std::pair<unsigned long int, unsigned short int>> transitMatrix::getValuesByDest(unsigned long int dest_id, bool sort)
+{
+    return this->df.getValuesByCol(dest_id, sort);
+}
+
 } // namespace lnoel

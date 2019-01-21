@@ -5,8 +5,7 @@
 #include <unordered_set>
 #include <stdexcept>
 #include <vector>
-#include <cmath>
-#include <utility>
+#include <algorithm>
 #include <sys/stat.h>
 
 #include "csv.h"
@@ -229,6 +228,39 @@ void dataFrame::setSymmetric(bool isSymmetric)
     metaData.set_is_symmetric(isSymmetric);
 }
 
+bool sortBySecond(const std::pair<unsigned long int, unsigned long int> &a, const std::pair<unsigned long int, unsigned long int> &b)
+{
+    return a.second < b.second;
+}
+
+const std::vector<std::pair<unsigned long int, unsigned short int>> dataFrame::getValuesByRow(unsigned long int row_label, bool sort)
+{
+    std::vector<std::pair<unsigned long int, unsigned short int>> returnValue;   
+    for (auto col_label : metaData.col_label_int())
+    {
+        returnValue.push_back(std::make_pair(col_label, retrieveValue(row_label, col_label)));
+    }
+    if (sort)
+    {
+        std::sort(returnValue.begin(), returnValue.end(), sortBySecond);
+    }
+    return returnValue;
+}
+
+const std::vector<std::pair<unsigned long int, unsigned short int>> dataFrame::getValuesByCol(unsigned long int col_label, bool sort)
+{
+    std::vector<std::pair<unsigned long int, unsigned short int>> returnValue;   
+    for (auto row_label : metaData.row_label_int())
+    {
+        returnValue.push_back(std::make_pair(row_label, retrieveValue(row_label, col_label)));
+    }
+    if (sort)
+    {
+        std::sort(returnValue.begin(), returnValue.end(), sortBySecond);
+    }
+    return returnValue;
+
+}
 // Utilities
 
 /* return true if position is under the diagonal, else false */
@@ -244,7 +276,6 @@ bool dataFrame::isUnderDiagonal(const std::string& row_id, const std::string& co
 {
     return this->col_id_string_to_loc.at(row_id) > this->col_id_string_to_loc.at(col_id);
 }
-
 
 
 // Input/Output:

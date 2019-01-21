@@ -28,6 +28,7 @@ namespace lmnoel {
 class transitMatrix {
 public:
     typedef unsigned long int label;
+    typedef unsigned short int value;
     dataFrame df;
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
@@ -42,6 +43,9 @@ public:
     void compute(int numThreads);
     transitMatrix(void);
     int get(unsigned long int source, unsigned long intdest) const;
+    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesBySource(unsigned long int source_id, bool sort);
+    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesByDest(unsigned long int dest_id, bool sort);
+
     void loadFromDisk(void);
     void prepareDataFrame();
     bool writeCSV(const std::string &outfile);

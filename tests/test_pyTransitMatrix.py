@@ -68,6 +68,7 @@ class TestClass():
         '''
         Test symmetric matrix optimization
         '''
+                
         matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
 
         matrix.addEdgeToGraph(0, 1, 5, True)
@@ -118,6 +119,35 @@ class TestClass():
 
 
     def test_5(self):
+        '''
+        Test getValuesBySource and getValuesByDest (with sorting)
+        '''
+                
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
+
+        matrix.addEdgeToGraph(0, 1, 5, True)
+        matrix.addEdgeToGraph(1, 2, 6, True)
+        matrix.addEdgeToGraph(2, 3, 2, True)
+        matrix.addEdgeToGraph(2, 4, 4, True)
+        matrix.addEdgeToGraph(3, 4, 3, True)
+
+        matrix.addToUserSourceDataContainer(1, 1, 1, True)
+        matrix.addToUserSourceDataContainer(0, 2, 2, True)
+        matrix.addToUserSourceDataContainer(4, 3, 3, True)
+        matrix.addToUserSourceDataContainer(1, 4, 7, True)
+
+        matrix.compute(3)
+
+        assert matrix.getValuesByDest(1, True) == [(1, 0), (2, 8), (4, 8), (3, 14)]
+        assert matrix.getValuesByDest(2, True) ==  [(2, 0), (1, 8), (4, 14), (3, 20)]
+        assert matrix.getValuesByDest(3, True) ==  [(3, 0), (1, 14), (2, 20), (4, 20)]
+        assert matrix.getValuesByDest(4, True) == [(4, 0), (1, 8), (2, 14), (3, 20)]
+        assert matrix.getValuesBySource(1, True) == [(1, 0), (2, 8), (4, 8), (3, 14)]
+        assert matrix.getValuesBySource(2, True) == [(2, 0), (1, 8), (4, 14), (3, 20)]
+        assert matrix.getValuesBySource(3, True) == [(3, 0), (1, 14), (2, 20), (4, 20)]
+        assert matrix.getValuesBySource(4, True) == [(4, 0), (1, 8), (2, 14), (3, 20)]
+
+    def test_6(self):
         '''
         Cleanup.
         '''
