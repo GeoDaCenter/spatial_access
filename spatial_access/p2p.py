@@ -332,6 +332,8 @@ class TransitMatrix():
             closest_node_location = (nodes.loc[node_number].y,
                                                        nodes.loc[node_number].x)
 
+            #keep track of nodes that are used to snap a user data point
+            self._network_interface.user_node_friends.add(node_number)
             distance = vincenty(origin_location, closest_node_location).m
 
             edge_weight = int(distance / self._config_interface.default_edge_cost)
@@ -406,11 +408,13 @@ class TransitMatrix():
         self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(), 
                                               isSymmetric)
 
-        self._parse_network()
-
         self._match_nn(True, not self.secondary_input)
         if self.secondary_input:
             self._match_nn(False, self.secondary_input)
+
+        self._network_interface._trim_edges()
+
+        self._parse_network()
 
         self._matrix_interface.build_matrix()
         time_delta = time.time() - start_time

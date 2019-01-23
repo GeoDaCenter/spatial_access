@@ -7,6 +7,8 @@ returns the local resources if available.
 import os
 import sys
 import pandas as pd
+import numpy as np
+import time
 from pandana.loaders import osm
 from geopy import distance
 
@@ -23,6 +25,8 @@ class NetworkInterface():
         self.bbox = None
         self.nodes = None
         self.edges = None
+        self.user_node_friends = set()
+        self.edges_to_drop = set()
         self.area_threshold = None if disable_area_threshold else 2000 #km
         assert isinstance(network_type, str)
         self._try_create_cache()
@@ -50,7 +54,7 @@ class NetworkInterface():
         left_edge = distance.distance(lower_left_point, upper_left_point).km
         area = lower_edge * left_edge
         if self.logger:
-            self.logger.info('Downloading bounding box with area: {} sq. km'.format(area))
+            self.logger.info('Approx area of bounding box: {:,.2f} sq. km'.format(area))
         return area
 
     def _try_create_cache(self):
@@ -115,6 +119,73 @@ class NetworkInterface():
         '''
         return os.path.exists(self.get_filename())
 
+    def _erase_node(self, node_id):
+        '''
+        Assumes node is the source of a single edge
+        and the destination of a single edge.
+
+        Merges those edges and deletes the node.
+        '''
+
+        #the edge that the node originated
+        from_edge = self.edges[self.edges['from'] == node_id]
+        assert len(from_edge) == 1, 'node_id: {}, from_edge: {}'.format(node_id, from_edge)
+
+        #the edge that the node terminated
+        to_edge = self.edges[self.edges['to'] == node_id]
+        assert len(to_edge) == 1, 'node_id: {}, to_edge: {}'.format(node_id, to_edge)
+
+
+        self.edges_to_drop.add((from_edge['from'], from_edge['to']))
+        self.edges_to_drop.add((to_edge['from'], to_edge['to']))
+
+        row_to_add = {key: np.NaN for key in self.edges.columns}
+        row_to_add['from'] = to_edge['from']
+        row_to_add['to'] = from_edge['to']
+        row_to_add['distance'] = from_edge['distance'] + to_edge['distance']
+
+        #grab the highway and name parameters from the "from" edge
+        row_to_add['highway'] = from_edge['highway']
+        row_to_add['name'] = from_edge['name']
+
+        new_edge_id = (row_to_add['from'], row_to_add['to'])
+        row_to_add['Name'] = new_edge_id
+
+        return row_to_add
+
+
+    def _trim_edges(self):
+        '''
+        Find nodes that are the source of an edge exactly once,
+        and the destination of an edge exactly once. Remove
+        the nodes and connect the edges if and only if
+        said node is not the snapping node of a user
+        data point.
+        '''
+        start_time = time.time()
+        assert isinstance(self.edges, pd.DataFrame)
+        assert isinstance(self.nodes, pd.DataFrame)
+        len_nodes = len(self.nodes)
+        len_edges = len(self.edges)
+        from_value_counts = self.edges['from'].value_counts()
+        to_value_counts = self.edges['to'].value_counts()
+        count_of_dropped_nodes = 0
+        rows_to_add = []
+        for node_id in self.nodes.index:
+            if node_id in from_value_counts.index and node_id in to_value_counts.index:
+                if from_value_counts[node_id] == 1 and to_value_counts[node_id] == 1:
+                    if node_id not in self.user_node_friends:
+                        rows_to_add.append(self._erase_node(node_id))
+                        count_of_dropped_nodes += 1
+        self.edges.drop(list(self.edges_to_drop))
+        df_to_add = pd.DataFrame(rows_to_add)
+        self.edges = pd.concat([self.edges, df_to_add], sort=False)
+        assert len(self.nodes) == len_nodes - count_of_dropped_nodes
+        assert len(self.edges) == len_edges - count_of_dropped_nodes
+
+        if self.logger:
+            self.logger.info('Trimmed {} nodes in {:,.2f} seconds'.format(count_of_dropped_nodes, time.time() - start_time))
+    
     def load_network(self, primary_data, secondary_data,
                      secondary_input, epsilon):
         '''
@@ -158,7 +229,6 @@ class NetworkInterface():
                     lat_max=self.bbox[2], lng_max=self.bbox[3],
                     network_type=self.network_type)
                 if self.network_type == 'drive':
-                    print(self.edges.columns)
                     self.edges.drop(['access', 'hgv', 'lanes', 'maxspeed', 'tunnel'], inplace=True, axis=1)
                 else:
                     self.edges.drop(['access', 'bridge', 'lanes', 'service', 'tunnel'], inplace=True, axis=1)
