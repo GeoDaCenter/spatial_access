@@ -27,12 +27,24 @@ class TransitMatrix():
     Arguments:
         -network_type: 'walk', 'drive' or 'bike'
         -epsilon: [optional] smooth out the network edges
+        -primary_input: csv filename of the the rows input
+        -primary_input_field_mapping: [optional] a dictionary with the column names of
+            the index, lon and lat in the primary input
+        -secondary_input: [optional] csv filename of the the column input. If not provided,
+            the transit matrix will be symmetric using the primary input as rows and columns.
+        -secondary_input_field_mapping: [optional] a dictionary with the column names of
+            the index, lon and lat in the secondary input
+        -read_from_file: [optional] a .csv or .tmx input of a previously calculated
+            transit matrix to load
+        -use_meters: [optional] Output will be in meters if True (seconds if False).
+        -trim_edges: [optional] Merge sequential edges in the OSM network if True. Does not
+            reduce accuracy, but is costly. Advised only for large networks.
+        -debug: [optional] Enable debugging output.
     '''
     def __init__(
             self,
             network_type,
             epsilon=0.05,
-            walk_speed=None,
             primary_input=None,
             primary_input_field_mapping=None,
             secondary_input=None,
@@ -42,12 +54,12 @@ class TransitMatrix():
             secondary_hints=None,
             use_meters=False,
             disable_area_threshold=False,
+            trim_edges=True,
             debug=False):
 
         #arguments
         self.network_type = network_type
         self.epsilon = epsilon
-        self.walk_speed = walk_speed
         self.primary_input = primary_input
         self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
@@ -56,6 +68,7 @@ class TransitMatrix():
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
         self.use_meters = use_meters
+        self.trim_edges = trim_edges
         self.debug = debug
 
         #member variables
@@ -412,11 +425,12 @@ class TransitMatrix():
         if self.secondary_input:
             self._match_nn(False, self.secondary_input)
 
-        try:
-            self._network_interface._trim_edges()
-        except:
-            if self.logger:
-                self.logger.warning('Failed to optimize network. Please report this event.')
+        if self.trim_edges:
+            try:
+                self._network_interface._trim_edges()
+            except:
+                if self.logger:
+                    self.logger.warning('Failed to optimize network. Please report this event.')
 
         self._parse_network()
 
