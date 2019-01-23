@@ -28,7 +28,8 @@ class TestClass():
         assert matrix.get(1, 2) == 5
         assert matrix.get(0, 3) == 18
         assert matrix.get(1, 3) == 17
-        os.mkdir('tmp/')
+        if not os.path.exists('tmp/'):
+            os.mkdir('tmp/')
         matrix.writeCSV(b"tmp/test_1_outfile.csv")
 
         matrix2 = pyTransitMatrix(infile=b"tmp/test_1_outfile.csv")

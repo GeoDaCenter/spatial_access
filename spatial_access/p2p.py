@@ -259,12 +259,9 @@ class TransitMatrix():
 
         start_time = time.time()
 
-        DISTANCE = self._network_interface.edges.columns.get_loc('distance') + 1
         FROM_IDX = self._network_interface.edges.columns.get_loc('from') + 1
         TO_IDX = self._network_interface.edges.columns.get_loc('to') + 1
-        ONEWAY = self._network_interface.edges.columns.get_loc('oneway') + 1
-        HIGHWAY = self._network_interface.edges.columns.get_loc('highway') + 1
-
+        
         # map index name to position
         simple_node_indeces = self._reduce_node_indeces()
 
@@ -275,24 +272,27 @@ class TransitMatrix():
             from_idx = data[FROM_IDX]
             to_idx = data[TO_IDX]
             if self.use_meters:
-                impedence = data[DISTANCE]
+                impedence = data.distance
             elif self.node_pair_to_speed:
                 impedence = self._cost_model(
-                    data[DISTANCE], self.node_pair_to_speed[(from_idx, to_idx)])
+                    data.distance, self.node_pair_to_speed[(from_idx, to_idx)])
             else:
-                highway_tag = data[HIGHWAY]
+                highway_tag = data.highway
+                assert isinstance(highway_tag, str), 'type: {}'.format(type(highway_tag))
                 if highway_tag is None or highway_tag not in self._config_interface.speed_limit_dict["urban"]:
                     highway_tag = "unclassified"
-                impedence = self._cost_model(data[DISTANCE],
+                impedence = self._cost_model(data.distance,
                     self._config_interface.speed_limit_dict["urban"][highway_tag])
 
-            oneway = data[ONEWAY]
-
-            is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
-            self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
-                                                     simple_node_indeces[to_idx],
-                                                     impedence, is_bidirectional)
-
+            is_bidirectional = data.oneway != 'yes' or self.network_type != 'drive'
+            try:
+                self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
+                                                         simple_node_indeces[to_idx],
+                                                         impedence, is_bidirectional)
+            except:
+                print('from_idx:', from_idx)
+                print('to_idx:', to_idx)
+                raise Exception('blah exception')
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
@@ -412,6 +412,7 @@ class TransitMatrix():
         if self.secondary_input:
             self._match_nn(False, self.secondary_input)
 
+        #TODO: Add a try-catch block once done testing this
         self._network_interface._trim_edges()
 
         self._parse_network()

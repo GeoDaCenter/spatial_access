@@ -26,7 +26,10 @@ class NetworkInterface():
         self.nodes = None
         self.edges = None
         self.user_node_friends = set()
-        self.edges_to_drop = set()
+        self._already_merged = set()
+        self._nodes_to_merge = set()
+        self._nodes_in_cycles = set()
+        self._rows_to_merge = {}
         self.area_threshold = None if disable_area_threshold else 2000 #km
         assert isinstance(network_type, str)
         self._try_create_cache()
@@ -119,39 +122,106 @@ class NetworkInterface():
         '''
         return os.path.exists(self.get_filename())
 
-    def _erase_node(self, node_id):
+
+    def _get_nodes_in_cycles(self):
+        '''
+        Return a set of nodes in one-segment cycles.
+        '''
+        s1 = set()
+        s2 = set()
+        for data in self.edges.itertuples():
+            s1.add((data[0][0], data[0][1]))
+            s2.add((data[0][1], data[0][0]))
+
+        s3 = s1.intersection(s2)
+        col_one_nodes = set([i[0] for i in s3])
+        col_two_nodes = set([i[1] for i in s3])
+
+        return col_one_nodes.union(col_two_nodes)
+
+
+
+    def _merge_node(self, node_id):
         '''
         Assumes node is the source of a single edge
         and the destination of a single edge.
 
         Merges those edges and deletes the node.
         '''
+        KEYMAP = {'from':0, 'to':1, 'distance':2,
+                  'highway':3, 'name':4, 'oneway':5}
+        row_to_add = [np.NaN for i in range(len(KEYMAP))]
+        
+        nodes_to_merge = [node_id]
+        first_node = True
+        print()
+        print()
+        print()
+        print()
+        print()
+        print()
+        print()
+        print()
+        print()
+        while len(nodes_to_merge) > 0:
 
-        #the edge that the node originated
-        from_edge = self.edges[self.edges['from'] == node_id]
-        assert len(from_edge) == 1, 'node_id: {}, from_edge: {}'.format(node_id, from_edge)
+            #grab the next node to be merged off the queue
+            node_being_merged = nodes_to_merge.pop()
+            print('node being merged:', node_being_merged)
+            print('status of nodes to merge:', nodes_to_merge)
+            #keep track of nodes we've merged so we don't
+            #try to merge them again
+            self._already_merged.add(node_being_merged)
 
-        #the edge that the node terminated
-        to_edge = self.edges[self.edges['to'] == node_id]
-        assert len(to_edge) == 1, 'node_id: {}, to_edge: {}'.format(node_id, to_edge)
+            #the edge that the node originated
+            from_edge = self.edges[self.edges['from'] == node_being_merged]
+            assert len(from_edge) == 1, from_edge
+            from_edge = from_edge.iloc[0]
 
+            #the edge that the node terminated
+            to_edge = self.edges[self.edges['to'] == node_being_merged]
+            assert len(to_edge) == 1, to_edge
+            to_edge = to_edge.iloc[0]
 
-        self.edges_to_drop.add((from_edge['from'], from_edge['to']))
-        self.edges_to_drop.add((to_edge['from'], to_edge['to']))
-
-        row_to_add = {key: np.NaN for key in self.edges.columns}
-        row_to_add['from'] = to_edge['from']
-        row_to_add['to'] = from_edge['to']
-        row_to_add['distance'] = from_edge['distance'] + to_edge['distance']
-
-        #grab the highway and name parameters from the "from" edge
-        row_to_add['highway'] = from_edge['highway']
-        row_to_add['name'] = from_edge['name']
-
-        new_edge_id = (row_to_add['from'], row_to_add['to'])
-        row_to_add['Name'] = new_edge_id
-
-        return row_to_add
+            print('from edge:({},{})'.format(from_edge['from'], from_edge['to']))
+            print('to edge:({},{})'.format(to_edge['from'], to_edge['to']))
+            #initialize the row_to_add if this is the first node
+            #update the values if not
+            if first_node:
+                first_node = False
+                row_to_add[KEYMAP['from']] = to_edge['from']
+                row_to_add[KEYMAP['to']] = from_edge['to']
+                row_to_add[KEYMAP['distance']] = from_edge['distance'] + to_edge['distance']
+                row_to_add[KEYMAP['highway']] = from_edge['highway']
+                row_to_add[KEYMAP['name']] = from_edge['name']
+                row_to_add[KEYMAP['oneway']] = from_edge['oneway']
+            
+            else:
+                #decide which end of the row to update
+                if node_being_merged == row_to_add[KEYMAP['from']]:
+                    row_to_add[KEYMAP['from']] = to_edge['from']
+                    row_to_add[KEYMAP['distance']] += to_edge['distance']
+                elif node_being_merged == row_to_add[KEYMAP['to']]:
+                    row_to_add[KEYMAP['to']] = from_edge['to']
+                    row_to_add[KEYMAP['distance']] += from_edge['distance']
+                else:
+                    assert False, 'Shouldnt be here'
+            print('row_to_add (after changes from this node:', row_to_add)
+            #add endpoints of the current row_to_add to the queue
+            #if they also need to be merged
+            if row_to_add[KEYMAP['from']] in self._nodes_to_merge and row_to_add[KEYMAP['from']] not in nodes_to_merge:
+                if row_to_add[KEYMAP['from']] in self._already_merged:
+                    assert False, 'shouldnt be here'
+                nodes_to_merge.append(row_to_add[KEYMAP['from']])
+                print('adding to queue:', row_to_add[KEYMAP['from']])
+            if row_to_add[KEYMAP['to']] in self._nodes_to_merge and row_to_add[KEYMAP['to']] not in nodes_to_merge:
+                if row_to_add[KEYMAP['to']] in self._already_merged:
+                    assert False, 'shouldnt be here'
+                nodes_to_merge.append(row_to_add[KEYMAP['to']])
+                print('adding to queue:', row_to_add[KEYMAP['to']])
+        row_to_add_id = (row_to_add[KEYMAP['from']], row_to_add[KEYMAP['to']])
+        #save this finished merged row to be added later
+        self._rows_to_merge[row_to_add_id] = row_to_add               
 
 
     def _trim_edges(self):
@@ -165,27 +235,51 @@ class NetworkInterface():
         start_time = time.time()
         assert isinstance(self.edges, pd.DataFrame)
         assert isinstance(self.nodes, pd.DataFrame)
+        
+        self._nodes_in_cycles = self._get_nodes_in_cycles()
         len_nodes = len(self.nodes)
         len_edges = len(self.edges)
         from_value_counts = self.edges['from'].value_counts()
         to_value_counts = self.edges['to'].value_counts()
-        count_of_dropped_nodes = 0
-        rows_to_add = []
-        for node_id in self.nodes.index:
-            if node_id in from_value_counts.index and node_id in to_value_counts.index:
-                if from_value_counts[node_id] == 1 and to_value_counts[node_id] == 1:
-                    if node_id not in self.user_node_friends:
-                        rows_to_add.append(self._erase_node(node_id))
-                        count_of_dropped_nodes += 1
-        self.edges.drop(list(self.edges_to_drop))
-        df_to_add = pd.DataFrame(rows_to_add)
-        self.edges = pd.concat([self.edges, df_to_add], sort=False)
-        assert len(self.nodes) == len_nodes - count_of_dropped_nodes
-        assert len(self.edges) == len_edges - count_of_dropped_nodes
+        single_from_nodes = from_value_counts[from_value_counts == 1]
+        single_to_nodes = to_value_counts[to_value_counts == 1]
+        indeces_of_single_from_nodes = set(single_from_nodes.index)
+        indeces_of_single_to_nodes = set(single_to_nodes.index)
+        
+        #Isolating the 'continuation' segments in the graph
+        #which can be safely merged
+        self._nodes_to_merge = indeces_of_single_from_nodes.intersection(indeces_of_single_to_nodes)
+        self._nodes_to_merge -= self._nodes_in_cycles
+        for node_id in self._nodes_to_merge:
+            if node_id not in self.user_node_friends and node_id not in self._already_merged:
+                self._merge_node(node_id)
+            else:
+                continue
+
+        #make this not a class var after testing
+        self.df_to_add = pd.DataFrame.from_dict(self._rows_to_merge, 
+                                            orient='index', 
+                                            columns=['from', 'to', 
+                                                     'distance', 'highway', 
+                                                     'name', 'oneway'])
+        
+        self.edges = pd.concat([self.edges, self.df_to_add], sort=False)
+
+        #remove merged edges and dropped node immediatly
+        self.edges.drop(self.edges[self.edges['from'].isin(self._nodes_to_merge)].index, inplace=True)
+        self.edges.drop(self.edges[self.edges['to'].isin(self._nodes_to_merge)].index, inplace=True)
+        self.nodes.drop(self.nodes[self.nodes['id'].isin(self._nodes_to_merge)].index, inplace=True)  
+
+        nodes_dropped = len_nodes - len(self.nodes)
+        edges_dropped = len_edges - len(self.edges)
+        time_delta = time.time() - start_time
+        assert nodes_dropped == len(self._nodes_to_merge)
 
         if self.logger:
-            self.logger.info('Trimmed {} nodes in {:,.2f} seconds'.format(count_of_dropped_nodes, time.time() - start_time))
-    
+            self.logger.info('Trimmed {} nodes and {} edges in {:,.2f} seconds'.format(nodes_dropped, 
+                                                                                       edges_dropped, 
+                                                                                       time_delta))
+
     def load_network(self, primary_data, secondary_data,
                      secondary_input, epsilon):
         '''
@@ -207,7 +301,7 @@ class NetworkInterface():
             self.nodes = pd.read_hdf(filename, 'nodes')
             self.edges = pd.read_hdf(filename, 'edges')
             if self.logger:
-                self.logger.debug('Read network from %s', filename)
+                self.logger.info('Read network from %s', filename)
         else:
             self._request_network()
 
