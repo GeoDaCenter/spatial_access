@@ -28,7 +28,6 @@ class NetworkInterface():
         self.user_node_friends = set()
         self._already_merged = set()
         self._nodes_to_merge = set()
-        self._nodes_in_cycles = set()
         self._rows_to_merge = {}
         self.area_threshold = None if disable_area_threshold else 2000 #km
         assert isinstance(network_type, str)
@@ -122,31 +121,10 @@ class NetworkInterface():
         '''
         return os.path.exists(self.get_filename())
 
-
-    def _get_nodes_in_cycles(self):
-        '''
-        Return a set of nodes in one-segment cycles.
-        '''
-        s1 = set()
-        s2 = set()
-        for data in self.edges.itertuples():
-            s1.add((data[0][0], data[0][1]))
-            s2.add((data[0][1], data[0][0]))
-
-        s3 = s1.intersection(s2)
-        col_one_nodes = set([i[0] for i in s3])
-        col_two_nodes = set([i[1] for i in s3])
-
-        return col_one_nodes.union(col_two_nodes)
-
-
-
     def _merge_node(self, node_id):
         '''
-        Assumes node is the source of a single edge
-        and the destination of a single edge.
-
-        Merges those edges and deletes the node.
+        Merge the given node_id and all nodes
+        contiguous that need to be merged.
         '''
         KEYMAP = {'from':0, 'to':1, 'distance':2,
                   'highway':3, 'name':4, 'oneway':5}
@@ -154,21 +132,12 @@ class NetworkInterface():
         
         nodes_to_merge = [node_id]
         first_node = True
-        print()
-        print()
-        print()
-        print()
-        print()
-        print()
-        print()
-        print()
-        print()
+
         while len(nodes_to_merge) > 0:
 
             #grab the next node to be merged off the queue
             node_being_merged = nodes_to_merge.pop()
-            print('node being merged:', node_being_merged)
-            print('status of nodes to merge:', nodes_to_merge)
+           
             #keep track of nodes we've merged so we don't
             #try to merge them again
             self._already_merged.add(node_being_merged)
@@ -183,8 +152,6 @@ class NetworkInterface():
             assert len(to_edge) == 1, to_edge
             to_edge = to_edge.iloc[0]
 
-            print('from edge:({},{})'.format(from_edge['from'], from_edge['to']))
-            print('to edge:({},{})'.format(to_edge['from'], to_edge['to']))
             #initialize the row_to_add if this is the first node
             #update the values if not
             if first_node:
@@ -206,20 +173,19 @@ class NetworkInterface():
                     row_to_add[KEYMAP['distance']] += from_edge['distance']
                 else:
                     assert False, 'Shouldnt be here'
-            print('row_to_add (after changes from this node:', row_to_add)
+           
             #add endpoints of the current row_to_add to the queue
             #if they also need to be merged
             if row_to_add[KEYMAP['from']] in self._nodes_to_merge and row_to_add[KEYMAP['from']] not in nodes_to_merge:
-                if row_to_add[KEYMAP['from']] in self._already_merged:
-                    assert False, 'shouldnt be here'
-                nodes_to_merge.append(row_to_add[KEYMAP['from']])
-                print('adding to queue:', row_to_add[KEYMAP['from']])
+                if row_to_add[KEYMAP['from']] not in self._already_merged:
+                    nodes_to_merge.append(row_to_add[KEYMAP['from']])
+
             if row_to_add[KEYMAP['to']] in self._nodes_to_merge and row_to_add[KEYMAP['to']] not in nodes_to_merge:
-                if row_to_add[KEYMAP['to']] in self._already_merged:
-                    assert False, 'shouldnt be here'
-                nodes_to_merge.append(row_to_add[KEYMAP['to']])
-                print('adding to queue:', row_to_add[KEYMAP['to']])
+                if row_to_add[KEYMAP['to']] not in self._already_merged:
+                    nodes_to_merge.append(row_to_add[KEYMAP['to']])
+
         row_to_add_id = (row_to_add[KEYMAP['from']], row_to_add[KEYMAP['to']])
+        
         #save this finished merged row to be added later
         self._rows_to_merge[row_to_add_id] = row_to_add               
 
@@ -236,7 +202,6 @@ class NetworkInterface():
         assert isinstance(self.edges, pd.DataFrame)
         assert isinstance(self.nodes, pd.DataFrame)
         
-        self._nodes_in_cycles = self._get_nodes_in_cycles()
         len_nodes = len(self.nodes)
         len_edges = len(self.edges)
         from_value_counts = self.edges['from'].value_counts()
@@ -249,7 +214,7 @@ class NetworkInterface():
         #Isolating the 'continuation' segments in the graph
         #which can be safely merged
         self._nodes_to_merge = indeces_of_single_from_nodes.intersection(indeces_of_single_to_nodes)
-        self._nodes_to_merge -= self._nodes_in_cycles
+        
         for node_id in self._nodes_to_merge:
             if node_id not in self.user_node_friends and node_id not in self._already_merged:
                 self._merge_node(node_id)

@@ -9,7 +9,7 @@ class TestClass():
         Test adding edges to graph, computing, retrieving
         values, writing to and reading from .csv.
         '''
-        matrix = pyTransitMatrix(vertices=4, isSymmetric=False)
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=False)
 
         matrix.addEdgeToGraph(0, 1, 1, True)
         matrix.addEdgeToGraph(1, 2, 6, True)
@@ -97,7 +97,7 @@ class TestClass():
         '''
         Test getSourcesInRange and getDestsInRange (including INF points)
         '''
-        matrix = pyTransitMatrix(vertices=4, isSymmetric=False)
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=False)
 
         matrix.addEdgeToGraph(0, 1, 5, True)
         matrix.addEdgeToGraph(1, 2, 6, False)

@@ -412,8 +412,11 @@ class TransitMatrix():
         if self.secondary_input:
             self._match_nn(False, self.secondary_input)
 
-        #TODO: Add a try-catch block once done testing this
-        self._network_interface._trim_edges()
+        try:
+            self._network_interface._trim_edges()
+        except:
+            if self.logger:
+                self.logger.warning('Failed to optimize network. Please report this event.')
 
         self._parse_network()
 

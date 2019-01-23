@@ -144,19 +144,16 @@ void graphWorkerHandler(graphWorkerArgs* wa) {
 
 void calculateValuesForOneRow(unsigned long int row_label, rangeWorkerArgs *wa)
 {
-    // std::vector<unsigned long int> column_values(wa->df.row_id_map_int.at(row_label).col_label_int());
-    // std::vector<std::pair<unsigned long int, unsigned short int>> values;
-     // for (unsigned long int col_label : wa->df.metaData.col_label_int())
-    // for (unsigned long int col_label : wa->df.metaData.col_label_int())
-    //     {
-    //         if ((wa->df.retrieveValue(row_label, col_label) <= wa->threshold) and (row_label != col_label))
-    //         {
-    //             wa->rows.at(row_label).push_back(col_label);
-    //             wa->column_write_lock.lock();
-    //             wa->cols.at(col_label).push_back(row_label);
-    //             wa->column_write_lock.unlock();
-    //         }
-    //     }
+     for (unsigned long int col_label : wa->df.metaData.col_label_int())
+        {
+            if ((wa->df.retrieveValue(row_label, col_label) <= wa->threshold) and (row_label != col_label))
+            {
+                wa->column_write_lock.lock();
+                wa->rows.at(row_label).push_back(col_label);
+                wa->cols.at(col_label).push_back(row_label);
+                wa->column_write_lock.unlock();
+            }
+        }
 
 }
 
@@ -325,6 +322,7 @@ void transitMatrix::calculateValuesInRange(int threshold, int numThreads)
     wa.initialize();
     workerQueue wq(numThreads);
     wq.startRangeWorker(rangeWorkerHandler, &wa);
+   
     this->previousThreshold = threshold;
     
 
