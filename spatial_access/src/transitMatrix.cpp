@@ -142,32 +142,46 @@ void graphWorkerHandler(graphWorkerArgs* wa) {
     }
 }
 
-void calculateValuesForOneRow(unsigned long int row_label, rangeWorkerArgs *wa)
+void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
 {
-     for (unsigned long int col_label : wa->df.metaData.col_label_int())
+    // calculate dests (columns) in range of sources (rows)
+    if (wa->isDestsInRange)
+    {
+        for (unsigned long int col_label : wa->df.metaData.col_label_int())
         {
-            if ((wa->df.retrieveValue(row_label, col_label) <= wa->threshold) and (row_label != col_label))
+            
+            if ((wa->df.retrieveValue(index, col_label) <= wa->threshold)  
+                    and (index != col_label))
             {
-                wa->column_write_lock.lock();
-                wa->rows.at(row_label).push_back(col_label);
-                wa->cols.at(col_label).push_back(row_label);
-                wa->column_write_lock.unlock();
+                wa->rows.at(index).push_back(col_label);
             }
         }
+    }
+    else // calculate sources (rows) in range of dests (columns)
+    {   
+        for (unsigned long int row_label : wa->df.metaData.row_label_int())
+        {
+            if ((wa->df.retrieveValue(row_label, index) <= wa->threshold)  
+                    and (index != row_label))
+            {
+                wa->cols.at(index).push_back(row_label);
+            }
+        }
+    }    
 
 }
 
 void rangeWorkerHandler(rangeWorkerArgs* wa) {
-    unsigned long int row_id;
+    unsigned long int index;
     bool endNow = false;
     while (!wa->jq.empty()) {
-        row_id = wa->jq.pop(endNow);
+        index = wa->jq.pop(endNow);
 
         //exit loop if job queue was empty
         if (endNow) {
             break;
         }
-        calculateValuesForOneRow(row_id, wa);
+        calculateValuesForOneIndex(index, wa);
     }
 }
 
@@ -176,7 +190,8 @@ namespace lmnoel {
 
 transitMatrix::transitMatrix(int V, bool isSymmetric)
 {
-    this->previousThreshold = 0;
+    this->sourcesInRangeThreshold = 0;
+    this->destsInRangeThreshold = 0;
     this->numNodes = V;
     this->isSymmetric = isSymmetric;
     graph.initializeGraph(V);
@@ -185,7 +200,8 @@ transitMatrix::transitMatrix(int V, bool isSymmetric)
 
 transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPMatrix) 
 {
-    this->previousThreshold = 0;
+    this->sourcesInRangeThreshold = 0;
+    this->destsInRangeThreshold = 0;
     if (isOTPMatrix)
     {
         this->isSymmetric = false;
@@ -285,14 +301,14 @@ int transitMatrix::get(unsigned long int source, unsigned long int dest) const
     return df.retrieveValue(source, dest);
 }
 
-void transitMatrix::calculateValuesInRange(int threshold, int numThreads)
+void transitMatrix::calculateDestsInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
     for (unsigned long int row_id : this->df.metaData.row_label_int())
     {
         std::vector<unsigned long int> valueData;
         // If the map is uninitialized, emplace the keys
-        if (previousThreshold == 0)
+        if (destsInRangeThreshold == 0)
         {
             this->destsInRange.emplace(std::make_pair(row_id, valueData));
         }
@@ -303,11 +319,24 @@ void transitMatrix::calculateValuesInRange(int threshold, int numThreads)
         }
     }
 
+    rangeWorkerArgs wa(true, this->df, threshold, this->destsInRange, 
+                        this->sourcesInRange);
+    wa.initialize();
+    workerQueue wq(numThreads);
+    wq.startRangeWorker(rangeWorkerHandler, &wa);
+   
+    this->destsInRangeThreshold = threshold;
+    
+}
+
+void transitMatrix::calculateSourcesInRange(unsigned int threshold, int numThreads)
+{
+    // Initialize maps
     for (unsigned long int col_id : this->df.metaData.col_label_int())
     {
         std::vector<unsigned long int> valueData;
         // If the map is uninitialized, emplace the keys
-        if (previousThreshold == 0)
+        if (sourcesInRangeThreshold == 0)
         {
             this->sourcesInRange.emplace(std::make_pair(col_id, valueData));
         }
@@ -317,36 +346,37 @@ void transitMatrix::calculateValuesInRange(int threshold, int numThreads)
             this->sourcesInRange.at(col_id) = valueData;
         }
     }
+
     
-    rangeWorkerArgs wa(this->df, threshold, this->destsInRange, this->sourcesInRange);
+    rangeWorkerArgs wa(false, this->df, threshold, this->destsInRange, 
+                        this->sourcesInRange);
     wa.initialize();
     workerQueue wq(numThreads);
     wq.startRangeWorker(rangeWorkerHandler, &wa);
    
-    this->previousThreshold = threshold;
+    this->sourcesInRangeThreshold = threshold;
     
-
 }
 
-const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(int threshold, int numThreads)
+const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(unsigned int threshold, int numThreads)
 {
     // if transitMatrix has not yet calculated destsInRange for this value of 
     // threshold (which defaults to zero if it has never been calcualtes)
-    if (this->previousThreshold != threshold)
+    if (this->destsInRangeThreshold != threshold)
     {
-        calculateValuesInRange(threshold, numThreads);
+        calculateDestsInRange(threshold, numThreads);
     }
     return this->destsInRange;
 }
 
 
-const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(int threshold, int numThreads)
+const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(unsigned int threshold, int numThreads)
 {
     // if transitMatrix has not yet calculated destsInRange for this value of 
     // threshold (which defaults to zero if it has never been calcualtes)
-    if (this->previousThreshold != threshold)
+    if (this->sourcesInRangeThreshold != threshold)
     {
-        calculateValuesInRange(threshold, numThreads);
+        calculateSourcesInRange(threshold, numThreads);
     }
     return this->sourcesInRange;
 }

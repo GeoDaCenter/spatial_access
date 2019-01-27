@@ -18,7 +18,6 @@ public:
     p2p::metaData metaData;
 
 public:
-    unsigned long int sizeOfData;
 
     // Initialization:
     dataFrame();

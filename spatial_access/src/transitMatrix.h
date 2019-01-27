@@ -21,7 +21,7 @@ void graphWorkerHandler(graphWorkerArgs* wa);
 
 void rangeWorkerHandler(rangeWorkerArgs* wa);
 
-void calculateValuesForOneRow(unsigned long int row_id, rangeWorkerArgs *wa);
+void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa);
 
 
 namespace lmnoel {
@@ -51,13 +51,16 @@ public:
     bool writeCSV(const std::string &outfile);
     bool writeTMX(const std::string &outfile);
     void printDataFrame() const;
-    void calculateValuesInRange(int threshold, int numThreads);
-    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(int range, int numThreads);
-    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(int range, int numThreads);
+    void calculateSourcesInRange(unsigned int threshold, int numThreads);
+    void calculateDestsInRange(unsigned int threshold, int numThreads);
+    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(unsigned int range, int numThreads);
+    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(unsigned int range, int numThreads);
 private:
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> destsInRange;
-    int previousThreshold;
+    unsigned int sourcesInRangeThreshold;
+    unsigned int destsInRangeThreshold;
+
 };
 
 } // namespace lnoel

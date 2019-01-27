@@ -263,8 +263,6 @@ class MatrixInterface():
         '''
         start_time = time.time()
         numThreads = self._get_thread_limit()
-        if self.logger:
-            self.logger.info('calculating get_dests_in_range (threshold: {}) using {} threads'.format(threshold, numThreads))
         res = self.transit_matrix.getDestsInRange(threshold, numThreads)
         if self.logger:
             self.logger.info('get_dests_in_range computed in {:,.2f} seconds'.format(time.time() - start_time))
@@ -278,8 +276,6 @@ class MatrixInterface():
         '''
         start_time = time.time()
         numThreads = self._get_thread_limit()
-        if self.logger:
-            self.logger.info('calculating get_sources_in_range (threshold: {}) using {} threads'.format(threshold, numThreads))
         res = self.transit_matrix.getSourcesInRange(threshold, numThreads)
         if self.logger:
             self.logger.info('get_sources_in_range computed in {:,.2f} seconds'.format(time.time() - start_time))

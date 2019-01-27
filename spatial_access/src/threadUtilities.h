@@ -64,16 +64,18 @@ public:
 
 class rangeWorkerArgs {
 public:
+    bool isDestsInRange;
     jobQueue jq;
     dataFrame &df;
     int threshold;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols;
-    std::mutex column_write_lock;
-    rangeWorkerArgs(dataFrame &df, int threshold, 
+    std::mutex write_lock;
+    rangeWorkerArgs(bool isDestsInRange, dataFrame &df, int threshold, 
                     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &rows,
                     std::unordered_map<unsigned long int, std::vector<unsigned long int>> &cols) 
-                        : df(df), threshold(threshold), rows(rows), cols(cols) {}
+                        : isDestsInRange(isDestsInRange), df(df), threshold(threshold), 
+                            rows(rows), cols(cols) {}
     
     ~rangeWorkerArgs(void);
     void initialize();

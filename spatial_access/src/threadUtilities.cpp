@@ -114,10 +114,19 @@ graphWorkerArgs::~graphWorkerArgs(void)
 
 void rangeWorkerArgs::initialize()
 {
-    //initialize job queue
-    for (auto i : df.metaData.row_label_int()) 
+    if (isDestsInRange)  
     {
-        jq.insert(i);
+        for (unsigned long int i : df.metaData.row_label_int()) 
+        {
+            jq.insert(i);
+        }
+    } 
+    else 
+    {
+        for (unsigned long int i : df.metaData.col_label_int()) 
+        {
+            jq.insert(i);
+        }
     }
 
 }

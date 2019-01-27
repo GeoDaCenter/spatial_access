@@ -413,7 +413,8 @@ class TransitMatrix():
             self._match_nn(False, self.secondary_input)
 
         try:
-            self._network_interface._trim_edges()
+            pass
+            # self._network_interface._trim_edges()
         except:
             if self.logger:
                 self.logger.warning('Failed to optimize network. Please report this event.')
