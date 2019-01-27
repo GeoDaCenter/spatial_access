@@ -20,6 +20,9 @@ from spatial_access.MatrixInterface import MatrixInterface
 from spatial_access.NetworkInterface import NetworkInterface
 from spatial_access.ConfigInterface import ConfigInterface
 
+class TransitMatrixException(Exception):
+    pass
+
 class TransitMatrix():
 
     '''
@@ -46,9 +49,7 @@ class TransitMatrix():
             network_type,
             epsilon=0.05,
             primary_input=None,
-            primary_input_field_mapping=None,
             secondary_input=None,
-            secondary_input_field_mapping=None,
             read_from_file=None,
             primary_hints=None,
             secondary_hints=None,
@@ -61,9 +62,7 @@ class TransitMatrix():
         self.network_type = network_type
         self.epsilon = epsilon
         self.primary_input = primary_input
-        self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
-        self.secondary_input_field_mapping = secondary_input_field_mapping
         self.read_from_file = read_from_file
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
@@ -138,10 +137,9 @@ class TransitMatrix():
 
         if primary:
             filename = self.primary_input
-            field_mapping = self.primary_input_field_mapping
         else:
             filename = self.secondary_input
-            field_mapping = self.secondary_input_field_mapping
+
 
         source_data = pd.read_csv(filename)
         source_data_columns = source_data.columns.values
@@ -150,7 +148,7 @@ class TransitMatrix():
         xcol = ''
         ycol = ''
         idx = ''
-        skip_user_input = field_mapping
+        skip_user_input = False
         # use the column names if we already have them
         try:
             if primary and self.primary_hints:
@@ -164,17 +162,15 @@ class TransitMatrix():
                 idx = self.secondary_hints['idx']
                 skip_user_input = True
 
-        except BaseException:
-            skip_user_input = False
-            pass
-
-        # if the web app is instantiating a TransitMatrix object/calling this code,
-        # a field_mapping dictionary should be present
-        if field_mapping:
-            xcol = field_mapping["lon"]
-            ycol = field_mapping["lat"]
-            idx = field_mapping["idx"]
-
+        except:
+            #raise immediately to let the user know there is a problem
+            if primary:
+                self.logger.error('Unable to use primary_hints to read sources')
+                raise TransitMatrixException('Unable to use primary_hints to read sources')
+            else:
+                self.logger.error('Unable to use secondary_hints to read dests')
+                raise TransitMatrixException('Unable to use secondary_hints to read sources')
+    
         if not skip_user_input:
             print('The variables in your data set are:')
             for var in source_data_columns:
@@ -203,8 +199,10 @@ class TransitMatrix():
 
         if primary:
             self.primary_data = source_data[['x', 'y']]
+            self.primary_hints = {'x':xcol, 'y':ycol, 'idx': idx}
         else:
             self.secondary_data = source_data[['x', 'y']]
+            self.secondary_hints = {'x':xcol, 'y':ycol, 'idx': idx}
 
     def _load_inputs(self):
         '''
@@ -213,11 +211,11 @@ class TransitMatrix():
         '''
         if not os.path.isfile(self.primary_input):
             self.logger.error("Unable to find primary csv.")
-            sys.exit()
+            raise TransitMatrixException("Unable to find primary csv")
         if self.secondary_input:
             if not os.path.isfile(self.secondary_input):
                 self.logger.error("Unable to find secondary csv.")
-                sys.exit()
+                raise TransitMatrixException("Unable to find secondary csv")
         try:
             self._parse_csv(True)
             if self.secondary_input:
@@ -226,7 +224,8 @@ class TransitMatrix():
         except BaseException as exception:
             self.logger.error(
                 "Unable to Load inputs: %s", exception)
-            sys.exit()
+            raise TransitMatrixException("Unable to find load inputs")
+
 
 
     def _cost_model(self, distance, speed_limit):
@@ -298,14 +297,9 @@ class TransitMatrix():
                     self._config_interface.speed_limit_dict["urban"][highway_tag])
 
             is_bidirectional = data.oneway != 'yes' or self.network_type != 'drive'
-            try:
-                self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
-                                                         simple_node_indeces[to_idx],
-                                                         impedence, is_bidirectional)
-            except:
-                print('from_idx:', from_idx)
-                print('to_idx:', to_idx)
-                raise Exception('blah exception')
+            self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
+                                                     simple_node_indeces[to_idx],
+                                                     impedence, is_bidirectional)
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
@@ -434,6 +428,13 @@ class TransitMatrix():
 
         self._parse_network()
 
+        # offload primary and secondary input data frames because we don't need them anymore
+        self.primary_input = None
+        self.secondary_input = None
+
         self._matrix_interface.build_matrix()
         time_delta = time.time() - start_time
+
+
+
         self.logger.info('All operations completed in {:,.2f} seconds'.format(time_delta))
