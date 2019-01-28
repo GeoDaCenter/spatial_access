@@ -21,9 +21,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def linear_decay_function(time, upper):
-    '''
+    """
     Linear decay function for distance
-    '''
+    """
 
     if time > upper:
         return 0
@@ -31,9 +31,9 @@ def linear_decay_function(time, upper):
         return (upper - time) / upper
 
 def root_decay_function(time, upper):
-    '''
+    """
     Square root decay function for distance.
-    '''
+    """
     if time > upper:
         return 0
     else:
@@ -41,9 +41,9 @@ def root_decay_function(time, upper):
 
 
 def logit_decay_function(time, upper):
-    '''
+    """
     Logit distance decay function.
-    '''
+    """
     if time > upper:
         return 0
     else:
@@ -55,12 +55,12 @@ def logit_decay_function(time, upper):
 
 
 class CoverageModel(ModelData):
-    '''
+    """
     Build the Per capita spending model which captures
     the level of spending for low income residents in
     urban enviroments.
     The source_field_mapping and dest_field_mapping parameters are used by the web app client. 
-    '''
+    """
 
     def __init__(self, network_type='drive', source_filename=None, source_field_mapping=None,
         dest_filename=None, dest_field_mapping=None, sp_matrix_filename=None, limit_categories=None,
@@ -90,9 +90,9 @@ class CoverageModel(ModelData):
         self.good_to_write = False
 
     def calculate(self):
-        '''
+        """
         Calculate the per capita values and served population for each destination record.
-        '''
+        """
         start_time = time.time()
         
         dest_percap_target = {}
@@ -148,7 +148,7 @@ class CoverageModel(ModelData):
         self.logger.info("Finished calculating CoverageModel in {:,.2f} seconds".format(time.time() - start_time))
 
     def _get_aggregate(self, aggregate_type):
-        '''
+        """
         Build an data frame of the results aggregated
         by community.
         Inputs
@@ -156,7 +156,7 @@ class CoverageModel(ModelData):
             'population'. If the former, the aggregation
             performed is average. If the latter, the
             aggregation is summation.
-        '''
+        """
         assert self.good_to_write, 'need to calculate first'
 
         if aggregate_type == 'category':
@@ -192,9 +192,9 @@ class CoverageModel(ModelData):
         return low_area.join(res)
               
     def write_aggregate(self, aggregate_type, filename=None):
-         '''
+         """
          Write the aggregate to csv
-         '''
+         """
          df = self._get_aggregate(aggregate_type)
          if not filename:
              filename = self.get_output_filename_cov('{}_aggregate'.format(aggregate_type))
@@ -203,9 +203,9 @@ class CoverageModel(ModelData):
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
 
     def write_agg_area_cat(self, filename=None):
-         '''
+         """
          Write the aggregate2 to csv
-         '''
+         """
          df = self.agg_area_cat()
          if not filename:
              filename = self.get_output_filename_cov('{}agg_area_cat'.format(self.network_type))
@@ -214,13 +214,13 @@ class CoverageModel(ModelData):
          self.logger.info('Wrote aggregate to file: {}'.format(filename))
             
     def plot_cdf(self, title='Coverage Amount'):
-        '''
+        """
         Generate a CDF. If limit_categories was specified,
         each category will be given individually. If not, the
         aggregate value will be plotted.
         Inputs
             title: the title of the figure
-        '''
+        """
 
         assert self.good_to_write, "must calculate first"
 
@@ -264,9 +264,9 @@ class CoverageModel(ModelData):
         return
 
     def write_csv(self, filename=None, file_path=None):
-        '''
+        """
         Write the model data to file.
-        '''
+        """
         assert self.good_to_write, 'need to calculate first'
         if not filename:
             filename = self.get_output_filename_cov('Coverage_{}'.format(self.network_type))
@@ -274,11 +274,11 @@ class CoverageModel(ModelData):
 
 
 class AccessModel(ModelData):
-    '''
+    """
     Build the Access model which captures the accessibility of 
     nonprofit services in urban environments.
     The source_field_mapping and dest_field_mapping parameters are used by the web app client. 
-    '''
+    """
 
     def __init__(self, network_type='drive', source_filename=None, source_field_mapping=None, 
         dest_filename=None, dest_field_mapping=None, sp_matrix_filename=None, decay_function='linear',
@@ -314,7 +314,7 @@ class AccessModel(ModelData):
 
     def calculate(self, custom_threshold=40, normalize=True, 
         custom_weight_dict=None, largest_weights_first=True, subset_provided=False):
-        '''
+        """
         Calculate the Access score for each block
         from the vendors within the specified range.
         Inputs:
@@ -333,7 +333,7 @@ class AccessModel(ModelData):
             provided destination category individually as well as for the aggregate
             of the selected categories.  if False, just the aggregate access value
             for facilities matching the destination categories is output.
-        '''
+        """
 
         start_time = time.time()
         self.custom_threshold = custom_threshold
@@ -375,10 +375,10 @@ class AccessModel(ModelData):
                 access = 0
                 access_cat = 0
                 shortest_time = 9999999
-                '''
+                """
                 Sort the destination list so the weight_dict[cat].pop
                 will take the nearest neighbor first.
-                '''
+                """
                 dest_list.sort(key=operator.itemgetter(1))
 
                 #Iterate through each destination 
@@ -511,16 +511,16 @@ class AccessModel(ModelData):
         return txt
 
     def write_csv(self, filename=None):
-        '''
+        """
         Write the model data to file.
-        '''
+        """
         assert self.good_to_write, 'need to calculate first'
         if not filename:
             filename = self.get_output_filename_access('Access_{}'.format(self.network_type))
         self.results.to_csv(filename)
 
     def _get_aggregate(self, aggregate_type):
-        '''
+        """
         Build an data frame of the results aggregated
         by community.
         Inputs
@@ -528,7 +528,7 @@ class AccessModel(ModelData):
             'population'. If the former, the aggregation
             performed is average. If the latter, the
             aggregation is summation.
-        '''
+        """
         assert self.good_to_write, 'need to calculate first'
         
         if aggregate_type == 'access': 
@@ -550,9 +550,9 @@ class AccessModel(ModelData):
 
         
     def write_aggregate(self, aggregate_type, filename=None):
-        '''
+        """
         Write the aggregate to csv
-        '''
+        """
         df = self._get_aggregate(aggregate_type)
         if not filename:
             filename = self.get_output_filename_access('{}_aggregate'.format(aggregate_type))
@@ -562,11 +562,11 @@ class AccessModel(ModelData):
         
 
     def plot_cdf(self, title='CDF Access Score'):
-        '''
+        """
         Generate a CDF of the aggregate Access score.
         Inputs
             title: the title of the figure
-        '''
+        """
         assert self.good_to_write, "must calculate first"
         mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
         x = self.results.loc[self.results['population'] > 0]['access']
@@ -591,10 +591,10 @@ class AccessModel(ModelData):
 
 
 class TTMetrics(ModelData):
-    '''
+    """
     Build the Access model which captures the accessibility of 
     nonprofit services in urban environments.
-    '''
+    """
 
     def __init__(self, network_type='walk', source_filename=None, 
         dest_filename=None, sp_matrix_filename=None, decay_function='linear',
@@ -702,10 +702,10 @@ class TTMetrics(ModelData):
         
     def plot_nearest_providers(self, limit_categories=None, 
         title='Closest Point CDF', n_bins=500, resolution='block'):
-        '''
+        """
         Plot a cdf of travel times to the closest provider
         for each category.
-        '''
+        """
 
         assert resolution in ['block', 'population'], 'must use block or resolution'
         #assert resolution != 'population', 'this feature is a Work in Progress'

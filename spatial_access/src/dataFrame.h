@@ -7,7 +7,7 @@
 class dataFrame {
 public:
 
-    // TODO: Eliminate redundancy with templates
+    // TODO: Remove string label remnants
     std::unordered_map <unsigned long int, p2p::dataRow> row_id_map_int;
     std::unordered_map <std::string, p2p::dataRow> row_id_map_string;
 

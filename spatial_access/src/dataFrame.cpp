@@ -351,7 +351,7 @@ bool dataFrame::readMetadata(const std::string &outfile)
     std::string filename = outfile + "/meta";
     std::fstream input(filename, std::ios::in | std::ios::binary);
     if (!metaData.ParseFromIstream(&input)) {
-        std::cerr << "Failed to read from " << filename << std::endl;
+        throw std::runtime_error("Unable to read metadata");
         return false;
     }
     input.close();
@@ -363,7 +363,7 @@ bool dataFrame::readRowdata(const std::string &outfile, const std::string &row_i
     std::string filename = outfile + "/" + row_id;
     std::fstream input(filename, std::ios::in | std::ios::binary);
     if (!row_id_map_string[row_id].ParseFromIstream(&input)) {
-        std::cerr << "Failed to read from " << filename << std::endl;
+        throw std::runtime_error("Unable to read row data");
         return false;
     }
     input.close();
@@ -375,7 +375,7 @@ bool dataFrame::readRowdata(const std::string &outfile, unsigned long int row_id
     std::string filename = outfile + "/" + std::to_string(row_id);
     std::fstream input(filename, std::ios::in | std::ios::binary);
     if (!row_id_map_int[row_id].ParseFromIstream(&input)) {
-        std::cerr << "Failed to read from " << filename << std::endl;
+        throw std::runtime_error("Unable to read row data");
         return false;
     }
     input.close();

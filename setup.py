@@ -75,7 +75,8 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.CommunityAnalytics',
                    'spatial_access.ConfigInterface',
                    'spatial_access.NetworkInterface',
-                   'spatial_access.MatrixInterface']
+                   'spatial_access.MatrixInterface',
+                   'spatial_access.SpatialAccessExceptions']
 
 setuptools.setup(
     cmdclass = {'install':CustomInstallCommand},

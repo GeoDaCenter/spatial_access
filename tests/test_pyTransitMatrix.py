@@ -2,13 +2,15 @@
 from transitMatrixAdapter import pyTransitMatrix
 import os
 
+# TODO make test cleanup neater
+
 class TestClass():
 
     def test_1(self):
-        '''
+        """
         Test adding edges to graph, computing, retrieving
         values, writing to and reading from .csv.
-        '''
+        """
         matrix = pyTransitMatrix(vertices=5, isSymmetric=False)
 
         matrix.addEdgeToGraph(0, 1, 1, True)
@@ -39,11 +41,10 @@ class TestClass():
         assert matrix.get(0, 3) == 18
         assert matrix.get(1, 3) == 17
 
-
     def test_2(self):
-        '''
+        """
         Test multithreaded computation.
-        '''
+        """
         matrix = pyTransitMatrix(vertices=4, isSymmetric=False)
 
         matrix.addEdgeToGraph(0, 1, 1, True)
@@ -64,11 +65,10 @@ class TestClass():
         assert matrix.get(0, 3) == 18
         assert matrix.get(1, 3) == 17
 
-
     def test_3(self):
-        '''
+        """
         Test symmetric matrix optimization
-        '''
+        """
                 
         matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
 
@@ -94,9 +94,9 @@ class TestClass():
         assert matrix.get(4, 4) == 0
 
     def test_4(self):
-        '''
+        """
         Test getSourcesInRange and getDestsInRange (including INF points)
-        '''
+        """
         matrix = pyTransitMatrix(vertices=5, isSymmetric=False)
 
         matrix.addEdgeToGraph(0, 1, 5, True)
@@ -118,11 +118,10 @@ class TestClass():
         assert sources_in_range == {4: [1], 3: [1], 1: [2, 4], 2: [1]}
         assert dests_in_range == {4: [1], 3: [], 1: [2, 3, 4], 2: [1]}
 
-
     def test_5(self):
-        '''
+        """
         Test getValuesBySource and getValuesByDest (with sorting)
-        '''
+        """
                 
         matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
 
@@ -149,9 +148,9 @@ class TestClass():
         assert matrix.getValuesBySource(4, True) == [(4, 0), (1, 8), (2, 14), (3, 20)]
 
     def test_6(self):
-        '''
+        """
         Cleanup.
-        '''
+        """
         try:
             import shutil
             shutil.rmtree('tmp/')

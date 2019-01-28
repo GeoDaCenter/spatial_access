@@ -1,15 +1,23 @@
 # pylint: skip-file
 from spatial_access.MatrixInterface import MatrixInterface
+
+from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
+from spatial_access.SpatialAccessExceptions import ReadCSVFailedException
+from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
+from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
+from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
+
 import os
 import shutil
+
 
 class TestClass():
 
     def test_1(self):
-        '''
+        """
         Tests computing a graph with single thread,
         writing to and reading from csv.
-        '''
+        """
         interface = MatrixInterface()
         interface.prepare_matrix(5, isSymmetric=False)
 
@@ -45,10 +53,10 @@ class TestClass():
 
 
     def test_2(self):
-        '''
+        """
         Tests that the interface can accept string user
         labels and converts them into int ids successfully.
-        '''
+        """
 
         interface = MatrixInterface()
         interface.prepare_matrix(5, isSymmetric=True)
@@ -74,10 +82,10 @@ class TestClass():
         assert True
 
     def test_3(self):
-        '''
+        """
         Tests that the symmetric interface can be written to file 
         and read successfully.
-        '''
+        """
 
         interface = MatrixInterface()
         interface.prepare_matrix(5, isSymmetric=True)
@@ -119,10 +127,10 @@ class TestClass():
         assert True
 
     def test_4(self):
-        '''
+        """
         Tests computing a graph with single thread,
         writing to and reading from tmx.
-        '''
+        """
         interface = MatrixInterface()
         interface.prepare_matrix(5, isSymmetric=False)
 
@@ -154,3 +162,80 @@ class TestClass():
         assert interface2.get(11, 14) == 8
         assert interface2.get(12, 13) == 20
         assert interface2.get(12, 14) == 14
+
+    def test_5(self):
+        """
+        Tests throws IndecesNotFoundException. 
+        """
+        interface = MatrixInterface()
+        interface.prepare_matrix(5, isSymmetric=False)
+
+        interface.add_edge_to_graph(0, 1, 5, True)
+        interface.add_edge_to_graph(1, 2, 6, True)
+        interface.add_edge_to_graph(2, 3, 2, True)
+        interface.add_edge_to_graph(2, 4, 4, False)
+        interface.add_edge_to_graph(3, 4, 5, True)
+
+        interface.add_user_source_data(1, 11, 1, False)
+        interface.add_user_source_data(0, 12, 2, False)
+        interface.add_user_dest_data(4, 13, 3)
+        interface.add_user_dest_data(1, 14, 7)
+
+        interface.build_matrix()
+
+        try:
+            interface.get(43643, 2353209)
+        except IndecesNotFoundException:
+            assert True
+            return
+        assert False
+
+    def test_5(self):
+        """
+        Tests throws ReadTMXFailedException. 
+        """
+        interface = MatrixInterface()
+        try:
+            interface.read_from_tmx("non_existant_file")
+        except ReadTMXFailedException:
+            assert True
+            return
+        assert False
+
+    def test_6(self):
+        """
+        Tests throws ReadCSVFailedException. 
+        """
+        interface = MatrixInterface()
+        try:
+            interface.read_from_csv("non_existant_file.csv")
+        except ReadCSVFailedException:
+            assert True
+            return
+        assert False
+
+
+    def test_7(self):
+        """
+        Tests throws WriteTMXFailedException. 
+        """
+        interface = MatrixInterface()
+        try:
+            interface.write_to_tmx("other_non_existant_file")
+        except WriteTMXFailedException:
+            assert True
+            return
+        assert False
+
+
+    def test_8(self):
+        """
+        Tests throws WriteCSVFailedException. 
+        """
+        interface = MatrixInterface()
+        try:
+            interface.write_to_csv("other_non_existant_file.csv")
+        except WriteCSVFailedException:
+            assert True
+            return
+        assert False

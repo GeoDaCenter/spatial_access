@@ -238,12 +238,24 @@ transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool i
 
 bool transitMatrix::writeCSV(const std::string &outfile)
 {
-    return this->df.writeCSV(outfile);
+    try {
+        return this->df.writeCSV(outfile);    
+    }
+    catch (...)
+    {
+        throw std::runtime_error("Unable to write csv");
+    }
 }
 
 bool transitMatrix::writeTMX(const std::string &outfile)
 {
-    return this->df.writeTMX(outfile);
+    try {
+        return this->df.writeTMX(outfile);    
+    }
+    catch (...)
+    {
+        throw std::runtime_error("Unable to write tmx");
+    }
 }
 
 
@@ -258,12 +270,18 @@ void transitMatrix::prepareDataFrame()
 
 void transitMatrix::compute(int numThreads)
 {
-    prepareDataFrame();
-    graphWorkerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
-        numNodes, df);
-    wa.initialize();  
-    workerQueue wq(numThreads);
-    wq.startGraphWorker(graphWorkerHandler, &wa);
+    try 
+    {
+        prepareDataFrame();
+        graphWorkerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
+            numNodes, df);
+        wa.initialize();  
+        workerQueue wq(numThreads);
+        wq.startGraphWorker(graphWorkerHandler, &wa);
+    } catch (...)
+    {
+        throw std::runtime_error("Failed to compute matrix");
+    }
 
 }
 
