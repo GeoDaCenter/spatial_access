@@ -49,6 +49,8 @@ class MatrixInterface():
 
         remapped_ids = self.transit_matrix.getUserRowIdCache()
         remapped_ids = {k.decode():v for k, v in remapped_ids.items()}
+        if len(remapped_ids) == 0:
+            return None
         return remapped_ids
 
     def write_source_id_remap_to_json(self, filename):
@@ -66,6 +68,8 @@ class MatrixInterface():
         """
         remapped_ids = self.transit_matrix.getUserColIdCache()
         remapped_ids = {k.decode(): v for k, v in remapped_ids.items()}
+        if len(remapped_ids) == 0:
+            return None
         return remapped_ids
 
     def write_dest_id_remap_to_json(self, filename):

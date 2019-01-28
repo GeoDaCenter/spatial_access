@@ -210,8 +210,10 @@ class TransitMatrix():
 
         if primary:
             self.primary_data = source_data[['lon', 'lat']]
+            self.primary_hints = {'idx':idx, 'lon': lon, 'lat': lat}
         else:
             self.secondary_data = source_data[['lon', 'lat']]
+            self.secondary_hints = {'idx': idx, 'lon': lon, 'lat': lat}
 
     def _load_inputs(self):
         """
