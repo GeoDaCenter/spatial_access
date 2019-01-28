@@ -88,7 +88,7 @@ class TestClass(object):
     def create_very_large_table():
         data = {'name':['washington', 'florida'],
                 'lat': [48.448324, 25.233228],
-                'lon': [-124.768930, -80.705327]}
+                'lon': [4.768930, -80.705327]}
 
         df = pd.DataFrame.from_dict(data)
         return df
