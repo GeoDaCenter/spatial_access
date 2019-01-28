@@ -127,7 +127,7 @@ class TestClass():
             return
         assert False
 
-    def test_8(self):
+    def test_7(self):
         """
         Test calling process before sp_matrix is loaded
         throws TransitMatrixNotLoadedException
@@ -147,7 +147,7 @@ class TestClass():
 
         assert False
 
-    def test_7(self):
+    def test_8(self):
         """
         Test instantiating and processing ModelData
         instance.
@@ -178,3 +178,19 @@ class TestClass():
         assert model_data.get_values_by_dest(1, True) == [(4, 7), (5, 21), (6, 682), (3, 714)]
 
 
+
+    def test_8(self):
+        """
+        Test instantiating and processing ModelData
+        instance, destination data has string indeces.
+        """
+        model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
+                               destinations_filename="tests/test_data/dests_a.csv",
+                               source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                    'population': 'pop'},
+                               dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                  'target': 'targ', 'category': 'cat'},
+                               upper_threshold=600)
+        model_data.load_sp_matrix("tests/test_data/score_model_test_1")
+
+        model_data.process()

@@ -30,27 +30,16 @@ int main()
     matrix.addEdgeToGraph(2, 4, 4, true);
     matrix.addEdgeToGraph(3, 4, 3, true);
 
-    matrix.addToUserSourceDataContainer(1, 1, 1, true);
-    matrix.addToUserSourceDataContainer(0, 2, 2, true);
-    matrix.addToUserSourceDataContainer(3, 3, 3, true);
-    matrix.addToUserSourceDataContainer(1, 4, 7, true);
-    // // matrix.addToUserDestDataContainer(1, 11, 1);
-    // // matrix.addToUserDestDataContainer(0, 12, 2);
-    // // matrix.addToUserDestDataContainer(3, 13, 3);
-    // // matrix.addToUserDestDataContainer(1, 14, 7);
+    matrix.addToUserSourceDataContainerString(1, "a", 1, true);
+    matrix.addToUserSourceDataContainerString(0, "b", 2, true);
+    matrix.addToUserSourceDataContainerString(3, "c", 3, true);
+    matrix.addToUserSourceDataContainerString(1, "d", 7, true);
 
+    std::cout << "finished adding" << std::endl;
     matrix.compute(19);
+    std::cout << "finished compute" << std::endl;
 
-    auto destsInRange = matrix.getDestsInRange(13, 10);
-    printMapOfArrays(destsInRange);
-    auto sourcesInRange = matrix.getSourcesInRange(13, 10);
-    printMapOfArrays(sourcesInRange);
-    // std::cout << "df1:" << std::endl;
-    // matrix.printDataFrame();
-
-    // lmnoel::transitMatrix matrix2("outfile.csv");
-    // std::cout << "df2:" << std::endl;
-    // matrix2.printDataFrame();
+     matrix.printDataFrame();
 
     return 0;
 };

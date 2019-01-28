@@ -15,8 +15,10 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         ctypedef unsigned short int value
         transitMatrix(int, bool isSymmetric) except +
         transitMatrix(string, bool isSymmetric, bool isOTPMatrix) except +
-        void addToUserSourceDataContainer(int, unsigned long int, int, bool) except +
-        void addToUserDestDataContainer(int, unsigned long int, int) except +
+        void addToUserSourceDataContainerInt(int, unsigned long int, int, bool) except +
+        void addToUserDestDataContainerInt(int, unsigned long int, int) except +
+        void addToUserSourceDataContainerString(int, string, int, bool) except +
+        void addToUserDestDataContainerString(int, string, int) except +
         void addEdgeToGraph(int, int, int, bool) except +
         void compute(int) except +
         int get(unsigned long int, unsigned long int) except +
@@ -27,6 +29,9 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         unordered_map[unsigned long int, vector[label]] getSourcesInRange(int, int) except +
         vector[pair[label, value]] getValuesByDest(unsigned long int, bool) except +
         vector[pair[label, value]] getValuesBySource(unsigned long int, bool) except +
+        unordered_map[string, unsigned long int] getUserRowIdCache() except +
+        unordered_map[string, unsigned long int] getUserColIdCache() except +
+
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
@@ -52,11 +57,17 @@ cdef class pyTransitMatrix:
     def getValuesByDest(self, dest_id, sort):
         return self.thisptr.getValuesByDest(dest_id, sort)
 
-    def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance, isBidirectional):
-        self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance, isBidirectional)
+    def addToUserSourceDataContainerInt(self, networkNodeId, id_, lastMileDistance, isBidirectional):
+        self.thisptr.addToUserSourceDataContainerInt(networkNodeId, id_, lastMileDistance, isBidirectional)
 
-    def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):
-        self.thisptr.addToUserDestDataContainer(networkNodeId, id_, lastMileDistance)
+    def addToUserDestDataContainerInt(self, networkNodeId, id_, lastMileDistance):
+        self.thisptr.addToUserDestDataContainerInt(networkNodeId, id_, lastMileDistance)
+
+    def addToUserSourceDataContainerString(self, networkNodeId, id_, lastMileDistance, isBidirectional):
+        self.thisptr.addToUserSourceDataContainerString(networkNodeId, id_, lastMileDistance, isBidirectional)
+
+    def addToUserDestDataContainerString(self, networkNodeId, id_, lastMileDistance):
+        self.thisptr.addToUserDestDataContainerString(networkNodeId, id_, lastMileDistance)
 
     def addEdgeToGraph(self, src, dst, weight, isBidirectional):
         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
@@ -76,3 +87,8 @@ cdef class pyTransitMatrix:
     def printDataFrame(self):
         self.thisptr.printDataFrame()
 
+    def getUserRowIdCache(self):
+        return self.thisptr.getUserRowIdCache()
+
+    def getUserColIdCache(self):
+        return self.thisptr.getUserColIdCache()

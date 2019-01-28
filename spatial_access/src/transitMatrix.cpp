@@ -147,7 +147,7 @@ void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
     // calculate dests (columns) in range of sources (rows)
     if (wa->isDestsInRange)
     {
-        for (unsigned long int col_label : wa->df.metaData.col_label_int())
+        for (unsigned long int col_label : wa->df.metaData.col_label())
         {
             
             if ((wa->df.retrieveValue(index, col_label) <= wa->threshold)  
@@ -159,7 +159,7 @@ void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
     }
     else // calculate sources (rows) in range of dests (columns)
     {   
-        for (unsigned long int row_label : wa->df.metaData.row_label_int())
+        for (unsigned long int row_label : wa->df.metaData.row_label())
         {
             if ((wa->df.retrieveValue(row_label, index) <= wa->threshold)  
                     and (index != row_label))
@@ -285,12 +285,13 @@ void transitMatrix::compute(int numThreads)
 
 }
 
-void transitMatrix::addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance)
+
+void transitMatrix::addToUserDestDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance)
 {
     userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);
 }
 
-void transitMatrix::addToUserSourceDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional)
+void transitMatrix::addToUserSourceDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional)
 {
     userSourceDataContainer.addPoint(networkNodeId, id, lastMileDistance);
     if (isBidirectional)
@@ -298,6 +299,30 @@ void transitMatrix::addToUserSourceDataContainer(int networkNodeId, unsigned lon
         userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);   
     }
 }
+
+void transitMatrix::addToUserDestDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance)
+{
+    unsigned long int remapped_user_id = this->df.cacheUserStringId(id, false);
+    this->addToUserDestDataContainerInt(networkNodeId, remapped_user_id, lastMileDistance);
+}
+
+void transitMatrix::addToUserSourceDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance, bool isBidirectional)
+{
+    unsigned long int remapped_user_id = this->df.cacheUserStringId(id, true);
+    this->addToUserSourceDataContainerInt(networkNodeId, remapped_user_id, lastMileDistance, isBidirectional);
+}
+
+const std::unordered_map<std::string, unsigned long int> transitMatrix::getUserRowIdCache()
+{
+    return this->df.getUserRowIdCache();
+}
+
+
+const std::unordered_map<std::string, unsigned long int> transitMatrix::getUserColIdCache()
+{
+    return this->df.getUserColIdCache();
+}
+
 
 void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirectional)
 {
@@ -322,7 +347,7 @@ int transitMatrix::get(unsigned long int source, unsigned long int dest) const
 void transitMatrix::calculateDestsInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
-    for (unsigned long int row_id : this->df.metaData.row_label_int())
+    for (unsigned long int row_id : this->df.metaData.row_label())
     {
         std::vector<unsigned long int> valueData;
         // If the map is uninitialized, emplace the keys
@@ -350,7 +375,7 @@ void transitMatrix::calculateDestsInRange(unsigned int threshold, int numThreads
 void transitMatrix::calculateSourcesInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
-    for (unsigned long int col_id : this->df.metaData.col_label_int())
+    for (unsigned long int col_id : this->df.metaData.col_label())
     {
         std::vector<unsigned long int> valueData;
         // If the map is uninitialized, emplace the keys

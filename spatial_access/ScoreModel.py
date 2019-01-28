@@ -149,8 +149,6 @@ class ModelData(object):
         a shortest path matrix using p2p (must be installed).
         """
 
-        # TODO figure out how to apply remapped string ids to sources/dests
-
         if filename:
             self._sp_matrix = TransitMatrix(self.network_type,
                                             read_from_file=filename)
@@ -254,6 +252,11 @@ class ModelData(object):
         columns_to_keep = list(rename_cols.values())
         self.sources = self.sources[columns_to_keep]
 
+        # remap to numeric id if original data used string ids
+        remapped_ids = self._sp_matrix.matrix_interface.get_source_id_remap()
+        if isinstance(remapped_ids, dict):
+            self.sources.index = self.sources.index.map(remapped_ids)
+
     def reload_dests(self, filename=None):
         """
         Load the destination points for the model (from csv).
@@ -338,11 +341,17 @@ class ModelData(object):
             self.dests.set_index(self.dest_column_names['idx'], inplace=True)
             self.dests.rename(columns=rename_cols, inplace=True)
 
-            # drop unused columns
-            columns_to_keep = list(rename_cols.values())
-            self.dests = self.dests[columns_to_keep]
         except:
             raise DestDataNotParsableException()
+
+        # drop unused columns
+        columns_to_keep = list(rename_cols.values())
+        self.dests = self.dests[columns_to_keep]
+
+        # remap to numeric id if original data used string ids
+        remapped_ids = self._sp_matrix.matrix_interface.get_dest_id_remap()
+        if isinstance(remapped_ids, dict):
+            self.dests.index = self.dests.index.map(remapped_ids)
 
     def get_dests_in_range(self):
         """

@@ -5,16 +5,15 @@ package p2p;
 message metaData {
 
 	required bool is_symmetric = 1;
-	enum labelType {
-	   	STRING = 1;
-	   	INT = 2;
-	}
-	required labelType row_label_type = 2;
-	required labelType col_label_type = 3;
-	repeated string row_label_string = 4;
-	repeated int64 row_label_int = 5;
-	repeated string col_label_string = 6;
-	repeated int64 col_label_int = 7;
+	required bool row_labels_are_remapped = 2;
+	required bool col_labels_are_remapped = 3;
+
+	repeated string premap_row_label_string = 4;
+	repeated string premap_col_label_string = 5;
+
+	repeated int64 row_label = 6;
+	repeated int64 col_label = 7;
+
 }
 
 message  dataRow {

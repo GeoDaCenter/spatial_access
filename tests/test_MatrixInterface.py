@@ -73,11 +73,14 @@ class TestClass():
         interface.add_user_source_data(1, "agency_d", 7, True)
 
         interface.build_matrix()
+
+        source_id_remap = interface.get_source_id_remap()
+
     
-        assert interface.get_value("agency_a", "agency_a") == 0
-        assert interface.get_value("agency_a", "agency_d") == 8
-        assert interface.get_value("agency_a", "agency_b") == 8
-        assert interface.get_value("agency_d" , "agency_c") == 20
+        assert interface.get_value(source_id_remap["agency_a"], source_id_remap["agency_a"]) == 0
+        assert interface.get_value(source_id_remap["agency_a"], source_id_remap["agency_d"]) == 8
+        assert interface.get_value(source_id_remap["agency_a"], source_id_remap["agency_b"]) == 8
+        assert interface.get_value(source_id_remap["agency_d"] , source_id_remap["agency_c"]) == 20
 
         assert True
 

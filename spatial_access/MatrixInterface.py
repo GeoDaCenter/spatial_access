@@ -29,11 +29,6 @@ class MatrixInterface():
     def __init__(self, logger=None):
         self.logger = logger
         self.transit_matrix = None
-        self._source_id_index = 0
-        self._dest_id_index = 0
-        self._int_id_map = {}
-        self._source_id_remap = {}
-        self._dest_id_remap = {}
         self._warned_once = False
         self._string_id_warning = """
         To optimize performance, your non-integer row and/or
@@ -49,10 +44,12 @@ class MatrixInterface():
     def get_source_id_remap(self):
         """
         Get the internal mapping of user string id to 
-        integer id for sources.
+        integer id for sources, remap bytes to strings.
         """
 
-        return self._source_id_remap
+        remapped_ids = self.transit_matrix.getUserRowIdCache()
+        remapped_ids = {k.decode():v for k, v in remapped_ids.items()}
+        return remapped_ids
 
     def write_source_id_remap_to_json(self, filename):
         """
@@ -60,15 +57,24 @@ class MatrixInterface():
         integer id for sources to json.
         """
         with open(filename, 'w') as jsonfile:
-            json.dump(self._source_id_remap, jsonfile)
+            json.dump(self.get_source_id_remap(), jsonfile)
 
     def get_dest_id_remap(self):
         """
         Get the internal mapping of user string id to 
-        integer id for dests.
+        integer id for dests, remap bytes to strings.
         """
+        remapped_ids = self.transit_matrix.getUserColIdCache()
+        remapped_ids = {k.decode(): v for k, v in remapped_ids.items()}
+        return remapped_ids
 
-        return self._dest_id_remap
+    def write_dest_id_remap_to_json(self, filename):
+        """
+        Write the internal mapping of user string id to
+        integer id for dests to json.
+        """
+        with open(filename, 'w') as jsonfile:
+            json.dump(self.get_dest_id_remap(), jsonfile)
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -83,14 +89,6 @@ class MatrixInterface():
         to sort in increasing order by value.
         """
         return self.transit_matrix.getValuesByDest(dest_id, sort)
-
-    def write_dest_id_remap_to_json(self, filename):
-        """
-        Write the internal mapping of user string id to 
-        integer id for dests to json.
-        """
-        with open(filename, 'w') as jsonfile:
-            json.dump(self._dest_id_remap, jsonfile)
 
     @staticmethod
     def _get_thread_limit():
@@ -108,54 +106,27 @@ class MatrixInterface():
 
         return no_cores
 
-    def _get_internal_int_id(self, user_id, dest=False):
-        """
-        Map the user's string id to an internal
-        int id (different sets for source/dest).
-        """
-        if not dest:
-            if user_id in self._source_id_remap:
-                return self._source_id_remap[user_id]
-            else:
-                self._source_id_remap[user_id] = self._source_id_index
-                self._source_id_index += 1
-                return self._source_id_index - 1
-        else:
-            if user_id in self._dest_id_remap:
-                return self._dest_id_remap[user_id]
-            else:
-                self._dest_id_remap[user_id] = self._dest_id_index
-                self._dest_id_index += 1
-                return self._dest_id_index - 1
-
     def add_user_source_data(self, network_id, user_id, distance, primary_only):
         """
         Add the user's source data point to the pyTransitMatrix.
-        If the given user_id is a string, first map to an
-        internally held int id.
         """
         if isinstance(user_id, str):
-            if self.logger and not self._warned_once:
-                self.logger.warning(self._string_id_warning)
-                self._warned_once = True
-            user_id = self._get_internal_int_id(user_id)
-
-        self.transit_matrix.addToUserSourceDataContainer(network_id, user_id,
-                                                         distance, primary_only)
+            self.transit_matrix.addToUserSourceDataContainerString(network_id, bytes(user_id, 'utf-8'),
+                                                             distance, primary_only)
+        else:
+            self.transit_matrix.addToUserSourceDataContainerInt(network_id, user_id,
+                                                                   distance, primary_only)
 
     def add_user_dest_data(self, network_id, user_id, distance):
         """
         Add the user's dest data point to the pyTransitMatrix.
-        If the given user_id is a string, first map to an
-        internally held int id.
         """
         if isinstance(user_id, str):
-            if self.logger and not self._warned_once:
-                self.logger.warning(self._string_id_warning)
-                self._warned_once = True
-            user_id = self._get_internal_int_id(user_id, True)
-        self.transit_matrix.addToUserDestDataContainer(network_id, user_id,
+            self.transit_matrix.addToUserDestDataContainerString(network_id, bytes(user_id, 'utf-8'),
                                                        distance)
+        else:
+            self.transit_matrix.addToUserDestDataContainerInt(network_id, user_id,
+                                                                 distance)
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
         """
@@ -288,11 +259,8 @@ class MatrixInterface():
     def get_value(self, source, dest):
         """
         Fetch the time value associated with the source, dest pair.
+        Warning! This method expects int arguments only!
         """
-        if isinstance(source, str):
-            source = self._get_internal_int_id(source)
-        if isinstance(dest, str):
-            dest = self._get_internal_int_id(dest)
         try:
             return self.transit_matrix.get(source, dest)
         except BaseException:

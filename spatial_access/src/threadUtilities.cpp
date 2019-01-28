@@ -116,14 +116,14 @@ void rangeWorkerArgs::initialize()
 {
     if (isDestsInRange)  
     {
-        for (unsigned long int i : df.metaData.row_label_int()) 
+        for (unsigned long int i : df.metaData.row_label())
         {
             jq.insert(i);
         }
     } 
     else 
     {
-        for (unsigned long int i : df.metaData.col_label_int()) 
+        for (unsigned long int i : df.metaData.col_label())
         {
             jq.insert(i);
         }

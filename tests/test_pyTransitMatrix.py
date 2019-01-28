@@ -19,10 +19,10 @@ class TestClass():
         matrix.addEdgeToGraph(1, 3, 2, True)
 
 
-        matrix.addToUserSourceDataContainer(1, 0, 4, False)
-        matrix.addToUserSourceDataContainer(0, 1, 2, False)
-        matrix.addToUserDestDataContainer(0, 2, 3)
-        matrix.addToUserDestDataContainer(2, 3, 8)
+        matrix.addToUserSourceDataContainerInt(1, 0, 4, False)
+        matrix.addToUserSourceDataContainerInt(0, 1, 2, False)
+        matrix.addToUserDestDataContainerInt(0, 2, 3)
+        matrix.addToUserDestDataContainerInt(2, 3, 8)
 
         matrix.compute(1)
 
@@ -53,10 +53,10 @@ class TestClass():
         matrix.addEdgeToGraph(1, 3, 2, True)
 
 
-        matrix.addToUserSourceDataContainer(1, 0, 4, False)
-        matrix.addToUserSourceDataContainer(0, 1, 2, False)
-        matrix.addToUserDestDataContainer(0, 2, 3)
-        matrix.addToUserDestDataContainer(2, 3, 8)
+        matrix.addToUserSourceDataContainerInt(1, 0, 4, False)
+        matrix.addToUserSourceDataContainerInt(0, 1, 2, False)
+        matrix.addToUserDestDataContainerInt(0, 2, 3)
+        matrix.addToUserDestDataContainerInt(2, 3, 8)
 
         matrix.compute(3)
 
@@ -78,10 +78,10 @@ class TestClass():
         matrix.addEdgeToGraph(2, 4, 4, True)
         matrix.addEdgeToGraph(3, 4, 3, True)
 
-        matrix.addToUserSourceDataContainer(1, 1, 1, True)
-        matrix.addToUserSourceDataContainer(0, 2, 2, True)
-        matrix.addToUserSourceDataContainer(4, 3, 3, True)
-        matrix.addToUserSourceDataContainer(1, 4, 7, True)
+        matrix.addToUserSourceDataContainerInt(1, 1, 1, True)
+        matrix.addToUserSourceDataContainerInt(0, 2, 2, True)
+        matrix.addToUserSourceDataContainerInt(4, 3, 3, True)
+        matrix.addToUserSourceDataContainerInt(1, 4, 7, True)
 
         matrix.compute(3)
 
@@ -105,10 +105,10 @@ class TestClass():
         matrix.addEdgeToGraph(2, 4, 4, True)
         matrix.addEdgeToGraph(3, 4, 3, True)
 
-        matrix.addToUserSourceDataContainer(1, 1, 1, True)
-        matrix.addToUserSourceDataContainer(0, 2, 2, True)
-        matrix.addToUserSourceDataContainer(3, 3, 3, True)
-        matrix.addToUserSourceDataContainer(1, 4, 7, True)
+        matrix.addToUserSourceDataContainerInt(1, 1, 1, True)
+        matrix.addToUserSourceDataContainerInt(0, 2, 2, True)
+        matrix.addToUserSourceDataContainerInt(3, 3, 3, True)
+        matrix.addToUserSourceDataContainerInt(1, 4, 7, True)
 
         matrix.compute(3)
 
@@ -131,10 +131,10 @@ class TestClass():
         matrix.addEdgeToGraph(2, 4, 4, True)
         matrix.addEdgeToGraph(3, 4, 3, True)
 
-        matrix.addToUserSourceDataContainer(1, 1, 1, True)
-        matrix.addToUserSourceDataContainer(0, 2, 2, True)
-        matrix.addToUserSourceDataContainer(4, 3, 3, True)
-        matrix.addToUserSourceDataContainer(1, 4, 7, True)
+        matrix.addToUserSourceDataContainerInt(1, 1, 1, True)
+        matrix.addToUserSourceDataContainerInt(0, 2, 2, True)
+        matrix.addToUserSourceDataContainerInt(4, 3, 3, True)
+        matrix.addToUserSourceDataContainerInt(1, 4, 7, True)
 
         matrix.compute(3)
 
@@ -148,6 +148,34 @@ class TestClass():
         assert matrix.getValuesBySource(4, True) == [(4, 0), (1, 8), (2, 14), (3, 20)]
 
     def test_6(self):
+        """
+        Test giving strings as source and dest data ids.
+        """
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=False)
+
+        matrix.addEdgeToGraph(0, 1, 1, True)
+        matrix.addEdgeToGraph(1, 2, 6, True)
+        matrix.addEdgeToGraph(0, 3, 5, True)
+        matrix.addEdgeToGraph(1, 3, 2, True)
+
+        matrix.addToUserSourceDataContainerString(1, b"a", 4, False)
+        matrix.addToUserSourceDataContainerString(0, b"b", 2, False)
+        matrix.addToUserDestDataContainerString(0, b"c", 3)
+        matrix.addToUserDestDataContainerString(2, b"d", 8)
+
+        matrix.compute(1)
+
+        row_id_cache =  matrix.getUserRowIdCache()
+        assert row_id_cache == {b"a":0, b"b":1}
+        col_id_cache =  matrix.getUserColIdCache()
+        assert col_id_cache == {b"c":0, b"d":1}
+
+        assert matrix.get(row_id_cache[b"a"], col_id_cache[b"c"]) == 8
+        assert matrix.get(row_id_cache[b"b"], col_id_cache[b"c"]) == 5
+        assert matrix.get(row_id_cache[b"a"], col_id_cache[b"d"]) == 18
+        assert matrix.get(row_id_cache[b"b"], col_id_cache[b"d"]) == 17
+
+    def test_7(self):
         """
         Cleanup.
         """

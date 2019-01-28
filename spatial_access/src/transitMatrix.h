@@ -35,8 +35,10 @@ public:
     bool isSymmetric;
     Graph graph;
     int numNodes;
-    void addToUserSourceDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional);
-    void addToUserDestDataContainer(int networkNodeId, unsigned long int id, int lastMileDistance);
+    void addToUserSourceDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional);
+    void addToUserDestDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance);
+    void addToUserSourceDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance, bool isBidirectional);
+    void addToUserDestDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
     transitMatrix(int V, bool isSymmetric);
     transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPMatrix);
@@ -55,6 +57,8 @@ public:
     void calculateDestsInRange(unsigned int threshold, int numThreads);
     const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(unsigned int range, int numThreads);
     const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(unsigned int range, int numThreads);
+    const std::unordered_map<std::string, unsigned long int> getUserRowIdCache();
+    const std::unordered_map<std::string, unsigned long int> getUserColIdCache();
 private:
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> destsInRange;
