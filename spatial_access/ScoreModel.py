@@ -6,6 +6,8 @@ from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
 from spatial_access.SpatialAccessExceptions import DestDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceDataNotParsableException
 from spatial_access.SpatialAccessExceptions import DestDataNotParsableException
+from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
+from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
 
 import os.path
 import logging
@@ -25,7 +27,7 @@ class ModelData(object):
                  source_column_names=None, dest_column_names=None,
                  debug=False):
         self.network_type = network_type
-        self.sp_matrix = None
+        self._sp_matrix = None
         self.dests = None
         self.sources = None
 
@@ -34,8 +36,8 @@ class ModelData(object):
 
         # column_names and file_hints are similar, both map indended_name->actual_data_name
         # the difference is column names should be complete/contain all needed fields
-        self.source_column_names = None
-        self.dest_column_names = None
+        self.source_column_names = source_column_names
+        self.dest_column_names = dest_column_names
 
         # hints are partial/potentially incomplete, and supplied
         # by p2p.TransitMatrix
@@ -78,9 +80,9 @@ class ModelData(object):
         """
         Return the time, in seconds, from source to dest.
         """
-        assert self.sp_matrix is not None, 'load shortest path matrix before this step'
+        assert self._sp_matrix is not None, 'load shortest path matrix before this step'
 
-        time = self.sp_matrix.get(source, dest)
+        time = self._sp_matrix.get(source, dest)
 
         return time
 
@@ -114,16 +116,13 @@ class ModelData(object):
         """
 
         # need to make sure we've loaded these data first
-        if self.sp_matrix is None:
+        if self._sp_matrix is None:
             raise TransitMatrixNotLoadedException()
 
-        assert self.sp_matrix is not None, 'load shortest path matrix before this step'
-        assert self.sources is not None, 'load sources before this step'
-        assert self.dests is not None, 'load destinations before this step'
         start_time = time.time()
 
-        self.sp_matrix._matrix_interface_get_sources_in_range(self.upper)
-        self.sp_matrix._matrix_interface_get_dests_in_range(self.upper)
+        self._sp_matrix.matrix_interface.get_sources_in_range(self.upper_threshold)
+        self._sp_matrix.matrix_interface.get_dests_in_range(self.upper_threshold)
 
         self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
 
@@ -153,32 +152,28 @@ class ModelData(object):
         # TODO figure out how to apply remapped string ids to sources/dests
 
         if filename:
-            self.sp_matrix = TransitMatrix(self.network_type,
-                                           read_from_file=filename)
+            self._sp_matrix = TransitMatrix(self.network_type,
+                                            read_from_file=filename)
 
         else:
-            self.sp_matrix = TransitMatrix(self.network_type,
-                                           primary_input=self.sources_filename,
-                                           secondary_input=self.destinations_filename,
-                                           primary_hints=self.source_column_names,
-                                           secondary_hints=self.dest_column_names)
-            self.sp_matrix.process()
+
+            self._sp_matrix = TransitMatrix(self.network_type,
+                                            primary_input=self.sources_filename,
+                                            secondary_input=self.destinations_filename,
+                                            primary_hints=self.source_column_names,
+                                            secondary_hints=self.dest_column_names)
+            try:
+                self._sp_matrix.process()
+            except PrimaryDataNotFoundException:
+                raise SourceDataNotFoundException()
+            except SecondaryDataNotFoundException:
+                raise DestDataNotFoundException()
 
             # borrow hints for use in load_sources() and load_dests() if not user supplied
             if self._source_file_hints is None:
-                self._source_file_hints = self.sp_matrix.primary_hints
-                # this is dumb but the TransitMatrix labels lat/long columns differently
-                self._source_file_hints['lat'] = self._source_file_hints['y']
-                self._source_file_hints['lon'] = self._source_file_hints['x']
-                del self._source_file_hints['y']
-                del self._source_file_hints['x']
+                self._source_file_hints = self._sp_matrix.primary_hints
             if self._dest_file_hints is None:
-                self._dest_file_hints = self.sp_matrix.secondary_hints
-                # this is dumb but the TransitMatrix labels lat/long columns differently
-                self._dest_file_hints['lat'] = self._dest_file_hints['y']
-                self._dest_file_hints['lon'] = self._dest_file_hints['x']
-                del self._dest_file_hints['y']
-                del self._dest_file_hints['x']
+                self._dest_file_hints = self._sp_matrix.secondary_hints
 
         self.reload_sources()
         self.reload_dests()
@@ -338,7 +333,7 @@ class ModelData(object):
             if self.dest_column_names['target'] != 'skip':
                 rename_cols[self.dest_column_names['target']] = 'target'
             if self.dest_column_names['category'] != 'skip':
-                rename_cols[self.dest_column_names['target']] = 'category'
+                rename_cols[self.dest_column_names['category']] = 'category'
 
             self.dests.set_index(self.dest_column_names['idx'], inplace=True)
             self.dests.rename(columns=rename_cols, inplace=True)
@@ -348,3 +343,29 @@ class ModelData(object):
             self.dests = self.dests[columns_to_keep]
         except:
             raise DestDataNotParsableException()
+
+    def get_dests_in_range(self):
+        """
+        Return a dictionary of lists
+        """
+        return self._sp_matrix.matrix_interface.get_dests_in_range(self.upper_threshold)
+
+    def get_sources_in_range(self):
+        """
+        Return a dictionary of lists
+        """
+        return self._sp_matrix.matrix_interface.get_sources_in_range(self.upper_threshold)
+
+    def get_values_by_source(self, source_id, sort=False):
+        """
+        Get a list of (dest_id, value) pairs, with the option
+        to sort in increasing order by value.
+        """
+        return self._sp_matrix.matrix_interface.get_values_by_source(source_id, sort)
+
+    def get_values_by_dest(self, dest_id, sort=False):
+        """
+        Get a list of (source_id, value) pairs, with the option
+        to sort in increasing order by value.
+        """
+        return self._sp_matrix.matrix_interface.get_values_by_dest(dest_id, sort)

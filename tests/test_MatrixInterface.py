@@ -34,20 +34,20 @@ class TestClass():
 
         interface.build_matrix()
 
-        assert interface.get(11, 13) == 14
-        assert interface.get(11, 14) == 8
-        assert interface.get(12, 13) == 20
-        assert interface.get(12, 14) == 14
+        assert interface.get_value(11, 13) == 14
+        assert interface.get_value(11, 14) == 8
+        assert interface.get_value(12, 13) == 20
+        assert interface.get_value(12, 14) == 14
         interface.write_to_csv("test_outfile_1.csv");
 
         interface2 = MatrixInterface()
         interface2.read_from_csv("test_outfile_1.csv")
         os.remove('test_outfile_1.csv')
 
-        assert interface2.get(11, 13) == 14
-        assert interface2.get(11, 14) == 8
-        assert interface2.get(12, 13) == 20
-        assert interface2.get(12, 14) == 14
+        assert interface2.get_value(11, 13) == 14
+        assert interface2.get_value(11, 14) == 8
+        assert interface2.get_value(12, 13) == 20
+        assert interface2.get_value(12, 14) == 14
 
         assert True
 
@@ -74,10 +74,10 @@ class TestClass():
 
         interface.build_matrix()
     
-        assert interface.get("agency_a", "agency_a") == 0
-        assert interface.get("agency_a", "agency_d") == 8    
-        assert interface.get("agency_a", "agency_b") == 8
-        assert interface.get("agency_d" , "agency_c") == 20
+        assert interface.get_value("agency_a", "agency_a") == 0
+        assert interface.get_value("agency_a", "agency_d") == 8
+        assert interface.get_value("agency_a", "agency_b") == 8
+        assert interface.get_value("agency_d" , "agency_c") == 20
 
         assert True
 
@@ -103,26 +103,26 @@ class TestClass():
 
         interface.build_matrix()
     
-        assert interface.get(11, 11) == 0
-        assert interface.get(11, 14) == 8    
-        assert interface.get(11, 12) == 8
-        assert interface.get(12, 11) == 8
-        assert interface.get(14, 13) == 20
-        assert interface.get(13, 14) == 20
-        assert interface.get(14, 14) == 0
+        assert interface.get_value(11, 11) == 0
+        assert interface.get_value(11, 14) == 8
+        assert interface.get_value(11, 12) == 8
+        assert interface.get_value(12, 11) == 8
+        assert interface.get_value(14, 13) == 20
+        assert interface.get_value(13, 14) == 20
+        assert interface.get_value(14, 14) == 0
 
         interface.write_to_csv('test_outfile_2.csv')
 
         interface2 = MatrixInterface()
         interface2.read_from_csv('test_outfile_2.csv')
 
-        assert interface2.get(11, 11) == 0
-        assert interface2.get(11, 14) == 8    
-        assert interface2.get(11, 12) == 8
-        assert interface2.get(12, 11) == 8
-        assert interface2.get(14, 13) == 20
-        assert interface2.get(13, 14) == 20
-        assert interface2.get(14, 14) == 0
+        assert interface2.get_value(11, 11) == 0
+        assert interface2.get_value(11, 14) == 8
+        assert interface2.get_value(11, 12) == 8
+        assert interface2.get_value(12, 11) == 8
+        assert interface2.get_value(14, 13) == 20
+        assert interface2.get_value(13, 14) == 20
+        assert interface2.get_value(14, 14) == 0
 
         assert True
 
@@ -147,10 +147,10 @@ class TestClass():
 
         interface.build_matrix()
 
-        assert interface.get(11, 13) == 14
-        assert interface.get(11, 14) == 8
-        assert interface.get(12, 13) == 20
-        assert interface.get(12, 14) == 14
+        assert interface.get_value(11, 13) == 14
+        assert interface.get_value(11, 14) == 8
+        assert interface.get_value(12, 13) == 20
+        assert interface.get_value(12, 14) == 14
 
         interface.write_to_tmx("test_outfile_1");
 
@@ -158,10 +158,10 @@ class TestClass():
         interface2.read_from_tmx("test_outfile_1")
 
 
-        assert interface2.get(11, 13) == 14
-        assert interface2.get(11, 14) == 8
-        assert interface2.get(12, 13) == 20
-        assert interface2.get(12, 14) == 14
+        assert interface2.get_value(11, 13) == 14
+        assert interface2.get_value(11, 14) == 8
+        assert interface2.get_value(12, 13) == 20
+        assert interface2.get_value(12, 14) == 14
 
     def test_5(self):
         """
@@ -184,7 +184,7 @@ class TestClass():
         interface.build_matrix()
 
         try:
-            interface.get(43643, 2353209)
+            interface.get_value(43643, 2353209)
         except IndecesNotFoundException:
             assert True
             return

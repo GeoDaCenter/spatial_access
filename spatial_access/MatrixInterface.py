@@ -70,29 +70,19 @@ class MatrixInterface():
 
         return self._dest_id_remap
 
-    def get_values_by_source(source_id, sort=False):
+    def get_values_by_source(self, source_id, sort=False):
         """
         Get a list of (dest_id, value) pairs, with the option
         to sort in increasing order by value.
         """
         return self.transit_matrix.getValuesBySource(source_id, sort)
 
-    def get_values_by_dest(dest_id, sort=False):
+    def get_values_by_dest(self, dest_id, sort=False):
         """
         Get a list of (source_id, value) pairs, with the option
         to sort in increasing order by value.
         """
         return self.transit_matrix.getValuesByDest(dest_id, sort)
-
-    def get_sources_in_range(self, threshold):
-        """
-        """
-        return self.transit_matrix.getSourcesInRange(threshold)
-
-    def get_dests_in_range(self, threshold):
-        """
-        """
-        return self.transit_matrix.getDestsInRange(threshold)
 
     def write_dest_id_remap_to_json(self, filename):
         """
@@ -101,7 +91,6 @@ class MatrixInterface():
         """
         with open(filename, 'w') as jsonfile:
             json.dump(self._dest_id_remap, jsonfile)
-
 
     @staticmethod
     def _get_thread_limit():
@@ -139,7 +128,6 @@ class MatrixInterface():
                 self._dest_id_index += 1
                 return self._dest_id_index - 1
 
-
     def add_user_source_data(self, network_id, user_id, distance, primary_only):
         """
         Add the user's source data point to the pyTransitMatrix.
@@ -168,7 +156,6 @@ class MatrixInterface():
             user_id = self._get_internal_int_id(user_id, True)
         self.transit_matrix.addToUserDestDataContainer(network_id, user_id,
                                                        distance)
-
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
         """
@@ -286,12 +273,8 @@ class MatrixInterface():
         map for dests under threshold distance
         from source.
         """
-        start_time = time.time()
         numThreads = self._get_thread_limit()
-        res = self.transit_matrix.getDestsInRange(threshold, numThreads)
-        if self.logger:
-            self.logger.info('get_dests_in_range computed in {:,.2f} seconds'.format(time.time() - start_time))
-        return res
+        return self.transit_matrix.getDestsInRange(threshold, numThreads)
 
     def get_sources_in_range(self, threshold):
         """
@@ -299,14 +282,10 @@ class MatrixInterface():
         map for sources under threshold distance
         from dest.
         """
-        start_time = time.time()
         numThreads = self._get_thread_limit()
-        res = self.transit_matrix.getSourcesInRange(threshold, numThreads)
-        if self.logger:
-            self.logger.info('get_sources_in_range computed in {:,.2f} seconds'.format(time.time() - start_time))
-        return res
+        return self.transit_matrix.getSourcesInRange(threshold, numThreads)
 
-    def get(self, source, dest):
+    def get_value(self, source, dest):
         """
         Fetch the time value associated with the source, dest pair.
         """
@@ -319,7 +298,7 @@ class MatrixInterface():
         except BaseException:
             raise IndecesNotFoundException() 
 
-    def printDataFrame(self):
+    def print_data_frame(self):
         """
         Print the underlying data frame.
         """

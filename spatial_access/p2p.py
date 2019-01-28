@@ -87,7 +87,7 @@ class TransitMatrix():
         self._config_interface = ConfigInterface(network_type, logger=self.logger)
         self._network_interface = NetworkInterface(network_type, logger=self.logger, 
                                                    disable_area_threshold=disable_area_threshold)
-        self._matrix_interface = MatrixInterface(logger=self.logger)
+        self.matrix_interface = MatrixInterface(logger=self.logger)
 
         if network_type not in ['drive', 'walk', 'bike', 'transit']:
             raise UnknownModeException()
@@ -101,7 +101,7 @@ class TransitMatrix():
             raise InsufficientDataException()
 
         if read_from_file:
-            self._matrix_interface.read_from_file(read_from_file, isOTPMatrix=network_type=='transit')
+            self.matrix_interface.read_from_file(read_from_file, isOTPMatrix=network_type == 'transit')
 
     def set_logging(self, debug):
         """
@@ -144,8 +144,7 @@ class TransitMatrix():
         """
         Load source data from .csv. Identify lon, lon and id columns.
         """
-        # decide which input to load
-        field_mapping = None
+
 
         if primary:
             filename = self.primary_input
@@ -308,9 +307,9 @@ class TransitMatrix():
                     self._config_interface.speed_limit_dict["urban"][highway_tag])
 
             is_bidirectional = data.oneway != 'yes' or self.network_type != 'drive'
-            self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
-                                                     simple_node_indeces[to_idx],
-                                                     impedence, is_bidirectional)
+            self.matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
+                                                    simple_node_indeces[to_idx],
+                                                    impedence, is_bidirectional)
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
@@ -358,10 +357,10 @@ class TransitMatrix():
 
             if isPrimary:
                 # pylint disable=line-too-long
-                self._matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
+                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
             else:
                 # pylint disable=line-too-long
-                self._matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
+                self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
 
         time_delta = time.time() - start_time
         self.logger.info(
@@ -380,7 +379,7 @@ class TransitMatrix():
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension='csv')
         assert '.csv' in outfile, 'Error: given filename does not have the correct extension (.csv)'
-        self._matrix_interface.write_to_csv(outfile)
+        self.matrix_interface.write_to_csv(outfile)
 
     def write_tmx(self, outfile=None):
         """
@@ -396,7 +395,7 @@ class TransitMatrix():
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension=None)
         assert '.' not in outfile, 'Error: output filename must be a directory'
-        self._matrix_interface.write_to_tmx(outfile)
+        self.matrix_interface.write_to_tmx(outfile)
 
     def prefetch_network(self):
         """
@@ -425,8 +424,8 @@ class TransitMatrix():
 
         self.prefetch_network()
         isSymmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
-        self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(), 
-                                              isSymmetric)
+        self.matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(),
+                                             isSymmetric)
 
         self._match_nn(True, not self.secondary_input)
         if self.secondary_input:
@@ -445,7 +444,7 @@ class TransitMatrix():
         self.primary_input = None
         self.secondary_input = None
 
-        self._matrix_interface.build_matrix()
+        self.matrix_interface.build_matrix()
         time_delta = time.time() - start_time
 
 

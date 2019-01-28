@@ -78,7 +78,7 @@ class TestClass():
                                                         transit_matrix_1.secondary_data,
                                                         secondary_input=True,
                                                         epsilon=transit_matrix_1.epsilon)
-        transit_matrix_1._matrix_interface.prepare_matrix(transit_matrix_1._network_interface.number_of_nodes())
+        transit_matrix_1.matrix_interface.prepare_matrix(transit_matrix_1._network_interface.number_of_nodes())
         transit_matrix_1._parse_network()
 
         assert True
@@ -243,9 +243,9 @@ class TestClass():
         """
         transit_matrix_1 = TransitMatrix('transit', read_from_file='tests/test_data/sample_otp.csv')
 
-        assert transit_matrix_1._matrix_interface.get(530330077002014, 530330077002014) == 0
-        assert transit_matrix_1._matrix_interface.get(530330077002014, 530330247021004) == 114
-        assert transit_matrix_1._matrix_interface.get(530330322102064, 530330222032019) == 65535
+        assert transit_matrix_1.matrix_interface.get_value(530330077002014, 530330077002014) == 0
+        assert transit_matrix_1.matrix_interface.get_value(530330077002014, 530330247021004) == 114
+        assert transit_matrix_1.matrix_interface.get_value(530330322102064, 530330222032019) == 65535
 
         assert True
 
