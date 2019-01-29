@@ -59,11 +59,17 @@ public:
     const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(unsigned int range, int numThreads);
     const std::unordered_map<std::string, unsigned long int> getUserRowIdCache();
     const std::unordered_map<std::string, unsigned long int> getUserColIdCache();
+    void addToCategoryMap(unsigned long int dest_id, const std::string& category);
+    unsigned short int timeToNearestDestPerCategory(unsigned long int source_id, const std::string& category) const;
+    unsigned short int countDestsInRangePerCategory(unsigned long int source_id, const std::string& category, unsigned short int range) const;
+    unsigned short int timeToNearestDest(unsigned long int source_id) const;
+    unsigned short int countDestsInRange(unsigned long int source_id, unsigned short int range) const;
 private:
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
     std::unordered_map<unsigned long int, std::vector<unsigned long int>> destsInRange;
     unsigned int sourcesInRangeThreshold;
     unsigned int destsInRangeThreshold;
+    std::unordered_map<std::string, std::vector<unsigned long int>> categoryToDestMap;
 
 };
 

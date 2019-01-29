@@ -49,7 +49,8 @@ class ModelData(object):
         self.valid_target = True
         self.valid_category = True
 
-        self.desinations_to_category = {}
+        self.sources_in_range = {}
+        self.dests_in_range = {}
 
         # initialize logger
         self.logger = None
@@ -102,29 +103,32 @@ class ModelData(object):
 
         return self.dests.loc[dest_id, 'target']
 
-    def get_category(self, dest_id):
+    def get_all_categories(self):
         """
-        Return the category of a dest point.
+        Return a list of all categories in the dest dataset.
         """
-        assert self.dests is not None, 'load dests before this step'
+        return set(self.dests['cat'])
 
-        return str(self.dest2cats[int(dest_id)])
-
-    def process(self):
+    def get_all_dest_ids(self):
         """
-        Generate mappings for the model to use.
+        Return all ids of destination data frame.
         """
+        return list(self.dests.index)
 
-        # need to make sure we've loaded these data first
-        if self._sp_matrix is None:
-            raise TransitMatrixNotLoadedException()
+    def get_all_source_ids(self):
+        """
+        Return all ids of source data frame.
+        """
+        return list(self.source.index)
 
-        start_time = time.time()
-
-        self._sp_matrix.matrix_interface.get_sources_in_range(self.upper_threshold)
-        self._sp_matrix.matrix_interface.get_dests_in_range(self.upper_threshold)
-
-        self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
+    def get_ids_for_category(self, category='all_categories'):
+        """
+        Given category, return an array of all indeces
+        which match. If category is all_categories, return all indeces.
+        """
+        if category == 'all_categories':
+            return list(self.dests.index)
+        return list(self.dests[self.dests['cat'] == category].index)
 
     def set_logging(self, level=None):
         """
@@ -353,17 +357,29 @@ class ModelData(object):
         if isinstance(remapped_ids, dict):
             self.dests.index = self.dests.index.map(remapped_ids)
 
-    def get_dests_in_range(self):
+    def get_dests_in_range_of_source(self, source_id):
         """
-        Return a dictionary of lists
+        Return a list of dest ids in range of the source
         """
-        return self._sp_matrix.matrix_interface.get_dests_in_range(self.upper_threshold)
+        return self.dests_in_range[source_id]
 
-    def get_sources_in_range(self):
+    def get_sources_in_range_of_dest(self, dest_id):
+        """
+        Return a list of source ids in range of the dest
+        """
+        return self.sources_in_range[dest_id]
+
+    def calculate_dests_in_range(self):
         """
         Return a dictionary of lists
         """
-        return self._sp_matrix.matrix_interface.get_sources_in_range(self.upper_threshold)
+        self.dests_in_range =  self._sp_matrix.matrix_interface.get_dests_in_range(self.upper_threshold)
+
+    def calculate_sources_in_range(self):
+        """
+        Return a dictionary of lists
+        """
+        self.sources_in_range = self._sp_matrix.matrix_interface.get_sources_in_range(self.upper_threshold)
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -378,3 +394,65 @@ class ModelData(object):
         to sort in increasing order by value.
         """
         return self._sp_matrix.matrix_interface.get_values_by_dest(dest_id, sort)
+
+    def get_population_in_range(self, dest_id):
+        """
+         Return the population within the target range for the given
+         destination id.
+        """
+        cumulative_population = 0
+        for source_id in self.get_sources_in_range_of_dest(dest_id):
+            source_population = self.get_population(source_id)
+            if source_population > 0:
+                cumulative_population += source_population
+
+        return cumulative_population
+
+    # TODO add a new api to map dest ids to categories in transit matrix
+    # to speed all this up
+
+    # TODO
+    def time_to_nearest_dest(self, source_id, category):
+        """
+        Return the time to nearest destination for source_id
+        of type category. If category is 'all_categories', return
+        the time to nearest destination of any type.
+        """
+        pass
+
+    # TODO
+    def count_dests_in_range_by_categories(self, source_id, categories):
+        """
+        Return the count of destinations in range
+        of the source id per category
+        """
+        pass
+
+
+    # TODO
+    def build_aggregate(self, model_results, aggregation_type):
+        """
+        Aggregate model results.
+        """
+        pass
+
+    # TODO
+    def plot_cdf(self, model_results):
+        """
+        Plot a cdf of the model results
+        """
+        pass
+
+    # TODO
+    def write_results(self, model_results):
+        """
+        Write results to csv
+        """
+        pass
+
+    # TODO
+    def write_aggregated_results(self, model_results):
+        """
+        Write aggregated results to csv
+        """
+        pass

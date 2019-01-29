@@ -127,27 +127,9 @@ class TestClass():
             return
         assert False
 
+
+
     def test_7(self):
-        """
-        Test calling process before sp_matrix is loaded
-        throws TransitMatrixNotLoadedException
-        """
-        model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
-                               destinations_filename="tests/test_data/dests.csv",
-                               source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                    'population': 'pop'},
-                               dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'},
-                               upper_threshold=100)
-        try:
-            model_data.process()
-        except TransitMatrixNotLoadedException:
-            assert True
-            return
-
-        assert False
-
-    def test_8(self):
         """
         Test instantiating and processing ModelData
         instance.
@@ -161,14 +143,15 @@ class TestClass():
                                upper_threshold=600)
         model_data.load_sp_matrix("tests/test_data/score_model_test_1")
 
-        model_data.process()
+        model_data.calculate_dests_in_range()
+        model_data.calculate_sources_in_range()
 
-        assert model_data.get_dests_in_range() == {3: [],
+        assert model_data.dests_in_range == {3: [],
                                                    4: [1, 2],
                                                    5: [1, 2],
                                                    6: [2]}
 
-        assert model_data.get_sources_in_range() == {0: [],
+        assert model_data.sources_in_range == {0: [],
                                                      1: [4, 5],
                                                      2: [4, 5, 6]
 
@@ -181,7 +164,7 @@ class TestClass():
 
     def test_8(self):
         """
-        Test instantiating and processing ModelData
+        Test instantiating  ModelData
         instance, destination data has string indeces.
         """
         model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
@@ -193,4 +176,7 @@ class TestClass():
                                upper_threshold=600)
         model_data.load_sp_matrix("tests/test_data/score_model_test_1")
 
-        model_data.process()
+        model_data.calculate_dests_in_range()
+        model_data.calculate_sources_in_range()
+
+# TODO test get_population_in_range

@@ -317,6 +317,72 @@ const std::unordered_map<std::string, unsigned long int> transitMatrix::getUserR
     return this->df.getUserRowIdCache();
 }
 
+void transitMatrix::addToCategoryMap(unsigned long int dest_id, const std::string& category)
+{
+    if (categoryToDestMap.find(category) != categoryToDestMap.end())
+    {
+        categoryToDestMap.at(category).push_back(dest_id);
+    }
+    else {
+        std::vector<unsigned long int> data;
+        data.push_back(dest_id);
+        categoryToDestMap.emplace(std::make_pair(category, data));
+    }
+}
+
+unsigned short int transitMatrix::timeToNearestDestPerCategory(unsigned long int source_id, const std::string& category) const
+{
+    unsigned short int minimum = USHRT_MAX;
+    for (unsigned long int dest_id : categoryToDestMap.at(category))
+    {
+        unsigned short int dest_time = this->df.retrieveValue(source_id, dest_id);
+        if (dest_time <= minimum)
+        {
+            minimum = dest_time;
+        }
+    }
+    return minimum;
+}
+
+unsigned short int transitMatrix::countDestsInRangePerCategory(unsigned long int source_id, const std::string& category, unsigned short int range) const
+{
+    unsigned short int count = 0;
+    for (unsigned long int dest_id : categoryToDestMap.at(category))
+    {
+        if (this->df.retrieveValue(source_id, dest_id) <= range)
+        {
+            count++;
+        }
+    }
+    return count;
+}
+
+unsigned short int transitMatrix::timeToNearestDest(unsigned long int source_id) const
+{
+    unsigned short int minimum = USHRT_MAX;
+    for (unsigned long int dest_id : this->df.metaData.col_label())
+    {
+        unsigned short int dest_time = this->df.retrieveValue(source_id, dest_id);
+        if (dest_time <= minimum)
+        {
+            minimum = dest_time;
+        }
+    }
+    return minimum;
+}
+
+unsigned short int transitMatrix::countDestsInRange(unsigned long int source_id, unsigned short int range) const
+{
+    unsigned short int count = 0;
+    for (unsigned long int dest_id : this->df.metaData.col_label())
+    {
+        if (this->df.retrieveValue(source_id, dest_id) <= range)
+        {
+            count++;
+        }
+    }
+    return count;
+}
 
 const std::unordered_map<std::string, unsigned long int> transitMatrix::getUserColIdCache()
 {

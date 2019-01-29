@@ -31,6 +31,12 @@ cdef extern from "src/transitMatrix.h" namespace "lmnoel":
         vector[pair[label, value]] getValuesBySource(unsigned long int, bool) except +
         unordered_map[string, unsigned long int] getUserRowIdCache() except +
         unordered_map[string, unsigned long int] getUserColIdCache() except +
+        void addToCategoryMap(unsigned long int, string) except +
+        unsigned short int timeToNearestDestPerCategory(unsigned long int, string) except +
+        unsigned short int countDestsInRangePerCategory(unsigned long int, string, unsigned short int) except +
+        unsigned short int timeToNearestDest(unsigned long int) except +
+        unsigned short int countDestsInRange(unsigned long int, unsigned short int) except +
+
 
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
@@ -92,3 +98,18 @@ cdef class pyTransitMatrix:
 
     def getUserColIdCache(self):
         return self.thisptr.getUserColIdCache()
+
+    def addToCategoryMap(self, dest_id, category):
+        self.thisptr.addToCategoryMap(dest_id, category)
+
+    def timeToNearestDestPerCategory(self, source_id, category):
+        return self.thisptr.timeToNearestDestPerCategory(source_id, category)
+
+    def countDestsInRangePerCategory(self, source_id, category, range):
+        return self.thisptr.countDestsInRangePerCategory(source_id, category, range)
+
+    def timeToNearestDest(self, source_id):
+        return self.thisptr.timeToNearestDest(source_id)
+
+    def countDestsInRange(self, source_id, range):
+        return self.thisptr.countDestsInRange(source_id, range)
