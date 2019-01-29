@@ -160,12 +160,12 @@ class TestClass():
         assert model_data.get_values_by_source(3, True) == [(2, 601), (1, 714), (0, 768)]
         assert model_data.get_values_by_dest(1, True) == [(4, 7), (5, 21), (6, 682), (3, 714)]
 
-
-
     def test_8(self):
         """
         Test instantiating  ModelData
         instance, destination data has string indeces.
+        Including reading a transit matrix from
+        file with string indeces.
         """
         model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests_a.csv",
@@ -174,9 +174,47 @@ class TestClass():
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'target': 'targ', 'category': 'cat'},
                                upper_threshold=600)
-        model_data.load_sp_matrix("tests/test_data/score_model_test_1")
+        model_data.load_sp_matrix()
+        model_data._sp_matrix.write_tmx('tests/test_data/score_model_test_8')
 
         model_data.calculate_dests_in_range()
         model_data.calculate_sources_in_range()
 
-# TODO test get_population_in_range
+        remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
+        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_b']) == [4, 5]
+        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_c']) == [4, 5, 6]
+
+        model_data2 = ModelData('drive', sources_filename="tests/test_data/sources.csv",
+                                destinations_filename="tests/test_data/dests_a.csv",
+                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                     'population': 'pop'},
+                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                   'target': 'targ', 'category': 'cat'},
+                                upper_threshold=600)
+
+        model_data2.load_sp_matrix('tests/test_data/score_model_test_8')
+
+        model_data2.calculate_dests_in_range()
+        model_data2.calculate_sources_in_range()
+
+        remapped_dests2 = model_data2._sp_matrix.matrix_interface.get_dest_id_remap()
+        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_b']) == [4, 5]
+        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_c']) == [4, 5, 6]
+
+    def test_9(self):
+        """
+        Test get_population_in_range method
+        """
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
+                               destinations_filename="tests/test_data/dests_a.csv",
+                               source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                    'population': 'pop'},
+                               dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                  'target': 'targ', 'category': 'cat'},
+                               upper_threshold=600)
+        model_data.load_sp_matrix()
+        model_data.calculate_sources_in_range()
+
+        remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
+
+        assert model_data.get_population_in_range(remapped_dests['place_c']) == 121

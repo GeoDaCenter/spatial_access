@@ -44,7 +44,7 @@ def logit_decay_function(time, upper):
 
 class Coverage:
     """
-    Build the CoverageScore which captures
+    Build Coverage which captures
     the level of spending for low income residents in
     urban environments.
     """
@@ -114,6 +114,7 @@ class AccessPop:
         else:
             self.categories = ['all_categories']
 
+    # Todo debug this
     def calculate(self):
         """
         Calculate the per-capita values and served population for each destination record.
@@ -176,7 +177,7 @@ class AccessTime:
 
         results = {}
         column_names = ['time_to_nearest_' + category for category in self.categories]
-        for source_id in self.model_data.get_ids_for_category(category):
+        for source_id in self.model_data.get_all_source_ids():
             results[source_id] = []
             for category in self.categories:
                 time_to_nearest_neighbor = self.model_data.time_to_nearest_dest(source_id, category)
@@ -220,9 +221,11 @@ class AccessCount:
 
         results = {}
         column_names = ['count_in_range_' + category for category in self.categories]
-        for source_id in self.model_data.get_ids_for_category(category):
-            counts = self.model_data.count_dests_in_range_by_categories(source_id, self.categories)
-            results[source_id] = [counts]
+        for source_id in self.model_data.get_all_source_ids():
+            results[source_id] = []
+            for category in self.categories:
+                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id, category)
+                results[source_id].append(count_in_range)
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)

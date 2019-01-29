@@ -18,7 +18,6 @@ class TestClass():
         matrix.addEdgeToGraph(0, 3, 5, True)
         matrix.addEdgeToGraph(1, 3, 2, True)
 
-
         matrix.addToUserSourceDataContainerInt(1, 0, 4, False)
         matrix.addToUserSourceDataContainerInt(0, 1, 2, False)
         matrix.addToUserDestDataContainerInt(0, 2, 3)
@@ -36,10 +35,10 @@ class TestClass():
 
         matrix2 = pyTransitMatrix(infile=b"tmp/test_1_outfile.csv")
 
-        assert matrix.get(0, 2) == 8
-        assert matrix.get(1, 2) == 5
-        assert matrix.get(0, 3) == 18
-        assert matrix.get(1, 3) == 17
+        assert matrix2.get(0, 2) == 8
+        assert matrix2.get(1, 2) == 5
+        assert matrix2.get(0, 3) == 18
+        assert matrix2.get(1, 3) == 17
 
     def test_2(self):
         """
@@ -51,7 +50,6 @@ class TestClass():
         matrix.addEdgeToGraph(1, 2, 6, True)
         matrix.addEdgeToGraph(0, 3, 5, True)
         matrix.addEdgeToGraph(1, 3, 2, True)
-
 
         matrix.addToUserSourceDataContainerInt(1, 0, 4, False)
         matrix.addToUserSourceDataContainerInt(0, 1, 2, False)
@@ -84,7 +82,6 @@ class TestClass():
         matrix.addToUserSourceDataContainerInt(1, 4, 7, True)
 
         matrix.compute(3)
-
 
         assert matrix.get(1, 1) == 0
         assert matrix.get(1, 2) == 8
@@ -139,8 +136,8 @@ class TestClass():
         matrix.compute(3)
 
         assert matrix.getValuesByDest(1, True) == [(1, 0), (2, 8), (4, 8), (3, 14)]
-        assert matrix.getValuesByDest(2, True) ==  [(2, 0), (1, 8), (4, 14), (3, 20)]
-        assert matrix.getValuesByDest(3, True) ==  [(3, 0), (1, 14), (2, 20), (4, 20)]
+        assert matrix.getValuesByDest(2, True) == [(2, 0), (1, 8), (4, 14), (3, 20)]
+        assert matrix.getValuesByDest(3, True) == [(3, 0), (1, 14), (2, 20), (4, 20)]
         assert matrix.getValuesByDest(4, True) == [(4, 0), (1, 8), (2, 14), (3, 20)]
         assert matrix.getValuesBySource(1, True) == [(1, 0), (2, 8), (4, 8), (3, 14)]
         assert matrix.getValuesBySource(2, True) == [(2, 0), (1, 8), (4, 14), (3, 20)]
@@ -165,9 +162,9 @@ class TestClass():
 
         matrix.compute(1)
 
-        row_id_cache =  matrix.getUserRowIdCache()
+        row_id_cache = matrix.getUserRowIdCache()
         assert row_id_cache == {b"a":0, b"b":1}
-        col_id_cache =  matrix.getUserColIdCache()
+        col_id_cache = matrix.getUserColIdCache()
         assert col_id_cache == {b"c":0, b"d":1}
 
         assert matrix.get(row_id_cache[b"a"], col_id_cache[b"c"]) == 8
@@ -176,6 +173,67 @@ class TestClass():
         assert matrix.get(row_id_cache[b"b"], col_id_cache[b"d"]) == 17
 
     def test_7(self):
+        """
+        Test time_to_nearest_dest--both with and
+        without category
+        """
+
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
+
+        matrix.addEdgeToGraph(0, 1, 5, True)
+        matrix.addEdgeToGraph(1, 2, 6, True)
+        matrix.addEdgeToGraph(2, 3, 2, True)
+        matrix.addEdgeToGraph(2, 4, 4, True)
+        matrix.addEdgeToGraph(3, 4, 3, True)
+
+        matrix.addToUserSourceDataContainerInt(1, 1, 1, True)
+        matrix.addToUserSourceDataContainerInt(0, 2, 2, True)
+        matrix.addToUserSourceDataContainerInt(4, 3, 3, True)
+        matrix.addToUserSourceDataContainerInt(1, 4, 7, True)
+
+        matrix.compute(3)
+
+        matrix.addToCategoryMap(1, b"a")
+        matrix.addToCategoryMap(2, b"a")
+        matrix.addToCategoryMap(3, b"c")
+        matrix.addToCategoryMap(4, b"c")
+
+        assert matrix.countDestsInRange(1, 15) == 4
+        assert matrix.countDestsInRangePerCategory(1, b"c", 15) == 2
+        assert matrix.countDestsInRange(2, 10) == 2
+        assert matrix.countDestsInRangePerCategory(2, b"c", 10) == 0
+
+    def test_8(self):
+        """
+        Test count_dests_in_range--both with and
+        without category
+        """
+        matrix = pyTransitMatrix(vertices=5, isSymmetric=True)
+
+        matrix.addEdgeToGraph(0, 1, 5, True)
+        matrix.addEdgeToGraph(1, 2, 6, True)
+        matrix.addEdgeToGraph(2, 3, 2, True)
+        matrix.addEdgeToGraph(2, 4, 4, True)
+        matrix.addEdgeToGraph(3, 4, 3, True)
+
+        matrix.addToUserSourceDataContainerInt(1, 1, 1, True)
+        matrix.addToUserSourceDataContainerInt(0, 2, 2, True)
+        matrix.addToUserSourceDataContainerInt(4, 3, 3, True)
+        matrix.addToUserSourceDataContainerInt(1, 4, 7, True)
+
+        matrix.compute(3)
+
+        matrix.addToCategoryMap(1, b"a")
+        matrix.addToCategoryMap(2, b"a")
+        matrix.addToCategoryMap(3, b"c")
+        matrix.addToCategoryMap(4, b"c")
+
+        assert matrix.timeToNearestDest(1) == 0
+        assert matrix.timeToNearestDestPerCategory(1, b"c") == 8
+        assert matrix.timeToNearestDest(3) == 0
+        assert matrix.timeToNearestDestPerCategory(3, b"a") == 14
+
+    def test_9(self):
         """
         Cleanup.
         """

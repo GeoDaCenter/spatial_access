@@ -1,7 +1,6 @@
 import pandas as pd
 from spatial_access.p2p import TransitMatrix
 
-from spatial_access.SpatialAccessExceptions import TransitMatrixNotLoadedException
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
 from spatial_access.SpatialAccessExceptions import DestDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceDataNotParsableException
@@ -11,7 +10,6 @@ from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundExceptio
 
 import os.path
 import logging
-import time
 
 
 class ModelData(object):
@@ -73,7 +71,6 @@ class ModelData(object):
         while os.path.isfile(filename):
             filename = os.path.join(file_path, '{}_{}.{}'.format(keyword, counter, extension))
             counter += 1
-        self.output_filename = filename
 
         return filename
 
@@ -408,26 +405,30 @@ class ModelData(object):
 
         return cumulative_population
 
-    # TODO add a new api to map dest ids to categories in transit matrix
-    # to speed all this up
-
-    # TODO
     def time_to_nearest_dest(self, source_id, category):
         """
         Return the time to nearest destination for source_id
         of type category. If category is 'all_categories', return
         the time to nearest destination of any type.
         """
-        pass
+        if category == 'all_categories':
+            return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, None)
+        else:
+            return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, category)
 
-    # TODO
-    def count_dests_in_range_by_categories(self, source_id, categories):
+    def count_dests_in_range_by_categories(self, source_id, category):
         """
         Return the count of destinations in range
         of the source id per category
         """
-        pass
-
+        if category == 'all_categories':
+            return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
+                                                                         self.upper_threshold,
+                                                                         None)
+        else:
+            return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
+                                                                         self.upper_threshold,
+                                                                         category)
 
     # TODO
     def build_aggregate(self, model_results, aggregation_type):

@@ -248,8 +248,8 @@ class MatrixInterface():
         map for dests under threshold distance
         from source.
         """
-        numThreads = self._get_thread_limit()
-        return self.transit_matrix.getDestsInRange(threshold, numThreads)
+        num_threads = self._get_thread_limit()
+        return self.transit_matrix.getDestsInRange(threshold, num_threads)
 
     def get_sources_in_range(self, threshold):
         """
@@ -257,8 +257,8 @@ class MatrixInterface():
         map for sources under threshold distance
         from dest.
         """
-        numThreads = self._get_thread_limit()
-        return self.transit_matrix.getSourcesInRange(threshold, numThreads)
+        num_threads = self._get_thread_limit()
+        return self.transit_matrix.getSourcesInRange(threshold, num_threads)
 
     def get_value(self, source, dest):
         """
@@ -276,3 +276,29 @@ class MatrixInterface():
         """
         self.transit_matrix.printDataFrame()
 
+    def add_to_category_map(self, dest_id, category):
+        """
+        Map the dest_id to the category in the
+        transit matrix.
+        """
+        self.transit_matrix.addToCategoryMap(dest_id, category)
+
+    def time_to_nearest_dest(self, source_id, category=None):
+        """
+        Return the time to the nearest destination of a given
+        category, or of all destinations if category is none.
+        """
+        if category is None:
+            return self.transit_matrix.timeToNearestDest(source_id)
+        else:
+            return self.transit_matrix.timeToNearestDestPerCategory(source_id, category)
+
+    def count_dests_in_range(self, source_id, range, category=None):
+        """
+        Return the count of destinations in range for a given
+        category, or of all destinations if category is none.
+        """
+        if category is None:
+            return self.transit_matrix.countDestsInRange(source_id, range)
+        else:
+            return self.transit_matrix.countDestsInRangePerCategory(source_id, category, range)
