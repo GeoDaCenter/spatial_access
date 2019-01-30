@@ -2,13 +2,9 @@ import pandas as pd
 from spatial_access.ScoreModel import ModelData
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
+from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 
-
-import numpy as np
 import math
-import time
-import copy
-import operator
 
 
 def linear_decay_function(time, upper):
@@ -51,14 +47,13 @@ class Coverage:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 upper_threshold=1800, categories=None):
+                 categories=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names,
-                                    upper_threshold=upper_threshold)
+                                    dest_column_names=dest_column_names)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -70,19 +65,25 @@ class Coverage:
         else:
             self.categories = ['all_categories']
 
-    def calculate(self):
+    def calculate(self, upper_threshold):
         """
         Calculate the per-capita values and served population for each destination record.
         """
-
+        self.model_data.calculate_sources_in_range(upper_threshold)
         results = {}
-        for dest_id in self.model_data.get_all_dest_ids():
-            population_in_range = self.model_data.get_population_in_range(dest_id)
-            percapita_spending = self.model_data.get_target(dest_id) / population_in_range
-            results[dest_id] = [population_in_range, percapita_spending]
+        for category in self.categories:
+            for dest_id in self.model_data.get_ids_for_category(category):
+                population_in_range = self.model_data.get_population_in_range(dest_id, upper_threshold)
+                if population_in_range > 0:
+                    percapita_spending = self.model_data.get_target(dest_id) / population_in_range
+                else:
+                    percapita_spending = 0
+                results[dest_id] = [population_in_range, percapita_spending, category]
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
-                                                    columns=['service_pop','percap_spending'])
+                                                    columns=['service_pop',
+                                                             'percap_spending',
+                                                             'category'])
 
 
 class AccessPop:
@@ -93,19 +94,16 @@ class AccessPop:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 upper_threshold=1800, categories=None):
+                 categories=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names,
-                                    upper_threshold=upper_threshold)
+                                    dest_column_names=dest_column_names)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
-        self.model_data.calculate_sources_in_range()
-        self.model_data.calculate_dests_in_range()
         self.categories = categories
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
@@ -114,32 +112,40 @@ class AccessPop:
         else:
             self.categories = ['all_categories']
 
-    # Todo debug this
-    def calculate(self):
+    def calculate(self, upper_threshold):
         """
-        Calculate the per-capita values and served population for each destination record.
+        Calculate the per-capita spending for each source record.
         """
+        self.model_data.calculate_sources_in_range(upper_threshold)
+        self.model_data.calculate_dests_in_range(upper_threshold)
 
         # initialize results as {source_id: []}
         results = {}
         num_categories = len(self.categories)
         for source_id in self.model_data.get_all_source_ids():
-            results[source_id] = [0] * num_categories
+            results[source_id] = [0, 0] * num_categories
 
         # map category to index in results and generate column names
-        category_to_index = {}
+        column_name_to_index = {}
         column_names = []
-        for i, category in enumerate(self.categories):
-            category_to_index[category] = i
-            column_names.append('access_pop_' + category)
+        index = 0
+        for category in self.categories:
+            column_names.append('percap_spend_' + category)
+            column_names.append('total_spend_' + category)
+            column_name_to_index[category] = (index, index + 1)
+            index += 2
+
         for category in self.categories:
             for dest_id in self.model_data.get_ids_for_category(category):
-                population_in_range = self.model_data.get_population_in_range(dest_id)
+                population_in_range = self.model_data.get_population_in_range(dest_id, upper_threshold)
                 if population_in_range > 0:
                     contribution_to_spending = self.model_data.get_target(dest_id) / population_in_range
                     for source_id in self.model_data.get_sources_in_range_of_dest(dest_id):
-                        results[source_id][category_to_index[category]] += contribution_to_spending
-
+                        source_population = self.model_data.get_population(source_id)
+                        if source_population > 0:
+                            pc_col_index, t_col_index = column_name_to_index[category]
+                            results[source_id][pc_col_index] += contribution_to_spending
+                            results[source_id][t_col_index] += contribution_to_spending * source_population
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
@@ -157,8 +163,7 @@ class AccessTime:
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names,
-                                    upper_threshold=None)
+                                    dest_column_names=dest_column_names)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -167,6 +172,9 @@ class AccessTime:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(unrecognized_categories)
+            # Add category->dest_id map to sp matrix
+            self.model_data.map_categories_to_sp_matrix()
+
         else:
             self.categories = ['all_categories']
 
@@ -195,14 +203,13 @@ class AccessCount:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 upper_threshold=1800, categories=None):
+                 categories=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names,
-                                    upper_threshold=upper_threshold)
+                                    dest_column_names=dest_column_names)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -211,10 +218,12 @@ class AccessCount:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(unrecognized_categories)
+            # Add category->dest_id map to sp matrix
+            self.model_data.map_categories_to_sp_matrix()
         else:
             self.categories = ['all_categories']
 
-    def calculate(self):
+    def calculate(self, upper_threshold):
         """
         Calculate the closest destination for each source per category.
         """
@@ -224,7 +233,7 @@ class AccessCount:
         for source_id in self.model_data.get_all_source_ids():
             results[source_id] = []
             for category in self.categories:
-                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id, category)
+                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id, upper_threshold, category)
                 results[source_id].append(count_in_range)
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
@@ -238,186 +247,102 @@ class AccessModel():
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 upper_threshold=1800, categories=None, decay_function='linear'):
+                decay_function='linear'):
 
-        if decay_function == 'linear':
-            self.decay_function = linear_decay_function
-        elif decay_function == 'root':
-            self.decay_function = root_decay_function
-        elif decay_function == 'logit':
-            self.decay_function = logit_decay_function
-        else:
-            raise UnrecognizedDecayFunctionException(decay_function)
-
+        self.set_decay_function(decay_function)
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names,
-                                    upper_threshold=upper_threshold)
-
+                                    dest_column_names=dest_column_names)
         self.model_data.load_sp_matrix(sp_matrix_filename)
 
         self.model_results = {}
-        self.categories = categories
 
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
-
-    def calculate(self, custom_threshold=40, normalize=True, 
-        custom_weight_dict=None, largest_weights_first=True, subset_provided=False):
+    def set_decay_function(self, decay_function):
         """
-        Calculate the Access score for each block
-        from the vendors within the specified range.
-        Inputs:
-            custom_threshold- integer or float, optional. Results will contain
-            a column showing percent of population with score greater
-            than or equal to this value
-            normalize-Boolean, optional (defaults to true). If true,
-            final scores will be normalized on a range from 0-100.
-            custom_weight_dict-a dictionary mapping strings of category names
-            to a list of integer or float weights.  If a key 'Default' is found, the
-            weight list will be used for any categories without a key in the dictionary.
-            largest_weights_first: boolean, if using custom_weight_dict. If True,
-            sort the weight arrays such that largest will be used first. IF false,
-            do the opposite.
-            by_category: if True, calculate() returns access values for each 
-            provided destination category individually as well as for the aggregate
-            of the selected categories.  if False, just the aggregate access value
-            for facilities matching the destination categories is output.
+        Set the decay function. Should be a string:
+        'linear', 'root', 'logit', or a lambda of
+        the form f(x, y) -> z.
+
+        Range should be the nonnegative integer space.
         """
+        if isinstance(decay_function, str):
+            if decay_function == 'linear':
+                self.decay_function = linear_decay_function
+            elif decay_function == 'root':
+                self.decay_function = root_decay_function
+            elif decay_function == 'logit':
+                self.decay_function = logit_decay_function
+            else:
+                raise UnrecognizedDecayFunctionException(decay_function)
+        elif isinstance(decay_function, type(lambda : x)):
+            try:
+                x = decay_function(1, 2)
+                assert isinstance(x, int) or isinstance(x, float)
+            except (TypeError, AssertionError):
+                raise UnrecognizedDecayFunctionException('lambda sbould have form:f(x, y) -> z')
+            self.decay_function = decay_function
+        else:
+            message = "Decay function should be either a string: ['linear', 'root', 'logit'], or a lamda"
+            raise UnrecognizedDecayFunctionException(message)
 
-        start_time = time.time()
-        self.custom_threshold = custom_threshold
-                
-        DIMINISH_WEIGHTS =  [1,1,1,1,1,1,1,1,1,1]
-        
-        #Construct a list of category subsets for which access should be calculated.
-        #First append the full list of categories chosen (so the aggregate measure for those categories is also calculated)
-        #If only a single category was chosen, there's no need to append the full list, since the aggregate will just be that single category.
-        category_list = [self.limit_categories] #If no categories chosen, we end up with [[]]
-        if subset_provided and len(self.limit_categories) > 1:
-            for category in self.limit_categories:
-                category_list.append([category])
+    def _test_category_weight_dict(self, category_weight_dict):
+        """
+        Ensure category_weight_dict has the expected form
+        """
+        if not isinstance(category_weight_dict, dict):
+            raise IncompleteCategoryDictException('category_weight_dict should be a dictionary')
 
-        #sort the user's input arrays, such that the highest
-        #weight will be used first and the lowest weight will be
-        #used last
-        if custom_weight_dict is not None:
+        if len(category_weight_dict) == 0:
+            raise IncompleteCategoryDictException('category_weight_dict cannot be empty')
 
-            for key in custom_weight_dict.keys():
-                custom_weight_dict[key].sort(reverse= not largest_weights_first)
+        for value in category_weight_dict.values():
+            if not (isinstance(value, list) or isinstance(value, tuple)):
+                raise IncompleteCategoryDictException('category_weight_dict values should be arrays or tuples')
 
-        #Calculate measures for each category subset
-        #Note that if no limit_categories input is specified, category_list will contain one empty list
-        for category_subset in category_list:
-            print("category_subset: " + str(category_subset))
-            results = {}
-            results_cat = {}
-            results_time = {}   #Holds the time to the nearest facility for the current category subset
+    def calculate(self, category_weight_dict, upper_threshold, good_access_threshold=40,
+                      normalize=True):
+        """
+        Calculate the model.
+        """
+        self._test_category_weight_dict(category_weight_dict)
 
-            access_column_name, access_sd_column_name, access_cat_column_name, access_time_column_name = self._create_field_names(category_subset)
+        # create a quick reference for the number of times to include a dest in each category
+        max_category_occurances = {category : len(weights) for category, weights in category_weight_dict.items()}
 
-            #For each origin...
-            for source_id, dest_list in self.source2dest.items():
-                if custom_weight_dict is not None:
-                    weight_dict = copy.deepcopy(custom_weight_dict)
+        # order the user's weights in ascending order so the highest one gets used
+        # first, for the closest dest of that category
+        category_weight_dict = {category : sorted(weights, reverse=True) for category, weights in category_weight_dict.items()}
+
+        # warn the user if the data has more categories than their category_weight_dict
+        key_diffs = set(self.model_data.get_all_categories()) - set(max_category_occurances.keys())
+        for key in key_diffs:
+            max_category_occurances[key] = 0
+        if len(key_diffs) > 0:
+            self.model_data.logger.warning('Found these keys in data but not in category_weight_dict: {}'.format(key_diffs))
+        results = {}
+
+        for source_id in self.model_data.get_all_source_ids():
+            category_encounters = {category: 0 for category in self.model_data.get_all_categories()}
+            score = 0
+            for dest_id, time in self.model_data.get_values_by_source(source_id, sort=True):
+                decayed_time = self.decay_function(time, upper_threshold)
+                category = self.model_data.get_category(dest_id)
+                category_occurances = category_encounters[category]
+                if category_occurances < max_category_occurances[category]:
+                    decayed_category_weight = category_weight_dict[category][category_occurances]
+                    category_encounters[category] += 1
                 else:
-                    weight_dict = {}
-                access = 0
-                access_cat = 0
-                shortest_time = 9999999
-                """
-                Sort the destination list so the weight_dict[cat].pop
-                will take the nearest neighbor first.
-                """
-                dest_list.sort(key=operator.itemgetter(1))
+                    decayed_category_weight = 0
+                score += decayed_time * decayed_category_weight
+            results[source_id] = [score]
 
-                #Iterate through each destination 
-                for item in dest_list:
-                    dest_id, time_val = item
-                    cat = self.get_category(dest_id)
-                    
-                    #Skip this dest if not in the current category_subset.
-                    #Let the record be included if no subset was chosen (i.e., category_subset = [], length is 0)
-                    if cat not in category_subset and len(category_subset) > 0:
-                        continue
+        self.model_results = pd.DataFrame.from_dict(results, orient='index',
+                                                    columns=['score'])
 
-                    if time_val < shortest_time:
-                        shortest_time = time_val
-                    distance_weight = self.decay_function(time_val, self.upper)
-                    
-                    #if we haven't encountered this category for this source,
-                    #create a new list of weights
-                    #If the user has passed in a list with key "Default", use that as the 
-                    #default set of weights.  Otherwise use DIMINISH_WEIGHTS[:].
-                    if cat not in weight_dict.keys():
-                        if "Default" in weight_dict.keys():
-                            weight_dict[cat] = weight_dict["Default"]
-                        else:
-                            weight_dict[cat] = DIMINISH_WEIGHTS[:]
-                  
-                    #if we have encountered this category for this source,
-                    #take the next highest weight (0 if all weights have)
-                    #already been used
-                    if len(weight_dict[cat]) > 0:
-                        diminish_cat_weight = weight_dict[cat].pop()
-                        dw = distance_weight * diminish_cat_weight
-                    else:
-                        diminish_cat_weight = 0
-                        dw = 0
-                    #In order to check that the score is calculated correctly:
-                    #print(distance_weight,diminish_cat_weight,dw,cat)
-                    #Access score for weights and distance decay
-                    access += dw
-                    #Count of weights by areal unit
-                    access_cat += diminish_cat_weight 
+        if normalize:
+            max_score = self.model_results['score'].max()
+            self.model_results['score'] = (self.model_results['score'] / max_score) * 100.0
 
-                results[source_id] = access
-                results_cat[source_id] = access_cat
-                if shortest_time != 9999999:
-                    results_time[source_id] = shortest_time/60
-                
-
-            #convert to DataFrame
-            res = pd.DataFrame.from_dict(results, orient='index')
-            res.rename(columns={ res.columns[0]: access_column_name }, inplace=True)
-            
-            # res_cat = pd.DataFrame.from_dict(results_cat, orient='index')
-            # res_cat.rename(columns={ res_cat.columns[0]: access_cat_column_name }, inplace=True)
-
-            shortest_time_df = pd.DataFrame.from_dict(results_time, orient='index')
-            shortest_time_df.rename(columns={ shortest_time_df.columns[0]: access_time_column_name }, inplace=True)
-
-            #join with source data
-            #Joins the missing values created from the units exceeding the 'upper' threshold. Later converts them to 0.
-            if self.results is None:
-                self.results = self.sources.join(res)
-            else: 
-                self.results = self.results.join(res)
-
-            if normalize:
-                num = self.results[access_column_name] - self.results[access_column_name].min()
-                denom = self.results[access_column_name].max() - self.results[access_column_name].min()
-                self.results[access_sd_column_name] = (num / denom) * 100
-
-            # self.results = self.results.join(res_cat)
-            self.results = self.results.join(shortest_time_df)
-
-        #Replace the null values with zeros (values above upper)
-        self.results.fillna(0, inplace=True)
-
-        #Find list within matrix with negative values
-        #When constructing the matrix with p2p, the negative values (-1) are the edges on the border of the bounding box.
-        #So we make those values NA
-        for keyy, negs in self.neg_val.items():
-            for j in self.results.keys():
-                self.results.at[keyy, j] = -9999
-
-        self.results = self.results.replace(-9999, np.nan)
-        # self.results = self.results.replace(9999999, np.nan)
-        
-        self.good_to_write = True
-        self.logger.info("Finished calculating Access Model in {:,.2f} seconds".format(time.time() - start_time))
+        self.model_results['good_access'] = self.model_results['score'] > good_access_threshold

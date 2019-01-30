@@ -135,4 +135,8 @@ class UnrecognizedDecayFunctionException(CommunityAnalyticsException):
     """ Throws when the user supplies categories which are not present in the data"""
     pass
 
+class IncompleteCategoryDictException(CommunityAnalyticsException):
+    """ Throws when the user supplies an incomplete/malformed category dictionary"""
+    pass
+
 

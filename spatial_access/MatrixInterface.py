@@ -281,7 +281,7 @@ class MatrixInterface():
         Map the dest_id to the category in the
         transit matrix.
         """
-        self.transit_matrix.addToCategoryMap(dest_id, category)
+        self.transit_matrix.addToCategoryMap(dest_id, bytes(category, 'utf-8'))
 
     def time_to_nearest_dest(self, source_id, category=None):
         """
@@ -291,7 +291,7 @@ class MatrixInterface():
         if category is None:
             return self.transit_matrix.timeToNearestDest(source_id)
         else:
-            return self.transit_matrix.timeToNearestDestPerCategory(source_id, category)
+            return self.transit_matrix.timeToNearestDestPerCategory(source_id, bytes(category, 'utf-8'))
 
     def count_dests_in_range(self, source_id, range, category=None):
         """
@@ -301,4 +301,4 @@ class MatrixInterface():
         if category is None:
             return self.transit_matrix.countDestsInRange(source_id, range)
         else:
-            return self.transit_matrix.countDestsInRangePerCategory(source_id, category, range)
+            return self.transit_matrix.countDestsInRangePerCategory(source_id, bytes(category, 'utf-8'), range)

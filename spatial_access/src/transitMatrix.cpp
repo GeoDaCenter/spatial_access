@@ -150,8 +150,7 @@ void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
         for (unsigned long int col_label : wa->df.metaData.col_label())
         {
             
-            if ((wa->df.retrieveValue(index, col_label) <= wa->threshold)  
-                    and (index != col_label))
+            if (wa->df.retrieveValue(index, col_label) <= wa->threshold)
             {
                 wa->rows.at(index).push_back(col_label);
             }
@@ -161,8 +160,7 @@ void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
     {   
         for (unsigned long int row_label : wa->df.metaData.row_label())
         {
-            if ((wa->df.retrieveValue(row_label, index) <= wa->threshold)  
-                    and (index != row_label))
+            if (wa->df.retrieveValue(row_label, index) <= wa->threshold)
             {
                 wa->cols.at(index).push_back(row_label);
             }

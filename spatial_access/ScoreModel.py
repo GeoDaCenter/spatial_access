@@ -21,7 +21,7 @@ class ModelData(object):
     """
 
     def __init__(self, network_type, sources_filename,
-                 destinations_filename, upper_threshold,
+                 destinations_filename,
                  source_column_names=None, dest_column_names=None,
                  debug=False):
         self.network_type = network_type
@@ -41,11 +41,6 @@ class ModelData(object):
         # by p2p.TransitMatrix
         self._source_file_hints = None
         self._dest_file_hints = None
-
-        self.upper_threshold = upper_threshold
-        self.valid_population = True
-        self.valid_target = True
-        self.valid_category = True
 
         self.sources_in_range = {}
         self.dests_in_range = {}
@@ -78,8 +73,6 @@ class ModelData(object):
         """
         Return the time, in seconds, from source to dest.
         """
-        assert self._sp_matrix is not None, 'load shortest path matrix before this step'
-
         time = self._sp_matrix.get(source, dest)
 
         return time
@@ -88,23 +81,25 @@ class ModelData(object):
         """
         Return the population at a source point.
         """
-        assert self.sources is not None, 'load sources before this step'
-
         return self.sources.loc[source_id, 'population']
 
     def get_target(self, dest_id):
         """
         Return the target value at a dest point.
         """
-        assert self.dests is not None, 'load dests before this step'
-
         return self.dests.loc[dest_id, 'target']
+
+    def get_category(self, dest_id):
+        """
+        Return the category value at a dest point.
+        """
+        return self.dests.loc[dest_id, 'category']
 
     def get_all_categories(self):
         """
         Return a list of all categories in the dest dataset.
         """
-        return set(self.dests['cat'])
+        return set(self.dests['category'])
 
     def get_all_dest_ids(self):
         """
@@ -116,7 +111,7 @@ class ModelData(object):
         """
         Return all ids of source data frame.
         """
-        return list(self.source.index)
+        return list(self.sources.index)
 
     def get_ids_for_category(self, category='all_categories'):
         """
@@ -125,7 +120,7 @@ class ModelData(object):
         """
         if category == 'all_categories':
             return list(self.dests.index)
-        return list(self.dests[self.dests['cat'] == category].index)
+        return list(self.dests[self.dests['category'] == category].index)
 
     def set_logging(self, level=None):
         """
@@ -238,7 +233,6 @@ class ModelData(object):
             # user does not want to include it. need it for coverage
             if self.source_column_names['population'] == 'skip':
                 self.sources['population'] = 1
-                self.valid_population = False
 
             # rename columns, clean the data frame
             rename_cols = {self.source_column_names['population']: 'population',
@@ -254,7 +248,7 @@ class ModelData(object):
         self.sources = self.sources[columns_to_keep]
 
         # remap to numeric id if original data used string ids
-        remapped_ids = self._sp_matrix.matrix_interface.get_source_id_remap()
+        remapped_ids = self.get_remapped_source_ids()
         if isinstance(remapped_ids, dict):
             self.sources.index = self.sources.index.map(remapped_ids)
 
@@ -324,13 +318,11 @@ class ModelData(object):
             # user does not want to include it.
             if self.dest_column_names['target'] == 'skip':
                 self.dests['target'] = 1
-                self.valid_target = False
 
             # insert filler values for the category column if
             # user does not want to include it.
             if self.dest_column_names['category'] == 'skip':
                 self.dests['category'] = 1
-                self.valid_category = False
 
             # rename columns, clean the data frame
             rename_cols = {self.dest_column_names['lat']: 'lat', self.dest_column_names['lon']: 'lon'}
@@ -350,7 +342,7 @@ class ModelData(object):
         self.dests = self.dests[columns_to_keep]
 
         # remap to numeric id if original data used string ids
-        remapped_ids = self._sp_matrix.matrix_interface.get_dest_id_remap()
+        remapped_ids = self.get_remapped_dest_ids()
         if isinstance(remapped_ids, dict):
             self.dests.index = self.dests.index.map(remapped_ids)
 
@@ -366,17 +358,17 @@ class ModelData(object):
         """
         return self.sources_in_range[dest_id]
 
-    def calculate_dests_in_range(self):
+    def calculate_dests_in_range(self, upper_threshold):
         """
         Return a dictionary of lists
         """
-        self.dests_in_range =  self._sp_matrix.matrix_interface.get_dests_in_range(self.upper_threshold)
+        self.dests_in_range =  self._sp_matrix.matrix_interface.get_dests_in_range(upper_threshold)
 
-    def calculate_sources_in_range(self):
+    def calculate_sources_in_range(self, upper_threshold):
         """
         Return a dictionary of lists
         """
-        self.sources_in_range = self._sp_matrix.matrix_interface.get_sources_in_range(self.upper_threshold)
+        self.sources_in_range = self._sp_matrix.matrix_interface.get_sources_in_range(upper_threshold)
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -392,7 +384,7 @@ class ModelData(object):
         """
         return self._sp_matrix.matrix_interface.get_values_by_dest(dest_id, sort)
 
-    def get_population_in_range(self, dest_id):
+    def get_population_in_range(self, dest_id, upper_threshold):
         """
          Return the population within the target range for the given
          destination id.
@@ -405,6 +397,21 @@ class ModelData(object):
 
         return cumulative_population
 
+    def map_categories_to_sp_matrix(self):
+        """
+        Map all categories-> associated dest_ids
+        """
+        for dest_id in self.get_all_dest_ids():
+            associated_category = self.get_category(dest_id)
+            self._add_to_category_map(dest_id, associated_category)
+
+    def _add_to_category_map(self, dest_id, category):
+        """
+        Map the dest_id to the category in the
+        transit matrix.
+        """
+        self._sp_matrix.matrix_interface.add_to_category_map(dest_id, category)
+
     def time_to_nearest_dest(self, source_id, category):
         """
         Return the time to nearest destination for source_id
@@ -416,19 +423,39 @@ class ModelData(object):
         else:
             return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, category)
 
-    def count_dests_in_range_by_categories(self, source_id, category):
+    def count_dests_in_range_by_categories(self, source_id, upper_threshold, category):
         """
         Return the count of destinations in range
         of the source id per category
         """
         if category == 'all_categories':
             return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
-                                                                         self.upper_threshold,
+                                                                         upper_threshold,
                                                                          None)
         else:
             return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
-                                                                         self.upper_threshold,
+                                                                         upper_threshold,
                                                                          category)
+
+    def _print_data_frame(self):
+        """
+        Print the transit matrix.
+        """
+        self._sp_matrix.matrix_interface.print_data_frame()
+
+    def get_remapped_source_ids(self):
+        """
+        Return a dictionary of the mapping from
+        new (integer) source ids to original (string) source ids.
+        """
+        return self._sp_matrix.matrix_interface.get_source_id_remap()
+
+    def get_remapped_dest_ids(self):
+        """
+        Return a dictionary of the mapping from
+        new (integer) dest ids to original (string) dest ids.
+        """
+        return self._sp_matrix.matrix_interface.get_dest_id_remap()
 
     # TODO
     def build_aggregate(self, model_results, aggregation_type):

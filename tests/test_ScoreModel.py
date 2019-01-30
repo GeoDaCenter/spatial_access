@@ -5,7 +5,6 @@ from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
 from spatial_access.SpatialAccessExceptions import DestDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceDataNotParsableException
 from spatial_access.SpatialAccessExceptions import DestDataNotParsableException
-from spatial_access.SpatialAccessExceptions import TransitMatrixNotLoadedException
 
 
 class TestClass():
@@ -25,8 +24,7 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'},
-                               upper_threshold=100)
+                                                  'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix()
 
         model_data._sp_matrix.write_tmx('tests/test_data/score_model_test_1')
@@ -45,8 +43,7 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'},
-                               upper_threshold=100)
+                                                  'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix("tests/test_data/score_model_test_1")
 
         assert True
@@ -62,8 +59,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
-                                   upper_threshold=100)
+                                                      'target': 'targ', 'category': 'cat'})
             model_data.load_sp_matrix()
         except SourceDataNotFoundException:
             assert True
@@ -81,8 +77,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
-                                   upper_threshold=100)
+                                                      'target': 'targ', 'category': 'cat'})
             model_data.load_sp_matrix()
         except DestDataNotFoundException:
             assert True
@@ -100,8 +95,7 @@ class TestClass():
                                    source_column_names={'idx': 'wrong_value', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
-                                   upper_threshold=100)
+                                                      'target': 'targ', 'category': 'cat'})
             model_data.load_sp_matrix('tests/test_data/score_model_test_1')
         except SourceDataNotParsableException:
             assert True
@@ -119,8 +113,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'wrong_key': 'targ', 'category': 'cat'},
-                                   upper_threshold=100)
+                                                      'wrong_key': 'targ', 'category': 'cat'})
             model_data.load_sp_matrix('tests/test_data/score_model_test_1')
         except DestDataNotParsableException:
             assert True
@@ -139,12 +132,11 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'},
-                               upper_threshold=600)
+                                                  'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix("tests/test_data/score_model_test_1")
 
-        model_data.calculate_dests_in_range()
-        model_data.calculate_sources_in_range()
+        model_data.calculate_dests_in_range(600)
+        model_data.calculate_sources_in_range(600)
 
         assert model_data.dests_in_range == {3: [],
                                                    4: [1, 2],
@@ -172,13 +164,12 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'},
-                               upper_threshold=600)
+                                                  'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix()
         model_data._sp_matrix.write_tmx('tests/test_data/score_model_test_8')
 
-        model_data.calculate_dests_in_range()
-        model_data.calculate_sources_in_range()
+        model_data.calculate_dests_in_range(600)
+        model_data.calculate_sources_in_range(600)
 
         remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
         assert model_data.get_sources_in_range_of_dest(remapped_dests['place_b']) == [4, 5]
@@ -189,13 +180,12 @@ class TestClass():
                                 source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                      'population': 'pop'},
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                   'target': 'targ', 'category': 'cat'},
-                                upper_threshold=600)
+                                                   'target': 'targ', 'category': 'cat'})
 
         model_data2.load_sp_matrix('tests/test_data/score_model_test_8')
 
-        model_data2.calculate_dests_in_range()
-        model_data2.calculate_sources_in_range()
+        model_data2.calculate_dests_in_range(600)
+        model_data2.calculate_sources_in_range(600)
 
         remapped_dests2 = model_data2._sp_matrix.matrix_interface.get_dest_id_remap()
         assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_b']) == [4, 5]
@@ -210,11 +200,10 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'},
-                               upper_threshold=600)
+                                                  'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix()
-        model_data.calculate_sources_in_range()
+        model_data.calculate_sources_in_range(600)
 
         remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
-
-        assert model_data.get_population_in_range(remapped_dests['place_c']) == 121
+        model_data._sp_matrix.matrix_interface.print_data_frame()
+        assert model_data.get_population_in_range(remapped_dests['place_c'], 600) == 121
