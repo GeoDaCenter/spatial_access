@@ -1,10 +1,20 @@
 # pylint: skip-file
 from transitMatrixAdapter import pyTransitMatrix
-import os
-
-# TODO make test cleanup neater
 
 class TestClass():
+
+    def setup(self):
+        import os
+        self.datapath = 'tests/test_pytransitmatrix_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
+
+    def teardown(self):
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
+
 
     def test_1(self):
         """
@@ -29,11 +39,10 @@ class TestClass():
         assert matrix.get(1, 2) == 5
         assert matrix.get(0, 3) == 18
         assert matrix.get(1, 3) == 17
-        if not os.path.exists('tmp/'):
-            os.mkdir('tmp/')
-        matrix.writeCSV(b"tmp/test_1_outfile.csv")
+        filename = self.datapath + 'test_1_outfile.csv'
+        matrix.writeCSV(bytes(filename, 'utf-8'))
 
-        matrix2 = pyTransitMatrix(infile=b"tmp/test_1_outfile.csv")
+        matrix2 = pyTransitMatrix(infile=bytes(filename, 'utf-8'))
 
         assert matrix2.get(0, 2) == 8
         assert matrix2.get(1, 2) == 5
@@ -112,8 +121,8 @@ class TestClass():
         sources_in_range = matrix.getSourcesInRange(12, 3)
         dests_in_range = matrix.getDestsInRange(12, 3)
 
-        assert sources_in_range == {4: [1], 3: [1], 1: [2, 4], 2: [1]}
-        assert dests_in_range == {4: [1], 3: [], 1: [2, 3, 4], 2: [1]}
+        assert sources_in_range == {4: [1], 3: [1, 3], 1: [1, 2, 4], 2: [1, 2]}
+        assert dests_in_range == {4: [1], 3: [3], 1: [1, 2, 3, 4], 2: [1, 2]}
 
     def test_5(self):
         """
@@ -232,16 +241,4 @@ class TestClass():
         assert matrix.timeToNearestDestPerCategory(1, b"c") == 8
         assert matrix.timeToNearestDest(3) == 0
         assert matrix.timeToNearestDestPerCategory(3, b"a") == 14
-
-    def test_9(self):
-        """
-        Cleanup.
-        """
-        try:
-            import shutil
-            shutil.rmtree('tmp/')
-        except BaseException:
-            pass
-
-        assert True
      

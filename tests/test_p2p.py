@@ -14,6 +14,18 @@ class TestClass():
     Suite of tests for p2p.
     """
 
+    def setup(self):
+        import os
+        self.datapath = 'tests/test_p2p_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
+
+    def teardown(self):
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
+
     def test_1(self):
         """
         Tests that p2p can be imported and instantiated.
@@ -187,9 +199,10 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        transit_matrix_1.write_csv('tests/test_12_file.csv')
+        filename = self.datapath + 'test_12_file.csv'
+        transit_matrix_1.write_csv(filename)
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_file='tests/test_12_file.csv')
+        transit_matrix_2 = TransitMatrix('bike', read_from_file=filename)
 
         assert True
 
@@ -203,9 +216,10 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        transit_matrix_1.write_tmx('tests/test_13_file')
+        filename = self.datapath + 'test_13_file'
+        transit_matrix_1.write_tmx(filename)
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_file='tests/test_13_file')
+        transit_matrix_2 = TransitMatrix('bike', read_from_file=filename)
 
         assert True
 
@@ -219,9 +233,10 @@ class TestClass():
             secondary_input='tests/test_data/sources.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        transit_matrix_1.write_tmx('tests/test_14_file')
+        filename = self.datapath + 'test_14_file'
+        transit_matrix_1.write_tmx(filename)
 
-        transit_matrix_2 = TransitMatrix('walk', read_from_file='tests/test_14_file')
+        transit_matrix_2 = TransitMatrix('walk', read_from_file=filename)
 
         assert True
 

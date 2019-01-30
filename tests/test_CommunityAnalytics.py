@@ -8,11 +8,21 @@ from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesExcepti
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 
-# TODO add coverage for each model
-
 
 class TestClass():
     """Suite of tests for the Community Analytics Package"""
+
+    def setup(self):
+        import os
+        self.datapath = 'tests/test_community_analytics_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
+
+    def teardown(self):
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
 
     def test_1(self):
         """

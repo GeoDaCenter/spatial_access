@@ -458,6 +458,14 @@ class ModelData(object):
         return self._sp_matrix.matrix_interface.get_dest_id_remap()
 
     # TODO
+    @staticmethod
+    def _spatial_join_boundaries(self, shapefile):
+        """
+        Return a dataframe with community area data
+        """
+        pass
+
+    # TODO
     def build_aggregate(self, model_results, aggregation_type):
         """
         Aggregate model results.

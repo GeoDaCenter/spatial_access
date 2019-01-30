@@ -11,6 +11,18 @@ class TestClass(object):
     Test suite for the Network Interface.
     """
 
+    def setup(self):
+        import os
+        self.datapath = 'tests/test_network_interface_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
+
+    def teardown(self):
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
+
     @pytest.mark.timeout(20)
     def test_1(self):
         walk_interface = NetworkInterface('walk')

@@ -11,6 +11,17 @@ class TestClass():
     """
     Suite of tests for ScoreModel
     """
+    def setup(self):
+        import os
+        self.datapath = 'tests/test_score_model_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
+
+    def teardown(self):
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
 
     def test_1(self):
         """
@@ -27,7 +38,7 @@ class TestClass():
                                                   'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix()
 
-        model_data._sp_matrix.write_tmx('tests/test_data/score_model_test_1')
+        model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_1')
 
         assert True
 
@@ -44,7 +55,7 @@ class TestClass():
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'target': 'targ', 'category': 'cat'})
-        model_data.load_sp_matrix("tests/test_data/score_model_test_1")
+        model_data.load_sp_matrix(self.datapath + "score_model_test_1")
 
         assert True
 
@@ -96,7 +107,7 @@ class TestClass():
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'target': 'targ', 'category': 'cat'})
-            model_data.load_sp_matrix('tests/test_data/score_model_test_1')
+            model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
         except SourceDataNotParsableException:
             assert True
             return
@@ -114,7 +125,7 @@ class TestClass():
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'wrong_key': 'targ', 'category': 'cat'})
-            model_data.load_sp_matrix('tests/test_data/score_model_test_1')
+            model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
         except DestDataNotParsableException:
             assert True
             return
@@ -133,7 +144,7 @@ class TestClass():
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'target': 'targ', 'category': 'cat'})
-        model_data.load_sp_matrix("tests/test_data/score_model_test_1")
+        model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
 
         model_data.calculate_dests_in_range(600)
         model_data.calculate_sources_in_range(600)
@@ -166,7 +177,7 @@ class TestClass():
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'target': 'targ', 'category': 'cat'})
         model_data.load_sp_matrix()
-        model_data._sp_matrix.write_tmx('tests/test_data/score_model_test_8')
+        model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_8')
 
         model_data.calculate_dests_in_range(600)
         model_data.calculate_sources_in_range(600)
@@ -182,7 +193,7 @@ class TestClass():
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                    'target': 'targ', 'category': 'cat'})
 
-        model_data2.load_sp_matrix('tests/test_data/score_model_test_8')
+        model_data2.load_sp_matrix(self.datapath + 'score_model_test_8')
 
         model_data2.calculate_dests_in_range(600)
         model_data2.calculate_sources_in_range(600)

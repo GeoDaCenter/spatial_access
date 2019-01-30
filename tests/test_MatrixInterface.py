@@ -13,6 +13,18 @@ import shutil
 
 class TestClass():
 
+    def setup(self):
+        import os
+        self.datapath = 'tests/test_matrix_interface_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
+
+    def teardown(self):
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
+
     def test_1(self):
         """
         Tests computing a graph with single thread,
@@ -38,11 +50,10 @@ class TestClass():
         assert interface.get_value(11, 14) == 8
         assert interface.get_value(12, 13) == 20
         assert interface.get_value(12, 14) == 14
-        interface.write_to_csv("test_outfile_1.csv");
+        interface.write_to_csv(self.datapath + "test_outfile_1.csv");
 
         interface2 = MatrixInterface()
-        interface2.read_from_csv("test_outfile_1.csv")
-        os.remove('test_outfile_1.csv')
+        interface2.read_from_csv(self.datapath + "test_outfile_1.csv")
 
         assert interface2.get_value(11, 13) == 14
         assert interface2.get_value(11, 14) == 8
@@ -114,10 +125,10 @@ class TestClass():
         assert interface.get_value(13, 14) == 20
         assert interface.get_value(14, 14) == 0
 
-        interface.write_to_csv('test_outfile_2.csv')
+        interface.write_to_csv(self.datapath + 'test_outfile_2.csv')
 
         interface2 = MatrixInterface()
-        interface2.read_from_csv('test_outfile_2.csv')
+        interface2.read_from_csv(self.datapath + 'test_outfile_2.csv')
 
         assert interface2.get_value(11, 11) == 0
         assert interface2.get_value(11, 14) == 8
@@ -155,10 +166,10 @@ class TestClass():
         assert interface.get_value(12, 13) == 20
         assert interface.get_value(12, 14) == 14
 
-        interface.write_to_tmx("test_outfile_1");
+        interface.write_to_tmx(self.datapath + "test_outfile_1");
 
         interface2 = MatrixInterface()
-        interface2.read_from_tmx("test_outfile_1")
+        interface2.read_from_tmx(self.datapath + "test_outfile_1")
 
 
         assert interface2.get_value(11, 13) == 14
@@ -199,7 +210,7 @@ class TestClass():
         """
         interface = MatrixInterface()
         try:
-            interface.read_from_tmx("non_existant_file")
+            interface.read_from_tmx(self.datapath + "non_existant_file")
         except ReadTMXFailedException:
             assert True
             return
@@ -211,7 +222,7 @@ class TestClass():
         """
         interface = MatrixInterface()
         try:
-            interface.read_from_csv("non_existant_file.csv")
+            interface.read_from_csv(self.datapath + "non_existant_file.csv")
         except ReadCSVFailedException:
             assert True
             return
@@ -224,7 +235,7 @@ class TestClass():
         """
         interface = MatrixInterface()
         try:
-            interface.write_to_tmx("other_non_existant_file")
+            interface.write_to_tmx(self.datapath + "other_non_existant_file")
         except WriteTMXFailedException:
             assert True
             return
@@ -237,7 +248,7 @@ class TestClass():
         """
         interface = MatrixInterface()
         try:
-            interface.write_to_csv("other_non_existant_file.csv")
+            interface.write_to_csv(self.datapath + "other_non_existant_file.csv")
         except WriteCSVFailedException:
             assert True
             return
