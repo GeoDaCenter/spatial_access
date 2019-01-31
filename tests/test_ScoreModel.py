@@ -35,7 +35,7 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'})
+                                                  'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
 
         model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_1')
@@ -54,7 +54,7 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'})
+                                                  'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix(self.datapath + "score_model_test_1")
 
         assert True
@@ -70,7 +70,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'})
+                                                      'capacity': 'capacity', 'category': 'cat'})
             model_data.load_sp_matrix()
         except SourceDataNotFoundException:
             assert True
@@ -88,7 +88,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'})
+                                                      'capacity': 'capacity', 'category': 'cat'})
             model_data.load_sp_matrix()
         except DestDataNotFoundException:
             assert True
@@ -106,7 +106,7 @@ class TestClass():
                                    source_column_names={'idx': 'wrong_value', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'})
+                                                      'capacity': 'capacity', 'category': 'cat'})
             model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
         except SourceDataNotParsableException:
             assert True
@@ -124,7 +124,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'wrong_key': 'targ', 'category': 'cat'})
+                                                      'wrong_key': 'capacity', 'category': 'cat'})
             model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
         except DestDataNotParsableException:
             assert True
@@ -143,7 +143,7 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'})
+                                                  'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
 
         model_data.calculate_dests_in_range(600)
@@ -175,7 +175,7 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'})
+                                                  'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
         model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_8')
 
@@ -191,7 +191,7 @@ class TestClass():
                                 source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                      'population': 'pop'},
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                   'target': 'targ', 'category': 'cat'})
+                                                   'capacity': 'capacity', 'category': 'cat'})
 
         model_data2.load_sp_matrix(self.datapath + 'score_model_test_8')
 
@@ -211,24 +211,24 @@ class TestClass():
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'})
+                                                  'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
         model_data.calculate_sources_in_range(600)
 
         remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
         model_data._sp_matrix.matrix_interface.print_data_frame()
-        assert model_data.get_population_in_range(remapped_dests['place_c'], 600) == 121
+        assert model_data.get_population_in_range(remapped_dests['place_c']) == 121
 
     def test_10(self):
         """
-        Test _spatial_join_boundaries
+        Test _spatial_join_community_index
         """
         model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests_a.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'target': 'targ', 'category': 'cat'})
+                                                  'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
 
-        spatial_joined_sources = model_data._spatial_join_boundaries(model_data.sources)
+        spatial_joined_sources = model_data._spatial_join_community_index(model_data.sources)

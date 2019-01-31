@@ -1,12 +1,14 @@
 # pylint: skip-file
-from spatial_access.CommunityAnalytics import Coverage
-from spatial_access.CommunityAnalytics import AccessPop
+from spatial_access.CommunityAnalytics import DestFloatingCatchmentArea
+from spatial_access.CommunityAnalytics import TwoStageFloatingCatchmentArea
 from spatial_access.CommunityAnalytics import AccessTime
 from spatial_access.CommunityAnalytics import AccessCount
 from spatial_access.CommunityAnalytics import AccessModel
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
+
+#TODO test aggregations
 
 
 class TestClass():
@@ -26,16 +28,16 @@ class TestClass():
 
     def test_1(self):
         """
-        Test the CoverageModel through instantiation and
+        Test the DestFloatingCatchmentArea model through instantiation and
         calculate.
         """
-        coverage_model = Coverage('drive',
+        coverage_model = DestFloatingCatchmentArea('drive',
                                   sources_filename='tests/test_data/sources_a.csv',
                                   destinations_filename='tests/test_data/dests_b.csv',
                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                        'population': 'pop'},
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'target': 'targ', 'category': 'cat'})
+                                                     'capacity': 'capacity', 'category': 'cat'})
         coverage_model.calculate(600)
 
         assert coverage_model.model_results.loc[0]['service_pop'] == 0
@@ -66,13 +68,13 @@ class TestClass():
         which are not present in the data
         """
         try:
-            coverage_model = Coverage('drive',
+            coverage_model = DestFloatingCatchmentArea('drive',
                                            sources_filename='tests/test_data/sources.csv',
                                            destinations_filename='tests/test_data/dests.csv',
                                            source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                 'population': 'pop'},
                                            dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                              'target': 'targ', 'category': 'cat'},
+                                                              'capacity': 'capacity', 'category': 'cat'},
                                            categories=['A', 'C'])
             coverage_model.calculate(600)
         except UnrecognizedCategoriesException:
@@ -82,16 +84,16 @@ class TestClass():
 
     def test_3(self):
         """
-        Test the CoverageModel through instantiation and
+        Test the DestFloatingCatchmentAreaModel through instantiation and
         calculate, with categories specified.
         """
-        coverage_model = Coverage('drive',
+        coverage_model = DestFloatingCatchmentArea('drive',
                                   sources_filename='tests/test_data/sources_a.csv',
                                   destinations_filename='tests/test_data/dests_b.csv',
                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                        'population': 'pop'},
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'target': 'targ', 'category': 'cat'},
+                                                     'capacity': 'capacity', 'category': 'cat'},
                                   categories=['A','C'])
         coverage_model.calculate(600)
 
@@ -105,16 +107,16 @@ class TestClass():
 
     def test_4(self):
         """
-        Test AccessPop through instantiation and
+        Test TwoStageFloatingCatchmentArea through instantiation and
         calculate.
         """
-        accesspop_model = AccessPop('drive',
+        accesspop_model = TwoStageFloatingCatchmentArea('drive',
                                    sources_filename='tests/test_data/sources_a.csv',
                                    destinations_filename='tests/test_data/dests_b.csv',
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'})
+                                                      'capacity': 'capacity', 'category': 'cat'})
         accesspop_model.calculate(600)
 
         assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 0.000
@@ -124,7 +126,7 @@ class TestClass():
         assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 2.153
         assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 3.981
 
-        assert accesspop_model.model_results['total_spend_all_categories'].sum() <= accesspop_model.model_data.dests['target'].sum()
+        assert accesspop_model.model_results['total_spend_all_categories'].sum() <= accesspop_model.model_data.dests['capacity'].sum()
 
     def test_5(self):
         """
@@ -133,13 +135,13 @@ class TestClass():
         which are not present in the data
         """
         try:
-            accesspop_model = AccessPop('drive',
+            accesspop_model = TwoStageFloatingCatchmentArea('drive',
                                        sources_filename='tests/test_data/sources.csv',
                                        destinations_filename='tests/test_data/dests.csv',
                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                             'population': 'pop'},
                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                          'target': 'targ', 'category': 'cat'},
+                                                          'capacity': 'capacity', 'category': 'cat'},
                                        categories=['A', 'E'])
             accesspop_model.calculate(600)
         except UnrecognizedCategoriesException:
@@ -149,17 +151,17 @@ class TestClass():
 
     def test_6(self):
         """
-        Test AccessPop through instantiation and
+        Test TwoStageFloatingCatchmentArea through instantiation and
         calculate, with categories specified.
         """
         categories = ['A', 'C']
-        accesspop_model = AccessPop('drive',
+        accesspop_model = TwoStageFloatingCatchmentArea('drive',
                                    sources_filename='tests/test_data/sources_a.csv',
                                    destinations_filename='tests/test_data/dests_b.csv',
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
+                                                      'capacity': 'capacity', 'category': 'cat'},
                                    categories=categories)
         accesspop_model.calculate(600)
 
@@ -167,8 +169,8 @@ class TestClass():
         cat_a_dests = accesspop_model.model_data.dests[accesspop_model.model_data.dests['category'] == 'A']
         cat_c_dests = accesspop_model.model_data.dests[accesspop_model.model_data.dests['category'] == 'C']
 
-        assert accesspop_model.model_results['total_spend_A'].sum() <= cat_a_dests['target'].sum()
-        assert accesspop_model.model_results['total_spend_C'].sum() <= cat_c_dests['target'].sum()
+        assert accesspop_model.model_results['total_spend_A'].sum() <= cat_a_dests['capacity'].sum()
+        assert accesspop_model.model_results['total_spend_C'].sum() <= cat_c_dests['capacity'].sum()
 
 
     def test_7(self):
@@ -182,7 +184,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'})
+                                                      'capacity': 'capacity', 'category': 'cat'})
         accesstime_model.calculate()
 
         assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 601
@@ -205,7 +207,7 @@ class TestClass():
                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                             'population': 'pop'},
                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                          'target': 'targ', 'category': 'cat'},
+                                                          'capacity': 'capacity', 'category': 'cat'},
                                        categories=['A', 'E'])
             accesstime_model.calculate()
         except UnrecognizedCategoriesException:
@@ -225,7 +227,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
+                                                      'capacity': 'capacity', 'category': 'cat'},
                                    categories=categories)
         accesstime_model.calculate()
 
@@ -243,7 +245,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'})
+                                                      'capacity': 'capacity', 'category': 'cat'})
         accesscount_model.calculate(700)
 
         assert accesscount_model.model_results.loc[3]['count_in_range_all_categories'] == 2
@@ -266,7 +268,7 @@ class TestClass():
                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                             'population': 'pop'},
                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                          'target': 'targ', 'category': 'cat'},
+                                                          'capacity': 'capacity', 'category': 'cat'},
                                        categories=['A', 'E'])
             accesscount_model.calculate(200)
         except UnrecognizedCategoriesException:
@@ -286,7 +288,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
+                                                      'capacity': 'capacity', 'category': 'cat'},
                                    categories=categories)
         accesscount_model.calculate(200)
 
@@ -346,7 +348,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
+                                                      'capacity': 'capacity', 'category': 'cat'},
                                    decay_function='quadratic')
         except UnrecognizedDecayFunctionException:
             assert True
@@ -367,7 +369,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
+                                                      'capacity': 'capacity', 'category': 'cat'},
                                    decay_function=lambda x : x ** 2)
         except UnrecognizedDecayFunctionException:
             assert True
@@ -386,7 +388,7 @@ class TestClass():
                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'target': 'targ', 'category': 'cat'},
+                                                      'capacity': 'capacity', 'category': 'cat'},
                                    decay_function='linear')
         try:
             category_weight_dict = [1, 2, 4, 5]
@@ -412,16 +414,16 @@ class TestClass():
                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                           'population': 'pop'},
                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'target': 'targ', 'category': 'cat'},
+                                                        'capacity': 'capacity', 'category': 'cat'},
                                      decay_function='linear')
-        coverage_model.model_data._print_data_frame()
+
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1],
                                 'C': [1]}
         coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
 
-        assert coverage_model.model_results['score'].max() == 100
-        assert coverage_model.model_results['score'].min() >= 0
+        assert coverage_model.model_results['all_categories_score'].max() == 100
+        assert coverage_model.model_results['all_categories_score'].min() >= 0
 
     def test_17(self):
         """
@@ -434,9 +436,9 @@ class TestClass():
                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                           'population': 'pop'},
                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'target': 'targ', 'category': 'cat'},
+                                                        'capacity': 'capacity', 'category': 'cat'},
                                      decay_function='linear')
-        coverage_model.model_data._print_data_frame()
+
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
         coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=False)
@@ -453,12 +455,12 @@ class TestClass():
                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                           'population': 'pop'},
                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'target': 'targ', 'category': 'cat'},
+                                                        'capacity': 'capacity', 'category': 'cat'},
                                      decay_function=decay_function)
-        coverage_model.model_data._print_data_frame()
+
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
-        coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=True)
+        coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=['A'])
 
-        assert coverage_model.model_results['score'].max() == 100
-        assert coverage_model.model_results['score'].min() >= 0
+        assert coverage_model.model_results['A_score'].max() == 100
+        assert coverage_model.model_results['A_score'].min() >= 0

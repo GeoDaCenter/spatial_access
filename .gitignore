@@ -1,3 +1,5 @@
+data/osm_query_cache/
+figures/
 protobuf-*
 spatial_access/src/matrix.dSYM/Contents
 *.csv

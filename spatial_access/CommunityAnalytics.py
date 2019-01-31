@@ -4,8 +4,13 @@ from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionExce
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 from spatial_access.SpatialAccessExceptions import ModelNotAggregatedException
+from spatial_access.SpatialAccessExceptions import UnexpectedNormalizeTypeException
+from spatial_access.SpatialAccessExceptions import UnexpectedNormalizeColumnsException
+from spatial_access.SpatialAccessExceptions import UnexpectedEmptyColumnException
 
 import math
+
+# TODO add 2SFCA model
 
 
 def linear_decay_function(time, upper):
@@ -39,9 +44,9 @@ def logit_decay_function(time, upper):
         return 1-(1/(math.exp((upper/180)-(.48/60)*(time))+1))
 
 
-class Coverage:
+class DestFloatingCatchmentArea:
     """
-    Build Coverage which captures
+    Build DestFloatingCatchmentArea which captures
     the level of spending for low income residents in
     urban environments.
     """
@@ -75,9 +80,9 @@ class Coverage:
         results = {}
         for category in self.categories:
             for dest_id in self.model_data.get_ids_for_category(category):
-                population_in_range = self.model_data.get_population_in_range(dest_id, upper_threshold)
+                population_in_range = self.model_data.get_population_in_range(dest_id)
                 if population_in_range > 0:
-                    percapita_spending = self.model_data.get_target(dest_id) / population_in_range
+                    percapita_spending = self.model_data.get_capacity(dest_id) / population_in_range
                 else:
                     percapita_spending = 0
                 results[dest_id] = [population_in_range, percapita_spending, category]
@@ -118,24 +123,30 @@ class Coverage:
                                  title=title,
                                  is_source=False)
 
-    # ToDO test this
-    def plot_chloropleth(self, column, title='title', color_map='greens',
-                         projection='epsg:4326'):
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
+                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
         """
-        Plot chloropleth of results
+        Plot choropleth of results
         """
         if self.aggregated_results is None:
             raise ModelNotAggregatedException()
-        self.model_data.plot_choropleth(model_results=self.aggregated_results,
-                                 column=column,
-                                 title=title,
-                                color_map=color_map,
-                                categories=self.categories,
-                                        projection=projection)
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        projection=projection,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)
 
-class AccessPop:
+class TwoStageFloatingCatchmentArea:
     """
-    Build the AccessPop which quantifies
+    Build the TwoStageFloatingCatchmentArea which quantifies
     the per-resident spending for given categories.
     """
 
@@ -185,9 +196,9 @@ class AccessPop:
 
         for category in self.categories:
             for dest_id in self.model_data.get_ids_for_category(category):
-                population_in_range = self.model_data.get_population_in_range(dest_id, upper_threshold)
+                population_in_range = self.model_data.get_population_in_range(dest_id)
                 if population_in_range > 0:
-                    contribution_to_spending = self.model_data.get_target(dest_id) / population_in_range
+                    contribution_to_spending = self.model_data.get_capacity(dest_id) / population_in_range
                     for source_id in self.model_data.get_sources_in_range_of_dest(dest_id):
                         source_population = self.model_data.get_population(source_id)
                         if source_population > 0:
@@ -226,6 +237,27 @@ class AccessPop:
                                  ylabel=ylabel,
                                  title=title,
                                  is_source=True)
+
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Purples',
+                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
+        """
+        Plot choropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        projection=projection,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)
 
 class AccessTime:
     """
@@ -300,6 +332,27 @@ class AccessTime:
                                  title=title,
                                  is_source=True)
 
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Blues',
+                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
+        """
+        Plot choropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        projection=projection,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)
+
 
 class AccessCount:
     """
@@ -373,6 +426,27 @@ class AccessCount:
                                  title=title,
                                  is_source=True)
 
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
+                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
+        """
+        Plot choropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        projection=projection,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)
+
 class AccessModel():
     """
     Build the Access model which captures the accessibility of 
@@ -437,7 +511,7 @@ class AccessModel():
                 raise IncompleteCategoryDictException('category_weight_dict values should be arrays or tuples')
 
     def calculate(self, category_weight_dict, upper_threshold, good_access_threshold=40,
-                      normalize=True):
+                      normalize=True, normalize_type='linear'):
         """
         Calculate the model.
         """
@@ -456,11 +530,23 @@ class AccessModel():
             max_category_occurances[key] = 0
         if len(key_diffs) > 0:
             self.model_data.logger.warning('Found these keys in data but not in category_weight_dict: {}'.format(key_diffs))
-        results = {}
 
+        # reserve results dict for each column
+        num_columns = len(category_weight_dict.keys()) + 1
+        results = {source_id : [0] * num_columns for source_id in self.model_data.get_all_source_ids()}
+
+        # map of column names
+        category_to_index_map = {}
+        column_names = ['all_categories_score']
+        index = 1
+        for category in category_weight_dict.keys():
+            column_names.append(category + '_score')
+            category_to_index_map[category] = index
+            index += 1
+
+        # calculate score for each source_id
         for source_id in self.model_data.get_all_source_ids():
             category_encounters = {category: 0 for category in self.model_data.get_all_categories()}
-            score = 0
             for dest_id, time in self.model_data.get_values_by_source(source_id, sort=True):
                 decayed_time = self.decay_function(time, upper_threshold)
                 category = self.model_data.get_category(dest_id)
@@ -468,19 +554,45 @@ class AccessModel():
                 if category_occurances < max_category_occurances[category]:
                     decayed_category_weight = category_weight_dict[category][category_occurances]
                     category_encounters[category] += 1
-                else:
-                    decayed_category_weight = 0
-                score += decayed_time * decayed_category_weight
-            results[source_id] = [score]
+                    score_contribution = decayed_time * decayed_category_weight
+                    results[source_id][0] += score_contribution
+                    results[source_id][category_to_index_map[category]] += score_contribution
+
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
-                                                    columns=['score'])
+                                                    columns=column_names)
 
-        if normalize:
-            max_score = self.model_results['score'].max()
-            self.model_results['score'] = (self.model_results['score'] / max_score) * 100.0
+        if isinstance(normalize, list):
+            for column in normalize:
+                column_key = column + '_score'
+                self._normalize(column_key, normalize_type)
+        elif normalize is True:
+            for column in self.model_results.columns:
+                self._normalize(column, normalize_type)
+        elif normalize is False:
+            pass
+        else:
+            raise UnexpectedNormalizeColumnsException('Argument ({}) is not of expected type: boolean, list'
+                                                      .format(normalize))
 
-        self.model_results['good_access'] = self.model_results['score'] > good_access_threshold
+        # set good_access booleans for each column
+        if good_access_threshold is not None:
+            for column in self.model_results.columns:
+                new_key = column.replace('_score', '_good_access')
+                self.model_results[new_key] = self.model_results[column] > good_access_threshold
+
+    def _normalize(self, column, normalize_type):
+        if normalize_type == 'linear':
+            max_score = self.model_results[column].max()
+            self.model_results[column] = (self.model_results[column] / max_score) * 100.0
+        elif normalize_type == 'z_score':
+            try:
+                self.model_results[column] = (self.model_results[column]
+                                           - self.model_results[column].mean()) / self.model_results[column].std()
+            except ZeroDivisionError:
+                raise UnexpectedEmptyColumnException(column)
+        else:
+            raise UnexpectedNormalizeTypeException(normalize_type)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community', projection='epsg:4326'):
@@ -511,3 +623,25 @@ class AccessModel():
                                  ylabel=ylabel,
                                  title=title,
                                  is_source=True)
+
+
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Reds',
+                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
+        """
+        Plot choropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        projection=projection,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)

@@ -92,11 +92,11 @@ class ModelData(object):
         """
         return self.sources.loc[source_id, 'population']
 
-    def get_target(self, dest_id):
+    def get_capacity(self, dest_id):
         """
-        Return the target value at a dest point.
+        Return the capacity value at a dest point.
         """
-        return self.dests.loc[dest_id, 'target']
+        return self.dests.loc[dest_id, 'capacity']
 
     def get_category(self, dest_id):
         """
@@ -266,7 +266,7 @@ class ModelData(object):
         Load the destination points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
-            -target value (integer or float)
+            -capacity value (integer or float)
             -category (string)
         The field_mapping argument will be present if code is being called by the web app.
         Otherwise the field_mapping default value of None will be passed in, and command
@@ -284,7 +284,7 @@ class ModelData(object):
         if self.dest_column_names is None:
             # extract the column names from the table
             category = ''
-            target = ''
+            capacity = ''
             idx = ''
             lat = ''
             lon = ''
@@ -294,8 +294,8 @@ class ModelData(object):
                     idx = self._dest_file_hints['idx']
                 if 'category' in self._dest_file_hints:
                     category = self._dest_file_hints['category']
-                if 'target' in self._dest_file_hints:
-                    target = self._dest_file_hints['target']
+                if 'capacity' in self._dest_file_hints:
+                    capacity = self._dest_file_hints['capacity']
                 if 'lat' in self._dest_file_hints:
                     lat = self._dest_file_hints['lat']
                 if 'lon' in self._dest_file_hints:
@@ -309,9 +309,9 @@ class ModelData(object):
                 print('> ', var)
             while idx not in dest_data_columns:
                 idx = input('Enter the unique index variable: ')
-            print('If you have no target variable, write "skip" (no quotations)')
-            while target not in dest_data_columns and target != 'skip':
-                target = input('Enter the target variable: ')
+            print('If you have no capacity variable, write "skip" (no quotations)')
+            while capacity not in dest_data_columns and capacity != 'skip':
+                capacity = input('Enter the capacity variable: ')
             print('If you have no category variable, write "skip" (no quotations)')
             while category not in dest_data_columns and category != 'skip':
                 category = input('Enter the category variable: ')
@@ -320,13 +320,13 @@ class ModelData(object):
             while lon not in dest_data_columns:
                 lon = input('Enter the longitude variable: ')
             self.dest_column_names = {'lat': lat, 'lon': lon, 'idx': idx,
-                                      'category': category, 'target': target}
+                                      'category': category, 'capacity': capacity}
 
         try:
-            # insert filler values for the target column if
+            # insert filler values for the capacity column if
             # user does not want to include it.
-            if self.dest_column_names['target'] == 'skip':
-                self.dests['target'] = 1
+            if self.dest_column_names['capacity'] == 'skip':
+                self.dests['capacity'] = 1
 
             # insert filler values for the category column if
             # user does not want to include it.
@@ -335,8 +335,8 @@ class ModelData(object):
 
             # rename columns, clean the data frame
             rename_cols = {self.dest_column_names['lat']: 'lat', self.dest_column_names['lon']: 'lon'}
-            if self.dest_column_names['target'] != 'skip':
-                rename_cols[self.dest_column_names['target']] = 'target'
+            if self.dest_column_names['capacity'] != 'skip':
+                rename_cols[self.dest_column_names['capacity']] = 'capacity'
             if self.dest_column_names['category'] != 'skip':
                 rename_cols[self.dest_column_names['category']] = 'category'
 
@@ -393,9 +393,9 @@ class ModelData(object):
         """
         return self._sp_matrix.matrix_interface.get_values_by_dest(dest_id, sort)
 
-    def get_population_in_range(self, dest_id, upper_threshold):
+    def get_population_in_range(self, dest_id):
         """
-         Return the population within the target range for the given
+         Return the population within the capacity range for the given
          destination id.
         """
         cumulative_population = 0
@@ -466,7 +466,7 @@ class ModelData(object):
         """
         return self._sp_matrix.matrix_interface.get_dest_id_remap()
 
-    def _spatial_join_boundaries(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+    def _spatial_join_community_index(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                                  spatial_index='community',  projection='epsg:4326'):
         """
         Return a dataframe with community area data
@@ -492,6 +492,7 @@ class ModelData(object):
         except KeyError:
             raise SpatialIndexNotMatchedException('Unable to match spatial_index:{}'.format(spatial_index))
         # TODO: test this on a larger LEHD section
+        # TODO add dropped rows as OUTSIDE_LIMITS geoarea
         if len(geo_result) != len(dataframe):
             self.logger.warning('Length of joined dataframe ({}) != length of input dataframe ({})'.format(len(geo_result), len(dataframe)))
         return geo_result
@@ -516,13 +517,34 @@ class ModelData(object):
         Aggregate model results.
         """
         model_results = self.rejoin_results_with_coordinates(model_results, is_source)
-        spatial_joined_results = self._spatial_join_boundaries(dataframe=model_results,
+        spatial_joined_results = self._spatial_join_community_index(dataframe=model_results,
                                                                shapefile=shapefile,
                                                                spatial_index=spatial_index,
                                                                projection=projection)
-        # TODO: preserve geometry through this aggregation
-        aggregated_results = spatial_joined_results.groupby(['spatial_index', 'geometry']).agg(aggregation_args)
+
+        aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
         return aggregated_results
+
+    def _join_aggregated_data_with_boundaries(self, aggregated_results, spatial_index,
+                                        shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
+        """
+        Join aggregated results with boundary geometry.
+        """
+        try:
+            boundaries_gdf = gpd.read_file(shapefile)
+        except FileNotFoundError:
+            raise ShapefileNotFoundException('shapefile not found: {}'.format(shapefile))
+        columns_to_keep = list(aggregated_results.columns)
+        columns_to_keep.append('geometry')
+        columns_to_keep.append(spatial_index)
+        # TODO generalize string spatial index
+        results = boundaries_gdf.merge(aggregated_results, left_on=spatial_index,
+                                       right_on='spatial_index', how='outer')
+        results.fillna(value=0, inplace=True)
+        return results[columns_to_keep]
+
+
+
 
     def plot_cdf(self, model_results, plot_type, xlabel, ylabel, title,
                  is_source, bins=100, is_density=False):
@@ -556,7 +578,6 @@ class ModelData(object):
                                     cumulative=True, label=column, color=color, zorder=3)
         ax.legend(loc='right', handles=color_keys)
 
-
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
@@ -566,19 +587,24 @@ class ModelData(object):
         self.logger.info('Plot was saved to: {}'.format(fig_name))
 
 
-    def plot_choropleth(self, model_results, column, title, color_map,
+    def plot_choropleth(self, aggregate_results, column, title, color_map,
+                        shapefile, spatial_index,
                         categories=None, projection='epsg:4326'):
         """
         Plot a chloropleth of the aggregated results.
         """
 
-        if column not in model_results.columns:
+        results_with_geometry = self._join_aggregated_data_with_boundaries(aggregated_results=aggregate_results,
+                                                                     spatial_index=spatial_index,
+                                                                     shapefile=shapefile)
+        if column not in results_with_geometry.columns:
             raise UnexpectedPlotColumnException('Did not expect column argument: {}'.format(column))
+
         mpl.pyplot.close()
 
         mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
 
-        gdf.plot(column=column, cmap=color_map, edgecolor='grey')
+        results_with_geometry.plot(column=column, cmap=color_map, edgecolor='black', linewidth=0.1)
 
         # add a scatter plot of the vendors over the chloropleth
         if categories is not None:
@@ -589,7 +615,7 @@ class ModelData(object):
             else:
                 monochrome = False
             color_keys = []
-            max_dest_target = max(self.dests['target'])
+            max_dest_capacity = max(self.dests['capacity'])
             for category in categories:
                 if monochrome:
                     color = 'black'
@@ -599,7 +625,7 @@ class ModelData(object):
                     color_keys.append(patch)
                 dest_subset = self.dests.loc[self.dests['category'] == category]
                 mpl.pyplot.scatter(y=dest_subset['lat'], x=dest_subset['lon'], color=color, marker='o',
-                                   s=50 * (dest_subset['target'] / max_dest_target), label=category)
+                                   s=50 * (dest_subset['capacity'] / max_dest_capacity), label=category)
                 if not monochrome:
                     mpl.pyplot.legend(loc='best', handles=color_keys)
 
@@ -607,8 +633,8 @@ class ModelData(object):
         fig_name = self.get_output_filename(keyword='figure', extension='png',
                                             file_path='figures/')
         mpl.pyplot.savefig(fig_name, dpi=400)
-        mpl.pyplot.show()
-        self.logger.info('Plot was saved to: {}'.format(fig_name))
+
+        self.logger.info('Figure was saved to: {}'.format(fig_name))
         return
 
     # TODO

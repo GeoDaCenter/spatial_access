@@ -16,11 +16,9 @@ class CustomInstallCommand(install):
         except:
             raise Exception('Error compiling p2p.proto. Make sure protobuf2 is installed and compiled.')
         if sys.platform == "darwin":
-            pass
-            #os.system('brew install spatialindex')
+            os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
-            pass
-            #os.system('sudo apt install python3-rtree')
+            os.system('sudo apt-get install python3-rtree')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
                                    platform. Note: This package does not support Windows.'''
@@ -57,7 +55,7 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'geopandas>=0.3.0',
                          'psutil>=5.4.3',
                          'pandas>=0.19.2',
-                         'numpy>=1.12.0',
+                         'numpy==1.15.4',
                          'osmnet>=0.1.4',
                          'pandana>=0.4.0',
                          'scipy>=0.18.1',
@@ -65,8 +63,7 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'Shapely>=1.6.1',
                          'scikit_learn>=0.19.1',
                          'atlas>=0.27.0',
-                         'jupyter_contrib_nbextensions>=0.5.0',
-                         'jupyter_nbextensions_configurator>=0.1.7']
+                         'descartes>=1.1.0']
 
 REQUIRED_DEPENDENCIES += extra_dependency
 

@@ -72,6 +72,7 @@ class PyTransitMatrixNotBuiltException(MatrixInterfaceException):
     """Throws when pyTransitMatrix cannot be imported """
     pass
 
+
 class PrimaryDataNotFoundException(P2PException):
     """ Throws when the primary data does not exist"""
     pass
@@ -85,6 +86,7 @@ class SecondaryDataNotFoundException(P2PException):
 class UnableToParsePrimaryDataException(P2PException):
     """ Throws when the given column mapping for primary data fails"""
     pass
+
 
 class UnableToParseSecondaryDataException(P2PException):
     """ Throws when the given column mapping for secondary data fails"""
@@ -165,3 +167,20 @@ class ModelNotAggregatedException(CommunityAnalyticsException):
     """ Throws when the user tries to perform an action that requires
     aggregation but has not yet called aggregate"""
     pass
+
+
+class UnexpectedNormalizeTypeException(CommunityAnalyticsException):
+    """ Throws when the user gives an unexpected normalization type"""
+    pass
+
+
+class UnexpectedNormalizeColumnsException(CommunityAnalyticsException):
+    """ Throws when the user gives an type for the normalize parameter"""
+    pass
+
+
+class UnexpectedEmptyColumnException(CommunityAnalyticsException):
+    """ Throws when the model results have empty column while trying to
+    normalize to z-score"""
+    pass
+
