@@ -131,8 +131,18 @@ class ShapefileNotFoundException(ScoreModelException):
     pass
 
 
+class TooManyCategoriesToPlotException(ScoreModelException):
+    """Throws when there are too many categories to plot in the cdf """
+    pass
+
+
 class SpatialIndexNotMatchedException(ScoreModelException):
     """Throws when the spatial index cannot be matched in the shapefile"""
+    pass
+
+
+class UnexpectedPlotColumnException(ScoreModelException):
+    """Throws when the the column is not in the model results columns"""
     pass
 
 
@@ -145,8 +155,13 @@ class UnrecognizedDecayFunctionException(CommunityAnalyticsException):
     """ Throws when the user supplies categories which are not present in the data"""
     pass
 
+
 class IncompleteCategoryDictException(CommunityAnalyticsException):
     """ Throws when the user supplies an incomplete/malformed category dictionary"""
     pass
 
 
+class ModelNotAggregatedException(CommunityAnalyticsException):
+    """ Throws when the user tries to perform an action that requires
+    aggregation but has not yet called aggregate"""
+    pass

@@ -3,6 +3,7 @@ from spatial_access.ScoreModel import ModelData
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
+from spatial_access.SpatialAccessExceptions import ModelNotAggregatedException
 
 import math
 
@@ -88,7 +89,7 @@ class Coverage:
 
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', crs={'init': 'epsg:4326'}):
+                        spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -104,7 +105,33 @@ class Coverage:
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
-                                                                  crs=crs)
+                                                                  projection=projection)
+
+    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+        """
+        Plot cdf of results
+        """
+        self.model_data.plot_cdf(model_results=self.model_results,
+                                 plot_type=type,
+                                 xlabel=xlabel,
+                                 ylabel=ylabel,
+                                 title=title,
+                                 is_source=False)
+
+    # ToDO test this
+    def plot_chloropleth(self, column, title='title', color_map='greens',
+                         projection='epsg:4326'):
+        """
+        Plot chloropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        self.model_data.plot_choropleth(model_results=self.aggregated_results,
+                                 column=column,
+                                 title=title,
+                                color_map=color_map,
+                                categories=self.categories,
+                                        projection=projection)
 
 class AccessPop:
     """
@@ -171,7 +198,7 @@ class AccessPop:
                                                     columns=column_names)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', crs={'init': 'epsg:4326'}):
+                        spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -187,7 +214,18 @@ class AccessPop:
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
-                                                                  crs=crs)
+                                                                  projection=projection)
+
+    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+        """
+        Plot cdf of results
+        """
+        self.model_data.plot_cdf(model_results=self.model_results,
+                                 plot_type=type,
+                                 xlabel=xlabel,
+                                 ylabel=ylabel,
+                                 title=title,
+                                 is_source=True)
 
 class AccessTime:
     """
@@ -236,7 +274,7 @@ class AccessTime:
 
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', crs={'init': 'epsg:4326'}):
+                        spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -249,7 +287,18 @@ class AccessTime:
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
-                                                                  crs=crs)
+                                                                  projection=projection)
+
+    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+        """
+        Plot cdf of results
+        """
+        self.model_data.plot_cdf(model_results=self.model_results,
+                                 plot_type=type,
+                                 xlabel=xlabel,
+                                 ylabel=ylabel,
+                                 title=title,
+                                 is_source=True)
 
 
 class AccessCount:
@@ -298,7 +347,7 @@ class AccessCount:
                                                     columns=column_names)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', crs={'init': 'epsg:4326'}):
+                        spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -311,7 +360,18 @@ class AccessCount:
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
-                                                                  crs=crs)
+                                                                  projection=projection)
+
+    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+        """
+        Plot cdf of results
+        """
+        self.model_data.plot_cdf(model_results=self.model_results,
+                                 plot_type=type,
+                                 xlabel=xlabel,
+                                 ylabel=ylabel,
+                                 title=title,
+                                 is_source=True)
 
 class AccessModel():
     """
@@ -423,7 +483,7 @@ class AccessModel():
         self.model_results['good_access'] = self.model_results['score'] > good_access_threshold
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', crs={'init': 'epsg:4326'}):
+                        spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -439,4 +499,15 @@ class AccessModel():
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
-                                                                  crs=crs)
+                                                                  projection=projection)
+
+    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+        """
+        Plot cdf of results
+        """
+        self.model_data.plot_cdf(model_results=self.model_results,
+                                 plot_type=type,
+                                 xlabel=xlabel,
+                                 ylabel=ylabel,
+                                 title=title,
+                                 is_source=True)

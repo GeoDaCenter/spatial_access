@@ -1,6 +1,8 @@
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
+import matplotlib as mpl
+import matplotlib.patches as mpatches
 from spatial_access.p2p import TransitMatrix
 
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
@@ -11,6 +13,9 @@ from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import ShapefileNotFoundException
 from spatial_access.SpatialAccessExceptions import SpatialIndexNotMatchedException
+from spatial_access.SpatialAccessExceptions import TooManyCategoriesToPlotException
+from spatial_access.SpatialAccessExceptions import UnexpectedPlotColumnException
+
 
 import os.path
 import logging
@@ -462,12 +467,12 @@ class ModelData(object):
         return self._sp_matrix.matrix_interface.get_dest_id_remap()
 
     def _spatial_join_boundaries(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                                 spatial_index='community', crs={'init': 'epsg:4326'}):
+                                 spatial_index='community',  projection='epsg:4326'):
         """
         Return a dataframe with community area data
         """
         geometry = [Point(xy) for xy in zip(dataframe['lon'], dataframe['lat'])]
-
+        crs = {'init': projection}
         geo_original = gpd.GeoDataFrame(dataframe, crs=crs, geometry=geometry)
         try:
             boundaries_gdf = gpd.read_file(shapefile)
@@ -489,7 +494,6 @@ class ModelData(object):
         # TODO: test this on a larger LEHD section
         if len(geo_result) != len(dataframe):
             self.logger.warning('Length of joined dataframe ({}) != length of input dataframe ({})'.format(len(geo_result), len(dataframe)))
-
         return geo_result
 
     def rejoin_results_with_coordinates(self, model_results, is_source):
@@ -505,11 +509,9 @@ class ModelData(object):
             model_results_copy['lon'] = self.dests['lon']
         return model_results_copy
 
-
-    # TODO
     def build_aggregate(self, model_results, is_source, aggregation_args,
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', crs={'init': 'epsg:4326'}):
+                        spatial_index='community',  projection='epsg:4326'):
         """
         Aggregate model results.
         """
@@ -517,17 +519,97 @@ class ModelData(object):
         spatial_joined_results = self._spatial_join_boundaries(dataframe=model_results,
                                                                shapefile=shapefile,
                                                                spatial_index=spatial_index,
-                                                               crs=crs)
-        aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
+                                                               projection=projection)
+        # TODO: preserve geometry through this aggregation
+        aggregated_results = spatial_joined_results.groupby(['spatial_index', 'geometry']).agg(aggregation_args)
         return aggregated_results
 
-
-    # TODO
-    def plot_cdf(self, model_results):
+    def plot_cdf(self, model_results, plot_type, xlabel, ylabel, title,
+                 is_source, bins=100, is_density=False):
         """
         Plot a cdf of the model results
         """
-        pass
+        if is_source:
+            cdf_eligible = model_results[self.sources['population'] > 0]
+        else:
+            cdf_eligible = model_results
+
+        # initialize block parameters
+        mpl.pyplot.close()
+        mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
+        fig, ax = mpl.pyplot.subplots(figsize=(8, 4))
+        ax.grid(zorder=0)
+
+        available_colors = ['black', 'magenta', 'lime', 'red', 'black', 'orange', 'grey', 'yellow', 'brown', 'teal']
+        color_keys = []
+        for column in cdf_eligible.columns:
+            if plot_type not in column:
+                continue
+            x = cdf_eligible[column]
+            try:
+                color = available_colors.pop(0)
+            except:
+                raise TooManyCategoriesToPlotException()
+            patch = mpatches.Patch(color=color, label=column)
+            color_keys.append(patch)
+            n, bins, blah = ax.hist(x, bins, density=is_density, histtype='step',
+                                    cumulative=True, label=column, color=color, zorder=3)
+        ax.legend(loc='right', handles=color_keys)
+
+
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        fig_name = self.get_output_filename(keyword='figure', extension='png',
+                                            file_path='figures/')
+        mpl.pyplot.savefig(fig_name, dpi=400)
+        self.logger.info('Plot was saved to: {}'.format(fig_name))
+
+
+    def plot_choropleth(self, model_results, column, title, color_map,
+                        categories=None, projection='epsg:4326'):
+        """
+        Plot a chloropleth of the aggregated results.
+        """
+
+        if column not in model_results.columns:
+            raise UnexpectedPlotColumnException('Did not expect column argument: {}'.format(column))
+        mpl.pyplot.close()
+
+        mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
+
+        gdf.plot(column=column, cmap=color_map, edgecolor='grey')
+
+        # add a scatter plot of the vendors over the chloropleth
+        if categories is not None:
+            available_colors = ['magenta', 'lime', 'red', 'black', 'orange', 'grey', 'yellow', 'brown', 'teal']
+            # if we have too many categories of vendors, limit to using black dots
+            if len(categories) > len(available_colors):
+                monochrome = True
+            else:
+                monochrome = False
+            color_keys = []
+            max_dest_target = max(self.dests['target'])
+            for category in categories:
+                if monochrome:
+                    color = 'black'
+                else:
+                    color = available_colors.pop(0)
+                    patch = mpatches.Patch(color=color, label=category)
+                    color_keys.append(patch)
+                dest_subset = self.dests.loc[self.dests['category'] == category]
+                mpl.pyplot.scatter(y=dest_subset['lat'], x=dest_subset['lon'], color=color, marker='o',
+                                   s=50 * (dest_subset['target'] / max_dest_target), label=category)
+                if not monochrome:
+                    mpl.pyplot.legend(loc='best', handles=color_keys)
+
+        mpl.pyplot.title(title)
+        fig_name = self.get_output_filename(keyword='figure', extension='png',
+                                            file_path='figures/')
+        mpl.pyplot.savefig(fig_name, dpi=400)
+        mpl.pyplot.show()
+        self.logger.info('Plot was saved to: {}'.format(fig_name))
+        return
 
     # TODO
     def get_results(self, model_results):
