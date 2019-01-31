@@ -10,8 +10,6 @@ from spatial_access.SpatialAccessExceptions import UnexpectedEmptyColumnExceptio
 
 import math
 
-# TODO add 2SFCA model
-
 
 def linear_decay_function(time, upper):
     """

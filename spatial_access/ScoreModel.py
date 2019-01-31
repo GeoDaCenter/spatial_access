@@ -537,7 +537,7 @@ class ModelData(object):
         columns_to_keep = list(aggregated_results.columns)
         columns_to_keep.append('geometry')
         columns_to_keep.append(spatial_index)
-        # TODO generalize string spatial index
+
         results = boundaries_gdf.merge(aggregated_results, left_on=spatial_index,
                                        right_on='spatial_index', how='outer')
         results.fillna(value=0, inplace=True)
@@ -637,23 +637,16 @@ class ModelData(object):
         self.logger.info('Figure was saved to: {}'.format(fig_name))
         return
 
-    # TODO
+    # TODO test
     def get_results(self, model_results):
         """
         Reapply original indeces if remapped.
         """
-        pass
+        remapped_dest_ids = self.get_remapped_dest_ids()
+        remapped_source_ids = self.get_remapped_source_ids()
 
-    # TODO
-    def write_results(self, model_results):
-        """
-        Write results to csv
-        """
-        pass
+        model_results.rename(columns=remapped_dest_ids,
+                             index=remapped_source_ids,
+                             inplace=True)
 
-    # TODO
-    def write_aggregated_results(self, model_results):
-        """
-        Write aggregated results to csv
-        """
-        pass
+        return model_results
