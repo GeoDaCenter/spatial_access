@@ -57,6 +57,7 @@ class Coverage:
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
+        self.aggregated_results = None
         self.categories = categories
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
@@ -86,6 +87,25 @@ class Coverage:
                                                              'category'])
 
 
+    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community', crs={'init': 'epsg:4326'}):
+        """
+        Aggregate results by community area
+        """
+        aggregation_args = {}
+        for column in self.model_results.columns:
+            if 'service_pop' in column:
+                aggregation_args[column] = 'sum'
+            elif 'percap_spending' in column:
+                aggregation_args[column] = 'mean'
+
+        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
+                                                                  is_source=False,
+                                                                  aggregation_args=aggregation_args,
+                                                                  shapefile=shapefile,
+                                                                  spatial_index=spatial_index,
+                                                                  crs=crs)
+
 class AccessPop:
     """
     Build the AccessPop which quantifies
@@ -104,6 +124,7 @@ class AccessPop:
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
+        self.aggregated_results = None
         self.categories = categories
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
@@ -149,6 +170,24 @@ class AccessPop:
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
+    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community', crs={'init': 'epsg:4326'}):
+        """
+        Aggregate results by community area
+        """
+        aggregation_args = {}
+        for column in self.model_results.columns:
+            if 'percap_spend' in column:
+                aggregation_args[column] = 'mean'
+            elif 'total_spend' in column:
+                aggregation_args[column] = 'sum'
+
+        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
+                                                                  is_source=False,
+                                                                  aggregation_args=aggregation_args,
+                                                                  shapefile=shapefile,
+                                                                  spatial_index=spatial_index,
+                                                                  crs=crs)
 
 class AccessTime:
     """
@@ -167,6 +206,7 @@ class AccessTime:
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
+        self.aggregated_results = None
         self.categories = categories
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
@@ -195,6 +235,23 @@ class AccessTime:
                                                     columns=column_names)
 
 
+    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community', crs={'init': 'epsg:4326'}):
+        """
+        Aggregate results by community area
+        """
+        aggregation_args = {}
+        for column in self.model_results.columns:
+            aggregation_args[column] = ['mean', 'min', 'max']
+
+        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
+                                                                  is_source=False,
+                                                                  aggregation_args=aggregation_args,
+                                                                  shapefile=shapefile,
+                                                                  spatial_index=spatial_index,
+                                                                  crs=crs)
+
+
 class AccessCount:
     """
     Measures the number of destinations in range
@@ -213,6 +270,7 @@ class AccessCount:
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
+        self.aggregated_results = None
         self.categories = categories
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
@@ -239,6 +297,22 @@ class AccessCount:
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
+    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community', crs={'init': 'epsg:4326'}):
+        """
+        Aggregate results by community area
+        """
+        aggregation_args = {}
+        for column in self.model_results.columns:
+            aggregation_args[column] = 'mean'
+
+        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
+                                                                  is_source=False,
+                                                                  aggregation_args=aggregation_args,
+                                                                  shapefile=shapefile,
+                                                                  spatial_index=spatial_index,
+                                                                  crs=crs)
+
 class AccessModel():
     """
     Build the Access model which captures the accessibility of 
@@ -258,6 +332,7 @@ class AccessModel():
         self.model_data.load_sp_matrix(sp_matrix_filename)
 
         self.model_results = {}
+        self.aggregated_results = None
 
     def set_decay_function(self, decay_function):
         """
@@ -346,3 +421,22 @@ class AccessModel():
             self.model_results['score'] = (self.model_results['score'] / max_score) * 100.0
 
         self.model_results['good_access'] = self.model_results['score'] > good_access_threshold
+
+    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community', crs={'init': 'epsg:4326'}):
+        """
+        Aggregate results by community area
+        """
+        aggregation_args = {}
+        for column in self.model_results.columns:
+            if 'score' in column:
+                aggregation_args[column] = 'mean'
+            elif 'good_access' in column:
+                aggregation_args[column] = 'count'
+
+        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
+                                                                  is_source=False,
+                                                                  aggregation_args=aggregation_args,
+                                                                  shapefile=shapefile,
+                                                                  spatial_index=spatial_index,
+                                                                  crs=crs)

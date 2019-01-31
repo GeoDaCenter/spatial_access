@@ -11,13 +11,13 @@ class TestClass():
     """
     Suite of tests for ScoreModel
     """
-    def setup(self):
+    def setup_class(self):
         import os
         self.datapath = 'tests/test_score_model_temp/'
         if not os.path.exists(self.datapath):
             os.mkdir(self.datapath)
 
-    def teardown(self):
+    def teardown_class(self):
         import os
         if os.path.exists(self.datapath):
             import shutil
@@ -218,3 +218,17 @@ class TestClass():
         remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
         model_data._sp_matrix.matrix_interface.print_data_frame()
         assert model_data.get_population_in_range(remapped_dests['place_c'], 600) == 121
+
+    def test_10(self):
+        """
+        Test _spatial_join_boundaries
+        """
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
+                               destinations_filename="tests/test_data/dests_a.csv",
+                               source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                    'population': 'pop'},
+                               dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                  'target': 'targ', 'category': 'cat'})
+        model_data.load_sp_matrix()
+
+        spatial_joined_sources = model_data._spatial_join_boundaries(model_data.sources)

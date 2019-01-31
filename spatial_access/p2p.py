@@ -365,7 +365,7 @@ class TransitMatrix():
                 self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
 
         time_delta = time.time() - start_time
-        self.logger.info(
+        self.logger.debug(
             'Nearest Neighbor matching completed in {:,.2f} seconds'.format(time_delta))
 
     def write_csv(self, outfile=None):
@@ -421,7 +421,7 @@ class TransitMatrix():
 
         start_time = time.time()
 
-        self.logger.info("Processing network (%s) with epsilon: %f",
+        self.logger.debug("Processing network (%s) with epsilon: %f",
                          self.network_type, self.epsilon)
 
         self.prefetch_network()

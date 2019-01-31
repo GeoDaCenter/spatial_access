@@ -1,4 +1,6 @@
 import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
 from spatial_access.p2p import TransitMatrix
 
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
@@ -7,6 +9,8 @@ from spatial_access.SpatialAccessExceptions import SourceDataNotParsableExceptio
 from spatial_access.SpatialAccessExceptions import DestDataNotParsableException
 from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
+from spatial_access.SpatialAccessExceptions import ShapefileNotFoundException
+from spatial_access.SpatialAccessExceptions import SpatialIndexNotMatchedException
 
 import os.path
 import logging
@@ -457,25 +461,78 @@ class ModelData(object):
         """
         return self._sp_matrix.matrix_interface.get_dest_id_remap()
 
-    # TODO
-    @staticmethod
-    def _spatial_join_boundaries(self, shapefile):
+    def _spatial_join_boundaries(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                                 spatial_index='community', crs={'init': 'epsg:4326'}):
         """
         Return a dataframe with community area data
         """
-        pass
+        geometry = [Point(xy) for xy in zip(dataframe['lon'], dataframe['lat'])]
+
+        geo_original = gpd.GeoDataFrame(dataframe, crs=crs, geometry=geometry)
+        try:
+            boundaries_gdf = gpd.read_file(shapefile)
+        except FileNotFoundError:
+            raise ShapefileNotFoundException('shapefile not found: {}'.format(shapefile))
+
+        geo_result = gpd.sjoin(boundaries_gdf, geo_original, how='inner',
+                                    op='intersects')
+        geo_result.set_index('index_right')
+        dataframe_columns = list(dataframe.columns)
+
+        geo_result.rename(columns={spatial_index:'spatial_index'}, inplace=True)
+        dataframe_columns.append('spatial_index')
+        dataframe_columns.append('geometry')
+        try:
+            geo_result = geo_result[dataframe_columns]
+        except KeyError:
+            raise SpatialIndexNotMatchedException('Unable to match spatial_index:{}'.format(spatial_index))
+        # TODO: test this on a larger LEHD section
+        if len(geo_result) != len(dataframe):
+            self.logger.warning('Length of joined dataframe ({}) != length of input dataframe ({})'.format(len(geo_result), len(dataframe)))
+
+        return geo_result
+
+    def rejoin_results_with_coordinates(self, model_results, is_source):
+        """
+        Rejoin model results with coordinates.
+        """
+        model_results_copy = model_results.copy(deep=True)
+        if is_source:
+            model_results_copy['lat'] = self.sources['lat']
+            model_results_copy['lon'] = self.sources['lon']
+        else:
+            model_results_copy['lat'] = self.dests['lat']
+            model_results_copy['lon'] = self.dests['lon']
+        return model_results_copy
+
 
     # TODO
-    def build_aggregate(self, model_results, aggregation_type):
+    def build_aggregate(self, model_results, is_source, aggregation_args,
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community', crs={'init': 'epsg:4326'}):
         """
         Aggregate model results.
         """
-        pass
+        model_results = self.rejoin_results_with_coordinates(model_results, is_source)
+        spatial_joined_results = self._spatial_join_boundaries(dataframe=model_results,
+                                                               shapefile=shapefile,
+                                                               spatial_index=spatial_index,
+                                                               crs=crs)
+        aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
+        return aggregated_results
+
 
     # TODO
     def plot_cdf(self, model_results):
         """
         Plot a cdf of the model results
+        """
+        pass
+
+    # TODO
+    def get_results(self, model_results):
+        """
+        Reapply original indeces if remapped.
         """
         pass
 

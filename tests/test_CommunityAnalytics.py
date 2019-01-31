@@ -12,13 +12,13 @@ from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictExcepti
 class TestClass():
     """Suite of tests for the Community Analytics Package"""
 
-    def setup(self):
+    def setup_class(self):
         import os
         self.datapath = 'tests/test_community_analytics_temp/'
         if not os.path.exists(self.datapath):
             os.mkdir(self.datapath)
 
-    def teardown(self):
+    def teardown_class(self):
         import os
         if os.path.exists(self.datapath):
             import shutil

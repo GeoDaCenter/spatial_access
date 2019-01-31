@@ -126,6 +126,16 @@ class DestDataNotParsableException(ScoreModelException):
     pass
 
 
+class ShapefileNotFoundException(ScoreModelException):
+    """Throws when the shapefile cannot be found """
+    pass
+
+
+class SpatialIndexNotMatchedException(ScoreModelException):
+    """Throws when the spatial index cannot be matched in the shapefile"""
+    pass
+
+
 class UnrecognizedCategoriesException(CommunityAnalyticsException):
     """ Throws when the user supplies categories which are not present in the data"""
     pass
