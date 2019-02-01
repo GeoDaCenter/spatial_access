@@ -479,9 +479,9 @@ class ModelData(object):
         except FileNotFoundError:
             raise ShapefileNotFoundException('shapefile not found: {}'.format(shapefile))
 
-        geo_result = gpd.sjoin(boundaries_gdf, geo_original, how='inner',
+        geo_result = gpd.sjoin(boundaries_gdf, geo_original, how='right',
                                     op='intersects')
-        geo_result.set_index('index_right')
+        # geo_result.set_index('index_right')
         dataframe_columns = list(dataframe.columns)
 
         geo_result.rename(columns={spatial_index:'spatial_index'}, inplace=True)

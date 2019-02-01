@@ -464,3 +464,97 @@ class TestClass():
 
         assert coverage_model.model_results['A_score'].max() == 100
         assert coverage_model.model_results['A_score'].min() >= 0
+
+    def test_19(self):
+        """
+        Test the DestFloatingCatchmentAreaModel aggregation.
+        """
+        coverage_model = DestFloatingCatchmentArea('drive',
+                                  sources_filename='tests/test_data/sources_a.csv',
+                                  destinations_filename='tests/test_data/dests_b.csv',
+                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                       'population': 'pop'},
+                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                     'capacity': 'capacity', 'category': 'cat'},
+                                  categories=['A','C'])
+        coverage_model.calculate(600)
+
+        coverage_model.aggregate()
+        coverage_model.plot_cdf('percap_spending')
+        coverage_model.plot_choropleth(column='percap_spending')
+
+    def test_20(self):
+        """
+        Test TwoStageFloatingCatchmentArea aggregation.
+        """
+        categories = ['A', 'C']
+        accesspop_model = TwoStageFloatingCatchmentArea('drive',
+                                   sources_filename='tests/test_data/sources_a.csv',
+                                   destinations_filename='tests/test_data/dests_b.csv',
+                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'population': 'pop'},
+                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                      'capacity': 'capacity', 'category': 'cat'},
+                                   categories=categories)
+        accesspop_model.calculate(600)
+        accesspop_model.aggregate()
+        accesspop_model.plot_cdf('percap_spend')
+        accesspop_model.plot_choropleth(column='A_percap_spend', include_destinations=False)
+
+    def test_21(self):
+        """
+        Test AccessTime aggregation
+        """
+        categories = ['A', 'C']
+        accesstime_model = AccessTime('drive',
+                                   sources_filename='tests/test_data/sources_a.csv',
+                                   destinations_filename='tests/test_data/dests_b.csv',
+                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'population': 'pop'},
+                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                      'capacity': 'capacity', 'category': 'cat'},
+                                   categories=categories)
+        accesstime_model.calculate()
+        accesstime_model.aggregate()
+        accesstime_model.plot_cdf()
+        accesstime_model.plot_choropleth(column='time_to_nearest_C')
+
+    def test_22(self):
+        """
+        Test AccessCount aggregation
+        """
+        categories = ['A', 'C', 'D']
+        accesscount_model = AccessCount('drive',
+                                   sources_filename='tests/test_data/sources_a.csv',
+                                   destinations_filename='tests/test_data/dests_b.csv',
+                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'population': 'pop'},
+                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                      'capacity': 'capacity', 'category': 'cat'},
+                                   categories=categories)
+        accesscount_model.calculate(200)
+        accesscount_model.aggregate()
+        accesscount_model.plot_cdf()
+        accesscount_model.plot_choropleth('count_in_range_all_categories')
+
+    def test_23(self):
+        """
+        Test AccessModel with aggregation.
+        """
+        coverage_model = AccessModel('drive',
+                                     sources_filename='tests/test_data/sources_a.csv',
+                                     destinations_filename='tests/test_data/dests_b.csv',
+                                     source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'population': 'pop'},
+                                     dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'capacity': 'capacity', 'category': 'cat'},
+                                     decay_function='linear')
+
+        category_weight_dict = {'A': [5, 4, 3, 2, 1],
+                                'D': [4, 3, 1],
+                                'C': [1]}
+        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        coverage_model.aggregate()
+        coverage_model.plot_cdf('score')
+        coverage_model.plot_choropleth('good_access_A')
+

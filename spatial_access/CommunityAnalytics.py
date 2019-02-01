@@ -319,12 +319,12 @@ class AccessTime:
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
 
-    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
         Plot cdf of results
         """
         self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=type,
+                                 plot_type='time_to_nearest',
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
@@ -413,12 +413,12 @@ class AccessCount:
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
 
-    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
         Plot cdf of results
         """
         self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=type,
+                                 plot_type='count_in_range',
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
