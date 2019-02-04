@@ -230,7 +230,7 @@ class TwoStageFloatingCatchmentArea:
                 aggregation_args[column] = 'sum'
 
         self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=False,
+                                                                  is_source=True,
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
@@ -337,7 +337,7 @@ class AccessTime:
             aggregation_args[column] = aggregation_type
 
         self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=False,
+                                                                  is_source=True,
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
@@ -443,7 +443,7 @@ class AccessCount:
             aggregation_args[column] = 'mean'
 
         self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=False,
+                                                                  is_source=True,
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
@@ -654,7 +654,7 @@ class AccessModel:
                 aggregation_args[column] = 'count'
 
         self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=False,
+                                                                  is_source=True,
                                                                   aggregation_args=aggregation_args,
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,

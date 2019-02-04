@@ -149,7 +149,6 @@ void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
     {
         for (unsigned long int col_label : wa->df.metaData.col_label())
         {
-            
             if (wa->df.retrieveValue(index, col_label) <= wa->threshold)
             {
                 wa->rows.at(index).push_back(col_label);
@@ -453,12 +452,11 @@ void transitMatrix::calculateSourcesInRange(unsigned int threshold, int numThrea
             this->sourcesInRange.at(col_id) = valueData;
         }
     }
-
     
     rangeWorkerArgs wa(false, this->df, threshold, this->destsInRange, 
                         this->sourcesInRange);
     wa.initialize();
-    workerQueue wq(numThreads);
+    workerQueue wq(1);
     wq.startRangeWorker(rangeWorkerHandler, &wa);
    
     this->sourcesInRangeThreshold = threshold;
