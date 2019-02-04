@@ -481,7 +481,7 @@ class ModelData(object):
 
         geo_result = gpd.sjoin(boundaries_gdf, geo_original, how='right',
                                     op='intersects')
-        # geo_result.set_index('index_right')
+
         dataframe_columns = list(dataframe.columns)
 
         geo_result.rename(columns={spatial_index:'spatial_index'}, inplace=True)
@@ -636,17 +636,3 @@ class ModelData(object):
 
         self.logger.info('Figure was saved to: {}'.format(fig_name))
         return
-
-    # TODO test
-    def get_results(self, model_results):
-        """
-        Reapply original indeces if remapped.
-        """
-        remapped_dest_ids = self.get_remapped_dest_ids()
-        remapped_source_ids = self.get_remapped_source_ids()
-
-        model_results.rename(columns=remapped_dest_ids,
-                             index=remapped_source_ids,
-                             inplace=True)
-
-        return model_results

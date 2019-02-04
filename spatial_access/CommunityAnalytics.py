@@ -7,6 +7,7 @@ from spatial_access.SpatialAccessExceptions import ModelNotAggregatedException
 from spatial_access.SpatialAccessExceptions import UnexpectedNormalizeTypeException
 from spatial_access.SpatialAccessExceptions import UnexpectedNormalizeColumnsException
 from spatial_access.SpatialAccessExceptions import UnexpectedEmptyColumnException
+from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
 import math
 
@@ -109,6 +110,7 @@ class DestFloatingCatchmentArea:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        return self.aggregated_results
 
     def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
@@ -141,6 +143,17 @@ class DestFloatingCatchmentArea:
                                         projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
+
+    def get_results(self):
+        """
+        Return the results dataframe with original indeces.
+        """
+        remapped_dest_ids = self.model_data.get_remapped_dest_ids()
+        if remapped_dest_ids:
+            reversed = {value:key for key, value in remapped_dest_ids.items()}
+            self.model_results.rename(index=reversed, inplace=True)
+        return self.model_results
+
 
 class TwoStageFloatingCatchmentArea:
     """
@@ -224,6 +237,7 @@ class TwoStageFloatingCatchmentArea:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        return self.aggregated_results
 
     def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
@@ -256,6 +270,16 @@ class TwoStageFloatingCatchmentArea:
                                         projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
+
+    def get_results(self):
+        """
+        Return the results dataframe with original indeces.
+        """
+        remapped_source_ids = self.model_data.get_remapped_source_ids()
+        if remapped_source_ids:
+            reversed = {value:key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed, inplace=True)
+        return self.model_results
 
 class AccessTime:
     """
@@ -303,14 +327,17 @@ class AccessTime:
                                                     columns=column_names)
 
 
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+    def aggregate(self, aggregation_type, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
         aggregation_args = {}
+        if aggregation_type not in ['min', 'max', 'mean']:
+            raise UnexpectedAggregationTypeException(aggregation_type)
+
         for column in self.model_results.columns:
-            aggregation_args[column] = ['mean', 'min', 'max']
+            aggregation_args[column] = aggregation_type
 
         self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
                                                                   is_source=False,
@@ -318,6 +345,8 @@ class AccessTime:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        return self.aggregated_results
+
 
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
@@ -350,6 +379,16 @@ class AccessTime:
                                         projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
+
+    def get_results(self):
+        """
+        Return the results dataframe with original indeces.
+        """
+        remapped_source_ids = self.model_data.get_remapped_source_ids()
+        if remapped_source_ids:
+            reversed = {value:key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed, inplace=True)
+        return self.model_results
 
 
 class AccessCount:
@@ -412,6 +451,7 @@ class AccessCount:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        return self.aggregated_results
 
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
@@ -445,6 +485,16 @@ class AccessCount:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
+    def get_results(self):
+        """
+        Return the results dataframe with original indeces.
+        """
+        remapped_source_ids = self.model_data.get_remapped_source_ids()
+        if remapped_source_ids:
+            reversed = {value:key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed, inplace=True)
+        return self.model_results
+
 class AccessModel():
     """
     Build the Access model which captures the accessibility of 
@@ -462,8 +512,8 @@ class AccessModel():
                                     source_column_names=source_column_names,
                                     dest_column_names=dest_column_names)
         self.model_data.load_sp_matrix(sp_matrix_filename)
-
-        self.model_results = {}
+        self.categories = self.model_data.get_all_categories()
+        self.model_results = None
         self.aggregated_results = None
 
     def set_decay_function(self, decay_function):
@@ -610,6 +660,7 @@ class AccessModel():
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        return self.aggregated_results
 
     def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
@@ -643,3 +694,12 @@ class AccessModel():
                                         projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
+    def get_results(self):
+        """
+        Return the results dataframe with original indeces.
+        """
+        remapped_source_ids = self.model_data.get_remapped_source_ids()
+        if remapped_source_ids:
+            reversed = {value:key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed, inplace=True)
+        return self.model_results

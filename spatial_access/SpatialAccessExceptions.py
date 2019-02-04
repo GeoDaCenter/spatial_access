@@ -184,3 +184,8 @@ class UnexpectedEmptyColumnException(CommunityAnalyticsException):
     normalize to z-score"""
     pass
 
+
+class UnexpectedAggregationTypeException(CommunityAnalyticsException):
+    """ Throws when the user passes an illegal aggregation type"""
+    pass
+

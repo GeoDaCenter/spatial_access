@@ -339,5 +339,29 @@ class TestClass():
         Test trim_edges doesn't change matrix results.
         :return:
         """
+        hints = {'idx': 'name', 'lat': 'y', 'lon': 'x'}
+        transit_matrix_1 = TransitMatrix('bike',
+                                         primary_input='tests/test_data/sources.csv',
+                                         secondary_input='tests/test_data/dests.csv',
+                                         primary_hints=hints, secondary_hints=hints,
+                                         trim_edges=True)
+        transit_matrix_1.process()
+
+        hints = {'idx': 'name', 'lat': 'y', 'lon': 'x'}
+        transit_matrix_2 = TransitMatrix('bike',
+                                         primary_input='tests/test_data/sources.csv',
+                                         secondary_input='tests/test_data/dests.csv',
+                                         primary_hints=hints, secondary_hints=hints,
+                                         trim_edges=False)
+        transit_matrix_2.process()
+
+        for source_id in transit_matrix_1.primary_data.index:
+            tm_1_values = transit_matrix_1.matrix_interface.get_values_by_source(source_id)
+            tm_2_values = transit_matrix_2.matrix_interface.get_values_by_source(source_id)
+            assert tm_1_values == tm_2_values
+
+
+
+
 
 

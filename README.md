@@ -20,7 +20,7 @@
   <td>Development Build</td>
   <td>
     <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
-    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=dev_logan" alt="travis build status" 
+    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=v1.5" alt="travis build status" 
     </td>
 </tr>
 <tr>

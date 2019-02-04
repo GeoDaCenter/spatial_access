@@ -131,8 +131,6 @@ class TestClass():
             return
         assert False
 
-
-
     def test_7(self):
         """
         Test instantiating and processing ModelData
@@ -144,24 +142,24 @@ class TestClass():
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
+        model_data.load_sp_matrix()
 
-        model_data.calculate_dests_in_range(600)
-        model_data.calculate_sources_in_range(600)
+        model_data.calculate_dests_in_range(100)
+        model_data.calculate_sources_in_range(100)
 
-        assert model_data.dests_in_range == {3: [],
-                                                   4: [1, 2],
-                                                   5: [1, 2],
+        assert model_data.dests_in_range == {3: [0, 1, 2],
+                                                   4: [0, 1, 2],
+                                                   5: [2],
                                                    6: [2]}
 
-        assert model_data.sources_in_range == {0: [],
-                                                     1: [4, 5],
-                                                     2: [4, 5, 6]
+        assert model_data.sources_in_range == {0: [3, 4],
+                                                     1: [3, 4],
+                                                     2: [3, 4, 5, 6]
 
         }
 
-        assert model_data.get_values_by_source(3, True) == [(2, 601), (1, 714), (0, 768)]
-        assert model_data.get_values_by_dest(1, True) == [(4, 7), (5, 21), (6, 682), (3, 714)]
+        assert model_data.get_values_by_source(3, True) == [(2, 42), (1, 79), (0, 89)]
+        assert model_data.get_values_by_dest(1, True) == [(4, 7), (3, 79), (6, 106), (5, 136)]
 
     def test_8(self):
         """
@@ -179,12 +177,12 @@ class TestClass():
         model_data.load_sp_matrix()
         model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_8')
 
-        model_data.calculate_dests_in_range(600)
-        model_data.calculate_sources_in_range(600)
+        model_data.calculate_dests_in_range(125)
+        model_data.calculate_sources_in_range(125)
 
         remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
-        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_b']) == [4, 5]
-        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_c']) == [4, 5, 6]
+        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_b']) == [3, 4, 6]
+        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_c']) == [3, 4, 5, 6]
 
         model_data2 = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                 destinations_filename="tests/test_data/dests_a.csv",
@@ -195,12 +193,12 @@ class TestClass():
 
         model_data2.load_sp_matrix(self.datapath + 'score_model_test_8')
 
-        model_data2.calculate_dests_in_range(600)
-        model_data2.calculate_sources_in_range(600)
+        model_data2.calculate_dests_in_range(125)
+        model_data2.calculate_sources_in_range(125)
 
         remapped_dests2 = model_data2._sp_matrix.matrix_interface.get_dest_id_remap()
-        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_b']) == [4, 5]
-        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_c']) == [4, 5, 6]
+        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_b']) == [3, 4, 6]
+        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_c']) == [3, 4, 5, 6]
 
     def test_9(self):
         """
@@ -213,11 +211,12 @@ class TestClass():
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
-        model_data.calculate_sources_in_range(600)
-
+        model_data.calculate_sources_in_range(50)
         remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
-        model_data._sp_matrix.matrix_interface.print_data_frame()
-        assert model_data.get_population_in_range(remapped_dests['place_c']) == 121
+
+        assert model_data.get_population_in_range(remapped_dests['place_a']) == 0
+        assert model_data.get_population_in_range(remapped_dests['place_b']) == 31
+        assert model_data.get_population_in_range(remapped_dests['place_c']) == 76
 
     def test_10(self):
         """

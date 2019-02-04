@@ -7,6 +7,7 @@ from spatial_access.CommunityAnalytics import AccessModel
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
+from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
 #TODO test aggregations
 
@@ -26,7 +27,7 @@ class TestClass():
             import shutil
             shutil.rmtree(self.datapath)
 
-    def test_1(self):
+    def test_01(self):
         """
         Test the DestFloatingCatchmentArea model through instantiation and
         calculate.
@@ -38,30 +39,30 @@ class TestClass():
                                                        'population': 'pop'},
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                      'capacity': 'capacity', 'category': 'cat'})
-        coverage_model.calculate(600)
+        coverage_model.calculate(100)
 
-        assert coverage_model.model_results.loc[0]['service_pop'] == 0
-        assert coverage_model.model_results.loc[1]['service_pop'] == 244
-        assert coverage_model.model_results.loc[2]['service_pop'] == 424
-        assert coverage_model.model_results.loc[3]['service_pop'] == 0
-        assert coverage_model.model_results.loc[4]['service_pop'] == 244
-        assert coverage_model.model_results.loc[5]['service_pop'] == 424
+        assert coverage_model.model_results.loc[0]['service_pop'] == 76
+        assert coverage_model.model_results.loc[1]['service_pop'] == 76
+        assert coverage_model.model_results.loc[2]['service_pop'] == 469
+        assert coverage_model.model_results.loc[3]['service_pop'] == 76
+        assert coverage_model.model_results.loc[4]['service_pop'] == 76
+        assert coverage_model.model_results.loc[5]['service_pop'] == 469
 
-        assert coverage_model.model_results.loc[0]['percap_spending'] <= 0.000
-        assert coverage_model.model_results.loc[1]['percap_spending'] <= 0.189
-        assert coverage_model.model_results.loc[2]['percap_spending'] <= 0.817
-        assert coverage_model.model_results.loc[3]['percap_spending'] <= 0.000
-        assert coverage_model.model_results.loc[4]['percap_spending'] <= 1.640
-        assert coverage_model.model_results.loc[5]['percap_spending'] <= 1.338
+        assert coverage_model.model_results.loc[0]['percap_spending'] <= 0.066
+        assert coverage_model.model_results.loc[1]['percap_spending'] <= 0.606
+        assert coverage_model.model_results.loc[2]['percap_spending'] <= 0.738
+        assert coverage_model.model_results.loc[3]['percap_spending'] <= 3.053
+        assert coverage_model.model_results.loc[4]['percap_spending'] <= 5.264
+        assert coverage_model.model_results.loc[5]['percap_spending'] <= 1.210
 
-        assert coverage_model.model_results.loc[0]['percap_spending'] >= 0.000
-        assert coverage_model.model_results.loc[1]['percap_spending'] >= 0.188
-        assert coverage_model.model_results.loc[2]['percap_spending'] >= 0.816
-        assert coverage_model.model_results.loc[3]['percap_spending'] >= 0.000
-        assert coverage_model.model_results.loc[4]['percap_spending'] >= 1.639
-        assert coverage_model.model_results.loc[5]['percap_spending'] >= 1.337
+        assert coverage_model.model_results.loc[0]['percap_spending'] >= 0.065
+        assert coverage_model.model_results.loc[1]['percap_spending'] >= 0.605
+        assert coverage_model.model_results.loc[2]['percap_spending'] >= 0.737
+        assert coverage_model.model_results.loc[3]['percap_spending'] >= 3.052
+        assert coverage_model.model_results.loc[4]['percap_spending'] >= 5.263
+        assert coverage_model.model_results.loc[5]['percap_spending'] >= 1.208
 
-    def test_2(self):
+    def test_02(self):
         """
         Expects UnrecognizedCategoriesException to
         throw because the user supplies categories
@@ -82,7 +83,7 @@ class TestClass():
             return
         assert False
 
-    def test_3(self):
+    def test_03(self):
         """
         Test the DestFloatingCatchmentAreaModel through instantiation and
         calculate, with categories specified.
@@ -117,14 +118,14 @@ class TestClass():
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-        accesspop_model.calculate(600)
-
-        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 0.000
-        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] >= 3.981
-        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] >= 3.981
-        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] >= 0
-        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 2.153
-        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 3.981
+        accesspop_model.calculate(125)
+        accesspop_model.model_data._print_data_frame()
+        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 4.614
+        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] >= 4.614
+        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] >= 1.946
+        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] == 0.00
+        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 4.614
+        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 1.946
 
         assert accesspop_model.model_results['total_spend_all_categories'].sum() <= accesspop_model.model_data.dests['capacity'].sum()
 
@@ -187,12 +188,12 @@ class TestClass():
                                                       'capacity': 'capacity', 'category': 'cat'})
         accesstime_model.calculate()
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 601
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 42
         assert accesstime_model.model_results.loc[4]['time_to_nearest_all_categories'] == 7
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_all_categories'] == 21
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_all_categories'] == 569
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_all_categories'] == 570
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_all_categories'] == 22
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_all_categories'] == 99
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_all_categories'] == 69
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_all_categories'] == 70
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_all_categories'] == 100
 
     def test_8(self):
         """
@@ -231,6 +232,19 @@ class TestClass():
                                    categories=categories)
         accesstime_model.calculate()
 
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 42
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_A'] == 7
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_A'] == 99
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_A'] == 69
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_A'] == 70
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_A'] == 100
+
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_C'] == 42
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_C'] == 44
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_C'] == 99
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_C'] == 69
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 70
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 100
 
 
 
@@ -246,14 +260,14 @@ class TestClass():
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-        accesscount_model.calculate(700)
+        accesscount_model.calculate(100)
 
-        assert accesscount_model.model_results.loc[3]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[4]['count_in_range_all_categories'] == 4
-        assert accesscount_model.model_results.loc[5]['count_in_range_all_categories'] == 4
-        assert accesscount_model.model_results.loc[6]['count_in_range_all_categories'] == 4
-        assert accesscount_model.model_results.loc[7]['count_in_range_all_categories'] == 4
-        assert accesscount_model.model_results.loc[8]['count_in_range_all_categories'] == 4
+        assert accesscount_model.model_results.loc[3]['count_in_range_all_categories'] == 6
+        assert accesscount_model.model_results.loc[4]['count_in_range_all_categories'] == 6
+        assert accesscount_model.model_results.loc[5]['count_in_range_all_categories'] == 2
+        assert accesscount_model.model_results.loc[6]['count_in_range_all_categories'] == 2
+        assert accesscount_model.model_results.loc[7]['count_in_range_all_categories'] == 2
+        assert accesscount_model.model_results.loc[8]['count_in_range_all_categories'] == 2
 
     def test_11(self):
         """
@@ -290,51 +304,28 @@ class TestClass():
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'},
                                    categories=categories)
-        accesscount_model.calculate(200)
+        accesscount_model.calculate(100)
 
-        assert accesscount_model.model_results.loc[3]['count_in_range_A'] == 0
-        assert accesscount_model.model_results.loc[4]['count_in_range_A'] == 1
+        assert accesscount_model.model_results.loc[3]['count_in_range_A'] == 3
+        assert accesscount_model.model_results.loc[4]['count_in_range_A'] == 3
         assert accesscount_model.model_results.loc[5]['count_in_range_A'] == 1
-        assert accesscount_model.model_results.loc[6]['count_in_range_A'] == 0
-        assert accesscount_model.model_results.loc[7]['count_in_range_A'] == 0
+        assert accesscount_model.model_results.loc[6]['count_in_range_A'] == 1
+        assert accesscount_model.model_results.loc[7]['count_in_range_A'] == 1
         assert accesscount_model.model_results.loc[8]['count_in_range_A'] == 1
 
-        assert accesscount_model.model_results.loc[3]['count_in_range_C'] == 0
-        assert accesscount_model.model_results.loc[4]['count_in_range_C'] == 0
-        assert accesscount_model.model_results.loc[5]['count_in_range_C'] == 0
-        assert accesscount_model.model_results.loc[6]['count_in_range_C'] == 0
-        assert accesscount_model.model_results.loc[7]['count_in_range_C'] == 0
-        assert accesscount_model.model_results.loc[8]['count_in_range_C'] == 0
-
-        assert accesscount_model.model_results.loc[3]['count_in_range_D'] == 0
-        assert accesscount_model.model_results.loc[4]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[5]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[6]['count_in_range_D'] == 0
-        assert accesscount_model.model_results.loc[7]['count_in_range_D'] == 0
-        assert accesscount_model.model_results.loc[8]['count_in_range_D'] == 1
-
-        accesscount_model.calculate(700)
-
-        assert accesscount_model.model_results.loc[3]['count_in_range_A'] == 1
-        assert accesscount_model.model_results.loc[4]['count_in_range_A'] == 2
-        assert accesscount_model.model_results.loc[5]['count_in_range_A'] == 2
-        assert accesscount_model.model_results.loc[6]['count_in_range_A'] == 2
-        assert accesscount_model.model_results.loc[7]['count_in_range_A'] == 2
-        assert accesscount_model.model_results.loc[8]['count_in_range_A'] == 2
-
-        assert accesscount_model.model_results.loc[3]['count_in_range_C'] == 1
-        assert accesscount_model.model_results.loc[4]['count_in_range_C'] == 1
+        assert accesscount_model.model_results.loc[3]['count_in_range_C'] == 2
+        assert accesscount_model.model_results.loc[4]['count_in_range_C'] == 2
         assert accesscount_model.model_results.loc[5]['count_in_range_C'] == 1
         assert accesscount_model.model_results.loc[6]['count_in_range_C'] == 1
         assert accesscount_model.model_results.loc[7]['count_in_range_C'] == 1
         assert accesscount_model.model_results.loc[8]['count_in_range_C'] == 1
 
-        assert accesscount_model.model_results.loc[3]['count_in_range_D'] == 0
+        assert accesscount_model.model_results.loc[3]['count_in_range_D'] == 1
         assert accesscount_model.model_results.loc[4]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[5]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[6]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[7]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[8]['count_in_range_D'] == 1
+        assert accesscount_model.model_results.loc[5]['count_in_range_D'] == 0
+        assert accesscount_model.model_results.loc[6]['count_in_range_D'] == 0
+        assert accesscount_model.model_results.loc[7]['count_in_range_D'] == 0
+        assert accesscount_model.model_results.loc[8]['count_in_range_D'] == 0
 
     def test_13(self):
         """
@@ -354,7 +345,6 @@ class TestClass():
             assert True
             return
         assert False
-
 
     def test_14(self):
         """
@@ -443,7 +433,6 @@ class TestClass():
                                 'D': [4, 3, 1]}
         coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=False)
 
-
     def test_18(self):
         """
         Test AccessModel with custom lambda decay function
@@ -499,7 +488,7 @@ class TestClass():
         accesspop_model.calculate(600)
         accesspop_model.aggregate()
         accesspop_model.plot_cdf('percap_spend')
-        accesspop_model.plot_choropleth(column='A_percap_spend', include_destinations=False)
+        accesspop_model.plot_choropleth(column='percap_spend_A', include_destinations=False)
 
     def test_21(self):
         """
@@ -515,9 +504,16 @@ class TestClass():
                                                       'capacity': 'capacity', 'category': 'cat'},
                                    categories=categories)
         accesstime_model.calculate()
-        accesstime_model.aggregate()
+        accesstime_model.aggregate('mean')
+        accesstime_model.aggregate('min')
+        accesstime_model.aggregate('max')
         accesstime_model.plot_cdf()
-        accesstime_model.plot_choropleth(column='time_to_nearest_C')
+        accesstime_model.plot_choropleth(column='time_to_nearest_C', include_destinations=True)
+        try:
+            accesstime_model.aggregate('blah')
+        except UnexpectedAggregationTypeException:
+            return
+        assert False
 
     def test_22(self):
         """
@@ -535,7 +531,7 @@ class TestClass():
         accesscount_model.calculate(200)
         accesscount_model.aggregate()
         accesscount_model.plot_cdf()
-        accesscount_model.plot_choropleth('count_in_range_all_categories')
+        accesscount_model.plot_choropleth('count_in_range_C')
 
     def test_23(self):
         """
@@ -556,5 +552,99 @@ class TestClass():
         coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
         coverage_model.aggregate()
         coverage_model.plot_cdf('score')
-        coverage_model.plot_choropleth('good_access_A')
+        coverage_model.plot_cdf('good_access')
+        coverage_model.plot_choropleth('A_good_access')
+        coverage_model.plot_choropleth('C_score')
 
+    def test_24(self):
+        """
+        Test get_results method
+        """
+        coverage_model = DestFloatingCatchmentArea('drive',
+                                  sources_filename='tests/test_data/sources_a.csv',
+                                  destinations_filename='tests/test_data/dests_b.csv',
+                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                       'population': 'pop'},
+                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                     'capacity': 'capacity', 'category': 'cat'})
+        coverage_model.calculate(100)
+
+        results = coverage_model.get_results()
+
+        assert list(results.index) == ['place_a',
+                                 'place_b',
+                                 'place_c',
+                                 'place_d',
+                                 'place_e',
+                                 'place_f']
+
+    def test_25(self):
+        """
+        Test get_results
+        """
+        categories = ['A', 'C']
+        accesspop_model = TwoStageFloatingCatchmentArea('drive',
+                                                        sources_filename='tests/test_data/sources_a.csv',
+                                                        destinations_filename='tests/test_data/dests_b.csv',
+                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                             'population': 'pop'},
+                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                           'capacity': 'capacity', 'category': 'cat'},
+                                                        categories=categories)
+        accesspop_model.calculate(200)
+        results = accesspop_model.get_results()
+        assert list(results.index) == [3, 4, 5, 6, 7, 8]
+
+    def test_26(self):
+        """
+        Test AccessModel get_results.
+        """
+        coverage_model = AccessModel('drive',
+                                     sources_filename='tests/test_data/sources_a.csv',
+                                     destinations_filename='tests/test_data/dests_b.csv',
+                                     source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'population': 'pop'},
+                                     dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'capacity': 'capacity', 'category': 'cat'},
+                                     decay_function='linear')
+
+        category_weight_dict = {'A': [5, 4, 3, 2, 1],
+                                'D': [4, 3, 1],
+                                'C': [1]}
+        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        results = coverage_model.get_results()
+        assert list(results.index) == [3, 4, 5, 6, 7, 8]
+
+    def test_27(self):
+        """
+        Test AccessTime get_results
+        """
+        categories = ['A', 'C']
+        accesstime_model = AccessTime('drive',
+                                   sources_filename='tests/test_data/sources_a.csv',
+                                   destinations_filename='tests/test_data/dests_b.csv',
+                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'population': 'pop'},
+                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                      'capacity': 'capacity', 'category': 'cat'},
+                                   categories=categories)
+        accesstime_model.calculate()
+        results = accesstime_model.get_results()
+        assert list(results.index) == [3, 4, 5, 6, 7, 8]
+
+    def test_28(self):
+        """
+        Test AccessCount get_results
+        """
+        categories = ['A', 'C']
+        accesscount_model = AccessCount('drive',
+                                      sources_filename='tests/test_data/sources_a.csv',
+                                      destinations_filename='tests/test_data/dests_b.csv',
+                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'population': 'pop'},
+                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                         'capacity': 'capacity', 'category': 'cat'},
+                                      categories=categories)
+        accesscount_model.calculate(200)
+        results = accesscount_model.get_results()
+        assert list(results.index) == [3, 4, 5, 6, 7, 8]
