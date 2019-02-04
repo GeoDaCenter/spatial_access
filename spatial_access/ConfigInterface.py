@@ -6,10 +6,10 @@ import json
 
 # pylint: disable=invalid-name, too-many-instance-attributes
 class ConfigInterface():
-    '''
+    """
     A utility class to abstract the network parameter
     configurations.
-    '''
+    """
     filename = 'spatial_access/p2p_parameters.json'
     def __init__(self, network_type, logger=None):
         self.network_type = network_type

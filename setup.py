@@ -1,19 +1,25 @@
-import platform, distutils.core, distutils.extension, setuptools, sys, os
+import distutils.extension, setuptools, sys, os
 from setuptools.command.install import install
 try:
     import Cython.Build
-except:
+except ModuleNotFoundError:
     os.system('pip3 install Cython')
     import Cython.Build
+
 
 class CustomInstallCommand(install):
     """Customized setuptools install command"""
     def run(self):
-        print('running CustomInstallCommand')
+        try:
+            os.chdir('spatial_access/src/protobuf')
+            os.system('protoc --cpp_out=. p2p.proto')
+            os.chdir('../../..')
+        except BaseException:
+            raise Exception('Error compiling p2p.proto. Make sure protobuf2 is installed and compiled.')
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
         elif sys.platform.startswith('linux'):
-            os.system('sudo apt install python3-rtree')
+            os.system('sudo apt-get install libspatialindex-dev')
         else:
             exception_message = '''You are trying to install spatial_access on an unsupported 
                                    platform. Note: This package does not support Windows.'''
@@ -21,22 +27,27 @@ class CustomInstallCommand(install):
             raise Exception(exception_message, os.system)
         install.run(self)
 
+
 ouff_mac = []
 extra_dependency = []
 if sys.platform == "darwin":
-  ouff_mac = ['-mmacosx-version-min=10.9']
-  extra_dependency = ['rtree>=0.8.3']
+    ouff_mac = ['-mmacosx-version-min=10.9']
+    extra_dependency = ['rtree>=0.8.3']
 
 EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapter.pyx'],
-    extra_compile_args = ['-Wno-unused-function', 
-                          '-std=c++11', '-Wall', '-O3'
+    sources = ['spatial_access/transitMatrixAdapter.pyx', 
+               'spatial_access/src/Graph.cpp',
+               'spatial_access/src/MinHeap.cpp',
+               'spatial_access/src/userDataContainer.cpp',
+               'spatial_access/src/dataFrame.cpp',
+               'spatial_access/src/threadUtilities.cpp',
+               'spatial_access/src/transitMatrix.cpp'],
+    extra_compile_args = ['-std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
+    extra_link_args    = ouff_mac + ['-lprotobuf']
     )
-
 EXT_MODULES=Cython.Build.cythonize([EXTENSION])
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
@@ -46,7 +57,7 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'geopandas>=0.3.0',
                          'psutil>=5.4.3',
                          'pandas>=0.19.2',
-                         'numpy>=1.12.0',
+                         'numpy==1.15.4',
                          'osmnet>=0.1.4',
                          'pandana>=0.4.0',
                          'scipy>=0.18.1',
@@ -54,8 +65,8 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'Shapely>=1.6.1',
                          'scikit_learn>=0.19.1',
                          'atlas>=0.27.0',
-                         'jupyter_contrib_nbextensions>=0.5.0',
-                         'jupyter_nbextensions_configurator>=0.1.7']
+                         'descartes>=1.1.0',
+                         'rtree>=0.8.3']
 
 REQUIRED_DEPENDENCIES += extra_dependency
 
@@ -64,7 +75,8 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.CommunityAnalytics',
                    'spatial_access.ConfigInterface',
                    'spatial_access.NetworkInterface',
-                   'spatial_access.MatrixInterface']
+                   'spatial_access.MatrixInterface',
+                   'spatial_access.SpatialAccessExceptions']
 
 setuptools.setup(
     cmdclass = {'install':CustomInstallCommand},
@@ -72,7 +84,7 @@ setuptools.setup(
     author = 'Logan Noel (lmnoel)',
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version='0.1.3',
+    version='0.1.4',
     ext_modules=EXT_MODULES,
     install_requires=REQUIRED_DEPENDENCIES,
     py_modules=SUBMODULE_NAMES

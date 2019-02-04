@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package p2p;
+
+message metaData {
+
+	required bool is_symmetric = 1;
+	required bool row_labels_are_remapped = 2;
+	required bool col_labels_are_remapped = 3;
+
+	repeated string premap_row_label_string = 4;
+	repeated string premap_col_label_string = 5;
+
+	repeated int64 row_label = 6;
+	repeated int64 col_label = 7;
+
+}
+
+message  dataRow {
+    repeated int32 value = 1;
+}
+

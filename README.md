@@ -6,7 +6,7 @@
 <tr>
   <td>Version</td>
   <td>
-    0.1.3
+    0.1.4
   </td>
 </tr>    
 <tr>
@@ -20,7 +20,7 @@
   <td>Development Build</td>
   <td>
     <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
-    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=dev_logan" alt="travis build status" 
+    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=v1.5" alt="travis build status" 
     </td>
 </tr>
 <tr>
@@ -48,7 +48,8 @@ If you are a Windows user, instructions for installing Ubuntu on a virtual machi
 ----
 1. Clone this directory
 2. Requirements: python3, pip3
-3. `sudo pip install .` (note the .)
+3. (On Linux) `bash install-proto.sh`
+4. `sudo pip install .` (note the .)
 
 PyPi Distribution will come soon.
 

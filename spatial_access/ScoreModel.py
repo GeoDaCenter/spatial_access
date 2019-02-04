@@ -1,218 +1,85 @@
 import pandas as pd
-import numpy as np
 import geopandas as gpd
 from shapely.geometry import Point
-import matplotlib.patches as mpatches
-from matplotlib import mlab
 import matplotlib as mpl
+import matplotlib.patches as mpatches
 from spatial_access.p2p import TransitMatrix
-import os.path, csv, math, sys, logging, json, time
-import copy
-from operator import itemgetter
-import timeit
+
+from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
+from spatial_access.SpatialAccessExceptions import DestDataNotFoundException
+from spatial_access.SpatialAccessExceptions import SourceDataNotParsableException
+from spatial_access.SpatialAccessExceptions import DestDataNotParsableException
+from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
+from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
+from spatial_access.SpatialAccessExceptions import ShapefileNotFoundException
+from spatial_access.SpatialAccessExceptions import SpatialIndexNotMatchedException
+from spatial_access.SpatialAccessExceptions import TooManyCategoriesToPlotException
+from spatial_access.SpatialAccessExceptions import UnexpectedPlotColumnException
+
+
+import os.path
+import logging
+
 
 class ModelData(object):
-    '''
+    """
     A parent class to hold/process data for more advanced geospatial
     models like HSSAModel and PCSpendModel. The 'upper' argument in
-    the __init__ is the time (in minutes), above which a source and dest
+    the __init__ is the time (in seconds), above which a source and dest
     are considered to be out of range of each other.
-    '''
+    """
 
-    def __init__(self, network_type, upper):
+    def __init__(self, network_type, sources_filename,
+                 destinations_filename,
+                 source_column_names=None, dest_column_names=None,
+                 debug=False):
         self.network_type = network_type
-        self.sp_matrix = None
+        self._sp_matrix = None
         self.dests = None
         self.sources = None
-        self.category_set = None
-        self.source2dest = {}
-        self.dest2source = {}
-        self.dest2cats = {}
-        self.cat2dests = {}
-        self.near_nbr = {}
-        self.n_dests_in_range = {}
-        self.time = {}
-        self.time_val2 = {}
-        self.use_n_nearest = 10
-        self.output_filename = None
 
-        self.sources_nn = {}
-        self.idx_2_col = {}
+        self.sources_filename = sources_filename
+        self.destinations_filename = destinations_filename
 
-        self.source_id_list = []
-        self.dest_id_list = []
+        # column_names and file_hints are similar, both map intended_name->actual_data_name
+        # the difference is column names should be complete/contain all needed fields
+        self.source_column_names = source_column_names
+        self.dest_column_names = dest_column_names
 
-        self.sp_matrix_good = False
-        self.dests_good = False
-        self.sources_good = False
-        self.processed_good = False
+        # hints are partial/potentially incomplete, and supplied
+        # by p2p.TransitMatrix
+        self._source_file_hints = None
+        self._dest_file_hints = None
 
-        self.primary_hints = None
-        self.secondary_hints = None
+        self.sources_in_range = {}
+        self.dests_in_range = {}
 
-        assert network_type in ['drive', 'walk', 'bike'], 'gave invalid mode of transit. Must be one of: drive, walk, bike'
-        self.upper = upper * 60 #convert minutes from input to seconds
+        # initialize logger
+        self.logger = None
+        if debug:
+            self.set_logging('info')
+        else:
+            self.set_logging('debug')
 
-        self.set_logging('info')
+    def write_shortest_path_matrix_to_csv(self, filename=None):
+        """
+        Write sp matrix to csv.
+        """
+        self._sp_matrix.write_csv(filename)
 
+    def write_shortest_path_matrix_to_tmx(self, filename=None):
+        """
+        Write sp matrix to csv.
+        """
+        self._sp_matrix.write_tmx(filename)
 
-        self.valid_population = True
-        self.valid_target = True
-        self.valid_category = True
-        self.valid_lower_areal_unit = True
-
-
-    def get_time(self, source, dest):
-        '''
-        Return the time, in seconds, from source to dest.
-        '''
-        assert self.sp_matrix_good, 'load shortest path matrix before this step'
-
-        timee = self.sp_matrix.get(source, dest)
-
-        return timee
-
-
-    def get_population(self, source_id):
-        '''
-        Return the population at a source point.
-        '''
-        assert self.sources_good, 'load sources before this step'
-
-        return self.sources.loc[source_id, 'population']
-
-    def get_target(self, dest_id):
-        '''
-        Return the target value at a dest point.
-        '''
-        assert self.dests_good, 'load dests before this step'
-
-        return self.dests.loc[dest_id, 'target']
-
-
-    def get_category(self, dest_id):
-        '''
-        Return the category of a dest point.
-        '''
-        assert self.dests_good, 'load dests before this step'
-
-        return str(self.dest2cats[int(dest_id)])
-
-
-    def figure_name(self):
-        '''
-        Return a unique figure name.
-        '''
-        i = 0
-        if not os.path.exists("data/figures/"):
-            os.makedirs("data/figures/")
-        fig_name = 'data/figures/fig_0.png'
-        while (os.path.isfile(fig_name)):
-            i += 1
-            fig_name = 'data/figures/fig_{}.png'.format(i)
-
-        return fig_name
-
-
-
-    def process(self):
-        '''
-        Generate mappings for the model to use.
-        '''
-
-        #need to make sure we've loaded these data first
-        assert self.sp_matrix_good, 'load shortest path matrix before this step'
-        assert self.sources_good, 'load sources before this step'
-        assert self.dests_good, 'load destinations before this step'
-        self.logger.info('Processing... This could take a while')
-        
-
-        #Calculate time to nearest neighbor (near_nbr) and number of destinations within buffer (n_dests_in_range) metrics.
-        #pre map dest->category
-        
-        start_time = time.time()
-
-        
-        CAT = self.dests.columns.get_loc('category') + 1
-        ID = 0
-        rv = {}
-        included_cats = set()
-        nearest_cat_template = {}
-        n_dests_in_range_template = {}
-        for data in self.dests.itertuples():
-            self.dest2cats[data[ID]] = str(data[CAT])
-            if str(data[CAT]) in included_cats:
-                self.cat2dests[data[CAT]].append(data[ID])
-            else:
-                self.cat2dests[str(data[CAT])] = [data[ID]]
-                included_cats.add(data[CAT])
-                nearest_cat_template[data[CAT]] = None
-                n_dests_in_range_template[data[CAT]] = 0
-
-              
-        #creating source to dest dictionary for times within self.upper using sorting and binary search
-        self.source2dest = {}
-        self.neg_val = {}
-        self.no_dest_in_range = {} #stores no of destinations within self.upper
-        for source in self.source_2:
-            pairs = [(k,v) for k,v in self.dicto[source].items()]
-            pairs.sort(key=itemgetter(1))
-            lo, hi = 0, len(pairs) - 1
-            while lo <= hi:
-                mid =  (lo + hi) / 2
-                mid = int(mid)
-                if pairs[mid][1] <= self.upper:
-                    lo = mid + 1
-                elif pairs[mid][1] > self.upper:
-                    hi = mid - 1
-            key = lo
-            lo, hi = 0, len(pairs) - 1
-            while lo <= hi:
-                mid =  (lo + hi) / 2
-                mid = int(mid)
-                if pairs[mid][1] <= -1:
-                    lo = mid + 1
-                elif pairs[mid][1] > -1:
-                    hi = mid - 1
-            key_min = lo
-
-
-            self.dicto[source] = pairs
-
-            dummy =[]
-            #key_min is the position of the first index which is non-negative.
-            if key_min>0:
-                dummy = pairs[0:key_min]
-
-            #Checking if every destination has negatives. Only then, will we designate NAs for the sources.
-            #neg val dictionary contains all sources that should be NAs.
-            if len(dummy) == len(pairs):
-                self.neg_val[int(float(source))] = pairs[0:key_min]
-
-            self.source2dest[int(float(source))] = pairs[key_min:key]
-
-
-            self.no_dest_in_range[int(float(source))] = len(self.source2dest[int(float(source))])
-
-        #creating the same dictionary with destination as keys
-        self.dest2source = {}
-        for i in self.dest_2:
-            if(i!=''):
-                self.dest2source[int(float(i))] = []
-        for key,value in self.source2dest.items():
-            for dest,timee in value:
-                self.dest2source[int(float(dest))].append((key,timee))
-
-    
-        self.processed_good = True
-        self.logger.info('Finished processing ModelData in {:,.2f} seconds'.format(time.time() - start_time))
-        
-    def get_output_filename (self, keyword, extension='csv', file_path='data/'):
-        '''
+    @staticmethod
+    def get_output_filename(keyword, extension='csv', file_path='data/'):
+        """
         Given a keyword, find an unused filename.
-        '''
+        """
         if file_path is None:
-            file_path="data/"
+            file_path = "data/"
         if not os.path.exists(file_path):
             os.makedirs(file_path)
         filename = os.path.join(file_path, '{}_0.{}'.format(keyword, extension))
@@ -220,47 +87,66 @@ class ModelData(object):
         while os.path.isfile(filename):
             filename = os.path.join(file_path, '{}_{}.{}'.format(keyword, counter, extension))
             counter += 1
-        self.output_filename = filename
 
         return filename
-    
-    def get_output_filename_access (self, keyword, extension='csv', file_path='data/access_metrics/'):
-        '''
-        Given a keyword, find an unused filename.
-        '''
-        
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        filename = file_path + '{}_0.{}'.format(keyword, extension)
-        counter = 1
-        while os.path.isfile(filename):
-            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
-            counter += 1
-        self.output_filename = filename
 
-        return filename
-    
-    def get_output_filename_cov (self, keyword, extension='csv', file_path='data/coverage_metrics/'):
-        '''
-        Given a keyword, find an unused filename.
-        '''
-        
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        filename = file_path + '{}_0.{}'.format(keyword, extension)
-        counter = 1
-        while os.path.isfile(filename):
-            filename = file_path + '{}_{}.{}'.format(keyword, counter, extension)
-            counter += 1
-        self.output_filename = filename
+    def get_time(self, source, dest):
+        """
+        Return the time, in seconds, from source to dest.
+        """
+        time = self._sp_matrix.get(source, dest)
 
-        return filename
-    
-    
+        return time
+
+    def get_population(self, source_id):
+        """
+        Return the population at a source point.
+        """
+        return self.sources.loc[source_id, 'population']
+
+    def get_capacity(self, dest_id):
+        """
+        Return the capacity value at a dest point.
+        """
+        return self.dests.loc[dest_id, 'capacity']
+
+    def get_category(self, dest_id):
+        """
+        Return the category value at a dest point.
+        """
+        return self.dests.loc[dest_id, 'category']
+
+    def get_all_categories(self):
+        """
+        Return a list of all categories in the dest dataset.
+        """
+        return set(self.dests['category'])
+
+    def get_all_dest_ids(self):
+        """
+        Return all ids of destination data frame.
+        """
+        return list(self.dests.index)
+
+    def get_all_source_ids(self):
+        """
+        Return all ids of source data frame.
+        """
+        return list(self.sources.index)
+
+    def get_ids_for_category(self, category='all_categories'):
+        """
+        Given category, return an array of all indeces
+        which match. If category is all_categories, return all indeces.
+        """
+        if category == 'all_categories':
+            return list(self.dests.index)
+        return list(self.dests[self.dests['category'] == category].index)
+
     def set_logging(self, level=None):
-        '''
+        """
         Set the logging level to debug or info
-        '''
+        """
         if not level:
             return
 
@@ -272,99 +158,43 @@ class ModelData(object):
             return
         self.logger = logging.getLogger(__name__)
 
-
     def load_sp_matrix(self, filename=None):
-        '''
+        """
         Load the shortest path matrix; if a filename is supplied,
         ModelData will attempt to load from file.
         If filename is not supplied, ModelData will generate
         a shortest path matrix using p2p (must be installed).
-        '''
+        """
 
-        #try to load from file if given
         if filename:
-            start_time=time.time()
-            self.dicto = {}  #Dictionary storing matrix travel times from each source to each dest
-            
-            
-            self.source_2 = [] #source id list
-            
-            
-            with open(filename, 'r') as File:
-                
-                reader = csv.reader(File)
-                self.dest_2 = next(reader)
-                #convert csv into our useful matrix dictionary
-                for row in reader:
-                    if row[0] in self.dicto.keys():
-                        print('Warning: Check for duplicates in your ID.')
-                    self.dicto[row[0]] = {}
-                    self.source_2.append(row[0])
-                    self.no_dest = len(row)
-                    for i in range(1, len(row)):
-                        self.dicto[row[0]][int(float(self.dest_2[i]))] = int(float(row[i]))     
-            end_time=time.time()
+            self._sp_matrix = TransitMatrix(self.network_type,
+                                            read_from_file=filename)
 
-            self.logger.info('Loaded sp matrix from file: {}'.format(filename))
-            self.logger.info('Finished loading sp_matrix in {:,.2f} seconds'.format(end_time - start_time))
         else:
-            assert self.sources_good, 'load sources before this step'
-            assert self.dests_good, 'load destinations before this step'
-            
-            self.sp_matrix = TransitMatrix(network_type=self.network_type,
-                primary_input=self.source_filename,
-                secondary_input=self.dest_filename,
-                write_to_file=True, load_to_mem=True, 
-                primary_hints=self.primary_hints, 
-                secondary_hints=self.secondary_hints)
 
-            sl_file = None
+            self._sp_matrix = TransitMatrix(self.network_type,
+                                            primary_input=self.sources_filename,
+                                            secondary_input=self.destinations_filename,
+                                            primary_hints=self.source_column_names,
+                                            secondary_hints=self.dest_column_names)
+            try:
+                self._sp_matrix.process()
+            except PrimaryDataNotFoundException:
+                raise SourceDataNotFoundException()
+            except SecondaryDataNotFoundException:
+                raise DestDataNotFoundException()
 
-            #need to load up speed limit table
-            if self.network_type == 'drive':
-                sl_file = 'BAH'
-                while not os.path.isfile(sl_file):
-                    sl_file = input('Please enter the filename of the speed limit table: ')
-            self.sp_matrix.process(speed_limit_filename=sl_file)
+            # borrow hints for use in load_sources() and load_dests() if not user supplied
+            if self._source_file_hints is None:
+                self._source_file_hints = self._sp_matrix.primary_hints
+            if self._dest_file_hints is None:
+                self._dest_file_hints = self._sp_matrix.secondary_hints
 
-            self.logger.info('Generated sp matrix to file: {}'.format(self.sp_matrix.output_filename))
+        self.reload_sources()
+        self.reload_dests()
 
-        self.sp_matrix_good = True
-
-
-    def load_sources_nn(self, use_n_nearest=10 ,filename='data/sources_nn_0.json'):
-        '''
-        This method will probably be deleted
-        '''
-    
-        start = time.time()
-        self.use_n_nearest = use_n_nearest
-        if filename:
-            self.sources_nn = json.load(open(filename))
-            self.logger.info('loaded source nn data from file')
-        else:
-            assert self.sources_good, 'Load sources first'
-            output_filename = self.get_output_filename('sources_nn', 'json')
-            if self.network_type == 'drive':
-                sl_file = 'BAH'
-                while not os.path.isfile(sl_file):
-                    sl_file = input('Please enter the filename of the speed limit table: ')
-            else:
-                sl_file = None
-
-            tm = TransitMatrix(network_type=self.network_type, 
-                primary_input=self.source_filename, 
-                secondary_input=self.source_filename, output_type='json', 
-                n_best_matches=use_n_nearest, epsilon=0.05)
-            tm.process(speed_limit_filename=sl_file, output_filename=output_filename)
-
-            self.sources_nn = json.load(open(output_filename))
-            self.logger.info('Generated source relational data to file {}'.format(output_filename))
-
-
-    def load_sources(self, filename=None, 
-                     shapefile='resources/chi_comm_boundaries', field_mapping=None):
-        '''
+    def reload_sources(self, filename=None):
+        """
         Load the source points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
@@ -372,142 +202,127 @@ class ModelData(object):
         The field_mapping argument will be present if code is being called by the web app.
         Otherwise the field_mapping default value of None will be passed in, and command
         line prompts for user input will be executed.
-        '''
-        #try to load the source table
+        """
+
+        if filename:
+            self.sources_filename = filename
         try:
-            self.sources = pd.read_csv(filename)
-        except:
-            self.logger.error('Unable to load sources file: {}'.format(filename))
-            sys.exit(0)
-        
-        #extract the column names from the table
-        population = ''
-        lower_areal_unit = ''
-        idx = ''
-        lat = ''
-        lon = ''
+            self.sources = pd.read_csv(self.sources_filename)
+        except FileNotFoundError:
+            raise SourceDataNotFoundException()
 
+        if self.source_column_names is None:
+            # extract the column names from the table
+            population = ''
+            idx = ''
+            lat = ''
+            lon = ''
 
-        #if the command line is being used to call the code...
-        if field_mapping is None:
-            
-            #extract the column names from the table
+            if self._source_file_hints is not None:
+                if 'idx' in self._source_file_hints:
+                    idx = self._source_file_hints['idx']
+                if 'population' in self._source_file_hints:
+                    population = self._source_file_hints['population']
+                if 'lat' in self._source_file_hints:
+                    lat = self._source_file_hints['lat']
+                if 'lon' in self._source_file_hints:
+                    lon = self._source_file_hints['lon']
+
+            # extract the column names from the table for whichever fields
+            # were not gleaned from self.source_file_hints
             source_data_columns = self.sources.columns.values
             print('The variables in your data set are:')
             for var in source_data_columns:
-                print('> ',var)
+                print('> ', var)
             while idx not in source_data_columns:
                 idx = input('Enter the unique index variable: ')
             print('If you have no population variable, write "skip" (no quotations)')
             while population not in source_data_columns and population != 'skip':
                 population = input('Enter the population variable: ')
-            print('If you have no lower areal unit variable, write "skip" (no quotations)')
-            while lower_areal_unit not in source_data_columns and lower_areal_unit != 'skip':
-                lower_areal_unit = input('Enter the lower areal unit variable: ')
             while lat not in source_data_columns:
                 lat = input('Enter the latitude variable: ')
             while lon not in source_data_columns:
                 lon = input('Enter the longitude variable: ')
 
-            #insert filler values for the lower_areal_unit column if 
-            #user lower_areal_unit not want to include it in GUI
-            if lower_areal_unit == 'skip':
-                self.sources['lower_areal_unit'] = 1
-                self.valid_lower_areal_unit = False
+            # store the col names for later use
+            self.source_column_names = {'lat': lat, 'lon': lon, 'idx': idx,
+                                        'population': population}
 
-            
-        
-        #otherwise, if the web app is being used to call the code...
-        else:
+        try:
+            # insert filler values for the population column if
+            # user does not want to include it. need it for coverage
+            if self.source_column_names['population'] == 'skip':
+                self.sources['population'] = 1
 
-            idx = field_mapping['idx']
-            population = field_mapping['population']
-            lower_areal_unit = 'skip'
-            lat = field_mapping['lat']
-            lon = field_mapping['lon']
+            # rename columns, clean the data frame
+            rename_cols = {self.source_column_names['population']: 'population',
+                           self.source_column_names['lat']: 'lat',
+                           self.source_column_names['lon']: 'lon'}
+            self.sources.set_index(self.source_column_names['idx'], inplace=True)
+            self.sources.rename(columns=rename_cols, inplace=True)
+        except KeyError:
+            raise SourceDataNotParsableException()
 
-        #insert filler values for the population column if 
-        #user does not want to include it. need it for coverage
-        if population == 'skip':
-            self.sources['population'] = 1
-            self.valid_population = False
+        # drop unused columns
+        columns_to_keep = list(rename_cols.values())
+        self.sources = self.sources[columns_to_keep]
 
-        #store the col names for later use
-        self.primary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
+        # remap to numeric id if original data used string ids
+        remapped_ids = self.get_remapped_source_ids()
+        if isinstance(remapped_ids, dict):
+            self.sources.index = self.sources.index.map(remapped_ids)
 
-        #rename columns, clean the data frame
-        if population == 'skip':
-            rename_cols = {lat:'lat', lon:'lon'}
-        else:
-            rename_cols = {population:'population', lat:'lat', lon:'lon', lower_areal_unit:'lower_areal_unit'}
-  
-        self.sources = pd.read_csv(filename)
-        self.sources.set_index(idx, inplace=True)
-        self.sources.rename(columns=rename_cols,inplace=True)
-        self.sources = self.sources.reindex(columns=['lat','lon','population', 'lower_areal_unit'])
-
-        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
-        #join source table with shapefile
-        #copy = self.sources.copy(deep=True)
-        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        #crs = {'init':'epsg:4326'}
-        #copy = self.sources.copy(deep=True)
-        #geo_sources = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        #boundaries_gdf = gpd.read_file(shapefile)
-        #geo_sources = gpd.sjoin(boundaries_gdf, geo_sources, how='inner', 
-        #                            op='intersects')
-        #geo_sources.set_index('index_right', inplace=True)
-        #self.sources = geo_sources[['community','population','lat','lon','geometry']]
-        
-        self.source_id_list = self.sources.index
-        self.sources_good = True
-        self.source_filename = filename
-
-
-    def load_dests(self, filename=None, 
-        shapefile='resources/chi_comm_boundaries', subset=None, field_mapping=None):
-        '''
+    def reload_dests(self, filename=None):
+        """
         Load the destination points for the model (from csv).
         For each point, the table should contain:
             -unique identifier (integer or string)
-            -target value (integer or float)
+            -capacity value (integer or float)
             -category (string)
         The field_mapping argument will be present if code is being called by the web app.
         Otherwise the field_mapping default value of None will be passed in, and command
         line prompts for user input will be executed.
-        '''
+        """
 
-        #try to load dest file
+        if filename:
+            self.destinations_filename = filename
+
         try:
-            self.dests = pd.read_csv(filename)
-        except:
-            self.logger.error('Unable to load dest file: {}'.format(filename))
-            sys.exit(0)
+            self.dests = pd.read_csv(self.destinations_filename)
+        except FileNotFoundError:
+            raise DestDataNotFoundException()
 
-        #extract column names
-        category = ''
-        target = ''
-        lower_areal_unit = ''
-        idx = ''
-        lat = ''
-        lon = ''
+        if self.dest_column_names is None:
+            # extract the column names from the table
+            category = ''
+            capacity = ''
+            idx = ''
+            lat = ''
+            lon = ''
 
-        #if the command line is being used to call the code...
-        if field_mapping is None:
-            
-            #extract the column names from the table
+            if self._dest_file_hints is not None:
+                if 'idx' in self._dest_file_hints:
+                    idx = self._dest_file_hints['idx']
+                if 'category' in self._dest_file_hints:
+                    category = self._dest_file_hints['category']
+                if 'capacity' in self._dest_file_hints:
+                    capacity = self._dest_file_hints['capacity']
+                if 'lat' in self._dest_file_hints:
+                    lat = self._dest_file_hints['lat']
+                if 'lon' in self._dest_file_hints:
+                    lon = self._dest_file_hints['lon']
+
+            # extract the column names from the table for whichever fields
+            # were not gleaned from self.dest_file_hints
             dest_data_columns = self.dests.columns.values
             print('The variables in your data set are:')
             for var in dest_data_columns:
-                print('> ',var)
+                print('> ', var)
             while idx not in dest_data_columns:
                 idx = input('Enter the unique index variable: ')
-            print('If you have no target variable, write "skip" (no quotations)')
-            while target not in dest_data_columns and target != 'skip':
-                target = input('Enter the target variable: ')
-            print('If you have no lower areal unit variable, write "skip" (no quotations)')
-            while lower_areal_unit not in dest_data_columns and lower_areal_unit != 'skip':
-                lower_areal_unit = input('Enter the lower areal unit variable: ')
+            print('If you have no capacity variable, write "skip" (no quotations)')
+            while capacity not in dest_data_columns and capacity != 'skip':
+                capacity = input('Enter the capacity variable: ')
             print('If you have no category variable, write "skip" (no quotations)')
             while category not in dest_data_columns and category != 'skip':
                 category = input('Enter the category variable: ')
@@ -515,74 +330,316 @@ class ModelData(object):
                 lat = input('Enter the latitude variable: ')
             while lon not in dest_data_columns:
                 lon = input('Enter the longitude variable: ')
+            self.dest_column_names = {'lat': lat, 'lon': lon, 'idx': idx,
+                                      'category': category, 'capacity': capacity}
 
-        
+        try:
+            # insert filler values for the capacity column if
+            # user does not want to include it.
+            if self.dest_column_names['capacity'] == 'skip':
+                self.dests['capacity'] = 1
 
-            if target == 'skip':
-                target_name = 'target'
+            # insert filler values for the category column if
+            # user does not want to include it.
+            if self.dest_column_names['category'] == 'skip':
+                self.dests['category'] = 1
+
+            # rename columns, clean the data frame
+            rename_cols = {self.dest_column_names['lat']: 'lat', self.dest_column_names['lon']: 'lon'}
+            if self.dest_column_names['capacity'] != 'skip':
+                rename_cols[self.dest_column_names['capacity']] = 'capacity'
+            if self.dest_column_names['category'] != 'skip':
+                rename_cols[self.dest_column_names['category']] = 'category'
+
+            self.dests.set_index(self.dest_column_names['idx'], inplace=True)
+            self.dests.rename(columns=rename_cols, inplace=True)
+
+        except KeyError:
+            raise DestDataNotParsableException()
+
+        # drop unused columns
+        columns_to_keep = list(rename_cols.values())
+        self.dests = self.dests[columns_to_keep]
+
+        # remap to numeric id if original data used string ids
+        remapped_ids = self.get_remapped_dest_ids()
+        if isinstance(remapped_ids, dict):
+            self.dests.index = self.dests.index.map(remapped_ids)
+
+    def get_dests_in_range_of_source(self, source_id):
+        """
+        Return a list of dest ids in range of the source
+        """
+        return self.dests_in_range[source_id]
+
+    def get_sources_in_range_of_dest(self, dest_id):
+        """
+        Return a list of source ids in range of the dest
+        """
+        return self.sources_in_range[dest_id]
+
+    def calculate_dests_in_range(self, upper_threshold):
+        """
+        Return a dictionary of lists
+        """
+        self.dests_in_range = self._sp_matrix.matrix_interface.get_dests_in_range(upper_threshold)
+
+    def calculate_sources_in_range(self, upper_threshold):
+        """
+        Return a dictionary of lists
+        """
+        self.sources_in_range = self._sp_matrix.matrix_interface.get_sources_in_range(upper_threshold)
+
+    def get_values_by_source(self, source_id, sort=False):
+        """
+        Get a list of (dest_id, value) pairs, with the option
+        to sort in increasing order by value.
+        """
+        return self._sp_matrix.matrix_interface.get_values_by_source(source_id, sort)
+
+    def get_values_by_dest(self, dest_id, sort=False):
+        """
+        Get a list of (source_id, value) pairs, with the option
+        to sort in increasing order by value.
+        """
+        return self._sp_matrix.matrix_interface.get_values_by_dest(dest_id, sort)
+
+    def get_population_in_range(self, dest_id):
+        """
+         Return the population within the capacity range for the given
+         destination id.
+        """
+        cumulative_population = 0
+        for source_id in self.get_sources_in_range_of_dest(dest_id):
+            source_population = self.get_population(source_id)
+            if source_population > 0:
+                cumulative_population += source_population
+
+        return cumulative_population
+
+    def map_categories_to_sp_matrix(self):
+        """
+        Map all categories-> associated dest_ids
+        """
+        for dest_id in self.get_all_dest_ids():
+            associated_category = self.get_category(dest_id)
+            self._add_to_category_map(dest_id, associated_category)
+
+    def _add_to_category_map(self, dest_id, category):
+        """
+        Map the dest_id to the category in the
+        transit matrix.
+        """
+        self._sp_matrix.matrix_interface.add_to_category_map(dest_id, category)
+
+    def time_to_nearest_dest(self, source_id, category):
+        """
+        Return the time to nearest destination for source_id
+        of type category. If category is 'all_categories', return
+        the time to nearest destination of any type.
+        """
+        if category == 'all_categories':
+            return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, None)
+        else:
+            return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, category)
+
+    def count_dests_in_range_by_categories(self, source_id, upper_threshold, category):
+        """
+        Return the count of destinations in range
+        of the source id per category
+        """
+        if category == 'all_categories':
+            return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
+                                                                         upper_threshold,
+                                                                         None)
+        else:
+            return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
+                                                                         upper_threshold,
+                                                                         category)
+
+    def _print_data_frame(self):
+        """
+        Print the transit matrix.
+        """
+        self._sp_matrix.matrix_interface.print_data_frame()
+
+    def get_remapped_source_ids(self):
+        """
+        Return a dictionary of the mapping from
+        new (integer) source ids to original (string) source ids.
+        """
+        return self._sp_matrix.matrix_interface.get_source_id_remap()
+
+    def get_remapped_dest_ids(self):
+        """
+        Return a dictionary of the mapping from
+        new (integer) dest ids to original (string) dest ids.
+        """
+        return self._sp_matrix.matrix_interface.get_dest_id_remap()
+
+    def _spatial_join_community_index(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                                      spatial_index='community',  projection='epsg:4326'):
+        """
+        Return a dataframe with community area data
+        """
+        geometry = [Point(xy) for xy in zip(dataframe['lon'], dataframe['lat'])]
+        crs = {'init': projection}
+        geo_original = gpd.GeoDataFrame(dataframe, crs=crs, geometry=geometry)
+        try:
+            boundaries_gdf = gpd.read_file(shapefile)
+        except FileNotFoundError:
+            raise ShapefileNotFoundException('shapefile not found: {}'.format(shapefile))
+
+        geo_result = gpd.sjoin(boundaries_gdf, geo_original, how='right',
+                               op='intersects')
+
+        dataframe_columns = list(dataframe.columns)
+
+        geo_result.rename(columns={spatial_index: 'spatial_index'}, inplace=True)
+        dataframe_columns.append('spatial_index')
+        dataframe_columns.append('geometry')
+        try:
+            geo_result = geo_result[dataframe_columns]
+        except KeyError:
+            raise SpatialIndexNotMatchedException('Unable to match spatial_index:{}'.format(spatial_index))
+        if len(geo_result) != len(dataframe):
+            self.logger.warning('Length of joined dataframe ({}) != length of input dataframe ({})'
+                                .format(len(geo_result), len(dataframe)))
+        return geo_result
+
+    def rejoin_results_with_coordinates(self, model_results, is_source):
+        """
+        Rejoin model results with coordinates.
+        """
+        model_results_copy = model_results.copy(deep=True)
+        if is_source:
+            model_results_copy['lat'] = self.sources['lat']
+            model_results_copy['lon'] = self.sources['lon']
+        else:
+            model_results_copy['lat'] = self.dests['lat']
+            model_results_copy['lon'] = self.dests['lon']
+        return model_results_copy
+
+    def build_aggregate(self, model_results, is_source, aggregation_args,
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community',  projection='epsg:4326'):
+        """
+        Aggregate model results.
+        """
+        model_results = self.rejoin_results_with_coordinates(model_results, is_source)
+        spatial_joined_results = self._spatial_join_community_index(dataframe=model_results,
+                                                                    shapefile=shapefile,
+                                                                    spatial_index=spatial_index,
+                                                                    projection=projection)
+
+        aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
+        return aggregated_results
+
+    @staticmethod
+    def _join_aggregated_data_with_boundaries(aggregated_results, spatial_index,
+                                              shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
+        """
+        Join aggregated results with boundary geometry.
+        """
+        try:
+            boundaries_gdf = gpd.read_file(shapefile)
+        except FileNotFoundError:
+            raise ShapefileNotFoundException('shapefile not found: {}'.format(shapefile))
+        columns_to_keep = list(aggregated_results.columns)
+        columns_to_keep.append('geometry')
+        columns_to_keep.append(spatial_index)
+
+        results = boundaries_gdf.merge(aggregated_results, left_on=spatial_index,
+                                       right_on='spatial_index', how='outer')
+        results.fillna(value=0, inplace=True)
+        return results[columns_to_keep]
+
+    def plot_cdf(self, model_results, plot_type, xlabel, ylabel, title,
+                 is_source, bins=100, is_density=False):
+        """
+        Plot a cdf of the model results
+        """
+        if is_source:
+            cdf_eligible = model_results[self.sources['population'] > 0]
+        else:
+            cdf_eligible = model_results
+
+        # initialize block parameters
+        mpl.pyplot.close()
+        mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
+        fig, ax = mpl.pyplot.subplots(figsize=(8, 4))
+        ax.grid(zorder=0)
+
+        available_colors = ['black', 'magenta', 'lime', 'red', 'black', 'orange', 'grey', 'yellow', 'brown', 'teal']
+        color_keys = []
+        for column in cdf_eligible.columns:
+            if plot_type not in column:
+                continue
+            x = cdf_eligible[column]
+            try:
+                color = available_colors.pop(0)
+            except IndexError:
+                raise TooManyCategoriesToPlotException()
+            patch = mpatches.Patch(color=color, label=column)
+            color_keys.append(patch)
+            n, bins, blah = ax.hist(x, bins, density=is_density, histtype='step',
+                                    cumulative=True, label=column, color=color, zorder=3)
+        ax.legend(loc='right', handles=color_keys)
+
+        ax.set_title(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        fig_name = self.get_output_filename(keyword='figure', extension='png',
+                                            file_path='figures/')
+        mpl.pyplot.savefig(fig_name, dpi=400)
+        self.logger.info('Plot was saved to: {}'.format(fig_name))
+
+    def plot_choropleth(self, aggregate_results, column, title, color_map,
+                        shapefile, spatial_index,
+                        categories=None):
+        """
+        Plot a chloropleth of the aggregated results.
+        """
+
+        results_with_geometry = self._join_aggregated_data_with_boundaries(aggregated_results=aggregate_results,
+                                                                           spatial_index=spatial_index,
+                                                                           shapefile=shapefile)
+        if column not in results_with_geometry.columns:
+            raise UnexpectedPlotColumnException('Did not expect column argument: {}'.format(column))
+
+        mpl.pyplot.close()
+
+        mpl.pyplot.rcParams['axes.facecolor'] = '#cfcfd1'
+
+        results_with_geometry.plot(column=column, cmap=color_map, edgecolor='black', linewidth=0.1)
+
+        # add a scatter plot of the vendors over the chloropleth
+        if categories is not None:
+            available_colors = ['magenta', 'lime', 'red', 'black', 'orange', 'grey', 'yellow', 'brown', 'teal']
+            # if we have too many categories of vendors, limit to using black dots
+            if len(categories) > len(available_colors):
+                monochrome = True
             else:
-                target_name = target
+                monochrome = False
+            color_keys = []
+            max_dest_capacity = max(self.dests['capacity'])
+            for category in categories:
+                if monochrome:
+                    color = 'black'
+                else:
+                    color = available_colors.pop(0)
+                    patch = mpatches.Patch(color=color, label=category)
+                    color_keys.append(patch)
+                dest_subset = self.dests.loc[self.dests['category'] == category]
+                mpl.pyplot.scatter(y=dest_subset['lat'], x=dest_subset['lon'], color=color, marker='o',
+                                   s=50 * (dest_subset['capacity'] / max_dest_capacity), label=category)
+                if not monochrome:
+                    mpl.pyplot.legend(loc='best', handles=color_keys)
 
-        
-        #otherwise, if the web app is being used to call the code, get field names from field_mapping (supplied by the web app)
-        else:
+        mpl.pyplot.title(title)
+        fig_name = self.get_output_filename(keyword='figure', extension='png',
+                                            file_path='figures/')
+        mpl.pyplot.savefig(fig_name, dpi=400)
 
-            idx = field_mapping['idx']
-            target = field_mapping['target']
-            target_name = target
-            category = field_mapping['category']
-            if category == "":
-                category = "skip"
-            lower_areal_unit = 'skip'
-            lat = field_mapping['lat']
-            lon = field_mapping['lon']
-
-
-        #store the col names for later use
-        self.secondary_hints = {'xcol':lat, 'ycol':lon,'idx':idx}
-
-        if category == 'skip':
-            category_name = 'category'
-        else:
-            category_name = category
-
-        if lower_areal_unit == 'skip':
-            lower_areal_unit_name = 'lower_areal_unit'
-        else:
-            lower_areal_unit_name = lower_areal_unit
-
-        self.dests = self.dests.reindex(columns=[idx, target_name, category_name, lat, lon, lower_areal_unit])
-        #clean the table
-
-        rename_cols = {target:'target', category:'category', lat:'lat', 
-                       lon:'lon', lower_areal_unit: 'lower_areal_unit'}
-        self.dests.set_index(idx, inplace=True)
-        self.dests.rename(columns=rename_cols,inplace=True)
-        if category == 'skip':
-            self.dests['category'] = "CAT_UNDEFINED"
-            self.valid_category = False
-        if target == 'skip':
-            self.valid_target = False
-        if lower_areal_unit == 'skip':
-            self.valid_lower_areal_unit = False
-        if subset:
-            self.dests = self.dests[self.dests['category'].isin(subset)]
-        self.category_set = set()
-
-        self.dests['category'].apply(str)
-        self.category_set = set(self.dests['category'])
-
-        #Disregard shapefile input to avoid spatial joins and potential calculation errors.
-        #join dest table with shapefile
-        #copy = self.dests.copy(deep=True)
-        #geometry = [Point(xy) for xy in zip(copy['lon'], copy['lat'])]
-        #crs = {'init':'epsg:4326'}
-        #geo_dests = gpd.GeoDataFrame(copy, crs=crs, geometry=geometry)
-        #boundaries_gdf = gpd.read_file(shapefile)
-        #geo_dests = gpd.sjoin(boundaries_gdf, geo_dests, how='inner', op='intersects')
-        #geo_dests.set_index('index_right', inplace=True)
-        #self.dests = geo_dests[['category','lat','lon','target','community',]]
-
-        self.dest_id_list = self.dests.index
-        self.dests_good = True
-        self.dest_filename = filename
+        self.logger.info('Figure was saved to: {}'.format(fig_name))
+        return

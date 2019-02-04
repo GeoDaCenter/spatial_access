@@ -1,5 +1,8 @@
-make:
-	g++ --std=c++11 -Wall -g -Wno-unused-function Matrix.cpp -o matrix
-
-wproto:
-	g++ --std=c++11 Matrix.cpp utils/serializer/p2p.pb.cc -o matrix_wproto -lprotobuf
+matrix:
+	g++ -Wall --std=c++11 Matrix.cpp transitMatrix.cpp threadUtilities.cpp dataFrame.cpp userDataContainer.cpp Graph.cpp MinHeap.cpp protobuf/p2p.pb.cc -o matrix -lprotobuf -lpthread
+debug:
+	g++ --std=c++11 Matrix.cpp transitMatrix.cpp threadUtilities.cpp dataFrame.cpp userDataContainer.cpp Graph.cpp MinHeap.cpp protobuf/p2p.pb.cc -o matrix -g -lprotobuf -lpthread
+clean:
+	rm matrix
+gprof:
+	g++ -Wall --std=c++11 Matrix.cpp transitMatrix.cpp threadUtilities.cpp dataFrame.cpp userDataContainer.cpp Graph.cpp MinHeap.cpp protobuf/p2p.pb.cc -o matrix -lprotobuf -lpthread -pg

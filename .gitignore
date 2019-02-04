@@ -1,3 +1,6 @@
+data/osm_query_cache/
+figures/
+protobuf-*
 spatial_access/src/matrix.dSYM/Contents
 *.csv
 spatial_access/transitMatrixAdapter.cpp
@@ -5,7 +8,9 @@ logs/
 *.DS_Store 
 *.pyc
 spatial_access/logs/
+spatial_access/src/protobuf/p2p.pb.*
 build/
+data/matrices
 PCNO/dedupe_working_data.csv
 travel_times/access_score.ipynb
 travel_times/access_score.ipynb

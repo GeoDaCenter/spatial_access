@@ -1,172 +1,194 @@
-#pylint disable=invalid-name
+# pylint disable=invalid-name
 """
 Program to calculate the network time between every point in a set, hence: "p2p".
 Written by Logan Noel for the Center for Spatial Data Science, 2018.
 (runs in O(Elog(V)) time)
 
-Also many thanks to OSM for supplying data: www.openstreetmap.org
+Data credits: www.openstreetmap.org
 """
 import time
-import sys
 import logging
 import os
-import json
 import scipy.spatial
 from geopy.distance import vincenty
-from jellyfish import jaro_winkler
 import pandas as pd
 
 from spatial_access.MatrixInterface import MatrixInterface
 from spatial_access.NetworkInterface import NetworkInterface
 from spatial_access.ConfigInterface import ConfigInterface
 
-class TransitMatrix():
+from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
+from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
+from spatial_access.SpatialAccessExceptions import UnableToParsePrimaryDataException
+from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataException
+from spatial_access.SpatialAccessExceptions import UnknownModeException
+from spatial_access.SpatialAccessExceptions import InsufficientDataException
 
-    '''
+
+class TransitMatrix:
+
+    """
     A unified class to manage all aspects of computing a transit time matrix.
     Arguments:
         -network_type: 'walk', 'drive' or 'bike'
         -epsilon: [optional] smooth out the network edges
-    '''
+        -primary_input: csv filename of the the rows input
+        -primary_hints: [optional] a dictionary with the column names of
+            the index, lon and lat in the primary input
+        -secondary_input: [optional] csv filename of the the column input. If not provided,
+            the transit matrix will be symmetric using the primary input as rows and columns.
+        -secondary_hints: [optional] a dictionary with the column names of
+            the index, lon and lat in the secondary input
+        -read_from_file: [optional] a .csv or .tmx input of a previously calculated
+            transit matrix to load
+        -use_meters: [optional] Output will be in meters if True (seconds if False).
+        -trim_edges: [optional] Merge sequential edges in the OSM network if True. Does not
+            reduce accuracy, but is costly. Advised only for large networks.
+        -debug: [optional] Enable debugging output.
+    """
     def __init__(
             self,
             network_type,
             epsilon=0.05,
-            walk_speed=None,
             primary_input=None,
-            primary_input_field_mapping=None,
             secondary_input=None,
-            secondary_input_field_mapping=None,
             read_from_file=None,
             primary_hints=None,
             secondary_hints=None,
             use_meters=False,
             disable_area_threshold=False,
+            trim_edges=True,
             debug=False):
 
-        #arguments
+        # arguments
         self.network_type = network_type
         self.epsilon = epsilon
-        self.walk_speed = walk_speed
         self.primary_input = primary_input
-        self.primary_input_field_mapping = primary_input_field_mapping
         self.secondary_input = secondary_input
-        self.secondary_input_field_mapping = secondary_input_field_mapping
         self.read_from_file = read_from_file
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
         self.use_meters = use_meters
-        self.debug = debug
+        self.trim_edges = trim_edges
 
-        #member variables
+        # member variables
         self.primary_data = None
         self.secondary_data = None
         self.node_pair_to_speed = {}
 
-        #instantiate interfaces
-        self.set_logging()
+        # start the logger
+        self.logger = None
+        self.set_logging(debug)
+
+        # instantiate interfaces
         self._config_interface = ConfigInterface(network_type, logger=self.logger)
         self._network_interface = NetworkInterface(network_type, logger=self.logger, 
                                                    disable_area_threshold=disable_area_threshold)
-        self._matrix_interface = MatrixInterface(logger=self.logger)
+        self.matrix_interface = MatrixInterface(logger=self.logger)
 
-        assert network_type in [
-            'drive', 'walk', 'bike'], "network_type is not one of: ['drive', 'walk', 'bike'] "
+        if network_type not in ['drive', 'walk', 'bike', 'transit']:
+            raise UnknownModeException()
+
+        # need to supply read_from_file for transit type
+        if network_type is 'transit' and read_from_file is None:
+            raise InsufficientDataException()
+
+        # need to supply either:
+        if primary_input is None and read_from_file is None:
+            raise InsufficientDataException()
 
         if read_from_file:
-            self._matrix_interface.read_matrix_from_file(read_from_file)
+            self.matrix_interface.read_from_file(read_from_file, is_otp_matrix=network_type == 'transit')
 
-    def set_logging(self):
-        '''
+    def set_logging(self, debug):
+        """
         Set the proper logging and debugging level.
-        '''
+        """
 
-        if self.debug:
+        if debug:
             logging.basicConfig(level=logging.DEBUG)
         else:
             logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        if self.debug:
-            self.logger.debug("Running in debug mode")
+        self.logger.debug("Running in debug mode")
 
     @staticmethod
-    def _get_output_filename(keyword, extension='csv'):
-        '''
+    def _get_output_filename(keyword, extension):
+        """
         Given a keyword, find an unused filename.
-        '''
+        """
         if not os.path.exists("data/matrices/"):
             os.makedirs("data/matrices/")
-        filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
+        if extension is None:
+            filename = 'data/matrices/{}_0'.format(keyword)
+        else:
+            filename = 'data/matrices/{}_0.{}'.format(keyword, extension)
         counter = 1
         while os.path.isfile(filename):
-            filename = 'data/matrices/{}_{}.{}'.format(
-                keyword, counter, extension)
+            if extension is None:
+                filename = 'data/matrices/{}_{}'.format(
+                            keyword, counter)
+            else:    
+                filename = 'data/matrices/{}_{}.{}'.format(
+                    keyword, counter, extension)
             counter += 1
 
         return filename
 
-    
     # pylint disable=too-many-branches
     def _parse_csv(self, primary):
-        '''
-        Load source data from .csv. Identify long, lat and id columns.
-        '''
-        # decide which input to load
-        field_mapping = None
-
+        """
+        Load source data from .csv. Identify lon, lon and id columns.
+        """
         if primary:
             filename = self.primary_input
-            field_mapping = self.primary_input_field_mapping
         else:
             filename = self.secondary_input
-            field_mapping = self.secondary_input_field_mapping
 
         source_data = pd.read_csv(filename)
         source_data_columns = source_data.columns.values
 
         # extract the column names
-        xcol = ''
-        ycol = ''
+        lon = ''
+        lat = ''
         idx = ''
-        skip_user_input = field_mapping
+        skip_user_input = False
         # use the column names if we already have them
         try:
             if primary and self.primary_hints:
-                xcol = self.primary_hints['xcol']
-                ycol = self.primary_hints['ycol']
+                lon = self.primary_hints['lon']
+                lat = self.primary_hints['lat']
                 idx = self.primary_hints['idx']
                 skip_user_input = True
             elif not primary and self.secondary_hints:
-                xcol = self.secondary_hints['xcol']
-                ycol = self.secondary_hints['ycol']
+                lon = self.secondary_hints['lon']
+                lat = self.secondary_hints['lat']
                 idx = self.secondary_hints['idx']
                 skip_user_input = True
 
-        except BaseException:
-            skip_user_input = False
-            pass
-
-        # if the web app is instantiating a TransitMatrix object/calling this code,
-        # a field_mapping dictionary should be present
-        if field_mapping:
-            xcol = field_mapping["lon"]
-            ycol = field_mapping["lat"]
-            idx = field_mapping["idx"]
-
+        except KeyError:
+            # raise immediately to let the user know there is a problem
+            if primary:
+                self.logger.error('Unable to use primary_hints to read sources')
+                raise UnableToParsePrimaryDataException('Unable to use primary_hints to read sources')
+            else:
+                self.logger.error('Unable to use secondary_hints to read dests')
+                raise UnableToParseSecondaryDataException('Unable to use secondary_hints to read sources')
+    
         if not skip_user_input:
             print('The variables in your data set are:')
             for var in source_data_columns:
                 print('> ', var)
-            while xcol not in source_data_columns:
-                xcol = input('Enter the longitude coordinate: ')
-            while ycol not in source_data_columns:
-                ycol = input('Enter the latitude coordinate: ')
+            while lon not in source_data_columns:
+                lon = input('Enter the longitude coordinate: ')
+            while lat not in source_data_columns:
+                lat = input('Enter the latitude coordinate: ')
             while idx not in source_data_columns:
                 idx = input('Enter the index name: ')
 
         # drop nan lines
         pre_drop = len(source_data)
-        source_data.dropna(subset=[xcol, ycol], axis='index', inplace=True)
+        source_data.dropna(subset=[lon, lat], axis='index', inplace=True)
 
         dropped_lines = pre_drop - len(source_data)
         self.logger.info(
@@ -177,40 +199,42 @@ class TransitMatrix():
 
         # set index and clean
         source_data.set_index(idx, inplace=True)
-        source_data.rename(columns={xcol: 'x', ycol: 'y'}, inplace=True)
+        source_data.rename(columns={lon: 'lon', lat: 'lat'}, inplace=True)
 
         if primary:
-            self.primary_data = source_data[['x', 'y']]
+            self.primary_data = source_data[['lon', 'lat']]
+            self.primary_hints = {'idx': idx, 'lon': lon, 'lat': lat}
         else:
-            self.secondary_data = source_data[['x', 'y']]
+            self.secondary_data = source_data[['lon', 'lat']]
+            self.secondary_hints = {'idx': idx, 'lon': lon, 'lat': lat}
 
     def _load_inputs(self):
-        '''
+        """
         Load one input file if the user wants a symmetric
         distance graph, or two for an asymmetric graph.
-        '''
+        """
         if not os.path.isfile(self.primary_input):
             self.logger.error("Unable to find primary csv.")
-            sys.exit()
+            raise PrimaryDataNotFoundException("Unable to find primary csv")
         if self.secondary_input:
             if not os.path.isfile(self.secondary_input):
                 self.logger.error("Unable to find secondary csv.")
-                sys.exit()
+                raise SecondaryDataNotFoundException("Unable to find secondary csv")
         try:
             self._parse_csv(True)
             if self.secondary_input:
                 self._parse_csv(False)
 
-        except BaseException as exception:
-            self.logger.error(
-                "Unable to Load inputs: %s", exception)
-            sys.exit()
-
+        except BaseException:
+            if self.secondary_input:
+                raise UnableToParseSecondaryDataException()
+            else:
+                raise UnableToParsePrimaryDataException()
 
     def _cost_model(self, distance, speed_limit):
-        '''
+        """
         Return the edge impedence as specified by the cost model.
-        '''
+        """
         if self.network_type == 'walk':
             return int((distance / self._config_interface.WALK_CONSTANT) +
                        self._config_interface.WALK_NODE_PENALTY)
@@ -231,34 +255,28 @@ class TransitMatrix():
         drive_constant *= self._config_interface.ONE_KM
         return int((distance / drive_constant) + self._config_interface.DRIVE_NODE_PENALTY)
 
-
     def _reduce_node_indeces(self):
-        '''
+        """
         Map the network indeces to location.
-        '''
+        """
         simple_node_indeces = {}
         for position, id_ in enumerate(self._network_interface.nodes['id']):
             simple_node_indeces[id_] = position
         return simple_node_indeces
 
-
     # pylint: disable=too-many-branches,too-many-statements,invalid-name,attribute-defined-outside-init
     def _parse_network(self):
-        '''
+        """
         Cleans and generates the city network.
-        '''
+        """
 
         start_time = time.time()
 
-        DISTANCE = self._network_interface.edges.columns.get_loc('distance') + 1
         FROM_IDX = self._network_interface.edges.columns.get_loc('from') + 1
         TO_IDX = self._network_interface.edges.columns.get_loc('to') + 1
-        ONEWAY = self._network_interface.edges.columns.get_loc('oneway') + 1
-        HIGHWAY = self._network_interface.edges.columns.get_loc('highway') + 1
-
+        
         # map index name to position
         simple_node_indeces = self._reduce_node_indeces()
-
 
         # create a mapping of each node to every other connected node
         # transform them by cost model as well
@@ -266,37 +284,34 @@ class TransitMatrix():
             from_idx = data[FROM_IDX]
             to_idx = data[TO_IDX]
             if self.use_meters:
-                impedence = data[DISTANCE]
+                impedence = data.distance
             elif self.node_pair_to_speed:
                 impedence = self._cost_model(
-                    data[DISTANCE], self.node_pair_to_speed[(from_idx, to_idx)])
+                    data.distance, self.node_pair_to_speed[(from_idx, to_idx)])
             else:
-                highway_tag = data[HIGHWAY]
+                highway_tag = data.highway
+                assert isinstance(highway_tag, str), 'type: {}'.format(type(highway_tag))
                 if highway_tag is None or highway_tag not in self._config_interface.speed_limit_dict["urban"]:
                     highway_tag = "unclassified"
-                impedence = self._cost_model(data[DISTANCE],
-                    self._config_interface.speed_limit_dict["urban"][highway_tag])
+                impedence = self._cost_model(data.distance,
+                                             self._config_interface.speed_limit_dict["urban"][highway_tag])
 
-            oneway = data[ONEWAY]
-
-            is_bidirectional = oneway != 'yes' or self.network_type != 'drive'
-            self._matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
-                                                     simple_node_indeces[to_idx],
-                                                     impedence, is_bidirectional)
-
+            is_bidirectional = data.oneway != 'yes' or self.network_type != 'drive'
+            self.matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
+                                                    simple_node_indeces[to_idx],
+                                                    impedence, is_bidirectional)
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
-
     def _match_nn(self, isPrimary=True, primary_only=True):
-        '''
+        """
         Maps each the index of each node in the raw distance
         matrix to a tuple
         containing (source_id, distance), where
         source_id is a member of the primary_source
         or secondary_source and distance is the number of meters
         between the (primary/secondary) source and its nearest OSM node.
-        '''
+        """
 
         if isPrimary:
             data = self.primary_data
@@ -309,7 +324,7 @@ class TransitMatrix():
 
         # make a kd tree in the lat, long dimension
         node_array = nodes.values
-        kd_tree = scipy.spatial.cKDTree(node_array) # pylint: disable=not-callable
+        kd_tree = scipy.spatial.cKDTree(node_array)  # pylint: disable=not-callable
 
         # map each node in the source/dest data to the nearest
         # corresponding node in the OSM network
@@ -323,57 +338,102 @@ class TransitMatrix():
             closest_node_location = (nodes.loc[node_number].y,
                                                        nodes.loc[node_number].x)
 
+            # keep track of nodes that are used to snap a user data point
+            self._network_interface.user_node_friends.add(node_number)
             distance = vincenty(origin_location, closest_node_location).m
 
             edge_weight = int(distance / self._config_interface.default_edge_cost)
 
             if isPrimary:
                 # pylint disable=line-too-long
-                self._matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
+                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
             else:
                 # pylint disable=line-too-long
-                self._matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
+                self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
 
         time_delta = time.time() - start_time
-        self.logger.info(
+        self.logger.debug(
             'Nearest Neighbor matching completed in {:,.2f} seconds'.format(time_delta))
 
-    def write_to_file(self, outfile=None):
-        '''
+    def write_csv(self, outfile=None):
+        """
         Write the transit matrix to csv.
+
+        Note: Use write_tmx (as opposed to this method) to
+        save the transit matrix unless exporting for external use.
+
         Arguments:
-            outfile- optional string
-        '''
+            outfile-optional string
+        """
         if not outfile:
-            outfile = self._get_output_filename(self.network_type)
-        self._matrix_interface.write_to_csv(outfile)
-        self.logger.info("Wrote file to %s", outfile)
+            outfile = self._get_output_filename(self.network_type, extension='csv')
+        assert '.csv' in outfile, 'Error: given filename does not have the correct extension (.csv)'
+        self.matrix_interface.write_to_csv(outfile)
 
-    def process(self,):
-        '''
-        Process the data.
-        '''
-        start_time = time.time()
+    def write_tmx(self, outfile=None):
+        """
+        Write the transit matrix to tmx.
 
-        self.logger.info("Processing network (%s) with epsilon: %f",
-                         self.network_type, self.epsilon)
+        Note: Use this method (as opposed to write_csv) to 
+        save the transit matrix unless exporting data for 
+        external use.
 
+        Arguments:
+            outfile-optional string
+        """
+        if not outfile:
+            outfile = self._get_output_filename(self.network_type, extension=None)
+        assert '.' not in outfile, 'Error: output filename should not have an extension'
+        self.matrix_interface.write_to_tmx(outfile)
+
+    def prefetch_network(self):
+        """
+        Fetch and cache the osm network.
+
+        """
         self._load_inputs()
 
         self._network_interface.load_network(self.primary_data,
                                              self.secondary_data,
                                              self.secondary_input is not None,
                                              self.epsilon)
-        isSymmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
-        self._matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(), 
-                                              isSymmetric)
 
-        self._parse_network()
+    def process(self):
+        """
+        Process the data.
+        """
+        if self.network_type == 'transit':
+            self.logger.warning("Don't need to call process for matrix of type transit. Returning...")
+            return
+
+        start_time = time.time()
+
+        self.logger.debug("Processing network (%s) with epsilon: %f",
+                          self.network_type, self.epsilon)
+
+        self.prefetch_network()
+        is_symmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
+        self.matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(),
+                                             is_symmetric)
 
         self._match_nn(True, not self.secondary_input)
         if self.secondary_input:
             self._match_nn(False, self.secondary_input)
 
-        self._matrix_interface.build_matrix()
+        if self.trim_edges:
+            try:
+                self._network_interface.trim_edges()
+            except BaseException:
+                if self.logger:
+                    self.logger.warning('Failed to optimize network. Please report this event.')
+
+        self._parse_network()
+
+        # offload primary and secondary input data frames because we don't need them anymore
+        self.primary_input = None
+        self.secondary_input = None
+
+        self.matrix_interface.build_matrix()
         time_delta = time.time() - start_time
+
         self.logger.info('All operations completed in {:,.2f} seconds'.format(time_delta))
