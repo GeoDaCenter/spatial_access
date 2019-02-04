@@ -323,30 +323,68 @@ bool dataFrame::writeCSV(const std::string &outfile) const
     writeToStream(Ofile);
     Ofile.close();
     return true;
-} 
+}
 
 bool dataFrame::writeToStream(std::ostream& streamToWrite) const
 {
     streamToWrite << ",";
     
-    // write the top row of column labels
-    for (auto col_label : metaData.col_label())
+    if (this->metaData.col_labels_are_remapped())
     {
-        streamToWrite << col_label << ",";
+        // write the top row of column labels
+        for (std::string col_label : metaData.premap_col_label_string())
+        {
+            streamToWrite << col_label << ",";
+        }
     }
+    else if (this->metaData.row_labels_are_remapped() and (this->metaData.is_symmetric()))
+    {
+        // write the top row of column labels
+        for (std::string col_label : metaData.premap_row_label_string())
+        {
+            streamToWrite << col_label << ",";
+        }
+    }
+    else
+    {
+        // write the top row of column labels
+        for (unsigned long int col_label : metaData.col_label())
+        {
+            streamToWrite << col_label << ",";
+        }
+    }
+
 
     streamToWrite << std::endl;
-
-    // write the body of the table, each row has a row label and values
-    for (unsigned long int row_id : metaData.row_label())
+    if (this->metaData.row_labels_are_remapped())
     {
-        streamToWrite << std::to_string(row_id) << ",";
-        for (unsigned long int col_id : metaData.col_label())
+        // write the body of the table, each row has a row label and values
+        for (unsigned long int row_id : metaData.row_label())
         {
-            streamToWrite << this->retrieveValue(row_id, col_id) << ",";
+            streamToWrite << metaData.premap_row_label_string(row_id) << ",";
+            for (unsigned long int col_id : metaData.col_label())
+            {
+                streamToWrite << this->retrieveValue(row_id, col_id) << ",";
+            }
+            streamToWrite << std::endl;
+
         }
-        streamToWrite << std::endl;
     }
+    else
+    {
+        // write the body of the table, each row has a row label and values
+        for (unsigned long int row_id : metaData.row_label())
+        {
+            streamToWrite << std::to_string(row_id) << ",";
+            for (unsigned long int col_id : metaData.col_label())
+            {
+                streamToWrite << this->retrieveValue(row_id, col_id) << ",";
+            }
+            streamToWrite << std::endl;
+        }
+
+    }
+
 
     return true;
 }

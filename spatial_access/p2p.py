@@ -396,7 +396,7 @@ class TransitMatrix():
         """
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension=None)
-        assert '.' not in outfile, 'Error: output filename must be a directory'
+        assert '.' not in outfile, 'Error: output filename should not have an extension'
         self.matrix_interface.write_to_tmx(outfile)
 
     def prefetch_network(self):

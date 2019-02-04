@@ -23,7 +23,7 @@ class TestClass():
             import shutil
             shutil.rmtree(self.datapath)
 
-    def test_1(self):
+    def test_01(self):
         """
         Test instantiating ModelData
         instance and calling load_sp_matrix with
@@ -38,11 +38,11 @@ class TestClass():
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
 
-        model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_1')
+        model_data.write_shortest_path_matrix_to_tmx(self.datapath + 'score_model_test_1')
 
         assert True
 
-    def test_2(self):
+    def test_02(self):
         """
         Test instantiating ModelData
         instance and calling load_sp_matrix with

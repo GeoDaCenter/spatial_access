@@ -63,7 +63,8 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'Shapely>=1.6.1',
                          'scikit_learn>=0.19.1',
                          'atlas>=0.27.0',
-                         'descartes>=1.1.0']
+                         'descartes>=1.1.0',
+                         'rtree>=0.8.3']
 
 REQUIRED_DEPENDENCIES += extra_dependency
 

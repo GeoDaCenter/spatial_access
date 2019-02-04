@@ -41,7 +41,7 @@ class ModelData(object):
         self.sources_filename = sources_filename
         self.destinations_filename = destinations_filename
 
-        # column_names and file_hints are similar, both map indended_name->actual_data_name
+        # column_names and file_hints are similar, both map intended_name->actual_data_name
         # the difference is column names should be complete/contain all needed fields
         self.source_column_names = source_column_names
         self.dest_column_names = dest_column_names
@@ -60,6 +60,18 @@ class ModelData(object):
             self.set_logging('info')
         else:
             self.set_logging('debug')
+
+    def write_shortest_path_matrix_to_csv(self, filename=None):
+        """
+        Write sp matrix to csv.
+        """
+        self._sp_matrix.write_csv(filename)
+
+    def write_shortest_path_matrix_to_tmx(self, filename=None):
+        """
+        Write sp matrix to csv.
+        """
+        self._sp_matrix.write_tmx(filename)
 
     @staticmethod
     def get_output_filename(keyword, extension='csv', file_path='data/'):
