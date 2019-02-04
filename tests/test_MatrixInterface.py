@@ -7,11 +7,8 @@ from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 
-import os
-import shutil
 
-
-class TestClass():
+class TestClass:
 
     def setup_class(self):
         import os
@@ -31,7 +28,7 @@ class TestClass():
         writing to and reading from csv.
         """
         interface = MatrixInterface()
-        interface.prepare_matrix(5, isSymmetric=False)
+        interface.prepare_matrix(5, is_symmetric=False)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -50,7 +47,7 @@ class TestClass():
         assert interface.get_value(11, 14) == 8
         assert interface.get_value(12, 13) == 20
         assert interface.get_value(12, 14) == 14
-        interface.write_to_csv(self.datapath + "test_outfile_1.csv");
+        interface.write_to_csv(self.datapath + "test_outfile_1.csv")
 
         interface2 = MatrixInterface()
         interface2.read_from_csv(self.datapath + "test_outfile_1.csv")
@@ -62,7 +59,6 @@ class TestClass():
 
         assert True
 
-
     def test_2(self):
         """
         Tests that the interface can accept string user
@@ -70,7 +66,7 @@ class TestClass():
         """
 
         interface = MatrixInterface()
-        interface.prepare_matrix(5, isSymmetric=True)
+        interface.prepare_matrix(5, is_symmetric=True)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -87,11 +83,10 @@ class TestClass():
 
         source_id_remap = interface.get_source_id_remap()
 
-    
         assert interface.get_value(source_id_remap["agency_a"], source_id_remap["agency_a"]) == 0
         assert interface.get_value(source_id_remap["agency_a"], source_id_remap["agency_d"]) == 8
         assert interface.get_value(source_id_remap["agency_a"], source_id_remap["agency_b"]) == 8
-        assert interface.get_value(source_id_remap["agency_d"] , source_id_remap["agency_c"]) == 20
+        assert interface.get_value(source_id_remap["agency_d"], source_id_remap["agency_c"]) == 20
 
         assert True
 
@@ -102,7 +97,7 @@ class TestClass():
         """
 
         interface = MatrixInterface()
-        interface.prepare_matrix(5, isSymmetric=True)
+        interface.prepare_matrix(5, is_symmetric=True)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -146,7 +141,7 @@ class TestClass():
         writing to and reading from tmx.
         """
         interface = MatrixInterface()
-        interface.prepare_matrix(5, isSymmetric=False)
+        interface.prepare_matrix(5, is_symmetric=False)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -166,11 +161,10 @@ class TestClass():
         assert interface.get_value(12, 13) == 20
         assert interface.get_value(12, 14) == 14
 
-        interface.write_to_tmx(self.datapath + "test_outfile_1");
+        interface.write_to_tmx(self.datapath + "test_outfile_1")
 
         interface2 = MatrixInterface()
         interface2.read_from_tmx(self.datapath + "test_outfile_1")
-
 
         assert interface2.get_value(11, 13) == 14
         assert interface2.get_value(11, 14) == 8
@@ -182,7 +176,7 @@ class TestClass():
         Tests throws IndecesNotFoundException. 
         """
         interface = MatrixInterface()
-        interface.prepare_matrix(5, isSymmetric=False)
+        interface.prepare_matrix(5, is_symmetric=False)
 
         interface.add_edge_to_graph(0, 1, 5, True)
         interface.add_edge_to_graph(1, 2, 6, True)
@@ -204,7 +198,7 @@ class TestClass():
             return
         assert False
 
-    def test_5(self):
+    def test_6(self):
         """
         Tests throws ReadTMXFailedException. 
         """
@@ -216,7 +210,7 @@ class TestClass():
             return
         assert False
 
-    def test_6(self):
+    def test_7(self):
         """
         Tests throws ReadCSVFailedException. 
         """
@@ -228,8 +222,7 @@ class TestClass():
             return
         assert False
 
-
-    def test_7(self):
+    def test_8(self):
         """
         Tests throws WriteTMXFailedException. 
         """
@@ -241,8 +234,7 @@ class TestClass():
             return
         assert False
 
-
-    def test_8(self):
+    def test_9(self):
         """
         Tests throws WriteCSVFailedException. 
         """

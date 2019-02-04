@@ -7,7 +7,7 @@ from spatial_access.SpatialAccessExceptions import SourceDataNotParsableExceptio
 from spatial_access.SpatialAccessExceptions import DestDataNotParsableException
 
 
-class TestClass():
+class TestClass:
     """
     Suite of tests for ScoreModel
     """
@@ -30,7 +30,7 @@ class TestClass():
         complete source_column_names and dest_column_names,
         and no precomputed sp_matrix.
         """
-        model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
@@ -136,7 +136,7 @@ class TestClass():
         Test instantiating and processing ModelData
         instance.
         """
-        model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
@@ -148,15 +148,15 @@ class TestClass():
         model_data.calculate_sources_in_range(100)
 
         assert model_data.dests_in_range == {3: [0, 1, 2],
-                                                   4: [0, 1, 2],
-                                                   5: [2],
-                                                   6: [2]}
+                                             4: [0, 1, 2],
+                                             5: [2],
+                                             6: [2]}
 
         assert model_data.sources_in_range == {0: [3, 4],
-                                                     1: [3, 4],
-                                                     2: [3, 4, 5, 6]
+                                               1: [3, 4],
+                                               2: [3, 4, 5, 6]
 
-        }
+                                               }
 
         assert model_data.get_values_by_source(3, True) == [(2, 42), (1, 79), (0, 89)]
         assert model_data.get_values_by_dest(1, True) == [(4, 7), (3, 79), (6, 106), (5, 136)]
@@ -168,7 +168,7 @@ class TestClass():
         Including reading a transit matrix from
         file with string indeces.
         """
-        model_data = ModelData('drive',sources_filename="tests/test_data/sources.csv",
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests_a.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
@@ -231,3 +231,4 @@ class TestClass():
         model_data.load_sp_matrix()
 
         spatial_joined_sources = model_data._spatial_join_community_index(model_data.sources)
+        assert spatial_joined_sources is not None

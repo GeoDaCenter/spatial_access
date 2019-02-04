@@ -1,10 +1,11 @@
-import platform, distutils.core, distutils.extension, setuptools, sys, os
+import distutils.extension, setuptools, sys, os
 from setuptools.command.install import install
 try:
     import Cython.Build
-except:
+except ModuleNotFoundError:
     os.system('pip3 install Cython')
     import Cython.Build
+
 
 class CustomInstallCommand(install):
     """Customized setuptools install command"""
@@ -13,7 +14,7 @@ class CustomInstallCommand(install):
             os.chdir('spatial_access/src/protobuf')
             os.system('protoc --cpp_out=. p2p.proto')
             os.chdir('../../..')
-        except:
+        except BaseException:
             raise Exception('Error compiling p2p.proto. Make sure protobuf2 is installed and compiled.')
         if sys.platform == "darwin":
             os.system('brew install spatialindex')
@@ -26,11 +27,12 @@ class CustomInstallCommand(install):
             raise Exception(exception_message, os.system)
         install.run(self)
 
+
 ouff_mac = []
 extra_dependency = []
 if sys.platform == "darwin":
-  ouff_mac = ['-mmacosx-version-min=10.9']
-  extra_dependency = ['rtree>=0.8.3']
+    ouff_mac = ['-mmacosx-version-min=10.9']
+    extra_dependency = ['rtree>=0.8.3']
 
 EXTENSION = distutils.extension.Extension(
     name = 'transitMatrixAdapter', language = 'c++',

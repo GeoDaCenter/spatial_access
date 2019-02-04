@@ -9,10 +9,8 @@ from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionExce
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
-#TODO test aggregations
 
-
-class TestClass():
+class TestClass:
     """Suite of tests for the Community Analytics Package"""
 
     def setup_class(self):
@@ -33,12 +31,12 @@ class TestClass():
         calculate.
         """
         coverage_model = DestFloatingCatchmentArea('drive',
-                                  sources_filename='tests/test_data/sources_a.csv',
-                                  destinations_filename='tests/test_data/dests_b.csv',
-                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                       'population': 'pop'},
-                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'capacity': 'capacity', 'category': 'cat'})
+                                                   sources_filename='tests/test_data/sources_a.csv',
+                                                   destinations_filename='tests/test_data/dests_b.csv',
+                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                        'population': 'pop'},
+                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                      'capacity': 'capacity', 'category': 'cat'})
         coverage_model.calculate(100)
 
         assert coverage_model.model_results.loc[0]['service_pop'] == 76
@@ -70,13 +68,13 @@ class TestClass():
         """
         try:
             coverage_model = DestFloatingCatchmentArea('drive',
-                                           sources_filename='tests/test_data/sources.csv',
-                                           destinations_filename='tests/test_data/dests.csv',
-                                           source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                                'population': 'pop'},
-                                           dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                              'capacity': 'capacity', 'category': 'cat'},
-                                           categories=['A', 'C'])
+                                                       sources_filename='tests/test_data/sources.csv',
+                                                       destinations_filename='tests/test_data/dests.csv',
+                                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                            'population': 'pop'},
+                                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                          'capacity': 'capacity', 'category': 'cat'},
+                                                       categories=['A', 'C'])
             coverage_model.calculate(600)
         except UnrecognizedCategoriesException:
             assert True
@@ -89,22 +87,22 @@ class TestClass():
         calculate, with categories specified.
         """
         coverage_model = DestFloatingCatchmentArea('drive',
-                                  sources_filename='tests/test_data/sources_a.csv',
-                                  destinations_filename='tests/test_data/dests_b.csv',
-                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                       'population': 'pop'},
-                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'capacity': 'capacity', 'category': 'cat'},
-                                  categories=['A','C'])
+                                                   sources_filename='tests/test_data/sources_a.csv',
+                                                   destinations_filename='tests/test_data/dests_b.csv',
+                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                        'population': 'pop'},
+                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                      'capacity': 'capacity', 'category': 'cat'},
+                                                   categories=['A', 'C'])
         coverage_model.calculate(600)
 
         remapped_dests = coverage_model.model_data.get_remapped_dest_ids()
 
-        assert set(coverage_model.model_results.index) == set([remapped_dests['place_a'],
-                                                              remapped_dests['place_c'],
-                                                              remapped_dests['place_d'],
-                                                              remapped_dests['place_e'],
-                                                              remapped_dests['place_f']])
+        assert set(coverage_model.model_results.index) == {remapped_dests['place_a'],
+                                                           remapped_dests['place_c'],
+                                                           remapped_dests['place_d'],
+                                                           remapped_dests['place_e'],
+                                                           remapped_dests['place_f']}
 
     def test_4(self):
         """
@@ -112,12 +110,12 @@ class TestClass():
         calculate.
         """
         accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'})
+                                                        sources_filename='tests/test_data/sources_a.csv',
+                                                        destinations_filename='tests/test_data/dests_b.csv',
+                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                             'population': 'pop'},
+                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                           'capacity': 'capacity', 'category': 'cat'})
         accesspop_model.calculate(125)
         accesspop_model.model_data._print_data_frame()
         assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 4.614
@@ -127,7 +125,8 @@ class TestClass():
         assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 4.614
         assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 1.946
 
-        assert accesspop_model.model_results['total_spend_all_categories'].sum() <= accesspop_model.model_data.dests['capacity'].sum()
+        assert accesspop_model.model_results['total_spend_all_categories'].sum() \
+            <= accesspop_model.model_data.dests['capacity'].sum()
 
     def test_5(self):
         """
@@ -137,13 +136,14 @@ class TestClass():
         """
         try:
             accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                       sources_filename='tests/test_data/sources.csv',
-                                       destinations_filename='tests/test_data/dests.csv',
-                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                            'population': 'pop'},
-                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                          'capacity': 'capacity', 'category': 'cat'},
-                                       categories=['A', 'E'])
+                                                            sources_filename='tests/test_data/sources.csv',
+                                                            destinations_filename='tests/test_data/dests.csv',
+                                                            source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                                 'population': 'pop'},
+                                                            dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                               'capacity': 'capacity',
+                                                                               'category': 'cat'},
+                                                            categories=['A', 'E'])
             accesspop_model.calculate(600)
         except UnrecognizedCategoriesException:
             assert True
@@ -157,13 +157,13 @@ class TestClass():
         """
         categories = ['A', 'C']
         accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                                        sources_filename='tests/test_data/sources_a.csv',
+                                                        destinations_filename='tests/test_data/dests_b.csv',
+                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                             'population': 'pop'},
+                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                           'capacity': 'capacity', 'category': 'cat'},
+                                                        categories=categories)
         accesspop_model.calculate(600)
 
         assert len(accesspop_model.model_results.columns) == len(categories) * 2
@@ -173,19 +173,18 @@ class TestClass():
         assert accesspop_model.model_results['total_spend_A'].sum() <= cat_a_dests['capacity'].sum()
         assert accesspop_model.model_results['total_spend_C'].sum() <= cat_c_dests['capacity'].sum()
 
-
     def test_7(self):
         """
         Test AccessTime through instantiation and
         calculate.
         """
         accesstime_model = AccessTime('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'})
+                                      sources_filename='tests/test_data/sources_a.csv',
+                                      destinations_filename='tests/test_data/dests_b.csv',
+                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'population': 'pop'},
+                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                         'capacity': 'capacity', 'category': 'cat'})
         accesstime_model.calculate()
 
         assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 42
@@ -203,13 +202,13 @@ class TestClass():
         """
         try:
             accesstime_model = AccessTime('drive',
-                                       sources_filename='tests/test_data/sources.csv',
-                                       destinations_filename='tests/test_data/dests.csv',
-                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                            'population': 'pop'},
-                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                          'capacity': 'capacity', 'category': 'cat'},
-                                       categories=['A', 'E'])
+                                          sources_filename='tests/test_data/sources.csv',
+                                          destinations_filename='tests/test_data/dests.csv',
+                                          source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                               'population': 'pop'},
+                                          dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                             'capacity': 'capacity', 'category': 'cat'},
+                                          categories=['A', 'E'])
             accesstime_model.calculate()
         except UnrecognizedCategoriesException:
             assert True
@@ -223,13 +222,13 @@ class TestClass():
         """
         categories = ['A', 'C']
         accesstime_model = AccessTime('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                      sources_filename='tests/test_data/sources_a.csv',
+                                      destinations_filename='tests/test_data/dests_b.csv',
+                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'population': 'pop'},
+                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                         'capacity': 'capacity', 'category': 'cat'},
+                                      categories=categories)
         accesstime_model.calculate()
 
         assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 42
@@ -246,20 +245,18 @@ class TestClass():
         assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 70
         assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 100
 
-
-
     def test_10(self):
         """
         Test AccessCount through instantiation and
         calculate.
         """
         accesscount_model = AccessCount('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'})
+                                        sources_filename='tests/test_data/sources_a.csv',
+                                        destinations_filename='tests/test_data/dests_b.csv',
+                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                             'population': 'pop'},
+                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'capacity': 'capacity', 'category': 'cat'})
         accesscount_model.calculate(100)
 
         assert accesscount_model.model_results.loc[3]['count_in_range_all_categories'] == 6
@@ -277,13 +274,13 @@ class TestClass():
         """
         try:
             accesscount_model = AccessCount('drive',
-                                       sources_filename='tests/test_data/sources.csv',
-                                       destinations_filename='tests/test_data/dests.csv',
-                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                            'population': 'pop'},
-                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                          'capacity': 'capacity', 'category': 'cat'},
-                                       categories=['A', 'E'])
+                                            sources_filename='tests/test_data/sources.csv',
+                                            destinations_filename='tests/test_data/dests.csv',
+                                            source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                 'population': 'pop'},
+                                            dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                               'capacity': 'capacity', 'category': 'cat'},
+                                            categories=['A', 'E'])
             accesscount_model.calculate(200)
         except UnrecognizedCategoriesException:
             assert True
@@ -297,13 +294,13 @@ class TestClass():
         """
         categories = ['A', 'C', 'D']
         accesscount_model = AccessCount('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                        sources_filename='tests/test_data/sources_a.csv',
+                                        destinations_filename='tests/test_data/dests_b.csv',
+                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                             'population': 'pop'},
+                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'capacity': 'capacity', 'category': 'cat'},
+                                        categories=categories)
         accesscount_model.calculate(100)
 
         assert accesscount_model.model_results.loc[3]['count_in_range_A'] == 3
@@ -334,13 +331,14 @@ class TestClass():
 
         try:
             access_model = AccessModel('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   decay_function='quadratic')
+                                       sources_filename='tests/test_data/sources_a.csv',
+                                       destinations_filename='tests/test_data/dests_b.csv',
+                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                            'population': 'pop'},
+                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'capacity': 'capacity', 'category': 'cat'},
+                                       decay_function='quadratic')
+            access_model.calculate({}, 200)
         except UnrecognizedDecayFunctionException:
             assert True
             return
@@ -354,18 +352,18 @@ class TestClass():
 
         try:
             access_model = AccessModel('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   decay_function=lambda x : x ** 2)
+                                       sources_filename='tests/test_data/sources_a.csv',
+                                       destinations_filename='tests/test_data/dests_b.csv',
+                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                            'population': 'pop'},
+                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'capacity': 'capacity', 'category': 'cat'},
+                                       decay_function=lambda x: x ** 2)
+            access_model.calculate({}, 200)
         except UnrecognizedDecayFunctionException:
             assert True
             return
         assert False
-
 
     def test_15(self):
         """
@@ -388,7 +386,7 @@ class TestClass():
             assert True
 
         try:
-            category_weight_dict = {'A':[1, 2, 3, 4], 'D':4, 'C':[5,6,8,5,3]}
+            category_weight_dict = {'A': [1, 2, 3, 4], 'D': 4, 'C': [5, 6, 8, 5, 3]}
             access_model.calculate(category_weight_dict, upper_threshold=200)
             assert False
         except IncompleteCategoryDictException:
@@ -459,13 +457,13 @@ class TestClass():
         Test the DestFloatingCatchmentAreaModel aggregation.
         """
         coverage_model = DestFloatingCatchmentArea('drive',
-                                  sources_filename='tests/test_data/sources_a.csv',
-                                  destinations_filename='tests/test_data/dests_b.csv',
-                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                       'population': 'pop'},
-                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'capacity': 'capacity', 'category': 'cat'},
-                                  categories=['A','C'])
+                                                   sources_filename='tests/test_data/sources_a.csv',
+                                                   destinations_filename='tests/test_data/dests_b.csv',
+                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                        'population': 'pop'},
+                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                      'capacity': 'capacity', 'category': 'cat'},
+                                                   categories=['A','C'])
         coverage_model.calculate(600)
 
         coverage_model.aggregate()
@@ -478,13 +476,13 @@ class TestClass():
         """
         categories = ['A', 'C']
         accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                                        sources_filename='tests/test_data/sources_a.csv',
+                                                        destinations_filename='tests/test_data/dests_b.csv',
+                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                             'population': 'pop'},
+                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                           'capacity': 'capacity', 'category': 'cat'},
+                                                        categories=categories)
         accesspop_model.calculate(600)
         accesspop_model.aggregate()
         accesspop_model.plot_cdf('percap_spend')
@@ -496,13 +494,13 @@ class TestClass():
         """
         categories = ['A', 'C']
         accesstime_model = AccessTime('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                      sources_filename='tests/test_data/sources_a.csv',
+                                      destinations_filename='tests/test_data/dests_b.csv',
+                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'population': 'pop'},
+                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                         'capacity': 'capacity', 'category': 'cat'},
+                                      categories=categories)
         accesstime_model.calculate()
         accesstime_model.aggregate('mean')
         accesstime_model.aggregate('min')
@@ -521,13 +519,13 @@ class TestClass():
         """
         categories = ['A', 'C', 'D']
         accesscount_model = AccessCount('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                        sources_filename='tests/test_data/sources_a.csv',
+                                        destinations_filename='tests/test_data/dests_b.csv',
+                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                             'population': 'pop'},
+                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'capacity': 'capacity', 'category': 'cat'},
+                                        categories=categories)
         accesscount_model.calculate(200)
         accesscount_model.aggregate()
         accesscount_model.plot_cdf()
@@ -561,22 +559,22 @@ class TestClass():
         Test get_results method
         """
         coverage_model = DestFloatingCatchmentArea('drive',
-                                  sources_filename='tests/test_data/sources_a.csv',
-                                  destinations_filename='tests/test_data/dests_b.csv',
-                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                       'population': 'pop'},
-                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'capacity': 'capacity', 'category': 'cat'})
+                                                   sources_filename='tests/test_data/sources_a.csv',
+                                                   destinations_filename='tests/test_data/dests_b.csv',
+                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                        'population': 'pop'},
+                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                                      'capacity': 'capacity', 'category': 'cat'})
         coverage_model.calculate(100)
 
         results = coverage_model.get_results()
 
         assert list(results.index) == ['place_a',
-                                 'place_b',
-                                 'place_c',
-                                 'place_d',
-                                 'place_e',
-                                 'place_f']
+                                       'place_b',
+                                       'place_c',
+                                       'place_d',
+                                       'place_e',
+                                       'place_f']
 
     def test_25(self):
         """
@@ -621,13 +619,13 @@ class TestClass():
         """
         categories = ['A', 'C']
         accesstime_model = AccessTime('drive',
-                                   sources_filename='tests/test_data/sources_a.csv',
-                                   destinations_filename='tests/test_data/dests_b.csv',
-                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                        'population': 'pop'},
-                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                      'capacity': 'capacity', 'category': 'cat'},
-                                   categories=categories)
+                                      sources_filename='tests/test_data/sources_a.csv',
+                                      destinations_filename='tests/test_data/dests_b.csv',
+                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'population': 'pop'},
+                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                         'capacity': 'capacity', 'category': 'cat'},
+                                      categories=categories)
         accesstime_model.calculate()
         results = accesstime_model.get_results()
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
@@ -638,13 +636,13 @@ class TestClass():
         """
         categories = ['A', 'C']
         accesscount_model = AccessCount('drive',
-                                      sources_filename='tests/test_data/sources_a.csv',
-                                      destinations_filename='tests/test_data/dests_b.csv',
-                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                           'population': 'pop'},
-                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                         'capacity': 'capacity', 'category': 'cat'},
-                                      categories=categories)
+                                        sources_filename='tests/test_data/sources_a.csv',
+                                        destinations_filename='tests/test_data/dests_b.csv',
+                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                             'population': 'pop'},
+                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                           'capacity': 'capacity', 'category': 'cat'},
+                                        categories=categories)
         accesscount_model.calculate(200)
         results = accesscount_model.get_results()
         assert list(results.index) == [3, 4, 5, 6, 7, 8]

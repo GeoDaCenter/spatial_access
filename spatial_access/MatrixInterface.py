@@ -3,7 +3,6 @@ Abstract interface for the c++ implementation of a matrix.
 """
 import multiprocessing
 import time
-import sys
 import os
 import json
 
@@ -21,7 +20,7 @@ except ImportError:
     raise PyTransitMatrixNotBuiltException()
 
 
-class MatrixInterface():
+class MatrixInterface:
     """
     A wrapper for C++ based pandas DataFrame like matrix.
     """
@@ -48,7 +47,7 @@ class MatrixInterface():
         """
 
         remapped_ids = self.transit_matrix.getUserRowIdCache()
-        remapped_ids = {k.decode():v for k, v in remapped_ids.items()}
+        remapped_ids = {k.decode() :v for k, v in remapped_ids.items()}
         if len(remapped_ids) == 0:
             return None
         return remapped_ids
@@ -116,10 +115,10 @@ class MatrixInterface():
         """
         if isinstance(user_id, str):
             self.transit_matrix.addToUserSourceDataContainerString(network_id, bytes(user_id, 'utf-8'),
-                                                             distance, primary_only)
+                                                                   distance, primary_only)
         else:
             self.transit_matrix.addToUserSourceDataContainerInt(network_id, user_id,
-                                                                   distance, primary_only)
+                                                                distance, primary_only)
 
     def add_user_dest_data(self, network_id, user_id, distance):
         """
@@ -127,10 +126,10 @@ class MatrixInterface():
         """
         if isinstance(user_id, str):
             self.transit_matrix.addToUserDestDataContainerString(network_id, bytes(user_id, 'utf-8'),
-                                                       distance)
+                                                                 distance)
         else:
             self.transit_matrix.addToUserDestDataContainerInt(network_id, user_id,
-                                                                 distance)
+                                                              distance)
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
         """
@@ -138,59 +137,55 @@ class MatrixInterface():
         """
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-    def read_from_file(self, infile, isOTPMatrix=False, isSymmetric=False):
+    def read_from_file(self, infile, is_otp_matrix=False, is_symmetric=False):
         """
         Load a matrix from file
         """
         start_time = time.time()
         assert type(infile) == str, 'infile should be a string'
-        assert type(isOTPMatrix) == bool, 'isOTPMatrix should be a bool'
-        assert type(isSymmetric) == bool, 'isSymmetric should be a bool'
+        assert type(is_otp_matrix) == bool, 'isOTPMatrix should be a bool'
+        assert type(is_symmetric) == bool, 'isSymmetric should be a bool'
 
         if self.logger:
-            self.logger.debug('isSymmetric:{}'.format(isSymmetric))
+            self.logger.debug('isSymmetric:{}'.format(is_symmetric))
             warning_message = """read_from_file will fail if rows or columns
                                  have non-integer indeces"""
             self.logger.warning(warning_message)
 
         try:
             self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'),
-                                              isSymmetric=isSymmetric,
-                                              isOTPMatrix=isOTPMatrix)
-        except:
+                                                  isSymmetric=is_symmetric,
+                                                  isOTPMatrix=is_otp_matrix)
+        except BaseException:
             raise ReadTMXFailedException()
         logger_vars = time.time() - start_time
         if self.logger:
-            self.logger.info(
-            'Shortest path matrix loaded from disk in {:,.2f} seconds'.format(logger_vars))
-            return
+            self.logger.info('Shortest path matrix loaded from disk in {:,.2f} seconds'.format(logger_vars))
 
-
-
-    def read_from_csv(self, infile, isSymmetric=False):
+    def read_from_csv(self, infile, is_symmetric=False):
         """
         Load a matrix from csv (synonymous to read_from_file)
         """
         try:
-            self.read_from_file(infile, isSymmetric=isSymmetric)
+            self.read_from_file(infile, is_symmetric=is_symmetric)
         except BaseException:
             raise ReadCSVFailedException()
 
-    def read_from_tmx(self, infile, isSymmetric=False):
+    def read_from_tmx(self, infile, is_symmetric=False):
         """
         Load a matrix from tmx (synonymous to read_from_file)
         """
         try:
-            self.read_from_file(infile, isSymmetric=isSymmetric)
+            self.read_from_file(infile, is_symmetric=is_symmetric)
         except BaseException:
             raise ReadTMXFailedException()
 
-    def prepare_matrix(self, num_nodes, isSymmetric=False):
+    def prepare_matrix(self, num_nodes, is_symmetric=False):
         """
         Instantiate a pyTransitMatrix with the available nodes
         """
         try:
-            self.transit_matrix = pyTransitMatrix(vertices=num_nodes, isSymmetric=isSymmetric)
+            self.transit_matrix = pyTransitMatrix(vertices=num_nodes, isSymmetric=is_symmetric)
         except BaseException:
             raise UnableToBuildMatrixException()
 
@@ -219,7 +214,6 @@ class MatrixInterface():
             raise WriteTMXFailedException()
         if self.logger:
             self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
-        
 
     def build_matrix(self, thread_limit=None):
         """
@@ -239,8 +233,8 @@ class MatrixInterface():
 
         logger_vars = time.time() - start_time
         if self.logger:
-            self.logger.info(
-            'Shortest path matrix computed in {:,.2f} seconds using {} threads'.format(logger_vars, thread_limit))
+            self.logger.info('Shortest path matrix computed in {:,.2f} seconds using {} threads'
+                             .format(logger_vars, thread_limit))
 
     def get_dests_in_range(self, threshold):
         """
@@ -293,12 +287,12 @@ class MatrixInterface():
         else:
             return self.transit_matrix.timeToNearestDestPerCategory(source_id, bytes(category, 'utf-8'))
 
-    def count_dests_in_range(self, source_id, range, category=None):
+    def count_dests_in_range(self, source_id, threshold, category=None):
         """
         Return the count of destinations in range for a given
         category, or of all destinations if category is none.
         """
         if category is None:
-            return self.transit_matrix.countDestsInRange(source_id, range)
+            return self.transit_matrix.countDestsInRange(source_id, threshold)
         else:
-            return self.transit_matrix.countDestsInRangePerCategory(source_id, bytes(category, 'utf-8'), range)
+            return self.transit_matrix.countDestsInRangePerCategory(source_id, bytes(category, 'utf-8'), threshold)

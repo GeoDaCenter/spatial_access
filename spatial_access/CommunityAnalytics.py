@@ -30,7 +30,7 @@ def root_decay_function(time, upper):
     if time > upper:
         return 0
     else:
-        return (1 / math.sqrt(upper) ) * (-time ** 0.5) + 1
+        return (1 / math.sqrt(upper)) * (-time ** 0.5) + 1
 
 
 def logit_decay_function(time, upper):
@@ -40,7 +40,7 @@ def logit_decay_function(time, upper):
     if time > upper:
         return 0
     else:
-        return 1-(1/(math.exp((upper/180)-(.48/60)*(time))+1))
+        return 1-(1/(math.exp((upper/180)-(.48/60)*time)+1))
 
 
 class DestFloatingCatchmentArea:
@@ -91,9 +91,8 @@ class DestFloatingCatchmentArea:
                                                              'percap_spending',
                                                              'category'])
 
-
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -112,19 +111,19 @@ class DestFloatingCatchmentArea:
                                                                   projection=projection)
         return self.aggregated_results
 
-    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
         Plot cdf of results
         """
         self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=type,
+                                 plot_type=plot_type,
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
                                  is_source=False)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
-                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community'):
         """
         Plot choropleth of results
@@ -140,7 +139,6 @@ class DestFloatingCatchmentArea:
                                         title=title,
                                         color_map=color_map,
                                         categories=categories,
-                                        projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
@@ -150,8 +148,8 @@ class DestFloatingCatchmentArea:
         """
         remapped_dest_ids = self.model_data.get_remapped_dest_ids()
         if remapped_dest_ids:
-            reversed = {value:key for key, value in remapped_dest_ids.items()}
-            self.model_results.rename(index=reversed, inplace=True)
+            reversed_ids = {value: key for key, value in remapped_dest_ids.items()}
+            self.model_results.rename(index=reversed_ids, inplace=True)
         return self.model_results
 
 
@@ -220,7 +218,7 @@ class TwoStageFloatingCatchmentArea:
                                                     columns=column_names)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -239,19 +237,19 @@ class TwoStageFloatingCatchmentArea:
                                                                   projection=projection)
         return self.aggregated_results
 
-    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
         Plot cdf of results
         """
         self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=type,
+                                 plot_type=plot_type,
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
                                  is_source=True)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Purples',
-                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community'):
         """
         Plot choropleth of results
@@ -267,7 +265,6 @@ class TwoStageFloatingCatchmentArea:
                                         title=title,
                                         color_map=color_map,
                                         categories=categories,
-                                        projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
@@ -277,9 +274,10 @@ class TwoStageFloatingCatchmentArea:
         """
         remapped_source_ids = self.model_data.get_remapped_source_ids()
         if remapped_source_ids:
-            reversed = {value:key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed, inplace=True)
+            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed_ids, inplace=True)
         return self.model_results
+
 
 class AccessTime:
     """
@@ -326,9 +324,8 @@ class AccessTime:
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
-
     def aggregate(self, aggregation_type, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -347,7 +344,6 @@ class AccessTime:
                                                                   projection=projection)
         return self.aggregated_results
 
-
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
         Plot cdf of results
@@ -360,7 +356,7 @@ class AccessTime:
                                  is_source=True)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Blues',
-                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community'):
         """
         Plot choropleth of results
@@ -376,7 +372,6 @@ class AccessTime:
                                         title=title,
                                         color_map=color_map,
                                         categories=categories,
-                                        projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
@@ -386,8 +381,8 @@ class AccessTime:
         """
         remapped_source_ids = self.model_data.get_remapped_source_ids()
         if remapped_source_ids:
-            reversed = {value:key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed, inplace=True)
+            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed_ids, inplace=True)
         return self.model_results
 
 
@@ -430,14 +425,16 @@ class AccessCount:
         for source_id in self.model_data.get_all_source_ids():
             results[source_id] = []
             for category in self.categories:
-                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id, upper_threshold, category)
+                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id,
+                                                                                    upper_threshold,
+                                                                                    category)
                 results[source_id].append(count_in_range)
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -465,7 +462,7 @@ class AccessCount:
                                  is_source=True)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
-                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community'):
         """
         Plot choropleth of results
@@ -481,7 +478,6 @@ class AccessCount:
                                         title=title,
                                         color_map=color_map,
                                         categories=categories,
-                                        projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
@@ -491,11 +487,12 @@ class AccessCount:
         """
         remapped_source_ids = self.model_data.get_remapped_source_ids()
         if remapped_source_ids:
-            reversed = {value:key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed, inplace=True)
+            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed_ids, inplace=True)
         return self.model_results
 
-class AccessModel():
+
+class AccessModel:
     """
     Build the Access model which captures the accessibility of 
     nonprofit services in urban environments.
@@ -503,8 +500,8 @@ class AccessModel():
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                decay_function='linear'):
-
+                 decay_function='linear'):
+        self.decay_function = None
         self.set_decay_function(decay_function)
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
@@ -533,7 +530,7 @@ class AccessModel():
                 self.decay_function = logit_decay_function
             else:
                 raise UnrecognizedDecayFunctionException(decay_function)
-        elif isinstance(decay_function, type(lambda : x)):
+        elif isinstance(decay_function, type(lambda: x)):
             try:
                 x = decay_function(1, 2)
                 assert isinstance(x, int) or isinstance(x, float)
@@ -544,7 +541,8 @@ class AccessModel():
             message = "Decay function should be either a string: ['linear', 'root', 'logit'], or a lamda"
             raise UnrecognizedDecayFunctionException(message)
 
-    def _test_category_weight_dict(self, category_weight_dict):
+    @staticmethod
+    def _test_category_weight_dict(category_weight_dict):
         """
         Ensure category_weight_dict has the expected form
         """
@@ -559,29 +557,31 @@ class AccessModel():
                 raise IncompleteCategoryDictException('category_weight_dict values should be arrays or tuples')
 
     def calculate(self, category_weight_dict, upper_threshold, good_access_threshold=40,
-                      normalize=True, normalize_type='linear'):
+                  normalize=True, normalize_type='linear'):
         """
         Calculate the model.
         """
         self._test_category_weight_dict(category_weight_dict)
 
         # create a quick reference for the number of times to include a dest in each category
-        max_category_occurances = {category : len(weights) for category, weights in category_weight_dict.items()}
+        max_category_occurances = {category: len(weights) for category, weights in category_weight_dict.items()}
 
         # order the user's weights in ascending order so the highest one gets used
         # first, for the closest dest of that category
-        category_weight_dict = {category : sorted(weights, reverse=True) for category, weights in category_weight_dict.items()}
+        category_weight_dict = {category: sorted(weights, reverse=True)
+                                for category, weights in category_weight_dict.items()}
 
         # warn the user if the data has more categories than their category_weight_dict
         key_diffs = set(self.model_data.get_all_categories()) - set(max_category_occurances.keys())
         for key in key_diffs:
             max_category_occurances[key] = 0
         if len(key_diffs) > 0:
-            self.model_data.logger.warning('Found these keys in data but not in category_weight_dict: {}'.format(key_diffs))
+            self.model_data.logger.warning('Found these keys in data but not in category_weight_dict: {}'
+                                           .format(key_diffs))
 
         # reserve results dict for each column
         num_columns = len(category_weight_dict.keys()) + 1
-        results = {source_id : [0] * num_columns for source_id in self.model_data.get_all_source_ids()}
+        results = {source_id: [0] * num_columns for source_id in self.model_data.get_all_source_ids()}
 
         # map of column names
         category_to_index_map = {}
@@ -605,7 +605,6 @@ class AccessModel():
                     score_contribution = decayed_time * decayed_category_weight
                     results[source_id][0] += score_contribution
                     results[source_id][category_to_index_map[category]] += score_contribution
-
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
@@ -636,14 +635,14 @@ class AccessModel():
         elif normalize_type == 'z_score':
             try:
                 self.model_results[column] = (self.model_results[column]
-                                           - self.model_results[column].mean()) / self.model_results[column].std()
+                                              - self.model_results[column].mean()) / self.model_results[column].std()
             except ZeroDivisionError:
                 raise UnexpectedEmptyColumnException(column)
         else:
             raise UnexpectedNormalizeTypeException(normalize_type)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326'):
         """
         Aggregate results by community area
         """
@@ -662,20 +661,19 @@ class AccessModel():
                                                                   projection=projection)
         return self.aggregated_results
 
-    def plot_cdf(self, type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
         """
         Plot cdf of results
         """
         self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=type,
+                                 plot_type=plot_type,
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
                                  is_source=True)
 
-
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Reds',
-                        projection='epsg:4326', shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                         spatial_index='community'):
         """
         Plot choropleth of results
@@ -691,15 +689,15 @@ class AccessModel():
                                         title=title,
                                         color_map=color_map,
                                         categories=categories,
-                                        projection=projection,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
+
     def get_results(self):
         """
         Return the results dataframe with original indeces.
         """
         remapped_source_ids = self.model_data.get_remapped_source_ids()
         if remapped_source_ids:
-            reversed = {value:key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed, inplace=True)
+            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
+            self.model_results.rename(index=reversed_ids, inplace=True)
         return self.model_results

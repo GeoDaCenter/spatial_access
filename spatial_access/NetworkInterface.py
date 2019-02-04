@@ -6,15 +6,14 @@ returns the local resources if available.
 
 import os
 import pandas as pd
-import numpy as np
-import time
 from pandana.loaders import osm
 from geopy import distance
 
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
 from spatial_access.SpatialAccessExceptions import UnableToConnectException
 
-class NetworkInterface():
+
+class NetworkInterface:
     """
     Abstracts the connection for querying OSM
     servers for city walking, driving and biking
@@ -31,7 +30,7 @@ class NetworkInterface():
         self._already_merged = set()
         self._nodes_to_merge = set()
         self._rows_to_merge = {}
-        self.area_threshold = None if disable_area_threshold else 2000 # km
+        self.area_threshold = None if disable_area_threshold else 2000  # km
         assert isinstance(network_type, str)
         self.cache_filename = 'data/osm_query_cache'
         self._try_create_cache()
@@ -62,7 +61,8 @@ class NetworkInterface():
             self.logger.info('Approx area of bounding box: {:,.2f} sq. km'.format(area))
         return area
 
-    def _try_create_cache(self):
+    @staticmethod
+    def _try_create_cache():
         """
         Create the directory for the cache
         if it does not already exist.
@@ -115,7 +115,6 @@ class NetworkInterface():
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
         return 'data/osm_query_cache/' + self.network_type + bbox_string + '.h5'
 
-
     def _network_exists(self):
         """
         Return True if both the nodes and edges
@@ -131,7 +130,7 @@ class NetworkInterface():
         """
         pass
 
-    def _trim_edges(self):
+    def trim_edges(self):
         """
         Find nodes that are the source of an edge exactly once,
         and the destination of an edge exactly once. Remove
@@ -174,10 +173,9 @@ class NetworkInterface():
         try:
             if self.network_type == 'bike':
                 osm_bike_filter = '["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["foot"!~"no"]["bicycle"!~"no"]'
-                self.nodes, self.edges = osm.network_from_bbox(
-                lat_min=self.bbox[0], lng_min=self.bbox[1],
-                lat_max=self.bbox[2], lng_max=self.bbox[3],
-                custom_osm_filter=osm_bike_filter)
+                self.nodes, self.edges = osm.network_from_bbox(lat_min=self.bbox[0], lng_min=self.bbox[1],
+                                                               lat_max=self.bbox[2], lng_max=self.bbox[3],
+                                                               custom_osm_filter=osm_bike_filter)
             else:
                 self.nodes, self.edges = osm.network_from_bbox(
                     lat_min=self.bbox[0], lng_min=self.bbox[1],

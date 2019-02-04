@@ -1,7 +1,8 @@
 # pylint: skip-file
 from spatial_access.ConfigInterface import ConfigInterface
 
-class TestClass():
+
+class TestClass:
     """
     Suite of tests for ConfigInterface
     """

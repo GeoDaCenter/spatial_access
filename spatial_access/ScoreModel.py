@@ -208,7 +208,7 @@ class ModelData(object):
             self.sources_filename = filename
         try:
             self.sources = pd.read_csv(self.sources_filename)
-        except:
+        except FileNotFoundError:
             raise SourceDataNotFoundException()
 
         if self.source_column_names is None:
@@ -227,7 +227,6 @@ class ModelData(object):
                     lat = self._source_file_hints['lat']
                 if 'lon' in self._source_file_hints:
                     lon = self._source_file_hints['lon']
-
 
             # extract the column names from the table for whichever fields
             # were not gleaned from self.source_file_hints
@@ -261,7 +260,7 @@ class ModelData(object):
                            self.source_column_names['lon']: 'lon'}
             self.sources.set_index(self.source_column_names['idx'], inplace=True)
             self.sources.rename(columns=rename_cols, inplace=True)
-        except:
+        except KeyError:
             raise SourceDataNotParsableException()
 
         # drop unused columns
@@ -290,7 +289,7 @@ class ModelData(object):
 
         try:
             self.dests = pd.read_csv(self.destinations_filename)
-        except:
+        except FileNotFoundError:
             raise DestDataNotFoundException()
 
         if self.dest_column_names is None:
@@ -355,7 +354,7 @@ class ModelData(object):
             self.dests.set_index(self.dest_column_names['idx'], inplace=True)
             self.dests.rename(columns=rename_cols, inplace=True)
 
-        except:
+        except KeyError:
             raise DestDataNotParsableException()
 
         # drop unused columns
@@ -383,7 +382,7 @@ class ModelData(object):
         """
         Return a dictionary of lists
         """
-        self.dests_in_range =  self._sp_matrix.matrix_interface.get_dests_in_range(upper_threshold)
+        self.dests_in_range = self._sp_matrix.matrix_interface.get_dests_in_range(upper_threshold)
 
     def calculate_sources_in_range(self, upper_threshold):
         """
@@ -479,7 +478,7 @@ class ModelData(object):
         return self._sp_matrix.matrix_interface.get_dest_id_remap()
 
     def _spatial_join_community_index(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                                 spatial_index='community',  projection='epsg:4326'):
+                                      spatial_index='community',  projection='epsg:4326'):
         """
         Return a dataframe with community area data
         """
@@ -492,21 +491,20 @@ class ModelData(object):
             raise ShapefileNotFoundException('shapefile not found: {}'.format(shapefile))
 
         geo_result = gpd.sjoin(boundaries_gdf, geo_original, how='right',
-                                    op='intersects')
+                               op='intersects')
 
         dataframe_columns = list(dataframe.columns)
 
-        geo_result.rename(columns={spatial_index:'spatial_index'}, inplace=True)
+        geo_result.rename(columns={spatial_index: 'spatial_index'}, inplace=True)
         dataframe_columns.append('spatial_index')
         dataframe_columns.append('geometry')
         try:
             geo_result = geo_result[dataframe_columns]
         except KeyError:
             raise SpatialIndexNotMatchedException('Unable to match spatial_index:{}'.format(spatial_index))
-        # TODO: test this on a larger LEHD section
-        # TODO add dropped rows as OUTSIDE_LIMITS geoarea
         if len(geo_result) != len(dataframe):
-            self.logger.warning('Length of joined dataframe ({}) != length of input dataframe ({})'.format(len(geo_result), len(dataframe)))
+            self.logger.warning('Length of joined dataframe ({}) != length of input dataframe ({})'
+                                .format(len(geo_result), len(dataframe)))
         return geo_result
 
     def rejoin_results_with_coordinates(self, model_results, is_source):
@@ -530,15 +528,16 @@ class ModelData(object):
         """
         model_results = self.rejoin_results_with_coordinates(model_results, is_source)
         spatial_joined_results = self._spatial_join_community_index(dataframe=model_results,
-                                                               shapefile=shapefile,
-                                                               spatial_index=spatial_index,
-                                                               projection=projection)
+                                                                    shapefile=shapefile,
+                                                                    spatial_index=spatial_index,
+                                                                    projection=projection)
 
         aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
         return aggregated_results
 
-    def _join_aggregated_data_with_boundaries(self, aggregated_results, spatial_index,
-                                        shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
+    @staticmethod
+    def _join_aggregated_data_with_boundaries(aggregated_results, spatial_index,
+                                              shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
         """
         Join aggregated results with boundary geometry.
         """
@@ -554,9 +553,6 @@ class ModelData(object):
                                        right_on='spatial_index', how='outer')
         results.fillna(value=0, inplace=True)
         return results[columns_to_keep]
-
-
-
 
     def plot_cdf(self, model_results, plot_type, xlabel, ylabel, title,
                  is_source, bins=100, is_density=False):
@@ -582,7 +578,7 @@ class ModelData(object):
             x = cdf_eligible[column]
             try:
                 color = available_colors.pop(0)
-            except:
+            except IndexError:
                 raise TooManyCategoriesToPlotException()
             patch = mpatches.Patch(color=color, label=column)
             color_keys.append(patch)
@@ -598,17 +594,16 @@ class ModelData(object):
         mpl.pyplot.savefig(fig_name, dpi=400)
         self.logger.info('Plot was saved to: {}'.format(fig_name))
 
-
     def plot_choropleth(self, aggregate_results, column, title, color_map,
                         shapefile, spatial_index,
-                        categories=None, projection='epsg:4326'):
+                        categories=None):
         """
         Plot a chloropleth of the aggregated results.
         """
 
         results_with_geometry = self._join_aggregated_data_with_boundaries(aggregated_results=aggregate_results,
-                                                                     spatial_index=spatial_index,
-                                                                     shapefile=shapefile)
+                                                                           spatial_index=spatial_index,
+                                                                           shapefile=shapefile)
         if column not in results_with_geometry.columns:
             raise UnexpectedPlotColumnException('Did not expect column argument: {}'.format(column))
 
