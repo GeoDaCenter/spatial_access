@@ -334,4 +334,10 @@ class TestClass():
             return
         assert False
 
+    def test_22(self):
+        """
+        Test trim_edges doesn't change matrix results.
+        :return:
+        """
+
 

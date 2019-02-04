@@ -60,7 +60,7 @@ class TransitMatrix():
             secondary_hints=None,
             use_meters=False,
             disable_area_threshold=False,
-            trim_edges=False,
+            trim_edges=True,
             debug=False):
 
         #arguments
