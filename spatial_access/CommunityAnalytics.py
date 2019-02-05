@@ -191,29 +191,33 @@ class TwoStageFloatingCatchmentArea:
         results = {}
         num_categories = len(self.categories)
         for source_id in self.model_data.get_all_source_ids():
-            results[source_id] = [0, 0] * num_categories
+            results[source_id] = [0] * num_categories
 
         # map category to index in results and generate column names
         column_name_to_index = {}
         column_names = []
-        index = 0
-        for category in self.categories:
-            column_names.append('percap_spend_' + category)
-            column_names.append('total_spend_' + category)
-            column_name_to_index[category] = (index, index + 1)
-            index += 2
 
+        for index, category in enumerate(self.categories):
+            column_names.append('percap_spend_' + category)
+            column_name_to_index[category] = index
+
+        dests_capacity = {}
         for category in self.categories:
             for dest_id in self.model_data.get_ids_for_category(category):
                 population_in_range = self.model_data.get_population_in_range(dest_id)
                 if population_in_range > 0:
                     contribution_to_spending = self.model_data.get_capacity(dest_id) / population_in_range
-                    for source_id in self.model_data.get_sources_in_range_of_dest(dest_id):
-                        source_population = self.model_data.get_population(source_id)
-                        if source_population > 0:
-                            pc_col_index, t_col_index = column_name_to_index[category]
-                            results[source_id][pc_col_index] += contribution_to_spending
-                            results[source_id][t_col_index] += contribution_to_spending * source_population
+                    dests_capacity[dest_id] = contribution_to_spending
+        all_categories_only = self.categories == ['all_categories']
+        for source_id in self.model_data.get_all_source_ids():
+            for dest_id in self.model_data.get_dests_in_range_of_source(source_id):
+                if all_categories_only:
+                    category = 'all_categories'
+                else:
+                    category = self.model_data.get_category(dest_id)
+                if category in self.categories:
+                    results[source_id][column_name_to_index[category]] += dests_capacity[dest_id]
+
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 

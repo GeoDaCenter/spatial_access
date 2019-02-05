@@ -116,17 +116,21 @@ class TestClass:
                                                                              'population': 'pop'},
                                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'})
-        accesspop_model.calculate(125)
-        accesspop_model.model_data._print_data_frame()
-        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 4.614
-        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] >= 4.614
+        accesspop_model.calculate(100)
+
+        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 10.933
+        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] >= 10.933
         assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] == 0.00
-        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 4.614
+        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] >= 1.946
+        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 1.946
         assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 1.946
 
-        assert accesspop_model.model_results['total_spend_all_categories'].sum() \
-            <= accesspop_model.model_data.dests['capacity'].sum()
+        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] <= 10.934
+        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] <= 10.934
+        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] <= 1.947
+        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] <= 1.947
+        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] <= 1.947
+        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] <= 1.947
 
     def test_5(self):
         """
@@ -164,14 +168,36 @@ class TestClass:
                                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
                                                         categories=categories)
-        accesspop_model.calculate(600)
+        accesspop_model.calculate(100)
 
-        assert len(accesspop_model.model_results.columns) == len(categories) * 2
-        cat_a_dests = accesspop_model.model_data.dests[accesspop_model.model_data.dests['category'] == 'A']
-        cat_c_dests = accesspop_model.model_data.dests[accesspop_model.model_data.dests['category'] == 'C']
+        assert len(accesspop_model.model_results.columns) == len(categories)
+        assert accesspop_model.model_results.loc[3, 'percap_spend_A'] <= 9.054
+        assert accesspop_model.model_results.loc[4, 'percap_spend_A'] <= 9.054
+        assert accesspop_model.model_results.loc[5, 'percap_spend_A'] <= 0.738
+        assert accesspop_model.model_results.loc[6, 'percap_spend_A'] <= 0.738
+        assert accesspop_model.model_results.loc[7, 'percap_spend_A'] <= 0.738
+        assert accesspop_model.model_results.loc[8, 'percap_spend_A'] <= 0.738
 
-        assert accesspop_model.model_results['total_spend_A'].sum() <= cat_a_dests['capacity'].sum()
-        assert accesspop_model.model_results['total_spend_C'].sum() <= cat_c_dests['capacity'].sum()
+        assert accesspop_model.model_results.loc[3, 'percap_spend_C'] <= 1.275
+        assert accesspop_model.model_results.loc[4, 'percap_spend_C'] <= 1.275
+        assert accesspop_model.model_results.loc[5, 'percap_spend_C'] <= 1.209
+        assert accesspop_model.model_results.loc[6, 'percap_spend_C'] <= 1.209
+        assert accesspop_model.model_results.loc[7, 'percap_spend_C'] <= 1.209
+        assert accesspop_model.model_results.loc[8, 'percap_spend_C'] <= 1.209
+
+        assert accesspop_model.model_results.loc[3, 'percap_spend_A'] >= 9.053
+        assert accesspop_model.model_results.loc[4, 'percap_spend_A'] >= 9.053
+        assert accesspop_model.model_results.loc[5, 'percap_spend_A'] >= 0.737
+        assert accesspop_model.model_results.loc[6, 'percap_spend_A'] >= 0.737
+        assert accesspop_model.model_results.loc[7, 'percap_spend_A'] >= 0.737
+        assert accesspop_model.model_results.loc[8, 'percap_spend_A'] >= 0.737
+
+        assert accesspop_model.model_results.loc[3, 'percap_spend_C'] >= 1.274
+        assert accesspop_model.model_results.loc[4, 'percap_spend_C'] >= 1.274
+        assert accesspop_model.model_results.loc[5, 'percap_spend_C'] >= 1.208
+        assert accesspop_model.model_results.loc[6, 'percap_spend_C'] >= 1.208
+        assert accesspop_model.model_results.loc[7, 'percap_spend_C'] >= 1.208
+        assert accesspop_model.model_results.loc[8, 'percap_spend_C'] >= 1.208
 
     def test_7(self):
         """

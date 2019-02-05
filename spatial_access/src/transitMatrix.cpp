@@ -428,7 +428,7 @@ void transitMatrix::calculateDestsInRange(unsigned int threshold, int numThreads
     rangeWorkerArgs wa(true, this->df, threshold, this->destsInRange, 
                         this->sourcesInRange);
     wa.initialize();
-    workerQueue wq(numThreads);
+    workerQueue wq(1);
     wq.startRangeWorker(rangeWorkerHandler, &wa);
    
     this->destsInRangeThreshold = threshold;
