@@ -43,7 +43,7 @@ EXTENSION = distutils.extension.Extension(
                'spatial_access/src/dataFrame.cpp',
                'spatial_access/src/threadUtilities.cpp',
                'spatial_access/src/transitMatrix.cpp'],
-    extra_compile_args = ['--std=c++17', '-Wall', '-O3'
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac + ['-lprotobuf']
