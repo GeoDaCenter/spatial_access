@@ -6,7 +6,7 @@
 <tr>
   <td>Version</td>
   <td>
-    0.1.4
+    0.1.5
   </td>
 </tr>    
 <tr>
@@ -38,13 +38,13 @@
 2. ScoreModel - a tool to manage the underlying data for geospatial models
 3. CommunityAnalytics - Contains two models for studying urban accessibility to nonprofit services: HSSAModel and PCSpendModel
 
-Together, these packages run as a stack with 3 levels: p2p, CommunityAnalytics, and SAE. p2p is a dependency of CommunityAnalytics, and p2p and CommunityAnalytics are in turn both dependencies of SAE. If you are only interested in one level of the stack however (p2p or CommunityAnalytics, don't care about SAE) you can use those independently.
+To use this service as a ReST API, see: https://github.com/GeoDaCenter/spatial_access_api 
 
 If you are a Windows user, instructions for installing Ubuntu on a virtual machine are at the bottom of the Readme.
 
 # Installation Options
 
-## General Installation Instructions
+General Installation Instructions
 ----
 1. Clone this directory
 2. Requirements: python3, pip3

@@ -67,7 +67,7 @@ class DestFloatingCatchmentArea:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
         else:
             self.categories = ['all_categories']
 
@@ -92,7 +92,7 @@ class DestFloatingCatchmentArea:
                                                              'category'])
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -109,6 +109,9 @@ class DestFloatingCatchmentArea:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -176,7 +179,7 @@ class TwoStageFloatingCatchmentArea:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
         else:
             self.categories = ['all_categories']
 
@@ -222,7 +225,7 @@ class TwoStageFloatingCatchmentArea:
                                                     columns=column_names)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -239,6 +242,9 @@ class TwoStageFloatingCatchmentArea:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -305,7 +311,7 @@ class AccessTime:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
             # Add category->dest_id map to sp matrix
             self.model_data.map_categories_to_sp_matrix()
 
@@ -329,7 +335,7 @@ class AccessTime:
                                                     columns=column_names)
 
     def aggregate(self, aggregation_type, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -346,6 +352,9 @@ class AccessTime:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -413,7 +422,7 @@ class AccessCount:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
             # Add category->dest_id map to sp matrix
             self.model_data.map_categories_to_sp_matrix()
         else:
@@ -438,7 +447,7 @@ class AccessCount:
                                                     columns=column_names)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -452,6 +461,9 @@ class AccessCount:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -646,7 +658,7 @@ class AccessModel:
             raise UnexpectedNormalizeTypeException(normalize_type)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -663,6 +675,9 @@ class AccessModel:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):

@@ -3,6 +3,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib as mpl
 import matplotlib.patches as mpatches
+import json
 from spatial_access.p2p import TransitMatrix
 
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
@@ -15,6 +16,7 @@ from spatial_access.SpatialAccessExceptions import ShapefileNotFoundException
 from spatial_access.SpatialAccessExceptions import SpatialIndexNotMatchedException
 from spatial_access.SpatialAccessExceptions import TooManyCategoriesToPlotException
 from spatial_access.SpatialAccessExceptions import UnexpectedPlotColumnException
+from spatial_access.SpatialAccessExceptions import AggregateOutputTypeNotExpectedException
 
 
 import os.path
@@ -534,6 +536,26 @@ class ModelData(object):
 
         aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
         return aggregated_results
+
+    def write_aggregated_results(self, aggregated_results, output_type='csv', output_filename=None):
+        if output_filename is not None:
+            output_type = output_filename.split('.')[1]
+        else:
+            output_filename = self.get_output_filename(keyword='aggregate',
+                                                       extension=output_type,
+                                                       file_path='data/')
+        if output_type == 'csv':
+            aggregated_results.to_csv(output_filename)
+        elif output_type == 'json':
+            output = {}
+            for row in aggregated_results.itertuples():
+                output[row[0]] = {}
+                for i, column in enumerate(aggregated_results.columns):
+                    output[row[0]][column] = row[i + 1]
+            with open(output_filename, 'w') as file:
+                json.dump(output, file)
+        else:
+            raise AggregateOutputTypeNotExpectedException(output_type)
 
     @staticmethod
     def _join_aggregated_data_with_boundaries(aggregated_results, spatial_index,

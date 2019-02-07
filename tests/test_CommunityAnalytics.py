@@ -9,6 +9,8 @@ from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionExce
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
+import json
+
 
 class TestClass:
     """Suite of tests for the Community Analytics Package"""
@@ -492,7 +494,12 @@ class TestClass:
                                                    categories=['A','C'])
         coverage_model.calculate(600)
 
-        coverage_model.aggregate()
+        aggregate_df = coverage_model.aggregate(output_filename=self.datapath + 'test_19.json')
+        with open(self.datapath + 'test_19.json', 'r') as file:
+            aggregate_data = json.load(file)
+
+        assert(aggregate_df.loc['HYDE PARK', 'percap_spending'] == aggregate_data['HYDE PARK']['percap_spending'])
+
         coverage_model.plot_cdf('percap_spending')
         coverage_model.plot_choropleth(column='percap_spending')
 
