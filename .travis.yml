@@ -1,3 +1,4 @@
+
 language: python
 
 os:
@@ -7,8 +8,8 @@ python:
 - "3.6"
 
 before install:
-- sudo apt install python3-rtree
-- pip3 install Cython
+- sudo apt-get update
+- sudo apt-get install libspatialindex-dev
 
 install:
 - bash install-proto.sh
@@ -16,8 +17,3 @@ install:
 
 script:
 - pytest tests/
-
-addons:
-  homebrew:
-    packages:
-      spatialindex

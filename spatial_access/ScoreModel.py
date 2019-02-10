@@ -3,6 +3,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib as mpl
 import matplotlib.patches as mpatches
+import matplotlib.pyplot
 import json
 from spatial_access.p2p import TransitMatrix
 
