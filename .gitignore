@@ -1,3 +1,4 @@
+spatial_access/src/.idea/vcs.xml
 data/osm_query_cache/
 figures/
 build/
@@ -5,7 +6,6 @@ dist/
 protobuf-*
 spatial_access/src/matrix.dSYM/Contents
 *.csv
-spatial_access/transitMatrixAdapter.cpp
 logs/
 *.DS_Store 
 *.pyc

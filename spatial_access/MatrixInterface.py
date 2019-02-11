@@ -43,15 +43,14 @@ class MatrixInterface:
 
     def write_h5(self, filename):
         file = h5py.File(filename, 'w')
-        meta = file.create_group("meta")
-        meta['dataset_name'] = 'dataset_name_'
+        file['dataset_name'] = 'dataset_name_'
         #
-        meta['rows'] = 9
-        meta['columns'] = 5
-        meta['is_symmetric'] = False
+        file['rows'] = 9
+        file['columns'] = 5
+        file['is_symmetric'] = False
         strList = ["LEHD","contracts"]
         asciiList = [n.encode("ascii", "ignore") for n in strList]
-        meta['id_dataset_name'] = asciiList
+        file['id_dataset_name'] = asciiList
         data = file.create_dataset(name="DistMatrix", dtype="i2",shape=(3,2))
         data[0,...] = [1, 2]
         data[1, ...] = [3, 4]

@@ -185,52 +185,130 @@ void rangeWorkerHandler(rangeWorkerArgs* wa) {
 
 namespace lmnoel {
 
-transitMatrix::transitMatrix(int V, bool isSymmetric)
+transitMatrix::transitMatrix(int V)
 {
     this->sourcesInRangeThreshold = 0;
     this->destsInRangeThreshold = 0;
     this->numNodes = V;
-    this->isSymmetric = isSymmetric;
     graph.initializeGraph(V);
 }
 
 
-transitMatrix::transitMatrix(const std::string& infile, bool isSymmetric, bool isOTPMatrix) 
+transitMatrix::transitMatrix()
 {
-    this->sourcesInRangeThreshold = 0;
-    this->destsInRangeThreshold = 0;
-    if (isOTPMatrix)
-    {
-        this->isSymmetric = false;
-        if (!df.readOTPMatrix(infile))
-        {
-            throw std::runtime_error("failed to load dataFrame from OTP matrix");
-        }   
-        return;
-    }
-    if (infile.find(".csv") != std::string::npos)
-    {
-        if (!df.readCSV(infile)) 
-        {
-            throw std::runtime_error("failed to load dataFrame from csv");
-        }
-        // assume dataFrame read from csv is not symmetric because it has
-        // no metadata
-        this->isSymmetric = isSymmetric;
-    }
-    else 
-    {
-        if (!df.readTMX(infile)) 
-        {
-            throw std::runtime_error("failed to load dataFrame from tmx");
-        }
-        // set the transitMatrix's symmetric boolean based on tmx file
-        this->isSymmetric = df.isSymmetric();
-    }
-  
 
 }
 
+const std::string& transitMatrix::getDatasetName()
+{
+    return this->datasetName;
+}
+
+unsigned int transitMatrix::getRows()
+{
+    return this->df.rows;
+}
+
+unsigned int transitMatrix::getColumns()
+{
+    return this->df.cols;
+}
+
+bool transitMatrix::getIsSymmetric()
+{
+    return this->df.isSymmetric;
+}
+
+const std::string& transitMatrix::getPrimaryDatasetIdsName()
+{
+    return this->primaryDatasetIdsName;
+}
+
+const std::string& transitMatrix::getSecondaryDatasetIdsName()
+{
+    return this->secondaryDatasetIdsName;
+}
+
+std::vector<std::vector<unsigned short int>> transitMatrix::getDataset()
+{
+    return this->df.dataset;
+}
+
+const std::vector<std::string>& transitMatrix::getPrimaryDatasetStringIds()
+{
+    return this->primaryDatasetIdsString;
+}
+
+const std::vector<std::string>& transitMatrix::getSecondaryDatasetStringIds()
+{
+    return this->secondaryDatasetIdsString;
+}
+
+const std::vector<unsigned long int>& transitMatrix::getPrimaryDatasetIntIds()
+{
+    return this->primaryDatasetIdsInt;
+}
+
+const std::vector<unsigned long int>& transitMatrix::getSecondaryDatasetIntIds()
+{
+    return this->secondaryDatasetIdsInt;
+}
+
+
+void transitMatrix::setDatasetName(const std::string& datasetName)
+{
+
+}
+
+void transitMatrix::setRows(unsigned int rows)
+{
+
+}
+
+void transitMatrix::setColumns(unsigned int columns)
+{
+
+}
+
+void transitMatrix::setIsSymmetric(bool isSymmetric)
+{
+
+}
+
+void transitMatrix::setPrimaryDatasetIdsName(const std::string& primaryDatasetIdsName)
+{
+
+}
+
+void transitMatrix::setSecondaryDatasetIdsName(const std::string& secondaryDatasetIdsName)
+{
+
+}
+
+void transitMatrix::setDataset(std::vector<std::vector<unsigned short int>> dataset)
+{
+
+}
+
+void transitMatrix::setPrimaryDatasetStringIds(const std::vector<std::string>& primaryDatasetIds)
+{
+
+}
+
+void transitMatrix::setSecondaryDatasetStringIds(const std::vector<std::string>& primaryDatasetIds)
+{
+
+}
+
+void transitMatrix::setPrimaryDatasetIntIds(const std::vector<unsigned long int>& primaryDatasetIds)
+{
+
+}
+
+void transitMatrix::setSecondaryDatasetIntIds(const std::vector<unsigned long int>& primaryDatasetIds)
+{
+
+}
 
 
 bool transitMatrix::writeCSV(const std::string &outfile)
@@ -244,24 +322,11 @@ bool transitMatrix::writeCSV(const std::string &outfile)
     }
 }
 
-bool transitMatrix::writeTMX(const std::string &outfile)
-{
-    try {
-        return this->df.writeTMX(outfile);    
-    }
-    catch (...)
-    {
-        throw std::runtime_error("Unable to write tmx");
-    }
-}
-
-
 
 void transitMatrix::prepareDataFrame()
 {
     auto userSourceIds = userSourceDataContainer.retrieveAllUserDataIds();
     auto userDestIds = userDestDataContainer.retrieveAllUserDataIds();
-    df.setSymmetric(this->isSymmetric);
     df.reserve(userSourceIds, userDestIds);
 }
 
