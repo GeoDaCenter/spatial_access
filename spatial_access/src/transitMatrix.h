@@ -1,7 +1,7 @@
 #pragma once
 
 #include "threadUtilities.h"
-#include "dataFrame.h"
+#include "dataFrame.cpp"
 #include "Graph.h"
 #include "MinHeap.h"
 #include "userDataContainer.h"
@@ -21,7 +21,7 @@ void graphWorkerHandler(graphWorkerArgs* wa);
 
 void rangeWorkerHandler(rangeWorkerArgs* wa);
 
-void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa);
+void calculateValuesForOneIndex(unsigned int index, rangeWorkerArgs *wa);
 
 
 namespace lmnoel {
@@ -31,23 +31,28 @@ class transitMatrix {
 public:
 
     // Public members
-    dataFrame df;
+    dataFrame<row_label_type, col_label_type> df;
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
     Graph graph;
     int numNodes;
 
     // Constructors
-    transitMatrix(int V);
-    transitMatrix(void);
+    transitMatrix(bool isSymmetric, unsigned int rows, unsigned int cols) : df(isSymmetric, rows, cols) {
+        this->sourcesInRangeThreshold = 0;
+        this->destsInRangeThreshold = 0;
+        this->numNodes = 0;
+    }
 
     // Initialization
-    void addToUserSourceDataContainer(int networkNodeId, unsigned int row_loc, int lastMileDistance, bool isBidirectional);
-    void addToUserDestDataContainer(int networkNodeId, unsigned int row_loc, int lastMileDistance);
+    void addToUserSourceDataContainer(int networkNodeId, row_label_type row_id, int lastMileDistance, bool isBidirectional);
+    void addToUserDestDataContainer(int networkNodeId, col_label_type col_id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
-    void prepareDataFrame();
+
     void compute(int numThreads);
     void addToCategoryMap(col_label_type dest_id, const std::string& category);
+    void prepareGraphWithVertices(int V);
+
 
     // Calculations
     const std::vector<std::pair<col_label_type, unsigned short int>> getValuesBySource(row_label_type source_id, bool sort);
@@ -81,6 +86,7 @@ public:
     void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds);
     void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds);
 
+
     // Aliases (for cython bug)
     typedef unsigned long int label;
     typedef unsigned short int value;
@@ -90,6 +96,8 @@ private:
     // Private Members
     std::unordered_map<std::string, std::vector<col_label_type>> categoryToDestMap;
 
+
 };
+
 
 } // namespace lnoel

@@ -25,7 +25,7 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs *wa, int src) {
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
 
-        std::unordered_map<unsigned long int, unsigned short int> row_data;
+        std::unordered_map<unsigned int, unsigned short int> row_data;
         for (auto destNodeId : destNodeIds)
         {
             auto destTract = wa->userDestData.retrieveTract(destNodeId);
@@ -185,133 +185,83 @@ void rangeWorkerHandler(rangeWorkerArgs* wa) {
 
 namespace lmnoel {
 
-transitMatrix::transitMatrix(int V)
+
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::prepareGraphWithVertices(int V)
 {
-    this->sourcesInRangeThreshold = 0;
-    this->destsInRangeThreshold = 0;
-    this->numNodes = V;
+    numNodes = V;
     graph.initializeGraph(V);
 }
 
-
-transitMatrix::transitMatrix()
-{
-
+template<class row_label_type, class col_label_type>
+unsigned int transitMatrix<row_label_type, col_label_type>::getRows() const {
+    return df.getRows();
 }
 
-const std::string& transitMatrix::getDatasetName()
-{
-    return this->datasetName;
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::setRows(unsigned int rows) {
+    df.setRows(cols);
 }
 
-unsigned int transitMatrix::getRows()
-{
-    return this->df.rows;
+template<class row_label_type, class col_label_type>
+unsigned int transitMatrix<row_label_type, col_label_type>::getCols() const {
+    return df.getCols();
 }
 
-unsigned int transitMatrix::getColumns()
-{
-    return this->df.cols;
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::setCols(unsigned int cols) {
+    df.setCols(cols);
 }
 
-bool transitMatrix::getIsSymmetric()
-{
-    return this->df.isSymmetric;
+template<class row_label_type, class col_label_type>
+bool transitMatrix<row_label_type, col_label_type>::getIsSymmetric() const {
+    return df.getIsSymmetric();
 }
 
-const std::string& transitMatrix::getPrimaryDatasetIdsName()
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::setIsSymmetric(bool isSymmetric)
 {
-    return this->primaryDatasetIdsName;
+    df.setIsSymmetric(isSymmetric);
 }
 
-const std::string& transitMatrix::getSecondaryDatasetIdsName()
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::setDataset(const std::vector<std::vector<unsigned short int>>& dataset)
 {
-    return this->secondaryDatasetIdsName;
+    df.setDataset(dataset);
 }
 
-std::vector<std::vector<unsigned short int>> transitMatrix::getDataset()
+template<class row_label_type, class col_label_type>
+const std::vector<std::vector<unsigned short int>>& transitMatrix<row_label_type, col_label_type>::getDataset() const
 {
-    return this->df.dataset;
+    return df.getDataset();
 }
 
-const std::vector<std::string>& transitMatrix::getPrimaryDatasetStringIds()
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds)
 {
-    return this->primaryDatasetIdsString;
+    df.setRowIds(primaryDatasetIds);
 }
 
-const std::vector<std::string>& transitMatrix::getSecondaryDatasetStringIds()
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds)
 {
-    return this->secondaryDatasetIdsString;
+    df.setColIds(secondaryDatasetIds);
 }
 
-const std::vector<unsigned long int>& transitMatrix::getPrimaryDatasetIntIds()
+template<class row_label_type, class col_label_type>
+const std::vector<row_label_type>& transitMatrix<row_label_type, col_label_type>::getPrimaryDatasetIds()
 {
-    return this->primaryDatasetIdsInt;
+    return df.getRowIds();
 }
 
-const std::vector<unsigned long int>& transitMatrix::getSecondaryDatasetIntIds()
+template<class row_label_type, class col_label_type>
+const std::vector<col_label_type>& transitMatrix<row_label_type, col_label_type>::getSecondaryDatasetIds()
 {
-    return this->secondaryDatasetIdsInt;
+    return df.getColIds();
 }
 
-
-void transitMatrix::setDatasetName(const std::string& datasetName)
-{
-
-}
-
-void transitMatrix::setRows(unsigned int rows)
-{
-
-}
-
-void transitMatrix::setColumns(unsigned int columns)
-{
-
-}
-
-void transitMatrix::setIsSymmetric(bool isSymmetric)
-{
-
-}
-
-void transitMatrix::setPrimaryDatasetIdsName(const std::string& primaryDatasetIdsName)
-{
-
-}
-
-void transitMatrix::setSecondaryDatasetIdsName(const std::string& secondaryDatasetIdsName)
-{
-
-}
-
-void transitMatrix::setDataset(std::vector<std::vector<unsigned short int>> dataset)
-{
-
-}
-
-void transitMatrix::setPrimaryDatasetStringIds(const std::vector<std::string>& primaryDatasetIds)
-{
-
-}
-
-void transitMatrix::setSecondaryDatasetStringIds(const std::vector<std::string>& primaryDatasetIds)
-{
-
-}
-
-void transitMatrix::setPrimaryDatasetIntIds(const std::vector<unsigned long int>& primaryDatasetIds)
-{
-
-}
-
-void transitMatrix::setSecondaryDatasetIntIds(const std::vector<unsigned long int>& primaryDatasetIds)
-{
-
-}
-
-
-bool transitMatrix::writeCSV(const std::string &outfile)
+template<class row_label_type, class col_label_type>
+bool transitMatrix<row_label_type, col_label_type>::writeCSV(const std::string &outfile)
 {
     try {
         return this->df.writeCSV(outfile);    
@@ -322,19 +272,11 @@ bool transitMatrix::writeCSV(const std::string &outfile)
     }
 }
 
-
-void transitMatrix::prepareDataFrame()
-{
-    auto userSourceIds = userSourceDataContainer.retrieveAllUserDataIds();
-    auto userDestIds = userDestDataContainer.retrieveAllUserDataIds();
-    df.reserve(userSourceIds, userDestIds);
-}
-
-void transitMatrix::compute(int numThreads)
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::compute(int numThreads)
 {
     try 
     {
-        prepareDataFrame();
         graphWorkerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
             numNodes, df);
         wa.initialize();  
@@ -347,55 +289,40 @@ void transitMatrix::compute(int numThreads)
 
 }
 
-
-void transitMatrix::addToUserDestDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance)
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::addToUserDestDataContainer(int networkNodeId, const col_label_type& col_id, int lastMileDistance)
 {
-    userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);
+    unsigned int col_loc = this->df.addToColIndex(id);
+    this->addToUserDestDataContainerInt(networkNodeId, col_loc, lastMileDistance);
 }
 
-void transitMatrix::addToUserSourceDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional)
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::addToUserSourceDataContainer(int networkNodeId, const row_label_type& row_id, int lastMileDistance, bool isBidirectional)
 {
-    userSourceDataContainer.addPoint(networkNodeId, id, lastMileDistance);
-    if (isBidirectional)
-    {
-        userDestDataContainer.addPoint(networkNodeId, id, lastMileDistance);   
-    }
+    unsigned int row_loc = df.addToRowIndex(row_id);
+    this->addToUserSourceDataContainerInt(networkNodeId, row_loc, lastMileDistance, isBidirectional);
 }
 
-void transitMatrix::addToUserDestDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance)
-{
-    unsigned long int remapped_user_id = this->df.cacheUserStringId(id, false);
-    this->addToUserDestDataContainerInt(networkNodeId, remapped_user_id, lastMileDistance);
-}
 
-void transitMatrix::addToUserSourceDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance, bool isBidirectional)
-{
-    unsigned long int remapped_user_id = this->df.cacheUserStringId(id, true);
-    this->addToUserSourceDataContainerInt(networkNodeId, remapped_user_id, lastMileDistance, isBidirectional);
-}
-
-const std::unordered_map<std::string, unsigned long int> transitMatrix::getUserRowIdCache()
-{
-    return this->df.getUserRowIdCache();
-}
-
-void transitMatrix::addToCategoryMap(unsigned long int dest_id, const std::string& category)
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::addToCategoryMap(const col_label_type& dest_id, const std::string& category)
 {
     if (categoryToDestMap.find(category) != categoryToDestMap.end())
     {
         categoryToDestMap.at(category).push_back(dest_id);
     }
     else {
-        std::vector<unsigned long int> data;
+        std::vector<col_label_type> data;
         data.push_back(dest_id);
         categoryToDestMap.emplace(std::make_pair(category, data));
     }
 }
 
-unsigned short int transitMatrix::timeToNearestDestPerCategory(unsigned long int source_id, const std::string& category) const
+template<class row_label_type, class col_label_type>
+unsigned short int transitMatrix<row_label_type, col_label_type>::timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const
 {
     unsigned short int minimum = USHRT_MAX;
-    for (unsigned long int dest_id : categoryToDestMap.at(category))
+    for (const col_label_type dest_id : categoryToDestMap.at(category))
     {
         unsigned short int dest_time = this->df.retrieveValue(source_id, dest_id);
         if (dest_time <= minimum)
@@ -406,10 +333,11 @@ unsigned short int transitMatrix::timeToNearestDestPerCategory(unsigned long int
     return minimum;
 }
 
-unsigned short int transitMatrix::countDestsInRangePerCategory(unsigned long int source_id, const std::string& category, unsigned short int range) const
+template<class row_label_type, class col_label_type>
+unsigned short int transitMatrix<row_label_type, col_label_type>::countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, unsigned short int range) const
 {
     unsigned short int count = 0;
-    for (unsigned long int dest_id : categoryToDestMap.at(category))
+    for (const col_label_type dest_id : categoryToDestMap.at(category))
     {
         if (this->df.retrieveValue(source_id, dest_id) <= range)
         {
@@ -419,12 +347,14 @@ unsigned short int transitMatrix::countDestsInRangePerCategory(unsigned long int
     return count;
 }
 
-unsigned short int transitMatrix::timeToNearestDest(unsigned long int source_id) const
+template<class row_label_type, class col_label_type>
+unsigned short int transitMatrix<row_label_type, col_label_type>::timeToNearestDest(const row_label_type& source_id) const
 {
     unsigned short int minimum = USHRT_MAX;
-    for (unsigned long int dest_id : this->df.metaData.col_label())
+    unsigned int row_loc = df.getRowLocForId(source_id);
+    for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
     {
-        unsigned short int dest_time = this->df.retrieveValue(source_id, dest_id);
+        unsigned short int dest_time = this->df.getValueByLoc(row_loc, col_loc);
         if (dest_time <= minimum)
         {
             minimum = dest_time;
@@ -433,12 +363,14 @@ unsigned short int transitMatrix::timeToNearestDest(unsigned long int source_id)
     return minimum;
 }
 
-unsigned short int transitMatrix::countDestsInRange(unsigned long int source_id, unsigned short int range) const
+    template<class row_label_type, class col_label_type>
+unsigned short int transitMatrix<row_label_type, col_label_type>::countDestsInRange(const row_label_type& source_id, unsigned short int range) const
 {
     unsigned short int count = 0;
-    for (unsigned long int dest_id : this->df.metaData.col_label())
+    unsigned int row_loc = df.getRowLocForId(source_id);
+    for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
     {
-        if (this->df.retrieveValue(source_id, dest_id) <= range)
+        if (this->df.getValueByLoc(row_loc, col_loc) <= range)
         {
             count++;
         }
@@ -446,13 +378,9 @@ unsigned short int transitMatrix::countDestsInRange(unsigned long int source_id,
     return count;
 }
 
-const std::unordered_map<std::string, unsigned long int> transitMatrix::getUserColIdCache()
-{
-    return this->df.getUserColIdCache();
-}
 
-
-void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirectional)
+    template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(int src, int dest, int weight, bool isBidirectional)
 {
     graph.addEdge(src, dest, weight);
     if (isBidirectional)
@@ -461,102 +389,65 @@ void transitMatrix::addEdgeToGraph(int src, int dest, int weight, bool isBidirec
     }
 }
 
-void transitMatrix::printDataFrame() const
+    template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::printDataFrame() const
 {
     this->df.printDataFrame();
 }
 
 
-int transitMatrix::get(unsigned long int source, unsigned long int dest) const
+    template<class row_label_type, class col_label_type>
+int transitMatrix<row_label_type, col_label_type>::getValueById(const row_label_type&, const col_label_type&) const
 {
-    return df.retrieveValue(source, dest);
+    return df.getValueById(source, dest);
 }
 
-void transitMatrix::calculateDestsInRange(unsigned int threshold, int numThreads)
+template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
-    for (unsigned long int row_id : this->df.metaData.row_label())
+    std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
+    for (const row_label_type row_id : this->df.getRowIds())
     {
-        std::vector<unsigned long int> valueData;
-        // If the map is uninitialized, emplace the keys
-        if (destsInRangeThreshold == 0)
-        {
-            this->destsInRange.emplace(std::make_pair(row_id, valueData));
-        }
-        // otherwise, reset the values
-        else
-        {
-            this->destsInRange.at(row_id) = valueData;
-        }
+        std::vector<col_label_type> valueData;
+
+        destsInRange.emplace(std::make_pair(row_id, valueData));
+
     }
 
-    rangeWorkerArgs wa(true, this->df, threshold, this->destsInRange, 
-                        this->sourcesInRange);
+    rangeWorkerArgs wa(false, this->df, threshold, destsInRange);
     wa.initialize();
     workerQueue wq(1);
     wq.startRangeWorker(rangeWorkerHandler, &wa);
-   
-    this->destsInRangeThreshold = threshold;
-    
 }
 
-void transitMatrix::calculateSourcesInRange(unsigned int threshold, int numThreads)
+    template<class row_label_type, class col_label_type>
+void transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
-    for (unsigned long int col_id : this->df.metaData.col_label())
+    std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
+    for (const col_label_type col_id : this->df.getColIds())
     {
-        std::vector<unsigned long int> valueData;
-        // If the map is uninitialized, emplace the keys
-        if (sourcesInRangeThreshold == 0)
-        {
-            this->sourcesInRange.emplace(std::make_pair(col_id, valueData));
-        }
-        // otherwise, reset the values
-        else
-        {
-            this->sourcesInRange.at(col_id) = valueData;
-        }
+        std::vector<row_label_type> valueData;
+
+        sourcesInRange.emplace(std::make_pair(col_id, valueData));
+
     }
     
-    rangeWorkerArgs wa(false, this->df, threshold, this->destsInRange, 
-                        this->sourcesInRange);
+    rangeWorkerArgs wa(false, this->df, threshold, sourcesInRange);
     wa.initialize();
     workerQueue wq(1);
     wq.startRangeWorker(rangeWorkerHandler, &wa);
-   
-    this->sourcesInRangeThreshold = threshold;
-    
 }
 
-const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getDestsInRange(unsigned int threshold, int numThreads)
-{
-    // if transitMatrix has not yet calculated destsInRange for this value of 
-    // threshold (which defaults to zero if it has never been calcualtes)
-    if (this->destsInRangeThreshold != threshold)
-    {
-        calculateDestsInRange(threshold, numThreads);
-    }
-    return this->destsInRange;
-}
-
-
-const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& transitMatrix::getSourcesInRange(unsigned int threshold, int numThreads)
-{
-    // if transitMatrix has not yet calculated destsInRange for this value of 
-    // threshold (which defaults to zero if it has never been calcualtes)
-    if (this->sourcesInRangeThreshold != threshold)
-    {
-        calculateSourcesInRange(threshold, numThreads);
-    }
-    return this->sourcesInRange;
-}
-
-const std::vector<std::pair<unsigned long int, unsigned short int>> transitMatrix::getValuesBySource(unsigned long int source_id, bool sort)
+    template<class row_label_type, class col_label_type>
+const std::vector<std::pair<col_label_type, unsigned short int>> transitMatrix<row_label_type, col_label_type>::getValuesBySource(row_label_type source_id, bool sort)
 {
     return this->df.getValuesByRow(source_id, sort);
 }
 
-const std::vector<std::pair<unsigned long int, unsigned short int>> transitMatrix::getValuesByDest(unsigned long int dest_id, bool sort)
+    template<class row_label_type, class col_label_type>
+const std::vector<std::pair<row_label_type, unsigned short int>> transitMatrix<row_label_type, col_label_type>::getValuesByDest(col_label_type dest_id, bool sort)
 {
     return this->df.getValuesByCol(dest_id, sort);
 }

@@ -12,14 +12,14 @@
 /* jobQueue: a thread-safe queue for dispensing integer jobs*/
 class jobQueue {
 private:
-    std::vector <unsigned long int> data;
+    std::vector <unsigned int> data;
     std::mutex lock;
 public:
     jobQueue(int size_in);
     jobQueue(void);
     ~jobQueue(void);
-    void insert(unsigned long int item);
-    unsigned long int pop(bool &endNow);
+    void insert(unsigned int item);
+    unsigned int pop(bool &endNow);
     int size(void);
     bool empty(void);
 };

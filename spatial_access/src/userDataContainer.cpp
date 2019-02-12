@@ -6,10 +6,10 @@
 
 #include "userDataContainer.h"
 
-userDataPoint::userDataPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
+userDataPoint::userDataPoint(int networkNodeId, unsigned int loc, int lastMileDistance)
 {
     this->networkNodeId = networkNodeId;
-    this->id = id;
+    this->loc = loc;
     this->lastMileDistance = lastMileDistance;
 }
 
@@ -37,7 +37,7 @@ void userDataTract::addPoint(userDataPoint userData)
     data.push_back(userData);
 }
 
-const std::vector<unsigned long int>& userDataContainer::retrieveAllUserDataIds() const
+const std::vector<unsigned int>& userDataContainer::retrieveAllUserDataIds() const
 {
     return this->ids;
 }
@@ -61,11 +61,11 @@ bool userDataContainer::containsTract(int networkNodeId) const
     return data.find(networkNodeId) != data.end();
 }
 
-void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
+void userDataContainer::addPoint(int networkNodeId, unsigned int loc, int lastMileDistance)
 {
-    ids.push_back(id);
+    ids.push_back(loc);
     allNetworkNodeIds.push_back(networkNodeId);
-    userDataPoint newDataPoint(networkNodeId, id, lastMileDistance);
+    userDataPoint newDataPoint(networkNodeId, loc, lastMileDistance);
     if (containsTract(networkNodeId))
     {
         data.at(networkNodeId).addPoint(newDataPoint);

@@ -22,21 +22,20 @@ jobQueue::~jobQueue(void) {
 
 
 /* insert to the jobQueue */
-void jobQueue::insert(unsigned long int item) {
+void jobQueue::insert(unsigned int item) {
     data.insert(data.end(), item);
 }
 
 
-/* pop from the jobQueue. Returns -1 if Queue is empty*/
-unsigned long int jobQueue::pop(bool &endNow) {
-    unsigned long int res;
+/* pop from the jobQueue.*/
+unsigned int jobQueue::pop(bool &endNow) {
+    unsigned int res;
     lock.lock();
     if (!data.empty()) {
         res = data.front();
         data.erase(data.begin());
     } else {
         endNow = false;
-        res = -1;
     }
     lock.unlock();
     return res;
@@ -116,16 +115,16 @@ void rangeWorkerArgs::initialize()
 {
     if (isDestsInRange)  
     {
-        for (unsigned long int i : df.metaData.row_label())
+        for (unsigned int row_loc = 0; row_loc < df.getRows(); row_loc++)
         {
-            jq.insert(i);
+            jq.insert(row_loc);
         }
     } 
     else 
     {
-        for (unsigned long int i : df.metaData.col_label())
+        for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
         {
-            jq.insert(i);
+            jq.insert(col_loc);
         }
     }
 
