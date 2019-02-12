@@ -23,7 +23,7 @@ void userDataTract::print() const
     std::cout << networkNodeId << std::endl;
     for (auto dataPoint : data)
     {
-        std::cout << "(" << dataPoint.id << "," << dataPoint.lastMileDistance << ")" << std::endl;
+        std::cout << "(" << dataPoint.loc << "," << dataPoint.lastMileDistance << ")" << std::endl;
     }
 }
 

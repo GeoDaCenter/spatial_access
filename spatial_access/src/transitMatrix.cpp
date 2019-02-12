@@ -13,7 +13,8 @@
 
 
 /*write_row: write a row to file*/
-void calculateRow(const std::vector<int> &dist, graphWorkerArgs *wa, int src) {
+template<class row_label_type, class col_label_type>
+void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, int src) {
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -70,7 +71,8 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs *wa, int src) {
 
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
-void dijkstra(int src, graphWorkerArgs *wa) {
+template<class row_label_type, class col_label_type>
+void dijkstra(int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
     int V = wa->graph.V;// Get the number of vertices in graph
     
     std::vector<int> dist(V, USHRT_MAX);
@@ -139,46 +141,6 @@ void graphWorkerHandler(graphWorkerArgs* wa) {
             break;
         }
         dijkstra(src, wa);
-    }
-}
-
-void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa)
-{
-    // calculate dests (columns) in range of sources (rows)
-    if (wa->isDestsInRange)
-    {
-        for (unsigned long int col_label : wa->df.metaData.col_label())
-        {
-            if (wa->df.retrieveValue(index, col_label) <= wa->threshold)
-            {
-                wa->rows.at(index).push_back(col_label);
-            }
-        }
-    }
-    else // calculate sources (rows) in range of dests (columns)
-    {   
-        for (unsigned long int row_label : wa->df.metaData.row_label())
-        {
-            if (wa->df.retrieveValue(row_label, index) <= wa->threshold)
-            {
-                wa->cols.at(index).push_back(row_label);
-            }
-        }
-    }    
-
-}
-
-void rangeWorkerHandler(rangeWorkerArgs* wa) {
-    unsigned long int index;
-    bool endNow = false;
-    while (!wa->jq.empty()) {
-        index = wa->jq.pop(endNow);
-
-        //exit loop if job queue was empty
-        if (endNow) {
-            break;
-        }
-        calculateValuesForOneIndex(index, wa);
     }
 }
 
@@ -280,7 +242,7 @@ void transitMatrix<row_label_type, col_label_type>::compute(int numThreads)
         graphWorkerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
             numNodes, df);
         wa.initialize();  
-        workerQueue wq(numThreads);
+        workerQueue<row_label_type, col_label_type> wq(numThreads);
         wq.startGraphWorker(graphWorkerHandler, &wa);
     } catch (...)
     {
@@ -403,41 +365,43 @@ int transitMatrix<row_label_type, col_label_type>::getValueById(const row_label_
 }
 
 template<class row_label_type, class col_label_type>
-void transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, int numThreads)
+std::unordered_map<row_label_type, std::vector<col_label_type>> transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
     std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
-    for (const row_label_type row_id : this->df.getRowIds())
+    for (unsigned int row_loc = 0; row_loc < df.getRows(); row_loc++)
     {
         std::vector<col_label_type> valueData;
-
+        for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++) {
+            if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
+                valueData.push_back(df.getColIdForLoc(col_loc));
+            }
+        }
+        row_label_type row_id = df.getRowIdForLoc(row_loc);
         destsInRange.emplace(std::make_pair(row_id, valueData));
-
     }
+    return destsInRange;
 
-    rangeWorkerArgs wa(false, this->df, threshold, destsInRange);
-    wa.initialize();
-    workerQueue wq(1);
-    wq.startRangeWorker(rangeWorkerHandler, &wa);
 }
 
-    template<class row_label_type, class col_label_type>
-void transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, int numThreads)
+template<class row_label_type, class col_label_type>
+std::unordered_map<col_label_type, std::vector<row_label_type>> transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
     std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
-    for (const col_label_type col_id : this->df.getColIds())
+    for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
     {
         std::vector<row_label_type> valueData;
-
-        sourcesInRange.emplace(std::make_pair(col_id, valueData));
-
+        for (unsigned int row_loc = 0; row_loc < df.getRows(); row_loc++) {
+            if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
+                valueData.push_back(df.getRowIdForLoc(row_loc));
+            }
+        }
+        col_label_type col_id = df.getColIdForLoc(col_loc);
+        destsInRange.emplace(std::make_pair(col_id, valueData));
     }
-    
-    rangeWorkerArgs wa(false, this->df, threshold, sourcesInRange);
-    wa.initialize();
-    workerQueue wq(1);
-    wq.startRangeWorker(rangeWorkerHandler, &wa);
+    return sourcesInRange;
+
 }
 
     template<class row_label_type, class col_label_type>

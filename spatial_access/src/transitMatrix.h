@@ -1,28 +1,26 @@
 #pragma once
 
-#include "threadUtilities.h"
+#include "threadUtilities.cpp"
 #include "dataFrame.cpp"
-#include "Graph.h"
+#include "Graph.cpp"
 #include "MinHeap.h"
-#include "userDataContainer.h"
+#include "userDataContainer.cpp"
 
 #include <mutex>
 
 
 /*write_row: write a row to file*/
-void calculateRow(const std::vector<int> &dist, graphWorkerArgs *wa, int src);
+template<class row_label_type, class col_label_type>
+void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, int src);
 
 
 /* Calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
-void dijkstra(int src, graphWorkerArgs *wa);
+template<class row_label_type, class col_label_type>
+void dijkstra(int src, graphWorkerArgs<row_label_type, col_label_type> *wa);
 
-void graphWorkerHandler(graphWorkerArgs* wa);
-
-void rangeWorkerHandler(rangeWorkerArgs* wa);
-
-void calculateValuesForOneIndex(unsigned int index, rangeWorkerArgs *wa);
-
+template<class row_label_type, class col_label_type>
+void graphWorkerHandler(graphWorkerArgs<row_label_type, col_label_type>* wa);
 
 namespace lmnoel {
 
@@ -39,8 +37,6 @@ public:
 
     // Constructors
     transitMatrix(bool isSymmetric, unsigned int rows, unsigned int cols) : df(isSymmetric, rows, cols) {
-        this->sourcesInRangeThreshold = 0;
-        this->destsInRangeThreshold = 0;
         this->numNodes = 0;
     }
 

@@ -6,18 +6,9 @@
 #include "dataFrame.h"
 
 /* initialize jobQueue, reserving size for known inputs*/
+
 jobQueue::jobQueue(int size_in) {
     data.reserve(size_in);
-}
-
-
-/* initialize jobQueue (unknown number of inputs */
-jobQueue::jobQueue(void) {
-}
-
-
-/* free the jobQueue */
-jobQueue::~jobQueue(void) {
 }
 
 
@@ -62,7 +53,8 @@ bool jobQueue::empty(void) {
 }
 
 /*initialize workerQueue */
-workerQueue::workerQueue(int n_threads_in) {
+template<class row_label_type, class col_label_type>
+workerQueue<row_label_type, col_label_type>::workerQueue(int n_threads_in) {
     threadArray = new std::thread[n_threads_in];
     n_threads = n_threads_in;
 
@@ -70,7 +62,8 @@ workerQueue::workerQueue(int n_threads_in) {
 
 
 /* start the workerQueue */
-void workerQueue::startGraphWorker(void (*f_in)(graphWorkerArgs*), graphWorkerArgs *wa) {
+template<class row_label_type, class col_label_type>
+void workerQueue<row_label_type, col_label_type>::startGraphWorker(void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa) {
     for (int i = 0; i < n_threads; i++) {
         threadArray[i] = std::thread(f_in, wa);
     }
@@ -80,59 +73,18 @@ void workerQueue::startGraphWorker(void (*f_in)(graphWorkerArgs*), graphWorkerAr
     }
 }
 
-/* start the workerQueue */
-void workerQueue::startRangeWorker(void (*f_in)(rangeWorkerArgs*), rangeWorkerArgs *wa) {
-    for (int i = 0; i < n_threads; i++) {
-        threadArray[i] = std::thread(f_in, wa);
-    }
-
-    for (int j = 0; j < n_threads; j++) {
-        threadArray[j].join();
-    }
-}
 
 /* delete the workerQueue */
-workerQueue::~workerQueue(void) {
+template<class row_label_type, class col_label_type>
+workerQueue<row_label_type, col_label_type>::~workerQueue(void) {
     delete [] threadArray;
 }
 
-
-void graphWorkerArgs::initialize()
+template <class row_label_type, class col_label_type>
+void graphWorkerArgs<row_label_type, col_label_type>::initialize()
 {
     //initialize job queue
     for (auto i : userSourceData.retrieveUniqueNetworkNodeIds()) {
         jq.insert(i);
     }
-}
-
-/* wa destructor */
-graphWorkerArgs::~graphWorkerArgs(void) 
-{
-
-}
-
-void rangeWorkerArgs::initialize()
-{
-    if (isDestsInRange)  
-    {
-        for (unsigned int row_loc = 0; row_loc < df.getRows(); row_loc++)
-        {
-            jq.insert(row_loc);
-        }
-    } 
-    else 
-    {
-        for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
-        {
-            jq.insert(col_loc);
-        }
-    }
-
-}
-
-
-/* wa destructor */
-rangeWorkerArgs::~rangeWorkerArgs(void) 
-{
-
 }
