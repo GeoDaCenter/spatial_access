@@ -1,5 +1,5 @@
 #include <iostream>
-#include "transitMatrix.h"
+#include "transitMatrix.cpp"
 #include <vector>
 #include <unordered_map>
 
@@ -24,9 +24,20 @@ void printMapOfArrays(std::unordered_map<long unsigned int, std::vector<long uns
 using namespace lmnoel;
 int main()
 {
-    transitMatrix<int, int> df(true, 3, 3);
+    transitMatrix<std::string, std::string> tm(false, 2, 2);
+    tm.prepareGraphWithVertices(5);
+    tm.addEdgeToGraph(0, 1, 1, true);
+    tm.addEdgeToGraph(1, 2, 6, true);
+    tm.addEdgeToGraph(0, 3, 5, true);
+    tm.addEdgeToGraph(1, 3, 2, true);
+    tm.addToUserSourceDataContainerInt(1, 0, 4, false);
+    tm.addToUserSourceDataContainerInt(0, 1, 2, false);
+    tm.addToUserDestDataContainerInt(0, 2, 3);
+    tm.addToUserDestDataContainerInt(2, 3, 8);
 
+    tm.compute(1);
 
+    tm.printDataFrame();
     return 0;
 };
 

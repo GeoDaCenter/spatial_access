@@ -222,7 +222,7 @@ void dataFrame<row_label_type, col_label_type>::setValueByLoc(unsigned int row_l
 }
 
 template <class row_label_type, class col_label_type>
-void dataFrame<row_label_type, col_label_type>::insertRowByLoc(const std::unordered_map<unsigned int, unsigned short int> &row_data, unsigned int source_loc)
+void dataFrame<row_label_type, col_label_type>::setRowByRowLoc(const std::unordered_map<unsigned int, unsigned short int> &row_data, unsigned int source_loc)
 {
     for (auto element : row_data)
     {

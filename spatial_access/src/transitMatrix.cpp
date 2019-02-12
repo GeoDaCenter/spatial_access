@@ -14,7 +14,7 @@
 
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
-void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, int src) {
+void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned int src) {
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -27,21 +27,21 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, 
         // iterate through each dest tract
 
         std::unordered_map<unsigned int, unsigned short int> row_data;
-        for (auto destNodeId : destNodeIds)
+        for (unsigned int destNodeId : destNodeIds)
         {
             auto destTract = wa->userDestData.retrieveTract(destNodeId);
             auto destPoints = destTract.retrieveDataPoints();
             for (auto destDataPoint : destPoints)
             {
-                if (wa->df.isSymmetric())
+                if (wa->df.getIsSymmetric())
                 {
-                    if (wa->df.isUnderDiagonal(sourceDataPoint.id, destDataPoint.id))
+                    if (wa->df.isUnderDiagonal(sourceDataPoint.loc, destDataPoint.loc))
                     {
                         continue;
                     }
                 }
                 calc_imp = dist.at(destNodeId);
-                if ((wa->df.isSymmetric()) && (destDataPoint.id == sourceDataPoint.id))
+                if ((wa->df.getIsSymmetric()) && (destDataPoint.loc == sourceDataPoint.loc))
                 {
                     fin_imp = 0;
                 }
@@ -58,13 +58,13 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, 
                     }
 
                 }
-                row_data.insert(std::make_pair(destDataPoint.id, fin_imp));
+                row_data.insert(std::make_pair(destDataPoint.loc, fin_imp));
 
 
             }
 
         }
-        wa->df.insertRow(row_data, sourceDataPoint.id);
+        wa->df.setRowByRowLoc(row_data, sourceDataPoint.loc);
     }
 }
 
@@ -72,16 +72,16 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, 
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 template<class row_label_type, class col_label_type>
-void dijkstra(int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
+void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
     int V = wa->graph.V;// Get the number of vertices in graph
     
-    std::vector<int> dist(V, USHRT_MAX);
+    std::vector<unsigned short int> dist(V, USHRT_MAX);
 
     // minHeap represents set E
     MinHeap minHeap(V);
  
     // Initialize min heap with all vertices. dist value of all vertices 
-    for (int v = 0; v < V; ++v)
+    for (auto v = 0; v < V; ++v)
     {
         minHeap.array[v] = MinHeapNode(v, dist[v]);
         minHeap.pos[v] = v;
@@ -130,8 +130,10 @@ void dijkstra(int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
     
 }
 
-void graphWorkerHandler(graphWorkerArgs* wa) {
-    int src;
+template<class row_label_type, class col_label_type>
+void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
+{
+    unsigned int src;
     bool endNow = false;
     while (!wa->jq.empty()) {
         src = wa->jq.pop(endNow);
@@ -162,7 +164,7 @@ unsigned int transitMatrix<row_label_type, col_label_type>::getRows() const {
 
 template<class row_label_type, class col_label_type>
 void transitMatrix<row_label_type, col_label_type>::setRows(unsigned int rows) {
-    df.setRows(cols);
+    df.setRows(rows);
 }
 
 template<class row_label_type, class col_label_type>
@@ -211,13 +213,13 @@ void transitMatrix<row_label_type, col_label_type>::setSecondaryDatasetIds(const
 }
 
 template<class row_label_type, class col_label_type>
-const std::vector<row_label_type>& transitMatrix<row_label_type, col_label_type>::getPrimaryDatasetIds()
+const std::vector<row_label_type>& transitMatrix<row_label_type, col_label_type>::getPrimaryDatasetIds() const
 {
     return df.getRowIds();
 }
 
 template<class row_label_type, class col_label_type>
-const std::vector<col_label_type>& transitMatrix<row_label_type, col_label_type>::getSecondaryDatasetIds()
+const std::vector<col_label_type>& transitMatrix<row_label_type, col_label_type>::getSecondaryDatasetIds() const
 {
     return df.getColIds();
 }
@@ -239,7 +241,7 @@ void transitMatrix<row_label_type, col_label_type>::compute(int numThreads)
 {
     try 
     {
-        graphWorkerArgs wa(graph, userSourceDataContainer, userDestDataContainer, 
+        graphWorkerArgs<row_label_type, col_label_type> wa(graph, userSourceDataContainer, userDestDataContainer,
             numNodes, df);
         wa.initialize();  
         workerQueue<row_label_type, col_label_type> wq(numThreads);
@@ -254,7 +256,7 @@ void transitMatrix<row_label_type, col_label_type>::compute(int numThreads)
 template<class row_label_type, class col_label_type>
 void transitMatrix<row_label_type, col_label_type>::addToUserDestDataContainer(int networkNodeId, const col_label_type& col_id, int lastMileDistance)
 {
-    unsigned int col_loc = this->df.addToColIndex(id);
+    unsigned int col_loc = this->df.addToColIndex(col_id);
     this->addToUserDestDataContainerInt(networkNodeId, col_loc, lastMileDistance);
 }
 
@@ -359,13 +361,13 @@ void transitMatrix<row_label_type, col_label_type>::printDataFrame() const
 
 
     template<class row_label_type, class col_label_type>
-int transitMatrix<row_label_type, col_label_type>::getValueById(const row_label_type&, const col_label_type&) const
+unsigned short int transitMatrix<row_label_type, col_label_type>::getValueById(const row_label_type& row_id, const col_label_type& col_id) const
 {
-    return df.getValueById(source, dest);
+    return df.getValueById(row_id, col_id);
 }
 
 template<class row_label_type, class col_label_type>
-std::unordered_map<row_label_type, std::vector<col_label_type>> transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, int numThreads)
+const std::unordered_map<row_label_type, std::vector<col_label_type>>& transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
     std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
@@ -385,7 +387,7 @@ std::unordered_map<row_label_type, std::vector<col_label_type>> transitMatrix<ro
 }
 
 template<class row_label_type, class col_label_type>
-std::unordered_map<col_label_type, std::vector<row_label_type>> transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, int numThreads)
+const std::unordered_map<col_label_type, std::vector<row_label_type>>& transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, int numThreads)
 {
     // Initialize maps
     std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
@@ -398,7 +400,7 @@ std::unordered_map<col_label_type, std::vector<row_label_type>> transitMatrix<ro
             }
         }
         col_label_type col_id = df.getColIdForLoc(col_loc);
-        destsInRange.emplace(std::make_pair(col_id, valueData));
+        sourcesInRange.emplace(std::make_pair(col_id, valueData));
     }
     return sourcesInRange;
 

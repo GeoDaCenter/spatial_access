@@ -51,8 +51,7 @@ public:
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
                        int numNodes, dataFrame<row_label_type, col_label_type> &df)
-    : graph(graph), df(df), userSourceData(userSourceData), userDestData(userDestData),
+    : graph(graph), df(df), jq(numNodes), userSourceData(userSourceData), userDestData(userDestData),
      numNodes(numNodes) {}
-    ~graphWorkerArgs(void);
     void initialize();
 };

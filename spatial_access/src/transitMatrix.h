@@ -3,7 +3,7 @@
 #include "threadUtilities.cpp"
 #include "dataFrame.cpp"
 #include "Graph.cpp"
-#include "MinHeap.h"
+#include "MinHeap.cpp"
 #include "userDataContainer.cpp"
 
 #include <mutex>
@@ -17,7 +17,7 @@ void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, 
 /* Calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 template<class row_label_type, class col_label_type>
-void dijkstra(int src, graphWorkerArgs<row_label_type, col_label_type> *wa);
+void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> *wa);
 
 template<class row_label_type, class col_label_type>
 void graphWorkerHandler(graphWorkerArgs<row_label_type, col_label_type>* wa);
@@ -36,17 +36,15 @@ public:
     int numNodes;
 
     // Constructors
-    transitMatrix(bool isSymmetric, unsigned int rows, unsigned int cols) : df(isSymmetric, rows, cols) {
-        this->numNodes = 0;
-    }
+    transitMatrix(bool isSymmetric, unsigned int rows, unsigned int cols) : df(isSymmetric, rows, cols), numNodes(0) {}
 
     // Initialization
-    void addToUserSourceDataContainer(int networkNodeId, row_label_type row_id, int lastMileDistance, bool isBidirectional);
-    void addToUserDestDataContainer(int networkNodeId, col_label_type col_id, int lastMileDistance);
+    void addToUserSourceDataContainer(int networkNodeId, const row_label_type& row_id, int lastMileDistance, bool isBidirectional);
+    void addToUserDestDataContainer(int networkNodeId, const col_label_type& col_id, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
 
     void compute(int numThreads);
-    void addToCategoryMap(col_label_type dest_id, const std::string& category);
+    void addToCategoryMap(const col_label_type& dest_id, const std::string& category);
     void prepareGraphWithVertices(int V);
 
 
@@ -56,27 +54,27 @@ public:
     const std::unordered_map<row_label_type, std::vector<col_label_type>>& getDestsInRange(unsigned int range, int numThreads);
     const std::unordered_map<col_label_type, std::vector<row_label_type>>& getSourcesInRange(unsigned int range, int numThreads);
 
-    unsigned short int timeToNearestDestPerCategory(row_label_type source_id, const std::string& category) const;
-    unsigned short int countDestsInRangePerCategory(row_label_type source_id, const std::string& category, unsigned short int range) const;
-    unsigned short int timeToNearestDest(row_label_type source_id) const;
-    unsigned short int countDestsInRange(row_label_type source_id, unsigned short int range) const;
+    unsigned short int timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const;
+    unsigned short int countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, unsigned short int range) const;
+    unsigned short int timeToNearestDest(const row_label_type& source_id) const;
+    unsigned short int countDestsInRange(const row_label_type& source_id, unsigned short int range) const;
 
     // IO
     bool writeCSV(const std::string &outfile);
     void printDataFrame() const;
 
     // Getters
-    unsigned short int getValueById(const row_label_type& source, const col_label_type& dest) const;
-    unsigned int getRows();
-    unsigned int getColumns();
-    bool getIsSymmetric();
-    const std::vector<std::vector<unsigned short int>>& getDataset();
-    const std::vector<row_label_type>& getPrimaryDatasetIds();
-    const std::vector<col_label_type>& getSecondaryDatasetIds();
+    unsigned short int getValueById(const row_label_type& source_id, const col_label_type& dest_id) const;
+    unsigned int getRows() const;
+    unsigned int getCols() const;
+    bool getIsSymmetric() const;
+    const std::vector<std::vector<unsigned short int>>& getDataset() const;
+    const std::vector<row_label_type>& getPrimaryDatasetIds() const;
+    const std::vector<col_label_type>& getSecondaryDatasetIds() const;
 
     // Setters
     void setRows(unsigned int rows);
-    void setColumns(unsigned int columns);
+    void setCols(unsigned int columns);
     void setIsSymmetric(bool isSymmetric);
     void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
     void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds);

@@ -6,7 +6,7 @@
 
 #include "userDataContainer.h"
 
-userDataPoint::userDataPoint(int networkNodeId, unsigned int loc, int lastMileDistance)
+userDataPoint::userDataPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance)
 {
     this->networkNodeId = networkNodeId;
     this->loc = loc;
@@ -27,7 +27,7 @@ void userDataTract::print() const
     }
 }
 
-userDataTract::userDataTract(int networkNodeId)
+userDataTract::userDataTract(unsigned int networkNodeId)
 {
     this->networkNodeId = networkNodeId;
 }
@@ -45,7 +45,7 @@ const std::vector<unsigned int>& userDataContainer::retrieveAllUserDataIds() con
 
 void userDataContainer::print() const
 {
-    for (auto entry : data)
+    for (const auto entry : data)
     {
         entry.second.print();
     }
@@ -56,12 +56,12 @@ userDataContainer::userDataContainer()
     this->isSymmetric = false;
 }
 
-bool userDataContainer::containsTract(int networkNodeId) const
+bool userDataContainer::containsTract(unsigned int networkNodeId) const
 {
     return data.find(networkNodeId) != data.end();
 }
 
-void userDataContainer::addPoint(int networkNodeId, unsigned int loc, int lastMileDistance)
+void userDataContainer::addPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance)
 {
     ids.push_back(loc);
     allNetworkNodeIds.push_back(networkNodeId);
@@ -81,18 +81,18 @@ void userDataContainer::addPoint(int networkNodeId, unsigned int loc, int lastMi
 
 }
 
-const userDataTract& userDataContainer::retrieveTract(int networkNodeId) const
+const userDataTract& userDataContainer::retrieveTract(unsigned int networkNodeId) const
 {
     return data.at(networkNodeId);
 }
 
-const std::vector<int>& userDataContainer::retrieveAllNetworkNodeIds() const
+const std::vector<unsigned int>& userDataContainer::retrieveAllNetworkNodeIds() const
 {
     return allNetworkNodeIds;
 }
 
 
-const std::vector<int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
+const std::vector<unsigned int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
 {
     return uniqueNetworkNodeIds;
 }

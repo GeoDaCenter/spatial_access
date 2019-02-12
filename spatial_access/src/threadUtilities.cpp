@@ -44,7 +44,7 @@ int jobQueue::size(void) {
 
 
 /* return true if jobQueue is empty */
-bool jobQueue::empty(void) {
+bool jobQueue::empty() {
     bool res;
     lock.lock();
     res = data.empty();
