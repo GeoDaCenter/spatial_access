@@ -29,6 +29,7 @@ public:
     const col_label_type& getColIdForLoc(unsigned int col_loc) const;
     unsigned int getRowLocForId(row_label_type row_id) const;
     unsigned int getColLocForId(col_label_type col_id) const;
+    const std::vector<unsigned short int>& getDatasetRow(unsigned int row) const;
     const std::vector<std::vector<unsigned short int>>& getDataset() const;
 
     // Setters
@@ -42,8 +43,8 @@ public:
     void setColIds(const std::vector<col_label_type>& col_ids);
     unsigned int addToRowIndex(const row_label_type& row_id);
     unsigned int addToColIndex(const col_label_type& col_id);
-    void setDataset(const std::vector<std::vector<unsigned short int>>& data);
-    
+    void setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row);
+
     // Input/Output:
     bool writeCSV(const std::string &outfile) const;
     void printDataFrame() const;

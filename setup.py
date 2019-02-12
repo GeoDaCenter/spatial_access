@@ -14,18 +14,19 @@ if sys.platform == "darwin":
 
 
 EXTENSION = [Extension(
-    name = 'transitMatrixAdapter', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapter.cpp',
-               'spatial_access/src/Graph.cpp',
-               'spatial_access/src/MinHeap.cpp',
-               'spatial_access/src/userDataContainer.cpp',
-               'spatial_access/src/dataFrame.cpp',
-               'spatial_access/src/threadUtilities.cpp',
-               'spatial_access/src/transitMatrix.cpp'],
+    name = 'transitMatrixAdapterIntXInt', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterIntxInt.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac + ['-lprotobuf']
+    extra_link_args    = ouff_mac
+    ),Extension(
+    name = 'transitMatrixAdapterStringxString', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterStrinxString.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
     )]
 
 

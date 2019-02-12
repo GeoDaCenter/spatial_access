@@ -355,6 +355,12 @@ namespace lmnoel {
     }
 
     template<class row_label_type, class col_label_type>
+    const std::vector<unsigned short int>& transitMatrix<row_label_type, col_label_type>::getDatasetRow(unsigned int datasetRow) const
+    {
+        return df.getDatasetRow(datasetRow);
+    }
+
+    template<class row_label_type, class col_label_type>
     const std::vector<std::vector<unsigned short int>>& transitMatrix<row_label_type, col_label_type>::getDataset() const
     {
         return df.getDataset();
@@ -393,9 +399,9 @@ namespace lmnoel {
     }
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::setDataset(const std::vector<std::vector<unsigned short int>>& dataset)
+    void transitMatrix<row_label_type, col_label_type>::setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row)
     {
-        df.setDataset(dataset);
+        df.setDatasetRow(datasetRow, row);
     }
 
 

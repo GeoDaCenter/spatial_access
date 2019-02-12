@@ -46,8 +46,10 @@ int main()
     tm.setSecondaryDatasetIds(secondaryIds);
     tm.addToCategoryMap("c", "cat1");
     tm.addToCategoryMap("d", "cat2");
-    std::vector<std::vector<unsigned short int>> dataset = {{15, 7}, {14, 6}};
-    tm.setDataset(dataset);
+    std::vector<unsigned short int> row1 = {15, 7};
+    std::vector<unsigned short int> row2 = {14, 6};
+    tm.setDatasetRow(row1, 0);
+    tm.setDatasetRow(row2, 1);
     tm.printDataFrame();
     auto destsInRange = tm.getDestsInRange(10, 1);
 //

@@ -63,6 +63,7 @@ public:
     unsigned int getRows() const;
     unsigned int getCols() const;
     bool getIsSymmetric() const;
+    const std::vector<unsigned short int>& getDatasetRow(unsigned int row) const;
     const std::vector<std::vector<unsigned short int>>& getDataset() const;
     const std::vector<row_label_type>& getPrimaryDatasetIds() const;
     const std::vector<col_label_type>& getSecondaryDatasetIds() const;
@@ -71,7 +72,7 @@ public:
     void setRows(unsigned int rows);
     void setCols(unsigned int columns);
     void setIsSymmetric(bool isSymmetric);
-    void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
+    void setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row);
     void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds);
     void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds);
 
@@ -80,8 +81,9 @@ public:
     void printDataFrame() const;
 
     // Aliases (for cython bug)
-    typedef unsigned long int label;
     typedef unsigned short int value;
+    typedef unsigned long int int_label;
+    typedef std::pair<unsigned long int, unsigned short int> value_pair;
 
 
 private:

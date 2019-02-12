@@ -37,7 +37,6 @@ template <class row_label_type, class col_label_type>
             dataset.push_back(data);
         }
     }
-    std::cout << "dataset_size:" << dataset_size << std::endl;
 }
 
 
@@ -65,10 +64,18 @@ unsigned int dataFrame<row_label_type, col_label_type>::getCols() const
     return cols;
 
 }
+
 template <class row_label_type, class col_label_type>
-void dataFrame<row_label_type, col_label_type>::setDataset(const std::vector<std::vector<unsigned short int>>& data)
+void dataFrame<row_label_type, col_label_type>::setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row)
 {
-    this->dataset = data;
+    this->dataset.at(row) = datasetRow;
+}
+
+
+template <class row_label_type, class col_label_type>
+const std::vector<unsigned short int>& dataFrame<row_label_type, col_label_type>::getDatasetRow(unsigned int row) const
+{
+    return dataset.at(row);
 }
 
 template <class row_label_type, class col_label_type>
@@ -299,6 +306,7 @@ template <class row_label_type, class col_label_type>
 bool dataFrame<row_label_type, col_label_type>::writeToStream(std::ostream& streamToWrite) const
 {
 
+    streamToWrite << ",";
     // write the top row of column labels
     for (col_label_type col_label : colIds)
     {

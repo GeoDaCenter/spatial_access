@@ -20,7 +20,7 @@ void jobQueue::insert(unsigned int item) {
 
 /* pop from the jobQueue.*/
 unsigned int jobQueue::pop(bool &endNow) {
-    unsigned int res;
+    unsigned int res = 0;
     lock.lock();
     if (!data.empty()) {
         res = data.front();
