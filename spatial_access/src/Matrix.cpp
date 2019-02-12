@@ -24,20 +24,42 @@ void printMapOfArrays(std::unordered_map<long unsigned int, std::vector<long uns
 using namespace lmnoel;
 int main()
 {
-    transitMatrix<std::string, std::string> tm(false, 2, 2);
-    tm.prepareGraphWithVertices(5);
-    tm.addEdgeToGraph(0, 1, 1, true);
-    tm.addEdgeToGraph(1, 2, 6, true);
-    tm.addEdgeToGraph(0, 3, 5, true);
-    tm.addEdgeToGraph(1, 3, 2, true);
-    tm.addToUserSourceDataContainerInt(1, 0, 4, false);
-    tm.addToUserSourceDataContainerInt(0, 1, 2, false);
-    tm.addToUserDestDataContainerInt(0, 2, 3);
-    tm.addToUserDestDataContainerInt(2, 3, 8);
+    transitMatrix<unsigned long int, std::string> tm(false, 2, 2);
+//    tm.prepareGraphWithVertices(5);
+//    tm.addEdgeToGraph(0, 1, 1, true);
+//    tm.addEdgeToGraph(1, 2, 6, true);
+//    tm.addEdgeToGraph(0, 3, 5, true);
+//    tm.addEdgeToGraph(1, 3, 2, true);
+//    tm.addToUserSourceDataContainer(1, "a", 4);
+//    tm.addToUserSourceDataContainer(0, "b", 2);
+//    tm.addToUserDestDataContainer(2, "c", 5);
+//    tm.addToUserDestDataContainer(3, "d", 1);
+//
+//    tm.compute(1);
+//
+//    tm.printDataFrame();
 
-    tm.compute(1);
 
+    std::vector<unsigned long int> primaryIds = {11, 12};
+    std::vector<std::string> secondaryIds = {"c", "d"};
+    tm.setPrimaryDatasetIds(primaryIds);
+    tm.setSecondaryDatasetIds(secondaryIds);
+    tm.addToCategoryMap("c", "cat1");
+    tm.addToCategoryMap("d", "cat2");
+    std::vector<std::vector<unsigned short int>> dataset = {{15, 7}, {14, 6}};
+    tm.setDataset(dataset);
     tm.printDataFrame();
+    auto destsInRange = tm.getDestsInRange(10, 1);
+//
+    auto sourcesInRange = tm.getSourcesInRange(10, 1);
+
+    auto valuesBySource = tm.getValuesBySource(11, true);
+
+    auto valuesByDest = tm.getValuesByDest("d", true);
+    auto timeToNearestDestPerCatagory = tm.timeToNearestDestPerCategory(11, "cat1");
+    auto countdestsInRangePerCategory = tm.countDestsInRangePerCategory(11, "cat2", 10);
+    auto timeToNearestDest = tm.timeToNearestDest(12);
+    auto countdestsInRange = tm.countDestsInRange(11, 10);
     return 0;
 };
 

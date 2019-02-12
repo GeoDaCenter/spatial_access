@@ -54,13 +54,13 @@ void dataFrame<row_label_type, col_label_type>::setCols(unsigned int cols)
 }
 
 template <class row_label_type, class col_label_type>
-unsigned int dataFrame<row_label_type, col_label_type>::getRows(void) const
+unsigned int dataFrame<row_label_type, col_label_type>::getRows() const
 {
     return rows;
 }
 
 template <class row_label_type, class col_label_type>
-unsigned int dataFrame<row_label_type, col_label_type>::getCols(void) const
+unsigned int dataFrame<row_label_type, col_label_type>::getCols() const
 {
     return cols;
 
@@ -115,21 +115,9 @@ void dataFrame<row_label_type, col_label_type>::setValueById(row_label_type row_
 template <class row_label_type, class col_label_type>
 unsigned short int dataFrame<row_label_type, col_label_type>::getValueById(row_label_type row_id, col_label_type col_id) const
 {
-    row_label_type row_loc = rowIdsToLoc(row_id);
-    col_label_type col_loc = colIdsToLoc(col_id);
+    unsigned short int row_loc = rowIdsToLoc.at(row_id);
+    unsigned short int col_loc = colIdsToLoc.at(col_id);
     return getValueByLoc(row_loc, col_loc);
-}
-
-template <class row_label_type, class col_label_type>
-bool sortBySecondRows(const std::pair<row_label_type, unsigned short int> &a, const std::pair<row_label_type, unsigned short int> &b)
-{
-    return a.second < b.second;
-}
-
-template <class row_label_type, class col_label_type>
-bool sortBySecondCols(const std::pair<col_label_type, unsigned short int> &a, const std::pair<col_label_type, unsigned short int> &b)
-{
-    return a.second < b.second;
 }
 
 template <class row_label_type, class col_label_type>
@@ -144,7 +132,9 @@ const std::vector<std::pair<col_label_type, unsigned short int>> dataFrame<row_l
     }
     if (sort)
     {
-        std::sort(returnValue.begin(), returnValue.end(), sortBySecondCols);
+        std::sort(returnValue.begin(), returnValue.end(), [](std::pair<col_label_type, unsigned short int> &left, std::pair<col_label_type, unsigned short int> &right) {
+            return left.second < right.second;
+        });
     }
     return returnValue;
 }
@@ -161,7 +151,9 @@ const std::vector<std::pair<row_label_type, unsigned short int>> dataFrame<row_l
     }
     if (sort)
     {
-        std::sort(returnValue.begin(), returnValue.end(), sortBySecondRows);
+        std::sort(returnValue.begin(), returnValue.end(), [](std::pair<row_label_type, unsigned short int> &left, std::pair<row_label_type, unsigned short int> &right) {
+            return left.second < right.second;
+        });
     }
     return returnValue;
 }
@@ -193,13 +185,13 @@ const col_label_type& dataFrame<row_label_type, col_label_type>::getColIdForLoc(
 template <class row_label_type, class col_label_type>
 unsigned int dataFrame<row_label_type, col_label_type>::getRowLocForId(row_label_type row_id) const
 {
-    return rowIdsToLoc.find(row_id);
+    return rowIdsToLoc.at(row_id);
 }
 
 template <class row_label_type, class col_label_type>
 unsigned int dataFrame<row_label_type, col_label_type>::getColLocForId(col_label_type col_id) const
 {
-    return colIdsToLoc.find(col_id);
+    return colIdsToLoc.at(col_id);
 }
 
 template <class row_label_type, class col_label_type>
@@ -253,15 +245,19 @@ void dataFrame<row_label_type, col_label_type>::setColIds(const std::vector<col_
 template <class row_label_type, class col_label_type>
 unsigned int dataFrame<row_label_type, col_label_type>::addToRowIndex(const row_label_type& row_id)
 {
+    unsigned int index = rowIds.size();
     rowIds.push_back(row_id);
-    return rowIds.size() - 1;
+    rowIdsToLoc.emplace(std::make_pair(row_id, index));
+    return index;
 }
 
 template <class row_label_type, class col_label_type>
 unsigned int dataFrame<row_label_type, col_label_type>::addToColIndex(const col_label_type& col_id)
 {
+    unsigned int index = colIds.size();
     colIds.push_back(col_id);
-    return colIds.size() - 1;
+    colIdsToLoc.emplace(std::make_pair(col_id, index));
+    return index;
 }
 
 template <class row_label_type, class col_label_type>
