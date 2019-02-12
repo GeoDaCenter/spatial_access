@@ -25,93 +25,71 @@ void calculateValuesForOneIndex(unsigned long int index, rangeWorkerArgs *wa);
 
 
 namespace lmnoel {
+
+template <class row_label_type, class col_label_type>
 class transitMatrix {
 public:
-    // Constructors
-    transitMatrix(int V);
-    transitMatrix(void);
 
-
-    typedef unsigned long int label;
-    typedef unsigned short int value;
+    // Public members
     dataFrame df;
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
     Graph graph;
     int numNodes;
-    void addToUserSourceDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance, bool isBidirectional);
-    void addToUserDestDataContainerInt(int networkNodeId, unsigned long int id, int lastMileDistance);
-    void addToUserSourceDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance, bool isBidirectional);
-    void addToUserDestDataContainerString(int networkNodeId, const std::string& id, int lastMileDistance);
+
+    // Constructors
+    transitMatrix(int V);
+    transitMatrix(void);
+
+    // Initialization
+    void addToUserSourceDataContainer(int networkNodeId, unsigned int row_loc, int lastMileDistance, bool isBidirectional);
+    void addToUserDestDataContainer(int networkNodeId, unsigned int row_loc, int lastMileDistance);
     void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
-    void compute(int numThreads);
-    int get(unsigned long int source, unsigned long intdest) const;
-    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesBySource(unsigned long int source_id, bool sort);
-    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesByDest(unsigned long int dest_id, bool sort);
-
     void prepareDataFrame();
-    bool writeCSV(const std::string &outfile);
-    bool writeTMX(const std::string &outfile);
-    void printDataFrame() const;
-    void calculateSourcesInRange(unsigned int threshold, int numThreads);
-    void calculateDestsInRange(unsigned int threshold, int numThreads);
-    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getDestsInRange(unsigned int range, int numThreads);
-    const std::unordered_map<unsigned long int, std::vector<unsigned long int>>& getSourcesInRange(unsigned int range, int numThreads);
-    const std::unordered_map<std::string, unsigned long int> getUserRowIdCache();
-    const std::unordered_map<std::string, unsigned long int> getUserColIdCache();
-    void addToCategoryMap(unsigned long int dest_id, const std::string& category);
-    unsigned short int timeToNearestDestPerCategory(unsigned long int source_id, const std::string& category) const;
-    unsigned short int countDestsInRangePerCategory(unsigned long int source_id, const std::string& category, unsigned short int range) const;
-    unsigned short int timeToNearestDest(unsigned long int source_id) const;
-    unsigned short int countDestsInRange(unsigned long int source_id, unsigned short int range) const;
+    void compute(int numThreads);
+    void addToCategoryMap(col_label_type dest_id, const std::string& category);
 
+    // Calculations
+    const std::vector<std::pair<col_label_type, unsigned short int>> getValuesBySource(row_label_type source_id, bool sort);
+    const std::vector<std::pair<row_label_type, unsigned short int>> getValuesByDest(col_label_type dest_id, bool sort);
+    const std::unordered_map<row_label_type, std::vector<col_label_type>>& getDestsInRange(unsigned int range, int numThreads);
+    const std::unordered_map<col_label_type, std::vector<row_label_type>>& getSourcesInRange(unsigned int range, int numThreads);
+
+    unsigned short int timeToNearestDestPerCategory(row_label_type source_id, const std::string& category) const;
+    unsigned short int countDestsInRangePerCategory(row_label_type source_id, const std::string& category, unsigned short int range) const;
+    unsigned short int timeToNearestDest(row_label_type source_id) const;
+    unsigned short int countDestsInRange(row_label_type source_id, unsigned short int range) const;
+
+    // IO
+    bool writeCSV(const std::string &outfile);
+    void printDataFrame() const;
 
     // Getters
-    const std::string& getDatasetName();
+    unsigned short int getValueById(const row_label_type& source, const col_label_type& dest) const;
     unsigned int getRows();
     unsigned int getColumns();
     bool getIsSymmetric();
-    const std::string& getPrimaryDatasetIdsName();
-    const std::string& getSecondaryDatasetIdsName();
-    std::vector<std::vector<unsigned short int>> getDataset();
-    const std::vector<std::string>& getPrimaryDatasetStringIds();
-    const std::vector<std::string>& getSecondaryDatasetStringIds();
-    const std::vector<unsigned long int>& getPrimaryDatasetIntIds();
-    const std::vector<unsigned long int>& getSecondaryDatasetIntIds();
+    const std::vector<std::vector<unsigned short int>>& getDataset();
+    const std::vector<row_label_type>& getPrimaryDatasetIds();
+    const std::vector<col_label_type>& getSecondaryDatasetIds();
 
     // Setters
-    void setDatasetName(const std::string& datasetName);
     void setRows(unsigned int rows);
     void setColumns(unsigned int columns);
     void setIsSymmetric(bool isSymmetric);
-    void setPrimaryDatasetIdsName(const std::string& primaryDatasetIdsName);
-    void setSecondaryDatasetIdsName(const std::string& secondaryDatasetIdsName);
-    void setDataset(std::vector<std::vector<unsigned short int>> dataset);
-    void setPrimaryDatasetStringIds(const std::vector<std::string>& primaryDatasetIds);
-    void setSecondaryDatasetStringIds(const std::vector<std::string>& primaryDatasetIds);
-    void setPrimaryDatasetIntIds(const std::vector<unsigned long int>& primaryDatasetIds);
-    void setSecondaryDatasetIntIds(const std::vector<unsigned long int>& primaryDatasetIds);
+    void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
+    void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds);
+    void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds);
+
+    // Aliases (for cython bug)
+    typedef unsigned long int label;
+    typedef unsigned short int value;
+
 
 private:
-    std::unordered_map<unsigned long int, std::vector<unsigned long int>> sourcesInRange;
-    std::unordered_map<unsigned long int, std::vector<unsigned long int>> destsInRange;
-    bool primaryDatasetIdsIsString;
-    bool secondaryDatasetIdsIsString;
-    unsigned int sourcesInRangeThreshold;
-    unsigned int destsInRangeThreshold;
-    std::unordered_map<std::string, std::vector<unsigned long int>> categoryToDestMap;
-    std::string datasetName;
-    std::string primaryDatasetIdsName;
-    std::string secondaryDatasetIdsName;
-    std::unordered_map<unsigned long int, unsigned long int> primaryDatasetIntIdsToLoc;
-    std::unordered_map<unsigned long int, unsigned long int> secondaryDatasetIntIdsToLoc;
-    std::unordered_map<std::string, unsigned long int> primaryDatasetStringIdsToLoc;
-    std::unordered_map<std::string, unsigned long int> secondaryDatasetStringIdsToLoc;
+    // Private Members
+    std::unordered_map<std::string, std::vector<col_label_type>> categoryToDestMap;
 
-    std::vector<std::string> primaryDatasetIdsString;
-    std::vector<std::string> secondaryDatasetIdsString;
-    std::vector<unsigned long int> primaryDatasetIdsInt;
-    std::vector<unsigned long int> secondaryDatasetIdsInt;
 };
 
 } // namespace lnoel

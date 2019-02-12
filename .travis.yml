@@ -12,7 +12,6 @@ before install:
 - sudo apt-get install libspatialindex-dev
 
 install:
-- bash install-proto.sh
 - pip3 install .
 
 script:

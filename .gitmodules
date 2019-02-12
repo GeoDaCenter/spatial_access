@@ -1,4 +1,0 @@
-[submodule "spatial_access/src/HighFive"]
-	path = spatial_access/src/HighFive
-	url = https://github.com/BlueBrain/HighFive.git
-	branch = master

@@ -1,319 +1,293 @@
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 #include <stdexcept>
 #include <vector>
 #include <algorithm>
 #include <sys/stat.h>
 
-#include "csv.h"
 #include "dataFrame.h"
 #include <climits>
 
 #define UNDEFINED (USHRT_MAX)
 
 // Initialization:
-
-/* void constructor */
-dataFrame::dataFrame() 
+template <class row_label_type, class col_label_type>
+ dataFrame<row_label_type, col_label_type>::dataFrame(bool isSymmetric, unsigned int rows, unsigned int cols)
 {
-    this->metaData.set_col_labels_are_remapped(false);
-    this->metaData.set_row_labels_are_remapped(false);
-    this->metaData.set_is_symmetric(false);
-    this->row_label_remap_counter = 0;
-    this->col_label_remap_counter = 0;
+    setIsSymmetric(isSymmetric);
+    setRows(rows);
 
+    if (isSymmetric)
+    {
+        setCols(rows);
+        dataset_size = (rows * (rows + 1)) / 2;
+        std::vector<unsigned short int> data(dataset_size, UNDEFINED);
+        dataset.push_back(data);
+    }
+    else
+    {
+        dataset_size = rows * cols;
+        setCols(cols);
+        for (unsigned int row_loc = 0; row_loc < rows; row_loc++)
+        {
+            std::vector<unsigned short int> data(cols, UNDEFINED);
+            dataset.push_back(data);
+        }
+    }
+    std::cout << "dataset_size:" << dataset_size << std::endl;
 }
 
-/* reserve a data frame according to the given indeces */
-void dataFrame::reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids) 
+
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setRows(unsigned int rows)
 {
-    // initialize metaData
-    for (auto row_id : primary_ids)
-    {
-        metaData.add_row_label(row_id);
-    }
+    this->rows = rows;
+}
 
-    // build col_id -> col_loc map
-    for (unsigned long int col_loc = 0; col_loc < secondary_ids.size(); col_loc++)
-    {
-        metaData.add_col_label(secondary_ids.at(col_loc));
-        col_id_to_loc[secondary_ids.at(col_loc)] = col_loc;
-    }
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setCols(unsigned int cols)
+{
+    this->cols = cols;
+}
 
-    // preallocate row map row_id -> dataRow
-    auto numberOfRows = primary_ids.size();
-    auto numberOfCols = secondary_ids.size();
-    for (unsigned long int row_idx = 0; row_idx < numberOfRows; row_idx++) {
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::getRows(void) const
+{
+    return rows;
+}
 
-        // if the dataFrame is symmetric, the size of each dataRow depends on
-        // the current row
-        if (metaData.is_symmetric())
-        {
-            auto columnsToAllocate = numberOfCols - row_idx;
-            row_id_map[primary_ids.at(row_idx)].mutable_value()->Resize(columnsToAllocate, UNDEFINED);    
-        }
-        else
-        {
-            row_id_map[primary_ids.at(row_idx)].mutable_value()->Resize(numberOfCols, UNDEFINED);
-        }
-        
-    }
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::getCols(void) const
+{
+    return cols;
 
+}
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setDataset(const std::vector<std::vector<unsigned short int>>& data)
+{
+    this->dataset = data;
+}
+
+template <class row_label_type, class col_label_type>
+const std::vector<std::vector<unsigned short int>>& dataFrame<row_label_type, col_label_type>::getDataset() const
+{
+    return dataset;
+}
+
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::symmetricEquivalentLoc(unsigned int row_loc, unsigned int col_loc) const
+{
+    unsigned int row_delta = rows - row_loc;
+    return dataset_size - row_delta * (row_delta + 1) / 2 + col_loc - row_loc;
 }
 
 // Getters/Setters
-
-unsigned short int dataFrame::retrieveValue(unsigned long int row_id, unsigned long int col_id) const
+template <class row_label_type, class col_label_type>
+unsigned short int dataFrame<row_label_type, col_label_type>::getValueByLoc(unsigned int row_loc, unsigned int col_loc) const
 {
-    if (metaData.is_symmetric())
+    if (getIsSymmetric())
     {
-        // flip the row_id and col_id if under the diagonal
-        if (this->isUnderDiagonal(row_id, col_id))
+        unsigned int index;
+        if (isUnderDiagonal(row_loc, col_loc))
         {
-            auto rowData = row_id_map.at(col_id);
-            // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_to_loc.at(row_id) - col_id_to_loc.at(col_id);
-            return rowData.value(col_loc);
-        }
-        else
+            index = symmetricEquivalentLoc(col_loc, row_loc);
+        } else
         {
-            auto rowData = row_id_map.at(row_id);
-            // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_to_loc.at(col_id) - col_id_to_loc.at(row_id);
-            return rowData.value(col_loc);
+            index = symmetricEquivalentLoc(row_loc, col_loc);
         }
-    } else
-    {
-        auto rowData = row_id_map.at(row_id);
-        auto col_loc = col_id_to_loc.at(col_id);
-        return rowData.value(col_loc);
+        return dataset.at(0).at(index);
     }
+    return dataset.at(row_loc).at(col_loc);
 }
 
-
-void dataFrame::insertValue(unsigned short int value, unsigned long int row_id, unsigned long int col_id)
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setValueById(row_label_type row_id, col_label_type col_id,
+                                                             unsigned short int value)
 {
-    if (metaData.is_symmetric())
-    {
-        // flip the row_id and col_id if under the diagonal
-        if (this->isUnderDiagonal(row_id, col_id))
-        {
-            // no need to insert, it is duplicate
-            return;
-        }
-        else
-        {
-            // real col_loc is current col_loc - current row_loc (to account for diagonal)
-            auto col_loc = col_id_to_loc.at(col_id) - col_id_to_loc.at(row_id);
-            row_id_map.at(row_id).set_value(col_loc, value);
-        }
-    } else
-    {
-        auto col_loc = col_id_to_loc.at(col_id);
-        row_id_map.at(row_id).set_value(col_loc, value);
-    }
+    unsigned int row_loc = rowIdsToLoc.at(row_id);
+    unsigned int col_loc = colIdsToLoc.at(col_id);
+    setValueByLoc(row_loc, col_loc, value);
 }
 
-
-void dataFrame::insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id)
+template <class row_label_type, class col_label_type>
+unsigned short int dataFrame<row_label_type, col_label_type>::getValueById(row_label_type row_id, col_label_type col_id) const
 {
-    for (auto element : row_data)
-    {
-        this->insertValue(element.second, source_id, element.first);
-    }
+    row_label_type row_loc = rowIdsToLoc(row_id);
+    col_label_type col_loc = colIdsToLoc(col_id);
+    return getValueByLoc(row_loc, col_loc);
 }
 
-
-bool dataFrame::isSymmetric() const
-{
-    return metaData.is_symmetric();
-}
-
-void dataFrame::setSymmetric(bool isSymmetric)
-{
-    metaData.set_is_symmetric(isSymmetric);
-}
-
-bool sortBySecond(const std::pair<unsigned long int, unsigned long int> &a, const std::pair<unsigned long int, unsigned long int> &b)
+template <class row_label_type, class col_label_type>
+bool sortBySecondRows(const std::pair<row_label_type, unsigned short int> &a, const std::pair<row_label_type, unsigned short int> &b)
 {
     return a.second < b.second;
 }
 
-const std::vector<std::pair<unsigned long int, unsigned short int>> dataFrame::getValuesByRow(unsigned long int row_label, bool sort)
+template <class row_label_type, class col_label_type>
+bool sortBySecondCols(const std::pair<col_label_type, unsigned short int> &a, const std::pair<col_label_type, unsigned short int> &b)
 {
-    std::vector<std::pair<unsigned long int, unsigned short int>> returnValue;   
-    for (auto col_label : metaData.col_label())
+    return a.second < b.second;
+}
+
+template <class row_label_type, class col_label_type>
+const std::vector<std::pair<col_label_type, unsigned short int>> dataFrame<row_label_type, col_label_type>::getValuesByRowId(row_label_type row_id,
+        bool sort) const
+{
+    std::vector<std::pair<col_label_type, unsigned short int>> returnValue;
+    unsigned int row_loc = rowIdsToLoc.at(row_id);
+    for (unsigned int col_loc = 0; col_loc < getCols(); col_loc++)
     {
-        returnValue.push_back(std::make_pair(col_label, retrieveValue(row_label, col_label)));
+        returnValue.push_back(std::make_pair(colIds.at(col_loc), getValueByLoc(row_loc, col_loc)));
     }
     if (sort)
     {
-        std::sort(returnValue.begin(), returnValue.end(), sortBySecond);
+        std::sort(returnValue.begin(), returnValue.end(), sortBySecondCols);
     }
     return returnValue;
 }
 
-const std::vector<std::pair<unsigned long int, unsigned short int>> dataFrame::getValuesByCol(unsigned long int col_label, bool sort)
+template <class row_label_type, class col_label_type>
+const std::vector<std::pair<row_label_type, unsigned short int>> dataFrame<row_label_type, col_label_type>::getValuesByColId(col_label_type col_id,
+        bool sort) const
 {
-    std::vector<std::pair<unsigned long int, unsigned short int>> returnValue;   
-    for (auto row_label : metaData.row_label())
+    std::vector<std::pair<row_label_type, unsigned short int>> returnValue;
+    unsigned int col_loc = colIdsToLoc.at(col_id);
+    for (unsigned int row_loc = 0; row_loc < getRows(); row_loc++)
     {
-        returnValue.push_back(std::make_pair(row_label, retrieveValue(row_label, col_label)));
+        returnValue.push_back(std::make_pair(rowIds.at(row_loc), getValueByLoc(row_loc, col_loc)));
     }
     if (sort)
     {
-        std::sort(returnValue.begin(), returnValue.end(), sortBySecond);
-    }
-    return returnValue;
-
-}
-
-unsigned long int dataFrame::cacheUserStringId(const std::string& user_string_id, bool isRow)
-{
-    unsigned long int new_id;
-    if (isRow)
-    {
-        this->metaData.set_row_labels_are_remapped(true);
-        this->metaData.add_premap_row_label_string(user_string_id);
-        new_id = this->row_label_remap_counter;
-        this->row_label_remap_counter++;
-    }
-    else
-    {
-        this->metaData.set_col_labels_are_remapped(true);
-        this->metaData.add_premap_col_label_string(user_string_id);
-        new_id = this->col_label_remap_counter;
-        this->col_label_remap_counter++;
-    }
-    return new_id;
-}
-
-std::unordered_map<std::string, unsigned long int> dataFrame::getUserRowIdCache() const
-{
-    std::unordered_map<std::string, unsigned long int> returnValue;
-    unsigned long int counter = 0;
-    for (const auto premap_row_id : this->metaData.premap_row_label_string())
-    {
-        returnValue.emplace(std::make_pair(premap_row_id, counter));
-        counter++;
+        std::sort(returnValue.begin(), returnValue.end(), sortBySecondRows);
     }
     return returnValue;
 }
 
-std::unordered_map<std::string, unsigned long int> dataFrame::getUserColIdCache() const
+template <class row_label_type, class col_label_type>
+const std::vector<row_label_type>& dataFrame<row_label_type, col_label_type>::getRowIds() const
 {
-    std::unordered_map<std::string, unsigned long int> returnValue;
-    unsigned long int counter = 0;
-    for (const auto premap_col_id : this->metaData.premap_col_label_string())
+    return rowIds;
+}
+
+template <class row_label_type, class col_label_type>
+const std::vector<col_label_type>& dataFrame<row_label_type, col_label_type>::getColIds() const
+{
+    return colIds;
+}
+
+template <class row_label_type, class col_label_type>
+const row_label_type& dataFrame<row_label_type, col_label_type>::getRowIdForLoc(unsigned int row_loc) const
+{
+    return rowIds.at(row_loc);
+}
+
+template <class row_label_type, class col_label_type>
+const col_label_type& dataFrame<row_label_type, col_label_type>::getColIdForLoc(unsigned int col_loc) const
+{
+    return colIds.at(col_loc);
+}
+
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::getRowLocForId(row_label_type row_id) const
+{
+    return rowIdsToLoc.find(row_id);
+}
+
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::getColLocForId(col_label_type col_id) const
+{
+    return colIdsToLoc.find(col_id);
+}
+
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setValueByLoc(unsigned int row_loc, unsigned int col_loc, unsigned short int value)
+{
+    if (getIsSymmetric())
     {
-        returnValue.emplace(std::make_pair(premap_col_id, counter));
-        counter++;
+        unsigned int index;
+        if (isUnderDiagonal(row_loc, col_loc))
+        {
+            index = symmetricEquivalentLoc(col_loc, row_loc);
+        } else
+        {
+            index = symmetricEquivalentLoc(row_loc, col_loc);
+        }
+        dataset.at(0).at(index) = value;
+        return;
     }
-    return returnValue;
+    dataset.at(row_loc).at(col_loc) = value;
+}
+
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::insertRowByLoc(const std::unordered_map<unsigned int, unsigned short int> &row_data, unsigned int source_loc)
+{
+    for (auto element : row_data)
+    {
+        this->setValueByLoc(source_loc, element.first, element.second);
+    }
+}
+
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setRowIds(const std::vector<row_label_type>& row_ids)
+{
+    for (unsigned int row_loc = 0; row_loc < getRows(); row_loc++)
+    {
+        this->rowIdsToLoc.emplace(std::make_pair(row_ids.at(row_loc), row_loc));
+    }
+    this->rowIds = row_ids;
+}
+
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setColIds(const std::vector<col_label_type>& col_ids)
+{
+    for (unsigned int col_loc = 0; col_loc < getCols(); col_loc++)
+    {
+        this->colIdsToLoc.emplace(std::make_pair(col_ids.at(col_loc), col_loc));
+    }
+    this->colIds = col_ids;
+}
+
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::addToRowIndex(const row_label_type& row_id)
+{
+    rowIds.push_back(row_id);
+    return rowIds.size() - 1;
+}
+
+template <class row_label_type, class col_label_type>
+unsigned int dataFrame<row_label_type, col_label_type>::addToColIndex(const col_label_type& col_id)
+{
+    colIds.push_back(col_id);
+    return colIds.size() - 1;
+}
+
+template <class row_label_type, class col_label_type>
+bool dataFrame<row_label_type, col_label_type>::getIsSymmetric() const {
+    return isSymmetric;
+}
+
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setIsSymmetric(bool isSymmetric)
+{
+    this->isSymmetric = isSymmetric;
 }
 
 // Utilities
 
-/* return true if position is under the diagonal, else false */
-/* note: calling this method for an unsymmetric matrix will cause segfault */
-bool dataFrame::isUnderDiagonal(unsigned long int row_id, unsigned long int col_id) const
+template <class row_label_type, class col_label_type>
+bool dataFrame<row_label_type, col_label_type>::isUnderDiagonal(unsigned int row_loc, unsigned int col_loc) const
 {
-    return this->col_id_to_loc.at(row_id) > this->col_id_to_loc.at(col_id);
+    return row_loc > col_loc;
 }
 
 
 
 // Input/Output:
-
-bool dataFrame::writeMetadata(const std::string &outfile) const
-{
-    std::string filename = outfile + "/meta";
-    std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!metaData.SerializeToOstream(&output)) {
-        std::cerr << "Failed to write to " << filename << std::endl;
-        return false;
-    }
-    output.close();
-    return true;
-}
-
-bool dataFrame::writeRowdata(const std::string &outfile, unsigned long int row_id) const
-{
-    std::string filename = outfile + "/" + std::to_string(row_id);
-    std::fstream output(filename, std::ios::out | std::ios::trunc | std::ios::binary);
-    if (!row_id_map.at(row_id).SerializeToOstream(&output)) {
-        std::cerr << "Failed to write to " << filename << std::endl;
-        return false;
-    }
-    output.close();
-    return true;
-}
-
-/* Write the dataFrame to a .tmx (a custom binary format) */
-bool dataFrame::writeTMX(const std::string &outfile) const
-{
-    const int dir_err = mkdir(outfile.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (-1 == dir_err)
-    {
-        if (errno != EEXIST)
-        {
-            throw std::runtime_error("error creating directory");
-        }
-    
-    }
-    writeMetadata(outfile);
-    for (unsigned long int row_id : metaData.row_label())
-    {
-        writeRowdata(outfile, row_id);
-    }
-    return true;
-}
-
-bool dataFrame::readMetadata(const std::string &outfile)
-{
-    std::string filename = outfile + "/meta";
-    std::fstream input(filename, std::ios::in | std::ios::binary);
-    if (!metaData.ParseFromIstream(&input)) {
-        throw std::runtime_error("Unable to read metadata");
-    }
-    input.close();
-    return true;
-}
-
-bool dataFrame::readRowdata(const std::string &outfile, unsigned long int row_id)
-{
-    std::string filename = outfile + "/" + std::to_string(row_id);
-    std::fstream input(filename, std::ios::in | std::ios::binary);
-    if (!row_id_map[row_id].ParseFromIstream(&input)) {
-        throw std::runtime_error("Unable to read row data");
-    }
-    input.close();
-    return true;
-}
-
-/* Read the dataFrame from a .tmx (a custom binary format) */
-bool dataFrame::readTMX(const std::string& infile)
-{
-    readMetadata(infile);
-    
-    // build col_id -> col_loc map
-    for (signed long int col_loc = 0; col_loc < metaData.col_label_size(); col_loc++)
-    {
-        col_id_to_loc[metaData.col_label(col_loc)] = col_loc;
-    }
-    for (unsigned long int row_id : metaData.row_label())
-    {
-        readRowdata(infile, row_id);
-    }
-    
-    return true;
-}
-
-
-bool dataFrame::writeCSV(const std::string &outfile) const
+template <class row_label_type, class col_label_type>
+bool dataFrame<row_label_type, col_label_type>::writeCSV(const std::string &outfile) const
 {
     std::ofstream Ofile;
     Ofile.open(outfile);
@@ -325,173 +299,35 @@ bool dataFrame::writeCSV(const std::string &outfile) const
     return true;
 }
 
-bool dataFrame::writeToStream(std::ostream& streamToWrite) const
+template <class row_label_type, class col_label_type>
+bool dataFrame<row_label_type, col_label_type>::writeToStream(std::ostream& streamToWrite) const
 {
-    streamToWrite << ",";
-    
-    if (this->metaData.col_labels_are_remapped())
-    {
-        // write the top row of column labels
-        for (std::string col_label : metaData.premap_col_label_string())
-        {
-            streamToWrite << col_label << ",";
-        }
-    }
-    else if (this->metaData.row_labels_are_remapped() and (this->metaData.is_symmetric()))
-    {
-        // write the top row of column labels
-        for (std::string col_label : metaData.premap_row_label_string())
-        {
-            streamToWrite << col_label << ",";
-        }
-    }
-    else
-    {
-        // write the top row of column labels
-        for (unsigned long int col_label : metaData.col_label())
-        {
-            streamToWrite << col_label << ",";
-        }
-    }
 
+    // write the top row of column labels
+    for (col_label_type col_label : colIds)
+    {
+        streamToWrite << col_label << ",";
+    }
 
     streamToWrite << std::endl;
-    if (this->metaData.row_labels_are_remapped())
+    // write the body of the table, each row has a row label and values
+    for (unsigned int row_loc = 0; row_loc < getRows(); row_loc++)
     {
-        // write the body of the table, each row has a row label and values
-        for (unsigned long int row_id : metaData.row_label())
+        streamToWrite << rowIds.at(row_loc) << ",";
+        for (unsigned int col_loc = 0; col_loc < getCols(); col_loc++)
         {
-            streamToWrite << metaData.premap_row_label_string(row_id) << ",";
-            for (unsigned long int col_id : metaData.col_label())
-            {
-                streamToWrite << this->retrieveValue(row_id, col_id) << ",";
-            }
-            streamToWrite << std::endl;
-
+            streamToWrite << this->getValueByLoc(row_loc, col_loc) << ",";
         }
+        streamToWrite << std::endl;
     }
-    else
-    {
-        // write the body of the table, each row has a row label and values
-        for (unsigned long int row_id : metaData.row_label())
-        {
-            streamToWrite << std::to_string(row_id) << ",";
-            for (unsigned long int col_id : metaData.col_label())
-            {
-                streamToWrite << this->retrieveValue(row_id, col_id) << ",";
-            }
-            streamToWrite << std::endl;
-        }
 
-    }
 
 
     return true;
 }
 
-void dataFrame::printDataFrame() const
+template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::printDataFrame() const
 {
     writeToStream(std::cout);
-} 
-
-/* Read the dataFrame from a .csv */
-bool dataFrame::readCSV(const std::string &infile) 
-{
-    CSV file(infile);
-    auto row_labels = file.get_row_labels_as_int();
-    auto col_labels = file.get_col_labels_as_int();
-    metaData.set_is_symmetric(false);
-    metaData.set_col_labels_are_remapped(false);
-    metaData.set_row_labels_are_remapped(false);
-    reserve(row_labels, col_labels);
-    for (unsigned int row_loc = 0; row_loc < file.num_rows(); row_loc++)
-    {
-        auto row = file.get_row_by_index_as_int(row_loc);
-        for (unsigned int col_loc = 0; col_loc < file.num_cols(); col_loc++)
-        {
-            auto row_id = row_labels.at(row_loc);
-            auto col_id = col_labels.at(col_loc);
-            unsigned long int value = row.at(col_loc);
-            insertValue(value, row_id, col_id);
-        }
-    }
-    return true;
-
-}
-
-bool dataFrame::readOTPMatrix(const std::string& infile)
-{
-    std::ifstream fileIN;
-    fileIN.open(infile);
-    if (fileIN.fail()) {
-        throw std::runtime_error("unable to read OTPTransitMatrix");
-    }
-
-    std::string line;
-    std::string row_label_string;
-    std::string col_label_string;
-    std::unordered_set<unsigned long int> row_label_set;
-    std::unordered_set<unsigned long int> col_label_set;
-
-    unsigned long int row_label_int;
-    unsigned long int col_label_int;
-
-    // read through the first n rows to read in all columns
-    while (getline(fileIN, line)) 
-    {
-        std::istringstream stream(line);
-        if (not getline(stream, row_label_string, ','))
-        {
-            throw std::runtime_error("expected row label");
-        }
-        if (not getline(stream, col_label_string, ','))
-        {
-            throw std::runtime_error("expected col label");
-        }
-
-        col_label_int = stoul(col_label_string);
-        row_label_int = stoul(row_label_string);
-        row_label_set.insert(row_label_int);
-        col_label_set.insert(col_label_int);
-    }
-    std::vector<unsigned long int> row_labels(row_label_set.begin(), row_label_set.end());
-    std::vector<unsigned long int> col_labels(col_label_set.begin(), col_label_set.end());
-
-    fileIN.close(); 
-    reserve(row_labels, col_labels);
-    metaData.set_is_symmetric(false);
-    metaData.set_col_labels_are_remapped(false);
-    metaData.set_row_labels_are_remapped(false);
-    fileIN.open(infile);
-    if (fileIN.fail()) {
-        throw std::runtime_error("unable to read OTPTransitMatrix");
-    }
-
-    // read through the table a second time to load values into
-    // memory
-    std::string value_string;
-    unsigned short int value_int;
-    while (getline(fileIN, line)) 
-    {
-        std::istringstream stream(line);
-        if (not getline(stream, row_label_string, ','))
-        {
-            throw std::runtime_error("expected row label");
-        }
-        if (not getline(stream, col_label_string, ','))
-        {
-            throw std::runtime_error("expected col label");
-        }
-        if (not getline(stream, value_string, ','))
-        {
-            throw std::runtime_error("expected value");
-        }
-        col_label_int = stoul(col_label_string);
-        row_label_int = stoul(row_label_string);
-        value_int = std::stoi(value_string);
-        this->insertValue(value_int, row_label_int, col_label_int);
-    }
-
-    fileIN.close(); 
-    return true;
 }

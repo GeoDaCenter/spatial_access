@@ -1,6 +1,7 @@
 #include <iostream>
-#include "transitMatrix.h"
-
+#include "dataFrame.cpp"
+#include <vector>
+#include <unordered_map>
 
 void printArray(std::vector<unsigned long int> array)
 {
@@ -22,29 +23,27 @@ void printMapOfArrays(std::unordered_map<long unsigned int, std::vector<long uns
 
 int main()
 {
+    dataFrame<int, int> df(true, 3, 3);
 
-    lmnoel::transitMatrix matrix(5, false);
-    matrix.addEdgeToGraph(0, 1, 5, true);
-    matrix.addEdgeToGraph(1, 2, 6, true);
-    matrix.addEdgeToGraph(2, 3, 2, true);
-    matrix.addEdgeToGraph(2, 4, 4, true);
-    matrix.addEdgeToGraph(3, 4, 3, true);
+    std::vector<std::vector<unsigned short int>> data;
+//    std::vector<unsigned short int> row0 = {0, 1};
+//    std::vector<unsigned short int> row1 = {2, 3};
+//    std::vector<unsigned short int> row2 = {4, 5};
+    std::vector<unsigned short int> row0 = {0, 5, 6, 0, 7, 0};
 
-    matrix.addToUserSourceDataContainerString(1, "a", 1, false);
-    matrix.addToUserSourceDataContainerString(0, "b", 2, false);
-    matrix.addToUserSourceDataContainerString(3, "c", 3, false);
-    matrix.addToUserSourceDataContainerString(1, "d", 7, false);
+    data.push_back(row0);
+//    data.push_back(row1);
+//    data.push_back(row2);
+//    std::vector<std::string> row_ids = {"a", "b", "c"};
+    std::vector<int> col_ids = {21, 22, 23};
+    df.setRowIds(col_ids);
+    df.setColIds(col_ids);
+    df.setDataset(data);
 
-    matrix.addToUserDestDataContainerString(1, "a1", 1);
-    matrix.addToUserDestDataContainerString(0, "b1", 2);
-    matrix.addToUserDestDataContainerString(3, "c1", 3);
-    matrix.addToUserDestDataContainerString(1, "d1", 7);
+    df.printDataFrame();
 
-    std::cout << "finished adding" << std::endl;
-    matrix.compute(19);
-    std::cout << "finished compute" << std::endl;
-
-     matrix.printDataFrame();
+    df.setValueById(22,22, 3);
+    df.printDataFrame();
 
     return 0;
 };
