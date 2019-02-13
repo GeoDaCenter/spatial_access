@@ -38,19 +38,9 @@ class BoundingBoxTooLargeException(NetworkInterfaceException):
         super().__init__("BoundingBoxTooLargeException:" + errors)
 
 
-class ReadTMXFailedException(MatrixInterfaceException):
+class UnexpectedFileFormatException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__("ReadTMXFailedException:" + errors)
-
-
-class ReadCSVFailedException(MatrixInterfaceException):
-    def __init__(self, errors=''):
-        super().__init__("ReadCSVFailedException:" + errors)
-
-
-class WriteTMXFailedException(MatrixInterfaceException):
-    def __init__(self, errors=''):
-        super().__init__("WriteTMXFailedException:" + errors)
+        super().__init__("NetworkInterfaceException:" + errors)
 
 
 class WriteCSVFailedException(MatrixInterfaceException):
@@ -64,6 +54,11 @@ class IndecesNotFoundException(MatrixInterfaceException):
 
 
 class UnableToBuildMatrixException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnableToBuildMatrixException:" + errors)
+
+
+class FileNotFoundException(MatrixInterfaceException):
     def __init__(self, errors=''):
         super().__init__("UnableToBuildMatrixException:" + errors)
 

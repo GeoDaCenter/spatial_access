@@ -4,106 +4,98 @@ Abstract interface for the c++ implementation of a matrix.
 import multiprocessing
 import time
 import os
-import json
 import h5py
 
-from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
-from spatial_access.SpatialAccessExceptions import ReadCSVFailedException
-from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
+from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
+from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import PyTransitMatrixNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
 
 try:
-    from transitMatrixAdapter import pyTransitMatrix
+    import transitMatrixAdapterIxI
+    import transitMatrixAdapterSxS
+    import transitMatrixAdapterSxI
+    import transitMatrixAdapterIxS
 except ImportError:
     raise PyTransitMatrixNotBuiltException()
 
 
 class MatrixInterface:
     """
-    A wrapper for C++ based pandas DataFrame like matrix.
+    A wrapper for C++ based transit matrix.
     """
 
     def __init__(self, logger=None):
         self.logger = logger
         self.transit_matrix = None
-        self._warned_once = False
-        self._string_id_warning = """
-        To optimize performance, your non-integer row and/or
-        column labels were remapped to integers. You can recover
-        the mapping of integer id to old string id using the following
-        methods:
-            - get_source_id_remap()
-            - get_dest_id_remap()
-            - write_source_id_remap_to_json(filename)
-            - write_dest_id_remap_to_json(filename)
-        """
+        self.primary_ids_are_string = False
+        self.secondary_ids_are_string = False
+        self.dataset_name = None
+        self.primary_ids_name = None
+        self.secondary_ids_name = None
+        self.primary_ids = None
+        self.secondary_ids = None
 
     def write_h5(self, filename):
         file = h5py.File(filename, 'w')
-        file['dataset_name'] = 'dataset_name_'
-        #
-        file['rows'] = 9
-        file['columns'] = 5
-        file['is_symmetric'] = False
-        strList = ["LEHD","contracts"]
-        asciiList = [n.encode("ascii", "ignore") for n in strList]
-        file['id_dataset_name'] = asciiList
-        data = file.create_dataset(name="DistMatrix", dtype="i2",shape=(3,2))
-        data[0,...] = [1, 2]
-        data[1, ...] = [3, 4]
-        data[2, ...] = [5, 6]
-        string_ids = ["a", "b", "c"]
-        asci_ids = [n.encode("ascii", "ignore") for n in string_ids]
-        primary_ids = file.create_dataset("LEHD", data=asci_ids, dtype="S10")
-        secondary_ids = file.create_dataset("contracts", data=[1, 2], dtype="i8")
+        file['dataset_name'] = self.dataset_name.encode()
+        file['is_symmetric'] = self.transit_matrix.getIsSymmetric()
+        file['rows'] = self.transit_matrix.getRows()
+        file['columns'] = self.transit_matrix.getCols()
+        id_dataset = [self.primary_ids_name.encode()]
+        if self.secondary_ids_name:
+            id_dataset.append(self.secondary_ids_name.encode())
+
+        primary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
+        file.create_dataset(self.primary_ids_name, data=self.transit_matrix.getPrimaryDatasetIds(),
+                            dtype=primary_ids_dtype)
+        if self.secondary_ids_name:
+            secondary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
+            file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
+                                dtype=secondary_ids_dtype)
+        file.create_dataset(self.dataset_name, data=self.transit_matrix.getDataset(), dtype="i2")
         file.close()
 
-
     def read_h5(self, filename):
-        pass
+        if not os.path.exists(filename):
+            raise FileNotFoundException(filename)
+        file = h5py.File(filename, 'r')
+        self.dataset_name = file['dataset_name'].decode()
+        is_symmetric = file['is_symmetric']
+        rows = file['rows']
+        columns = file['columns']
 
+        id_dataset = [name.decode() for name in file['id_dataset_name']]
+        self.primary_ids_name = id_dataset[0]
+        if len(id_dataset) > 1:
+            self.secondary_ids_name = id_dataset[1]
+        if is_symmetric and self.secondary_ids_name is not None:
+            raise UnexpectedFileFormatException("Illogical to have a symmetric matrix with secondary ids")
+        if not is_symmetric and self.secondary_ids_name is None:
+            raise UnexpectedFileFormatException("Illogical to have an asymmetric matrix without secondary ids")
+        self.primary_ids_are_string = file[self.primary_ids_name].type == str
+        if self.secondary_ids_name is None:
+            self.secondary_ids_name = self.primary_ids_name
+        self.secondary_ids_are_string = file[self.secondary_ids_name].type == str
 
-    def get_source_id_remap(self):
-        """
-        Get the internal mapping of user string id to 
-        integer id for sources, remap bytes to strings.
-        """
+        if self.primary_ids_are_string and self.secondary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
+        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
+        elif not self.primary_ids_are_string and self.primary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
+        elif not self.primary_ids_are_string and not self.primary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
+        else:
+            assert False, "Logic Error"
 
-        remapped_ids = self.transit_matrix.getUserRowIdCache()
-        remapped_ids = {k.decode() :v for k, v in remapped_ids.items()}
-        if len(remapped_ids) == 0:
-            return None
-        return remapped_ids
+        self.transit_matrix.setPrimaryDataIds(file[self.primary_ids_name])
+        self.transit_matrix.setSecondaryDataIds(file[self.secondary_ids_name])
+        self.transit_matrix.setDataset(file[self.dataset_name])
 
-    def write_source_id_remap_to_json(self, filename):
-        """
-        Write the internal mapping of user string id to 
-        integer id for sources to json.
-        """
-        with open(filename, 'w') as jsonfile:
-            json.dump(self.get_source_id_remap(), jsonfile)
-
-    def get_dest_id_remap(self):
-        """
-        Get the internal mapping of user string id to 
-        integer id for dests, remap bytes to strings.
-        """
-        remapped_ids = self.transit_matrix.getUserColIdCache()
-        remapped_ids = {k.decode(): v for k, v in remapped_ids.items()}
-        if len(remapped_ids) == 0:
-            return None
-        return remapped_ids
-
-    def write_dest_id_remap_to_json(self, filename):
-        """
-        Write the internal mapping of user string id to
-        integer id for dests to json.
-        """
-        with open(filename, 'w') as jsonfile:
-            json.dump(self.get_dest_id_remap(), jsonfile)
+        file.close()
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -139,23 +131,15 @@ class MatrixInterface:
         """
         Add the user's source data point to the pyTransitMatrix.
         """
-        if isinstance(user_id, str):
-            self.transit_matrix.addToUserSourceDataContainerString(network_id, bytes(user_id, 'utf-8'),
-                                                                   distance, primary_only)
-        else:
-            self.transit_matrix.addToUserSourceDataContainerInt(network_id, user_id,
-                                                                distance, primary_only)
+        self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, distance)
+        if not primary_only:
+            self.transit_matrix.addToUserDestDataContainer(network_id, user_id, distance)
 
     def add_user_dest_data(self, network_id, user_id, distance):
         """
         Add the user's dest data point to the pyTransitMatrix.
         """
-        if isinstance(user_id, str):
-            self.transit_matrix.addToUserDestDataContainerString(network_id, bytes(user_id, 'utf-8'),
-                                                                 distance)
-        else:
-            self.transit_matrix.addToUserDestDataContainerInt(network_id, user_id,
-                                                              distance)
+        self.transit_matrix.addToUserDestDataContainer(network_id, user_id, distance)
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
         """
@@ -163,57 +147,22 @@ class MatrixInterface:
         """
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-    def read_from_file(self, infile, is_otp_matrix=False, is_symmetric=False):
-        """
-        Load a matrix from file
-        """
-        start_time = time.time()
-        assert type(infile) == str, 'infile should be a string'
-        assert type(is_otp_matrix) == bool, 'isOTPMatrix should be a bool'
-        assert type(is_symmetric) == bool, 'isSymmetric should be a bool'
 
-        if self.logger:
-            self.logger.debug('isSymmetric:{}'.format(is_symmetric))
-            warning_message = """read_from_file will fail if rows or columns
-                                 have non-integer indeces"""
-            self.logger.warning(warning_message)
-
-        try:
-            self.transit_matrix = pyTransitMatrix(infile=bytes(infile, 'utf-8'),
-                                                  isSymmetric=is_symmetric,
-                                                  isOTPMatrix=is_otp_matrix)
-        except BaseException:
-            raise ReadTMXFailedException()
-        logger_vars = time.time() - start_time
-        if self.logger:
-            self.logger.info('Shortest path matrix loaded from disk in {:,.2f} seconds'.format(logger_vars))
-
-    def read_from_csv(self, infile, is_symmetric=False):
+    def prepare_matrix(self, is_symmetric, rows, columns, network_vertices):
         """
-        Load a matrix from csv (synonymous to read_from_file)
+        Instantiate a pyTransitMatrix
         """
-        try:
-            self.read_from_file(infile, is_symmetric=is_symmetric)
-        except BaseException:
-            raise ReadCSVFailedException()
-
-    def read_from_tmx(self, infile, is_symmetric=False):
-        """
-        Load a matrix from tmx (synonymous to read_from_file)
-        """
-        try:
-            self.read_from_file(infile, is_symmetric=is_symmetric)
-        except BaseException:
-            raise ReadTMXFailedException()
-
-    def prepare_matrix(self, num_nodes, is_symmetric=False):
-        """
-        Instantiate a pyTransitMatrix with the available nodes
-        """
-        try:
-            self.transit_matrix = pyTransitMatrix(vertices=num_nodes, isSymmetric=is_symmetric)
-        except BaseException:
-            raise UnableToBuildMatrixException()
+        if self.primary_ids_are_string and self.secondary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
+        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
+        elif not self.primary_ids_are_string and self.primary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
+        elif not self.primary_ids_are_string and not self.primary_ids_are_string:
+            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
+        else:
+            assert False, "Logic Error"
+        self.transit_matrix.prepareGraphWithVertices(network_vertices)
 
     def write_to_csv(self, outfile):
         """
@@ -224,20 +173,6 @@ class MatrixInterface:
             self.transit_matrix.writeCSV(bytes(outfile, 'utf-8'))
         except BaseException:
             raise WriteCSVFailedException()
-        if self.logger:
-            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
-
-    def write_to_tmx(self, outfile):
-        """
-        Write the data frame to tmx
-        """
-        try:
-            if not os.path.exists(outfile):
-                os.mkdir(outfile)
-            start = time.time()
-            self.transit_matrix.writeTMX(bytes(outfile, 'utf-8'))
-        except BaseException:
-            raise WriteTMXFailedException()
         if self.logger:
             self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
 

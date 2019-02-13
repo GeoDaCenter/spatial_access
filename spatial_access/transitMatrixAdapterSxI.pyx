@@ -40,9 +40,6 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         vector[string] getPrimaryDatasetIds() except+
         vector[unsigned long int] getSecondaryDatasetIds() except+
 
-        void setRows(unsigned int) except +
-        void setCols(unsigned int) except +
-        void setIsSymmetric(bool) except +
         void setDatasetRow(vector[unsigned short], unsigned int) except +
         void setDataset(vector[vector[value]]) except +
         void setPrimaryDatasetIds(vector[string]) except +
@@ -128,15 +125,6 @@ cdef class pyTransitMatrix:
     def countDestsInRange(self, source_id, range):
         cdef string string_source_id = str.encode(source_id)
         return self.thisptr.countDestsInRange(string_source_id, range)
-
-    def setRows(self, rows):
-        self.thisptr.setRows(rows)
-
-    def setCols(self, cols):
-        self.thisptr.setCols(cols)
-
-    def setIsSymmetric(self, isSymmetric):
-        self.thisptr.setIsSymmetric(isSymmetric)
 
     def setDatasetRow(self, datasetRow, rowNum):
         self.thisptr.setDatasetRow(datasetRow, rowNum)
