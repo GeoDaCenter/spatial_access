@@ -812,16 +812,16 @@ typedef unsigned short __pyx_t_14spatial_access_23transitMatrixAdapterSxS_matrix
 typedef unsigned short __pyx_t_14spatial_access_23transitMatrixAdapterSxS_value;
 
 /*--- Type declarations ---*/
-struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS;
+struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix;
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":58
+/* "spatial_access/transitMatrixAdapterSxS.pyx":56
  * 
  * 
- * cdef class pyTransitMatrixSxS:             # <<<<<<<<<<<<<<
+ * cdef class pyTransitMatrix:             # <<<<<<<<<<<<<<
  *     cdef transitMatrix *thisptr
  * 
  */
-struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS {
+struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix {
   PyObject_HEAD
   lmnoel::transitMatrix<string,string>  *thisptr;
 };
@@ -1097,10 +1097,10 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_int(unsigned int value)
 static CYTHON_INLINE unsigned int __Pyx_PyInt_As_unsigned_int(PyObject *);
 
 /* CIntFromPy.proto */
-static CYTHON_INLINE unsigned short __Pyx_PyInt_As_unsigned_short(PyObject *);
+static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
 /* CIntFromPy.proto */
-static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
+static CYTHON_INLINE unsigned short __Pyx_PyInt_As_unsigned_short(PyObject *);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *);
@@ -1144,7 +1144,7 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 /* Module declarations from 'libcpp.unordered_map' */
 
 /* Module declarations from 'spatial_access.transitMatrixAdapterSxS' */
-static PyTypeObject *__pyx_ptype_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS = 0;
+static PyTypeObject *__pyx_ptype_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix = 0;
 static CYTHON_INLINE PyObject *__pyx_convert_PyObject_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyUnicode_string_to_py_std__in_string(std::string const &); /*proto*/
 static CYTHON_INLINE PyObject *__pyx_convert_PyStr_string_to_py_std__in_string(std::string const &); /*proto*/
@@ -1235,46 +1235,47 @@ static PyObject *__pyx_n_s_source_id;
 static PyObject *__pyx_n_s_src;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_weight;
-static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS___cinit__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, bool __pyx_v_isSymmetric, unsigned int __pyx_v_rows, unsigned int __pyx_v_columns); /* proto */
-static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_2__dealloc__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_4getDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_6getSourcesInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_8getValuesBySource(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_sort); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_10getValuesByDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_sort); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_12addToUserSourceDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_source_id, PyObject *__pyx_v_lastMileDistance); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_14addToUserDestDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_lastMileDistance); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_16addEdgeToGraph(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_src, PyObject *__pyx_v_dst, PyObject *__pyx_v_weight, PyObject *__pyx_v_isBidirectional); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_18compute(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_numThreads); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_20getValueById(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source, PyObject *__pyx_v_dest); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_22writeCSV(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_outfile); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_24printDataFrame(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_26addToCategoryMap(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_category); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_28timeToNearestDestPerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_30countDestsInRangePerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category, PyObject *__pyx_v_range); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_32timeToNearestDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_34countDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_range); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_36setRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_rows); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_38setCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_cols); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_40setIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_isSymmetric); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_42setDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_datasetRow, PyObject *__pyx_v_rowNum); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_44setDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_dataset); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_46setPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_48setSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_50getRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_52getCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_54getIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_56getDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_rowNum); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_58getDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_60getPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_62getSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_64__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_66__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
+static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, bool __pyx_v_isSymmetric, unsigned int __pyx_v_rows, unsigned int __pyx_v_columns); /* proto */
+static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_2__dealloc__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_4prepareGraphWithVertices(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_vertices); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_6getDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_8getSourcesInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_10getValuesBySource(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_sort); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_12getValuesByDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_sort); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_14addToUserSourceDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_source_id, PyObject *__pyx_v_lastMileDistance); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_16addToUserDestDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_lastMileDistance); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_18addEdgeToGraph(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_src, PyObject *__pyx_v_dst, PyObject *__pyx_v_weight, PyObject *__pyx_v_isBidirectional); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_20compute(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_numThreads); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_22getValueById(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source, PyObject *__pyx_v_dest); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_24writeCSV(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_outfile); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_26printDataFrame(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_28addToCategoryMap(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_category); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_30timeToNearestDestPerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_32countDestsInRangePerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category, PyObject *__pyx_v_range); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_34timeToNearestDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_36countDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_range); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_38setRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_rows); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_40setCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_cols); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_42setIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_isSymmetric); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_44setDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_datasetRow, PyObject *__pyx_v_rowNum); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_46setDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_dataset); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_48setPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_50setSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_52getRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_54getCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_56getIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_58getDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_rowNum); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_60getDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_62getPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_64getSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_66__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_68__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 /* Late includes */
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":61
+/* "spatial_access/transitMatrixAdapterSxS.pyx":59
  *     cdef transitMatrix *thisptr
  * 
  *     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):             # <<<<<<<<<<<<<<
@@ -1283,8 +1284,8 @@ static PyObject *__pyx_tuple__2;
  */
 
 /* Python wrapper */
-static int __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static int __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static int __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static int __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_1__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   bool __pyx_v_isSymmetric;
   unsigned int __pyx_v_rows;
   unsigned int __pyx_v_columns;
@@ -1316,17 +1317,17 @@ static int __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrix
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rows)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(1, 61, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 1); __PYX_ERR(1, 59, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_columns)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(1, 61, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, 2); __PYX_ERR(1, 59, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 61, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 59, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -1335,32 +1336,32 @@ static int __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrix
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_isSymmetric = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_isSymmetric == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 61, __pyx_L3_error)
-    __pyx_v_rows = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_rows == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 61, __pyx_L3_error)
-    __pyx_v_columns = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_columns == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 61, __pyx_L3_error)
+    __pyx_v_isSymmetric = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_isSymmetric == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 59, __pyx_L3_error)
+    __pyx_v_rows = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_rows == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 59, __pyx_L3_error)
+    __pyx_v_columns = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_columns == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 59, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 61, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 59, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS___cinit__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_isSymmetric, __pyx_v_rows, __pyx_v_columns);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_isSymmetric, __pyx_v_rows, __pyx_v_columns);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS___cinit__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, bool __pyx_v_isSymmetric, unsigned int __pyx_v_rows, unsigned int __pyx_v_columns) {
+static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, bool __pyx_v_isSymmetric, unsigned int __pyx_v_rows, unsigned int __pyx_v_columns) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   lmnoel::transitMatrix<string,string>  *__pyx_t_1;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":62
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":60
  * 
  *     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
  *         self.thisptr = new transitMatrix(isSymmetric, rows, columns)             # <<<<<<<<<<<<<<
@@ -1371,11 +1372,11 @@ static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrix
     __pyx_t_1 = new lmnoel::transitMatrix<string,string> (__pyx_v_isSymmetric, __pyx_v_rows, __pyx_v_columns);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 62, __pyx_L1_error)
+    __PYX_ERR(1, 60, __pyx_L1_error)
   }
   __pyx_v_self->thisptr = __pyx_t_1;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":63
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":61
  *     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
  *         self.thisptr = new transitMatrix(isSymmetric, rows, columns)
  *         return             # <<<<<<<<<<<<<<
@@ -1385,7 +1386,7 @@ static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrix
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":61
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":59
  *     cdef transitMatrix *thisptr
  * 
  *     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):             # <<<<<<<<<<<<<<
@@ -1395,14 +1396,14 @@ static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrix
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":65
+/* "spatial_access/transitMatrixAdapterSxS.pyx":63
  *         return
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1411,22 +1412,22 @@ static int __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrix
  */
 
 /* Python wrapper */
-static void __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
-static void __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_3__dealloc__(PyObject *__pyx_v_self) {
+static void __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_3__dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_3__dealloc__(PyObject *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
-  __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_2__dealloc__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_2__dealloc__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
 }
 
-static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_2__dealloc__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_2__dealloc__(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":66
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":64
  * 
  *     def __dealloc__(self):
  *         if self.thisptr is not NULL:             # <<<<<<<<<<<<<<
@@ -1436,7 +1437,7 @@ static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatri
   __pyx_t_1 = ((__pyx_v_self->thisptr != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":67
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":65
  *     def __dealloc__(self):
  *         if self.thisptr is not NULL:
  *             del self.thisptr             # <<<<<<<<<<<<<<
@@ -1445,16 +1446,16 @@ static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatri
  */
     delete __pyx_v_self->thisptr;
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":68
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":66
  *         if self.thisptr is not NULL:
  *             del self.thisptr
  *             self.thisptr = NULL             # <<<<<<<<<<<<<<
  * 
- *     def getDestsInRange(self, range_, numThreads):
+ *     def prepareGraphWithVertices(self, vertices):
  */
     __pyx_v_self->thisptr = NULL;
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":66
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":64
  * 
  *     def __dealloc__(self):
  *         if self.thisptr is not NULL:             # <<<<<<<<<<<<<<
@@ -1463,7 +1464,7 @@ static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatri
  */
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":65
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":63
  *         return
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1475,8 +1476,70 @@ static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatri
   __Pyx_RefNannyFinishContext();
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":70
+/* "spatial_access/transitMatrixAdapterSxS.pyx":68
  *             self.thisptr = NULL
+ * 
+ *     def prepareGraphWithVertices(self, vertices):             # <<<<<<<<<<<<<<
+ *         self.thisptr.prepareGraphWithVertices(vertices)
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_5prepareGraphWithVertices(PyObject *__pyx_v_self, PyObject *__pyx_v_vertices); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_5prepareGraphWithVertices(PyObject *__pyx_v_self, PyObject *__pyx_v_vertices) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("prepareGraphWithVertices (wrapper)", 0);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_4prepareGraphWithVertices(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_vertices));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_4prepareGraphWithVertices(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_vertices) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  __Pyx_RefNannySetupContext("prepareGraphWithVertices", 0);
+
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":69
+ * 
+ *     def prepareGraphWithVertices(self, vertices):
+ *         self.thisptr.prepareGraphWithVertices(vertices)             # <<<<<<<<<<<<<<
+ * 
+ *     def getDestsInRange(self, range_, numThreads):
+ */
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_vertices); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 69, __pyx_L1_error)
+  try {
+    __pyx_v_self->thisptr->prepareGraphWithVertices(__pyx_t_1);
+  } catch(...) {
+    __Pyx_CppExn2PyErr();
+    __PYX_ERR(1, 69, __pyx_L1_error)
+  }
+
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":68
+ *             self.thisptr = NULL
+ * 
+ *     def prepareGraphWithVertices(self, vertices):             # <<<<<<<<<<<<<<
+ *         self.thisptr.prepareGraphWithVertices(vertices)
+ * 
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.prepareGraphWithVertices", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "spatial_access/transitMatrixAdapterSxS.pyx":71
+ *         self.thisptr.prepareGraphWithVertices(vertices)
  * 
  *     def getDestsInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
  *         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
@@ -1484,8 +1547,8 @@ static void __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatri
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_5getDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_5getDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_7getDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_7getDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_range_ = 0;
   PyObject *__pyx_v_numThreads = 0;
   PyObject *__pyx_r = 0;
@@ -1514,11 +1577,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_numThreads)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 70, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 71, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getDestsInRange") < 0)) __PYX_ERR(1, 70, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getDestsInRange") < 0)) __PYX_ERR(1, 71, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1531,20 +1594,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 70, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 71, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_4getDestsInRange(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_range_, __pyx_v_numThreads);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_6getDestsInRange(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_range_, __pyx_v_numThreads);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_4getDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_6getDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads) {
   std::unordered_map<std::string,std::vector<std::string> >  __pyx_v_py_res;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -1554,24 +1617,24 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getDestsInRange", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":71
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":72
  * 
  *     def getDestsInRange(self, range_, numThreads):
  *         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)             # <<<<<<<<<<<<<<
  *         return py_res
  * 
  */
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 71, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 71, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 72, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 72, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getDestsInRange(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 71, __pyx_L1_error)
+    __PYX_ERR(1, 72, __pyx_L1_error)
   }
   __pyx_v_py_res = ((std::unordered_map<std::string,std::vector<std::string> > )__pyx_t_3);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":72
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":73
  *     def getDestsInRange(self, range_, numThreads):
  *         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
  *         return py_res             # <<<<<<<<<<<<<<
@@ -1579,14 +1642,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def getSourcesInRange(self, range_, numThreads):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __pyx_convert_unordered_map_to_py_std_3a__3a_string____std_3a__3a_vector_3c_std_3a__3a_string_3e___(__pyx_v_py_res); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 72, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_unordered_map_to_py_std_3a__3a_string____std_3a__3a_vector_3c_std_3a__3a_string_3e___(__pyx_v_py_res); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":70
- *             self.thisptr = NULL
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":71
+ *         self.thisptr.prepareGraphWithVertices(vertices)
  * 
  *     def getDestsInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
  *         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
@@ -1596,7 +1659,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1604,7 +1667,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":74
+/* "spatial_access/transitMatrixAdapterSxS.pyx":75
  *         return py_res
  * 
  *     def getSourcesInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
@@ -1613,8 +1676,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_7getSourcesInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_7getSourcesInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_9getSourcesInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_9getSourcesInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_range_ = 0;
   PyObject *__pyx_v_numThreads = 0;
   PyObject *__pyx_r = 0;
@@ -1643,11 +1706,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_numThreads)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, 1); __PYX_ERR(1, 74, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, 1); __PYX_ERR(1, 75, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getSourcesInRange") < 0)) __PYX_ERR(1, 74, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getSourcesInRange") < 0)) __PYX_ERR(1, 75, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1660,20 +1723,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 74, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 75, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getSourcesInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getSourcesInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_6getSourcesInRange(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_range_, __pyx_v_numThreads);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_8getSourcesInRange(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_range_, __pyx_v_numThreads);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_6getSourcesInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_8getSourcesInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_range_, PyObject *__pyx_v_numThreads) {
   std::unordered_map<std::string,std::vector<std::string> >  __pyx_v_py_res;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -1683,24 +1746,24 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getSourcesInRange", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":75
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":76
  * 
  *     def getSourcesInRange(self, range_, numThreads):
  *         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)             # <<<<<<<<<<<<<<
  *         return py_res
  * 
  */
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 75, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 75, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 76, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 76, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getSourcesInRange(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 75, __pyx_L1_error)
+    __PYX_ERR(1, 76, __pyx_L1_error)
   }
   __pyx_v_py_res = ((std::unordered_map<std::string,std::vector<std::string> > )__pyx_t_3);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":76
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":77
  *     def getSourcesInRange(self, range_, numThreads):
  *         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
  *         return py_res             # <<<<<<<<<<<<<<
@@ -1708,13 +1771,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def getValuesBySource(self, source_id, sort):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __pyx_convert_unordered_map_to_py_std_3a__3a_string____std_3a__3a_vector_3c_std_3a__3a_string_3e___(__pyx_v_py_res); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 76, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_unordered_map_to_py_std_3a__3a_string____std_3a__3a_vector_3c_std_3a__3a_string_3e___(__pyx_v_py_res); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":74
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":75
  *         return py_res
  * 
  *     def getSourcesInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
@@ -1725,7 +1788,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getSourcesInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getSourcesInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1733,7 +1796,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":78
+/* "spatial_access/transitMatrixAdapterSxS.pyx":79
  *         return py_res
  * 
  *     def getValuesBySource(self, source_id, sort):             # <<<<<<<<<<<<<<
@@ -1742,8 +1805,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_9getValuesBySource(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_9getValuesBySource(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_11getValuesBySource(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_11getValuesBySource(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_source_id = 0;
   PyObject *__pyx_v_sort = 0;
   PyObject *__pyx_r = 0;
@@ -1772,11 +1835,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sort)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, 1); __PYX_ERR(1, 78, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, 1); __PYX_ERR(1, 79, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesBySource") < 0)) __PYX_ERR(1, 78, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesBySource") < 0)) __PYX_ERR(1, 79, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1789,20 +1852,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 78, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 79, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getValuesBySource", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getValuesBySource", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_8getValuesBySource(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_source_id, __pyx_v_sort);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_10getValuesBySource(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_source_id, __pyx_v_sort);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_8getValuesBySource(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_sort) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_10getValuesBySource(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_sort) {
   std::string __pyx_v_source_id_string;
   std::vector<std::pair<std::string,__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> >  __pyx_v_cpp_result;
   PyObject *__pyx_r = NULL;
@@ -1816,14 +1879,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   std::vector<std::pair<string,__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> >  __pyx_t_7;
   __Pyx_RefNannySetupContext("getValuesBySource", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":79
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":80
  * 
  *     def getValuesBySource(self, source_id, sort):
  *         cdef string source_id_string = str.encode(source_id)             # <<<<<<<<<<<<<<
  *         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id_string, sort)
  *         return cpp_result
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 79, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -1836,13 +1899,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 79, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 80, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 79, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 80, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -1850,45 +1913,45 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 79, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 80, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 79, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source_id);
       __Pyx_GIVEREF(__pyx_v_source_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 79, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 79, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 80, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_source_id_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":80
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":81
  *     def getValuesBySource(self, source_id, sort):
  *         cdef string source_id_string = str.encode(source_id)
  *         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id_string, sort)             # <<<<<<<<<<<<<<
  *         return cpp_result
  * 
  */
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_6 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 80, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_6 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 81, __pyx_L1_error)
   try {
     __pyx_t_7 = __pyx_v_self->thisptr->getValuesBySource(((string)__pyx_v_source_id_string), __pyx_t_6);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 80, __pyx_L1_error)
+    __PYX_ERR(1, 81, __pyx_L1_error)
   }
   __pyx_v_cpp_result = ((std::vector<std::pair<std::string,__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> > )__pyx_t_7);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":81
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":82
  *         cdef string source_id_string = str.encode(source_id)
  *         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id_string, sort)
  *         return cpp_result             # <<<<<<<<<<<<<<
@@ -1896,13 +1959,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def getValuesByDest(self, dest_id, sort):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_std_3a__3a_string_2c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_value_3e___(__pyx_v_cpp_result); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 81, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_std_3a__3a_string_2c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_value_3e___(__pyx_v_cpp_result); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":78
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":79
  *         return py_res
  * 
  *     def getValuesBySource(self, source_id, sort):             # <<<<<<<<<<<<<<
@@ -1916,7 +1979,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getValuesBySource", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getValuesBySource", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -1924,7 +1987,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":83
+/* "spatial_access/transitMatrixAdapterSxS.pyx":84
  *         return cpp_result
  * 
  *     def getValuesByDest(self, dest_id, sort):             # <<<<<<<<<<<<<<
@@ -1933,8 +1996,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_11getValuesByDest(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_11getValuesByDest(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_13getValuesByDest(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_13getValuesByDest(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dest_id = 0;
   PyObject *__pyx_v_sort = 0;
   PyObject *__pyx_r = 0;
@@ -1963,11 +2026,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sort)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, 1); __PYX_ERR(1, 83, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, 1); __PYX_ERR(1, 84, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesByDest") < 0)) __PYX_ERR(1, 83, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesByDest") < 0)) __PYX_ERR(1, 84, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1980,20 +2043,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 83, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 84, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getValuesByDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getValuesByDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_10getValuesByDest(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_dest_id, __pyx_v_sort);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_12getValuesByDest(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_dest_id, __pyx_v_sort);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_10getValuesByDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_sort) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_12getValuesByDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_sort) {
   std::string __pyx_v_dest_id_string;
   std::vector<std::pair<std::string,__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> >  __pyx_v_cpp_result;
   PyObject *__pyx_r = NULL;
@@ -2007,14 +2070,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   std::vector<std::pair<string,__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> >  __pyx_t_7;
   __Pyx_RefNannySetupContext("getValuesByDest", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":84
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":85
  * 
  *     def getValuesByDest(self, dest_id, sort):
  *         cdef string dest_id_string = str.encode(dest_id)             # <<<<<<<<<<<<<<
  *         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesByDest(dest_id_string, sort)
  *         return cpp_result
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 84, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 85, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2027,13 +2090,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 84, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 85, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dest_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 84, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 85, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2041,45 +2104,45 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dest_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 84, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 85, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 84, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 85, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_dest_id);
       __Pyx_GIVEREF(__pyx_v_dest_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_dest_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 84, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 85, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 84, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 85, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_dest_id_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":85
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":86
  *     def getValuesByDest(self, dest_id, sort):
  *         cdef string dest_id_string = str.encode(dest_id)
  *         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesByDest(dest_id_string, sort)             # <<<<<<<<<<<<<<
  *         return cpp_result
  * 
  */
-  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_6 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 85, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_6 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 86, __pyx_L1_error)
   try {
     __pyx_t_7 = __pyx_v_self->thisptr->getValuesByDest(((string)__pyx_v_dest_id_string), __pyx_t_6);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 85, __pyx_L1_error)
+    __PYX_ERR(1, 86, __pyx_L1_error)
   }
   __pyx_v_cpp_result = ((std::vector<std::pair<std::string,__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> > )__pyx_t_7);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":86
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":87
  *         cdef string dest_id_string = str.encode(dest_id)
  *         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesByDest(dest_id_string, sort)
  *         return cpp_result             # <<<<<<<<<<<<<<
@@ -2087,13 +2150,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_std_3a__3a_string_2c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_value_3e___(__pyx_v_cpp_result); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 86, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_std_3a__3a_string_2c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_value_3e___(__pyx_v_cpp_result); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 87, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":83
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":84
  *         return cpp_result
  * 
  *     def getValuesByDest(self, dest_id, sort):             # <<<<<<<<<<<<<<
@@ -2107,7 +2170,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getValuesByDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getValuesByDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2115,7 +2178,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":88
+/* "spatial_access/transitMatrixAdapterSxS.pyx":89
  *         return cpp_result
  * 
  *     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2124,8 +2187,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_13addToUserSourceDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_13addToUserSourceDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_15addToUserSourceDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_15addToUserSourceDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_networkNodeId = 0;
   PyObject *__pyx_v_source_id = 0;
   PyObject *__pyx_v_lastMileDistance = 0;
@@ -2157,17 +2220,17 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_source_id)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 88, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 89, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_lastMileDistance)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 88, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 89, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserSourceDataContainer") < 0)) __PYX_ERR(1, 88, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserSourceDataContainer") < 0)) __PYX_ERR(1, 89, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2182,20 +2245,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 88, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 89, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addToUserSourceDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addToUserSourceDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_12addToUserSourceDataContainer(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_networkNodeId, __pyx_v_source_id, __pyx_v_lastMileDistance);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_14addToUserSourceDataContainer(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_networkNodeId, __pyx_v_source_id, __pyx_v_lastMileDistance);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_12addToUserSourceDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_source_id, PyObject *__pyx_v_lastMileDistance) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_14addToUserSourceDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_source_id, PyObject *__pyx_v_lastMileDistance) {
   std::string __pyx_v_source_id_string;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -2208,14 +2271,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_7;
   __Pyx_RefNannySetupContext("addToUserSourceDataContainer", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":89
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":90
  * 
  *     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
  *         cdef string source_id_string = str.encode(source_id)             # <<<<<<<<<<<<<<
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, source_id_string, lastMileDistance)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 89, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 90, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2228,13 +2291,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 89, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 90, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 89, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 90, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2242,45 +2305,45 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 89, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 90, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 89, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 90, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source_id);
       __Pyx_GIVEREF(__pyx_v_source_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 89, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 90, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 89, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 90, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_source_id_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":90
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":91
  *     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
  *         cdef string source_id_string = str.encode(source_id)
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, source_id_string, lastMileDistance)             # <<<<<<<<<<<<<<
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):
  */
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 90, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_7 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 90, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 91, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_7 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 91, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addToUserSourceDataContainer(__pyx_t_6, ((string)__pyx_v_source_id_string), __pyx_t_7);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 90, __pyx_L1_error)
+    __PYX_ERR(1, 91, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":88
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":89
  *         return cpp_result
  * 
  *     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2296,7 +2359,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addToUserSourceDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addToUserSourceDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2304,7 +2367,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":92
+/* "spatial_access/transitMatrixAdapterSxS.pyx":93
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, source_id_string, lastMileDistance)
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2313,8 +2376,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_15addToUserDestDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_15addToUserDestDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_17addToUserDestDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_17addToUserDestDataContainer(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_networkNodeId = 0;
   PyObject *__pyx_v_dest_id = 0;
   PyObject *__pyx_v_lastMileDistance = 0;
@@ -2346,17 +2409,17 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dest_id)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 92, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 93, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_lastMileDistance)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 92, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 93, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserDestDataContainer") < 0)) __PYX_ERR(1, 92, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserDestDataContainer") < 0)) __PYX_ERR(1, 93, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2371,20 +2434,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 92, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 93, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addToUserDestDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addToUserDestDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_14addToUserDestDataContainer(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_networkNodeId, __pyx_v_dest_id, __pyx_v_lastMileDistance);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_16addToUserDestDataContainer(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_networkNodeId, __pyx_v_dest_id, __pyx_v_lastMileDistance);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_14addToUserDestDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_lastMileDistance) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_16addToUserDestDataContainer(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_networkNodeId, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_lastMileDistance) {
   std::string __pyx_v_dest_id_string;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -2397,14 +2460,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_7;
   __Pyx_RefNannySetupContext("addToUserDestDataContainer", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":93
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":94
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):
  *         cdef string dest_id_string = str.encode(dest_id)             # <<<<<<<<<<<<<<
  *         self.thisptr.addToUserDestDataContainer(networkNodeId, dest_id_string, lastMileDistance)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 93, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2417,13 +2480,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 93, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 94, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dest_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 93, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 94, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2431,45 +2494,45 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dest_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 93, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 94, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 93, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 94, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_dest_id);
       __Pyx_GIVEREF(__pyx_v_dest_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_dest_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 93, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 94, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 93, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 94, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_dest_id_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":94
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":95
  *     def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):
  *         cdef string dest_id_string = str.encode(dest_id)
  *         self.thisptr.addToUserDestDataContainer(networkNodeId, dest_id_string, lastMileDistance)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 94, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_7 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 94, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 95, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_7 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 95, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addToUserDestDataContainer(__pyx_t_6, ((string)__pyx_v_dest_id_string), __pyx_t_7);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 94, __pyx_L1_error)
+    __PYX_ERR(1, 95, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":92
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":93
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, source_id_string, lastMileDistance)
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2485,7 +2548,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addToUserDestDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addToUserDestDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2493,7 +2556,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":97
+/* "spatial_access/transitMatrixAdapterSxS.pyx":98
  * 
  * 
  *     def addEdgeToGraph(self, src, dst, weight, isBidirectional):             # <<<<<<<<<<<<<<
@@ -2502,8 +2565,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_17addEdgeToGraph(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_17addEdgeToGraph(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_19addEdgeToGraph(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_19addEdgeToGraph(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_src = 0;
   PyObject *__pyx_v_dst = 0;
   PyObject *__pyx_v_weight = 0;
@@ -2538,23 +2601,23 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dst)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 1); __PYX_ERR(1, 97, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 1); __PYX_ERR(1, 98, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_weight)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 2); __PYX_ERR(1, 97, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 2); __PYX_ERR(1, 98, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isBidirectional)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 3); __PYX_ERR(1, 97, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 3); __PYX_ERR(1, 98, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addEdgeToGraph") < 0)) __PYX_ERR(1, 97, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addEdgeToGraph") < 0)) __PYX_ERR(1, 98, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -2571,20 +2634,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 97, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 98, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addEdgeToGraph", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addEdgeToGraph", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_16addEdgeToGraph(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_src, __pyx_v_dst, __pyx_v_weight, __pyx_v_isBidirectional);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_18addEdgeToGraph(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_src, __pyx_v_dst, __pyx_v_weight, __pyx_v_isBidirectional);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_16addEdgeToGraph(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_src, PyObject *__pyx_v_dst, PyObject *__pyx_v_weight, PyObject *__pyx_v_isBidirectional) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_18addEdgeToGraph(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_src, PyObject *__pyx_v_dst, PyObject *__pyx_v_weight, PyObject *__pyx_v_isBidirectional) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -2593,25 +2656,25 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   bool __pyx_t_4;
   __Pyx_RefNannySetupContext("addEdgeToGraph", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":98
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":99
  * 
  *     def addEdgeToGraph(self, src, dst, weight, isBidirectional):
  *         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)             # <<<<<<<<<<<<<<
  * 
  *     def compute(self, numThreads):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_src); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 98, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_dst); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 98, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_weight); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 98, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_isBidirectional); if (unlikely((__pyx_t_4 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 98, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_src); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 99, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_dst); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 99, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_weight); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 99, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_isBidirectional); if (unlikely((__pyx_t_4 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 99, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addEdgeToGraph(__pyx_t_1, __pyx_t_2, __pyx_t_3, __pyx_t_4);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 98, __pyx_L1_error)
+    __PYX_ERR(1, 99, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":97
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":98
  * 
  * 
  *     def addEdgeToGraph(self, src, dst, weight, isBidirectional):             # <<<<<<<<<<<<<<
@@ -2623,7 +2686,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addEdgeToGraph", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addEdgeToGraph", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2631,7 +2694,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":100
+/* "spatial_access/transitMatrixAdapterSxS.pyx":101
  *         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
  * 
  *     def compute(self, numThreads):             # <<<<<<<<<<<<<<
@@ -2640,40 +2703,40 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_19compute(PyObject *__pyx_v_self, PyObject *__pyx_v_numThreads); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_19compute(PyObject *__pyx_v_self, PyObject *__pyx_v_numThreads) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_21compute(PyObject *__pyx_v_self, PyObject *__pyx_v_numThreads); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_21compute(PyObject *__pyx_v_self, PyObject *__pyx_v_numThreads) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("compute (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_18compute(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_numThreads));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_20compute(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_numThreads));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_18compute(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_numThreads) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_20compute(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_numThreads) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":101
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":102
  * 
  *     def compute(self, numThreads):
  *         self.thisptr.compute(numThreads)             # <<<<<<<<<<<<<<
  * 
  *     def getValueById(self, source, dest):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 101, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 102, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->compute(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 101, __pyx_L1_error)
+    __PYX_ERR(1, 102, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":100
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":101
  *         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
  * 
  *     def compute(self, numThreads):             # <<<<<<<<<<<<<<
@@ -2685,7 +2748,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.compute", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2693,7 +2756,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":103
+/* "spatial_access/transitMatrixAdapterSxS.pyx":104
  *         self.thisptr.compute(numThreads)
  * 
  *     def getValueById(self, source, dest):             # <<<<<<<<<<<<<<
@@ -2702,8 +2765,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_21getValueById(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_21getValueById(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_23getValueById(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_23getValueById(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_source = 0;
   PyObject *__pyx_v_dest = 0;
   PyObject *__pyx_r = 0;
@@ -2732,11 +2795,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dest)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, 1); __PYX_ERR(1, 103, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, 1); __PYX_ERR(1, 104, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValueById") < 0)) __PYX_ERR(1, 103, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValueById") < 0)) __PYX_ERR(1, 104, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2749,20 +2812,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 103, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 104, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getValueById", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getValueById", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_20getValueById(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_source, __pyx_v_dest);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_22getValueById(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_source, __pyx_v_dest);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_20getValueById(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source, PyObject *__pyx_v_dest) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_22getValueById(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source, PyObject *__pyx_v_dest) {
   std::string __pyx_v_source_string;
   std::string __pyx_v_dest_string;
   PyObject *__pyx_r = NULL;
@@ -2775,14 +2838,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_6;
   __Pyx_RefNannySetupContext("getValueById", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":104
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":105
  * 
  *     def getValueById(self, source, dest):
  *         cdef string source_string = str.encode(source)             # <<<<<<<<<<<<<<
  *         cdef string dest_string = str.encode(dest)
  *         return self.thisptr.getValueById(source_string, dest_string)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 104, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 105, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2795,13 +2858,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 104, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 104, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2809,36 +2872,36 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 104, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 104, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 105, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source);
       __Pyx_GIVEREF(__pyx_v_source);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 104, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 104, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 105, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_source_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":105
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":106
  *     def getValueById(self, source, dest):
  *         cdef string source_string = str.encode(source)
  *         cdef string dest_string = str.encode(dest)             # <<<<<<<<<<<<<<
  *         return self.thisptr.getValueById(source_string, dest_string)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 105, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2851,13 +2914,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 106, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_dest};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 106, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2865,29 +2928,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_dest};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 106, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 105, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 106, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_INCREF(__pyx_v_dest);
       __Pyx_GIVEREF(__pyx_v_dest);
       PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_dest);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 106, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 105, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 106, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_dest_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":106
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":107
  *         cdef string source_string = str.encode(source)
  *         cdef string dest_string = str.encode(dest)
  *         return self.thisptr.getValueById(source_string, dest_string)             # <<<<<<<<<<<<<<
@@ -2899,15 +2962,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_6 = __pyx_v_self->thisptr->getValueById(((string)__pyx_v_source_string), ((string)__pyx_v_dest_string));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 106, __pyx_L1_error)
+    __PYX_ERR(1, 107, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 106, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 107, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":103
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":104
  *         self.thisptr.compute(numThreads)
  * 
  *     def getValueById(self, source, dest):             # <<<<<<<<<<<<<<
@@ -2921,7 +2984,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getValueById", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getValueById", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -2929,7 +2992,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":108
+/* "spatial_access/transitMatrixAdapterSxS.pyx":109
  *         return self.thisptr.getValueById(source_string, dest_string)
  * 
  *     def writeCSV(self, outfile):             # <<<<<<<<<<<<<<
@@ -2938,19 +3001,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_23writeCSV(PyObject *__pyx_v_self, PyObject *__pyx_v_outfile); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_23writeCSV(PyObject *__pyx_v_self, PyObject *__pyx_v_outfile) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_25writeCSV(PyObject *__pyx_v_self, PyObject *__pyx_v_outfile); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_25writeCSV(PyObject *__pyx_v_self, PyObject *__pyx_v_outfile) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("writeCSV (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_22writeCSV(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_outfile));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_24writeCSV(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_outfile));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_22writeCSV(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_outfile) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_24writeCSV(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_outfile) {
   std::string __pyx_v_outfile_string;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -2962,14 +3025,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   bool __pyx_t_6;
   __Pyx_RefNannySetupContext("writeCSV", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":109
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":110
  * 
  *     def writeCSV(self, outfile):
  *         cdef string outfile_string = str.encode(outfile)             # <<<<<<<<<<<<<<
  *         return self.thisptr.writeCSV(outfile_string)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 109, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2982,13 +3045,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_outfile); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 109, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_outfile); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 110, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_outfile};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 109, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 110, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -2996,29 +3059,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_outfile};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 109, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 110, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 109, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_outfile);
       __Pyx_GIVEREF(__pyx_v_outfile);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_outfile);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 109, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 110, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 109, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 110, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_outfile_string = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":110
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":111
  *     def writeCSV(self, outfile):
  *         cdef string outfile_string = str.encode(outfile)
  *         return self.thisptr.writeCSV(outfile_string)             # <<<<<<<<<<<<<<
@@ -3030,15 +3093,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_6 = __pyx_v_self->thisptr->writeCSV(((string)__pyx_v_outfile_string));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 110, __pyx_L1_error)
+    __PYX_ERR(1, 111, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 110, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":108
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":109
  *         return self.thisptr.getValueById(source_string, dest_string)
  * 
  *     def writeCSV(self, outfile):             # <<<<<<<<<<<<<<
@@ -3052,7 +3115,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.writeCSV", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.writeCSV", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3060,7 +3123,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":112
+/* "spatial_access/transitMatrixAdapterSxS.pyx":113
  *         return self.thisptr.writeCSV(outfile_string)
  * 
  *     def printDataFrame(self):             # <<<<<<<<<<<<<<
@@ -3069,24 +3132,24 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_25printDataFrame(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_25printDataFrame(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_27printDataFrame(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_27printDataFrame(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("printDataFrame (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_24printDataFrame(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_26printDataFrame(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_24printDataFrame(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_26printDataFrame(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("printDataFrame", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":113
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":114
  * 
  *     def printDataFrame(self):
  *         self.thisptr.printDataFrame()             # <<<<<<<<<<<<<<
@@ -3097,10 +3160,10 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_v_self->thisptr->printDataFrame();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 113, __pyx_L1_error)
+    __PYX_ERR(1, 114, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":112
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":113
  *         return self.thisptr.writeCSV(outfile_string)
  * 
  *     def printDataFrame(self):             # <<<<<<<<<<<<<<
@@ -3112,7 +3175,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.printDataFrame", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.printDataFrame", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3120,7 +3183,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":115
+/* "spatial_access/transitMatrixAdapterSxS.pyx":116
  *         self.thisptr.printDataFrame()
  * 
  *     def addToCategoryMap(self, dest_id, category):             # <<<<<<<<<<<<<<
@@ -3129,8 +3192,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_27addToCategoryMap(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_27addToCategoryMap(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_29addToCategoryMap(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_29addToCategoryMap(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_dest_id = 0;
   PyObject *__pyx_v_category = 0;
   PyObject *__pyx_r = 0;
@@ -3159,11 +3222,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_category)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, 1); __PYX_ERR(1, 115, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, 1); __PYX_ERR(1, 116, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToCategoryMap") < 0)) __PYX_ERR(1, 115, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToCategoryMap") < 0)) __PYX_ERR(1, 116, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3176,20 +3239,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 115, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 116, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addToCategoryMap", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addToCategoryMap", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_26addToCategoryMap(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_dest_id, __pyx_v_category);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_28addToCategoryMap(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_dest_id, __pyx_v_category);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_26addToCategoryMap(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_category) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_28addToCategoryMap(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_dest_id, PyObject *__pyx_v_category) {
   std::string __pyx_v_string_dest_id;
   std::string __pyx_v_string_category;
   PyObject *__pyx_r = NULL;
@@ -3201,14 +3264,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   std::string __pyx_t_5;
   __Pyx_RefNannySetupContext("addToCategoryMap", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":116
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":117
  * 
  *     def addToCategoryMap(self, dest_id, category):
  *         cdef string string_dest_id = str.encode(dest_id)             # <<<<<<<<<<<<<<
  *         cdef string string_category = str.encode(category)
  *         self.thisptr.addToCategoryMap(string_dest_id, string_category)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 116, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 117, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3221,13 +3284,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 116, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_dest_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dest_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 116, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3235,36 +3298,36 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_dest_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 116, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 116, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 117, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_dest_id);
       __Pyx_GIVEREF(__pyx_v_dest_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_dest_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 116, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 116, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 117, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_dest_id = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":117
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":118
  *     def addToCategoryMap(self, dest_id, category):
  *         cdef string string_dest_id = str.encode(dest_id)
  *         cdef string string_category = str.encode(category)             # <<<<<<<<<<<<<<
  *         self.thisptr.addToCategoryMap(string_dest_id, string_category)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 117, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 118, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3277,13 +3340,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 118, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_category};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 118, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3291,29 +3354,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_category};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 118, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 117, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 118, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_INCREF(__pyx_v_category);
       __Pyx_GIVEREF(__pyx_v_category);
       PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_category);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 118, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 117, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 118, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_category = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":118
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":119
  *         cdef string string_dest_id = str.encode(dest_id)
  *         cdef string string_category = str.encode(category)
  *         self.thisptr.addToCategoryMap(string_dest_id, string_category)             # <<<<<<<<<<<<<<
@@ -3324,10 +3387,10 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_v_self->thisptr->addToCategoryMap(((string)__pyx_v_string_dest_id), ((string)__pyx_v_string_category));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 118, __pyx_L1_error)
+    __PYX_ERR(1, 119, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":115
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":116
  *         self.thisptr.printDataFrame()
  * 
  *     def addToCategoryMap(self, dest_id, category):             # <<<<<<<<<<<<<<
@@ -3343,7 +3406,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.addToCategoryMap", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.addToCategoryMap", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3351,7 +3414,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":120
+/* "spatial_access/transitMatrixAdapterSxS.pyx":121
  *         self.thisptr.addToCategoryMap(string_dest_id, string_category)
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):             # <<<<<<<<<<<<<<
@@ -3360,8 +3423,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_29timeToNearestDestPerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_29timeToNearestDestPerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_31timeToNearestDestPerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_31timeToNearestDestPerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_source_id = 0;
   PyObject *__pyx_v_category = 0;
   PyObject *__pyx_r = 0;
@@ -3390,11 +3453,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_category)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, 1); __PYX_ERR(1, 120, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, 1); __PYX_ERR(1, 121, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "timeToNearestDestPerCategory") < 0)) __PYX_ERR(1, 120, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "timeToNearestDestPerCategory") < 0)) __PYX_ERR(1, 121, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3407,20 +3470,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 120, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 121, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.timeToNearestDestPerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.timeToNearestDestPerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_28timeToNearestDestPerCategory(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_source_id, __pyx_v_category);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_30timeToNearestDestPerCategory(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_source_id, __pyx_v_category);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_28timeToNearestDestPerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_30timeToNearestDestPerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category) {
   std::string __pyx_v_string_source_id;
   std::string __pyx_v_string_category;
   PyObject *__pyx_r = NULL;
@@ -3433,14 +3496,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_6;
   __Pyx_RefNannySetupContext("timeToNearestDestPerCategory", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":121
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":122
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):
  *         cdef string string_source_id = str.encode(source_id)             # <<<<<<<<<<<<<<
  *         cdef string string_category = str.encode(category)
  *         return self.thisptr.timeToNearestDestPerCategory(string_source_id, string_category)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 121, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3453,13 +3516,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 121, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 121, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3467,36 +3530,36 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 121, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 121, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 122, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source_id);
       __Pyx_GIVEREF(__pyx_v_source_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 121, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 121, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 122, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_source_id = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":122
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":123
  *     def timeToNearestDestPerCategory(self, source_id, category):
  *         cdef string string_source_id = str.encode(source_id)
  *         cdef string string_category = str.encode(category)             # <<<<<<<<<<<<<<
  *         return self.thisptr.timeToNearestDestPerCategory(string_source_id, string_category)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 122, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3509,13 +3572,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 123, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_category};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 123, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3523,29 +3586,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_category};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 123, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 122, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 123, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_INCREF(__pyx_v_category);
       __Pyx_GIVEREF(__pyx_v_category);
       PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_category);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 123, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 122, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_category = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":123
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":124
  *         cdef string string_source_id = str.encode(source_id)
  *         cdef string string_category = str.encode(category)
  *         return self.thisptr.timeToNearestDestPerCategory(string_source_id, string_category)             # <<<<<<<<<<<<<<
@@ -3557,15 +3620,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_6 = __pyx_v_self->thisptr->timeToNearestDestPerCategory(((string)__pyx_v_string_source_id), ((string)__pyx_v_string_category));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 123, __pyx_L1_error)
+    __PYX_ERR(1, 124, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 123, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":120
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":121
  *         self.thisptr.addToCategoryMap(string_dest_id, string_category)
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):             # <<<<<<<<<<<<<<
@@ -3579,7 +3642,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.timeToNearestDestPerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.timeToNearestDestPerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3587,7 +3650,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":125
+/* "spatial_access/transitMatrixAdapterSxS.pyx":126
  *         return self.thisptr.timeToNearestDestPerCategory(string_source_id, string_category)
  * 
  *     def countDestsInRangePerCategory(self, source_id, category, range):             # <<<<<<<<<<<<<<
@@ -3596,8 +3659,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_31countDestsInRangePerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_31countDestsInRangePerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_33countDestsInRangePerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_33countDestsInRangePerCategory(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_source_id = 0;
   PyObject *__pyx_v_category = 0;
   PyObject *__pyx_v_range = 0;
@@ -3629,17 +3692,17 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_category)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 1); __PYX_ERR(1, 125, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 1); __PYX_ERR(1, 126, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_range_2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 2); __PYX_ERR(1, 125, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 2); __PYX_ERR(1, 126, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRangePerCategory") < 0)) __PYX_ERR(1, 125, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRangePerCategory") < 0)) __PYX_ERR(1, 126, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -3654,20 +3717,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 125, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 126, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.countDestsInRangePerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.countDestsInRangePerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_30countDestsInRangePerCategory(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_source_id, __pyx_v_category, __pyx_v_range);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_32countDestsInRangePerCategory(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_source_id, __pyx_v_category, __pyx_v_range);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_30countDestsInRangePerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category, PyObject *__pyx_v_range) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_32countDestsInRangePerCategory(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_category, PyObject *__pyx_v_range) {
   std::string __pyx_v_string_source_id;
   std::string __pyx_v_string_category;
   PyObject *__pyx_r = NULL;
@@ -3681,14 +3744,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_7;
   __Pyx_RefNannySetupContext("countDestsInRangePerCategory", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":126
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":127
  * 
  *     def countDestsInRangePerCategory(self, source_id, category, range):
  *         cdef string string_source_id = str.encode(source_id)             # <<<<<<<<<<<<<<
  *         cdef string string_category = str.encode(category)
  *         return self.thisptr.countDestsInRangePerCategory(string_source_id, string_category, range)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 126, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3701,13 +3764,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 126, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 126, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3715,36 +3778,36 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 126, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 126, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 127, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source_id);
       __Pyx_GIVEREF(__pyx_v_source_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 126, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 126, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_source_id = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":127
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":128
  *     def countDestsInRangePerCategory(self, source_id, category, range):
  *         cdef string string_source_id = str.encode(source_id)
  *         cdef string string_category = str.encode(category)             # <<<<<<<<<<<<<<
  *         return self.thisptr.countDestsInRangePerCategory(string_source_id, string_category, range)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 127, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3757,13 +3820,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 128, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_category};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 128, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3771,29 +3834,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_v_category};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 128, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 127, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 128, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_INCREF(__pyx_v_category);
       __Pyx_GIVEREF(__pyx_v_category);
       PyTuple_SET_ITEM(__pyx_t_3, 0+1, __pyx_v_category);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 127, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 128, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 127, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_category = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":128
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":129
  *         cdef string string_source_id = str.encode(source_id)
  *         cdef string string_category = str.encode(category)
  *         return self.thisptr.countDestsInRangePerCategory(string_source_id, string_category, range)             # <<<<<<<<<<<<<<
@@ -3801,20 +3864,20 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def timeToNearestDest(self, source_id):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_6 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 128, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_6 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 129, __pyx_L1_error)
   try {
     __pyx_t_7 = __pyx_v_self->thisptr->countDestsInRangePerCategory(((string)__pyx_v_string_source_id), ((string)__pyx_v_string_category), __pyx_t_6);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 128, __pyx_L1_error)
+    __PYX_ERR(1, 129, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 128, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 129, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":125
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":126
  *         return self.thisptr.timeToNearestDestPerCategory(string_source_id, string_category)
  * 
  *     def countDestsInRangePerCategory(self, source_id, category, range):             # <<<<<<<<<<<<<<
@@ -3828,7 +3891,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.countDestsInRangePerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.countDestsInRangePerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3836,7 +3899,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":130
+/* "spatial_access/transitMatrixAdapterSxS.pyx":131
  *         return self.thisptr.countDestsInRangePerCategory(string_source_id, string_category, range)
  * 
  *     def timeToNearestDest(self, source_id):             # <<<<<<<<<<<<<<
@@ -3845,19 +3908,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_33timeToNearestDest(PyObject *__pyx_v_self, PyObject *__pyx_v_source_id); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_33timeToNearestDest(PyObject *__pyx_v_self, PyObject *__pyx_v_source_id) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_35timeToNearestDest(PyObject *__pyx_v_self, PyObject *__pyx_v_source_id); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_35timeToNearestDest(PyObject *__pyx_v_self, PyObject *__pyx_v_source_id) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("timeToNearestDest (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_32timeToNearestDest(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_source_id));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_34timeToNearestDest(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_source_id));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_32timeToNearestDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_34timeToNearestDest(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id) {
   std::string __pyx_v_string_source_id;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3869,14 +3932,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_6;
   __Pyx_RefNannySetupContext("timeToNearestDest", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":131
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":132
  * 
  *     def timeToNearestDest(self, source_id):
  *         cdef string string_source_id = str.encode(source_id)             # <<<<<<<<<<<<<<
  *         return self.thisptr.timeToNearestDest(string_source_id)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 131, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 132, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3889,13 +3952,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 131, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 132, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 131, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 132, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3903,29 +3966,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 131, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 132, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 131, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 132, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source_id);
       __Pyx_GIVEREF(__pyx_v_source_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 131, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 132, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 131, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 132, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_source_id = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":132
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":133
  *     def timeToNearestDest(self, source_id):
  *         cdef string string_source_id = str.encode(source_id)
  *         return self.thisptr.timeToNearestDest(string_source_id)             # <<<<<<<<<<<<<<
@@ -3937,15 +4000,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_6 = __pyx_v_self->thisptr->timeToNearestDest(((string)__pyx_v_string_source_id));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 132, __pyx_L1_error)
+    __PYX_ERR(1, 133, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 132, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 133, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":130
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":131
  *         return self.thisptr.countDestsInRangePerCategory(string_source_id, string_category, range)
  * 
  *     def timeToNearestDest(self, source_id):             # <<<<<<<<<<<<<<
@@ -3959,7 +4022,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.timeToNearestDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.timeToNearestDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -3967,7 +4030,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":134
+/* "spatial_access/transitMatrixAdapterSxS.pyx":135
  *         return self.thisptr.timeToNearestDest(string_source_id)
  * 
  *     def countDestsInRange(self, source_id, range):             # <<<<<<<<<<<<<<
@@ -3976,8 +4039,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_35countDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_35countDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_37countDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_37countDestsInRange(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_source_id = 0;
   PyObject *__pyx_v_range = 0;
   PyObject *__pyx_r = 0;
@@ -4006,11 +4069,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_range_2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 134, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 135, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRange") < 0)) __PYX_ERR(1, 134, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRange") < 0)) __PYX_ERR(1, 135, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4023,20 +4086,20 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 134, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 135, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.countDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.countDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_34countDestsInRange(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_source_id, __pyx_v_range);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_36countDestsInRange(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_source_id, __pyx_v_range);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_34countDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_range) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_36countDestsInRange(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_source_id, PyObject *__pyx_v_range) {
   std::string __pyx_v_string_source_id;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -4049,14 +4112,14 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   unsigned short __pyx_t_7;
   __Pyx_RefNannySetupContext("countDestsInRange", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":135
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":136
  * 
  *     def countDestsInRange(self, source_id, range):
  *         cdef string string_source_id = str.encode(source_id)             # <<<<<<<<<<<<<<
  *         return self.thisptr.countDestsInRange(string_source_id, range)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 135, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -4069,13 +4132,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     }
   }
   if (!__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 135, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_source_id); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 136, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 135, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 136, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -4083,29 +4146,29 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[2] = {__pyx_t_3, __pyx_v_source_id};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 135, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 136, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     {
-      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 135, __pyx_L1_error)
+      __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 136, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3); __pyx_t_3 = NULL;
       __Pyx_INCREF(__pyx_v_source_id);
       __Pyx_GIVEREF(__pyx_v_source_id);
       PyTuple_SET_ITEM(__pyx_t_4, 0+1, __pyx_v_source_id);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 135, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 136, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 135, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 136, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_source_id = __pyx_t_5;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":136
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":137
  *     def countDestsInRange(self, source_id, range):
  *         cdef string string_source_id = str.encode(source_id)
  *         return self.thisptr.countDestsInRange(string_source_id, range)             # <<<<<<<<<<<<<<
@@ -4113,20 +4176,20 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def setRows(self, rows):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_6 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 136, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_6 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 137, __pyx_L1_error)
   try {
     __pyx_t_7 = __pyx_v_self->thisptr->countDestsInRange(((string)__pyx_v_string_source_id), __pyx_t_6);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 136, __pyx_L1_error)
+    __PYX_ERR(1, 137, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 136, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":134
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":135
  *         return self.thisptr.timeToNearestDest(string_source_id)
  * 
  *     def countDestsInRange(self, source_id, range):             # <<<<<<<<<<<<<<
@@ -4140,7 +4203,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.countDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.countDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4148,7 +4211,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":138
+/* "spatial_access/transitMatrixAdapterSxS.pyx":139
  *         return self.thisptr.countDestsInRange(string_source_id, range)
  * 
  *     def setRows(self, rows):             # <<<<<<<<<<<<<<
@@ -4157,40 +4220,40 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_37setRows(PyObject *__pyx_v_self, PyObject *__pyx_v_rows); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_37setRows(PyObject *__pyx_v_self, PyObject *__pyx_v_rows) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_39setRows(PyObject *__pyx_v_self, PyObject *__pyx_v_rows); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_39setRows(PyObject *__pyx_v_self, PyObject *__pyx_v_rows) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setRows (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_36setRows(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_rows));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_38setRows(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_rows));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_36setRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_rows) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_38setRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_rows) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   unsigned int __pyx_t_1;
   __Pyx_RefNannySetupContext("setRows", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":139
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":140
  * 
  *     def setRows(self, rows):
  *         self.thisptr.setRows(rows)             # <<<<<<<<<<<<<<
  * 
  *     def setCols(self, cols):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_rows); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 139, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_rows); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 140, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->setRows(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 139, __pyx_L1_error)
+    __PYX_ERR(1, 140, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":138
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":139
  *         return self.thisptr.countDestsInRange(string_source_id, range)
  * 
  *     def setRows(self, rows):             # <<<<<<<<<<<<<<
@@ -4202,7 +4265,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setRows", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setRows", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4210,7 +4273,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":141
+/* "spatial_access/transitMatrixAdapterSxS.pyx":142
  *         self.thisptr.setRows(rows)
  * 
  *     def setCols(self, cols):             # <<<<<<<<<<<<<<
@@ -4219,40 +4282,40 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_39setCols(PyObject *__pyx_v_self, PyObject *__pyx_v_cols); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_39setCols(PyObject *__pyx_v_self, PyObject *__pyx_v_cols) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_41setCols(PyObject *__pyx_v_self, PyObject *__pyx_v_cols); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_41setCols(PyObject *__pyx_v_self, PyObject *__pyx_v_cols) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setCols (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_38setCols(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_cols));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_40setCols(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_cols));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_38setCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_cols) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_40setCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_cols) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   unsigned int __pyx_t_1;
   __Pyx_RefNannySetupContext("setCols", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":142
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":143
  * 
  *     def setCols(self, cols):
  *         self.thisptr.setCols(cols)             # <<<<<<<<<<<<<<
  * 
  *     def setIsSymmetric(self, isSymmetric):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_cols); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 142, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_cols); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 143, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->setCols(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 142, __pyx_L1_error)
+    __PYX_ERR(1, 143, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":141
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":142
  *         self.thisptr.setRows(rows)
  * 
  *     def setCols(self, cols):             # <<<<<<<<<<<<<<
@@ -4264,7 +4327,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setCols", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setCols", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4272,7 +4335,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":144
+/* "spatial_access/transitMatrixAdapterSxS.pyx":145
  *         self.thisptr.setCols(cols)
  * 
  *     def setIsSymmetric(self, isSymmetric):             # <<<<<<<<<<<<<<
@@ -4281,40 +4344,40 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_41setIsSymmetric(PyObject *__pyx_v_self, PyObject *__pyx_v_isSymmetric); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_41setIsSymmetric(PyObject *__pyx_v_self, PyObject *__pyx_v_isSymmetric) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_43setIsSymmetric(PyObject *__pyx_v_self, PyObject *__pyx_v_isSymmetric); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_43setIsSymmetric(PyObject *__pyx_v_self, PyObject *__pyx_v_isSymmetric) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setIsSymmetric (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_40setIsSymmetric(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_isSymmetric));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_42setIsSymmetric(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_isSymmetric));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_40setIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_isSymmetric) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_42setIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_isSymmetric) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   bool __pyx_t_1;
   __Pyx_RefNannySetupContext("setIsSymmetric", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":145
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":146
  * 
  *     def setIsSymmetric(self, isSymmetric):
  *         self.thisptr.setIsSymmetric(isSymmetric)             # <<<<<<<<<<<<<<
  * 
  *     def setDatasetRow(self, datasetRow, rowNum):
  */
-  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_isSymmetric); if (unlikely((__pyx_t_1 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 145, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_isSymmetric); if (unlikely((__pyx_t_1 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 146, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->setIsSymmetric(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 145, __pyx_L1_error)
+    __PYX_ERR(1, 146, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":144
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":145
  *         self.thisptr.setCols(cols)
  * 
  *     def setIsSymmetric(self, isSymmetric):             # <<<<<<<<<<<<<<
@@ -4326,7 +4389,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setIsSymmetric", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setIsSymmetric", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4334,7 +4397,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":147
+/* "spatial_access/transitMatrixAdapterSxS.pyx":148
  *         self.thisptr.setIsSymmetric(isSymmetric)
  * 
  *     def setDatasetRow(self, datasetRow, rowNum):             # <<<<<<<<<<<<<<
@@ -4343,8 +4406,8 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_43setDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_43setDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_45setDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_45setDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_datasetRow = 0;
   PyObject *__pyx_v_rowNum = 0;
   PyObject *__pyx_r = 0;
@@ -4373,11 +4436,11 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_rowNum)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("setDatasetRow", 1, 2, 2, 1); __PYX_ERR(1, 147, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("setDatasetRow", 1, 2, 2, 1); __PYX_ERR(1, 148, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setDatasetRow") < 0)) __PYX_ERR(1, 147, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "setDatasetRow") < 0)) __PYX_ERR(1, 148, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4390,43 +4453,43 @@ static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("setDatasetRow", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 147, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("setDatasetRow", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 148, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setDatasetRow", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setDatasetRow", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_42setDatasetRow(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), __pyx_v_datasetRow, __pyx_v_rowNum);
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_44setDatasetRow(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), __pyx_v_datasetRow, __pyx_v_rowNum);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_42setDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_datasetRow, PyObject *__pyx_v_rowNum) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_44setDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_datasetRow, PyObject *__pyx_v_rowNum) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   std::vector<unsigned short>  __pyx_t_1;
   unsigned int __pyx_t_2;
   __Pyx_RefNannySetupContext("setDatasetRow", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":148
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":149
  * 
  *     def setDatasetRow(self, datasetRow, rowNum):
  *         self.thisptr.setDatasetRow(datasetRow, rowNum)             # <<<<<<<<<<<<<<
  * 
  *     def setDataset(self, dataset):
  */
-  __pyx_t_1 = __pyx_convert_vector_from_py_unsigned_short(__pyx_v_datasetRow); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 148, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_int(__pyx_v_rowNum); if (unlikely((__pyx_t_2 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 148, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_from_py_unsigned_short(__pyx_v_datasetRow); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 149, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_int(__pyx_v_rowNum); if (unlikely((__pyx_t_2 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 149, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->setDatasetRow(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 148, __pyx_L1_error)
+    __PYX_ERR(1, 149, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":147
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":148
  *         self.thisptr.setIsSymmetric(isSymmetric)
  * 
  *     def setDatasetRow(self, datasetRow, rowNum):             # <<<<<<<<<<<<<<
@@ -4438,7 +4501,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setDatasetRow", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setDatasetRow", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4446,7 +4509,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":150
+/* "spatial_access/transitMatrixAdapterSxS.pyx":151
  *         self.thisptr.setDatasetRow(datasetRow, rowNum)
  * 
  *     def setDataset(self, dataset):             # <<<<<<<<<<<<<<
@@ -4455,36 +4518,36 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_45setDataset(PyObject *__pyx_v_self, PyObject *__pyx_v_dataset); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_45setDataset(PyObject *__pyx_v_self, PyObject *__pyx_v_dataset) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_47setDataset(PyObject *__pyx_v_self, PyObject *__pyx_v_dataset); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_47setDataset(PyObject *__pyx_v_self, PyObject *__pyx_v_dataset) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setDataset (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_44setDataset(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_dataset));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_46setDataset(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_dataset));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_44setDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_dataset) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_46setDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_dataset) {
   std::vector<std::vector<__pyx_t_14spatial_access_23transitMatrixAdapterSxS_matrix> >  __pyx_v_cpp_input;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   std::vector<std::vector<__pyx_t_14spatial_access_23transitMatrixAdapterSxS_matrix> >  __pyx_t_1;
   __Pyx_RefNannySetupContext("setDataset", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":151
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":152
  * 
  *     def setDataset(self, dataset):
  *         cdef vector[vector[matrix]] cpp_input = dataset             # <<<<<<<<<<<<<<
  *         self.thisptr.setDataset(cpp_input)
  * 
  */
-  __pyx_t_1 = __pyx_convert_vector_from_py_std_3a__3a_vector_3c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_matrix_3e___(__pyx_v_dataset); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 151, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_from_py_std_3a__3a_vector_3c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_matrix_3e___(__pyx_v_dataset); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 152, __pyx_L1_error)
   __pyx_v_cpp_input = __pyx_t_1;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":152
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":153
  *     def setDataset(self, dataset):
  *         cdef vector[vector[matrix]] cpp_input = dataset
  *         self.thisptr.setDataset(cpp_input)             # <<<<<<<<<<<<<<
@@ -4495,10 +4558,10 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_v_self->thisptr->setDataset(__pyx_v_cpp_input);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 152, __pyx_L1_error)
+    __PYX_ERR(1, 153, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":150
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":151
  *         self.thisptr.setDatasetRow(datasetRow, rowNum)
  * 
  *     def setDataset(self, dataset):             # <<<<<<<<<<<<<<
@@ -4510,7 +4573,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_r = Py_None; __Pyx_INCREF(Py_None);
   goto __pyx_L0;
   __pyx_L1_error:;
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setDataset", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setDataset", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4518,7 +4581,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":154
+/* "spatial_access/transitMatrixAdapterSxS.pyx":155
  *         self.thisptr.setDataset(cpp_input)
  * 
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -4527,19 +4590,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_47setPrimaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_47setPrimaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_49setPrimaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_49setPrimaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setPrimaryDatasetIds (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_46setPrimaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_primaryDatasetIds));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_48setPrimaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_primaryDatasetIds));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_46setPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_48setPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_primaryDatasetIds) {
   std::vector<std::string>  __pyx_v_cpp_input;
   PyObject *__pyx_v_element = NULL;
   PyObject *__pyx_r = NULL;
@@ -4552,20 +4615,20 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   std::string __pyx_t_6;
   __Pyx_RefNannySetupContext("setPrimaryDatasetIds", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":155
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":156
  * 
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):
  *         cdef vector[string] cpp_input = []             # <<<<<<<<<<<<<<
  *         for element in primaryDatasetIds:
  *             cpp_input.push_back(element)
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 155, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 155, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 156, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_cpp_input = __pyx_t_2;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":156
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":157
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):
  *         cdef vector[string] cpp_input = []
  *         for element in primaryDatasetIds:             # <<<<<<<<<<<<<<
@@ -4576,26 +4639,26 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_primaryDatasetIds; __Pyx_INCREF(__pyx_t_1); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_primaryDatasetIds); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 156, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_primaryDatasetIds); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 157, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 156, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 157, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 156, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 157, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 156, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 157, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 156, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 157, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 156, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 157, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -4605,7 +4668,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(1, 156, __pyx_L1_error)
+          else __PYX_ERR(1, 157, __pyx_L1_error)
         }
         break;
       }
@@ -4614,22 +4677,22 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __Pyx_XDECREF_SET(__pyx_v_element, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":157
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":158
  *         cdef vector[string] cpp_input = []
  *         for element in primaryDatasetIds:
  *             cpp_input.push_back(element)             # <<<<<<<<<<<<<<
  *         self.thisptr.setPrimaryDatasetIds(cpp_input)
  * 
  */
-    __pyx_t_6 = __pyx_convert_string_from_py_std__in_string(__pyx_v_element); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 157, __pyx_L1_error)
+    __pyx_t_6 = __pyx_convert_string_from_py_std__in_string(__pyx_v_element); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 158, __pyx_L1_error)
     try {
       __pyx_v_cpp_input.push_back(__pyx_t_6);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(1, 157, __pyx_L1_error)
+      __PYX_ERR(1, 158, __pyx_L1_error)
     }
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":156
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":157
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):
  *         cdef vector[string] cpp_input = []
  *         for element in primaryDatasetIds:             # <<<<<<<<<<<<<<
@@ -4639,7 +4702,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":158
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":159
  *         for element in primaryDatasetIds:
  *             cpp_input.push_back(element)
  *         self.thisptr.setPrimaryDatasetIds(cpp_input)             # <<<<<<<<<<<<<<
@@ -4650,10 +4713,10 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_v_self->thisptr->setPrimaryDatasetIds(((std::vector<string> )__pyx_v_cpp_input));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 158, __pyx_L1_error)
+    __PYX_ERR(1, 159, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":154
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":155
  *         self.thisptr.setDataset(cpp_input)
  * 
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -4667,7 +4730,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setPrimaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setPrimaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_element);
@@ -4676,7 +4739,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":160
+/* "spatial_access/transitMatrixAdapterSxS.pyx":161
  *         self.thisptr.setPrimaryDatasetIds(cpp_input)
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -4685,19 +4748,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_49setSecondaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_49setSecondaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_51setSecondaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_51setSecondaryDatasetIds(PyObject *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("setSecondaryDatasetIds (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_48setSecondaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_secondaryDatasetIds));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_50setSecondaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_secondaryDatasetIds));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_48setSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_50setSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_secondaryDatasetIds) {
   std::vector<std::string>  __pyx_v_cpp_input;
   PyObject *__pyx_v_element = NULL;
   PyObject *__pyx_r = NULL;
@@ -4710,20 +4773,20 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   std::string __pyx_t_6;
   __Pyx_RefNannySetupContext("setSecondaryDatasetIds", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":161
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":162
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):
  *         cdef vector[string] cpp_input = []             # <<<<<<<<<<<<<<
  *         for element in secondaryDatasetIds:
  *             cpp_input.push_back(element)
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 161, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 162, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 161, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_from_py_std_3a__3a_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 162, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_cpp_input = __pyx_t_2;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":162
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":163
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):
  *         cdef vector[string] cpp_input = []
  *         for element in secondaryDatasetIds:             # <<<<<<<<<<<<<<
@@ -4734,26 +4797,26 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_secondaryDatasetIds; __Pyx_INCREF(__pyx_t_1); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_secondaryDatasetIds); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 162, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_secondaryDatasetIds); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 162, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 163, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 162, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 163, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 162, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 163, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 162, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(1, 163, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 162, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 163, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -4763,7 +4826,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(1, 162, __pyx_L1_error)
+          else __PYX_ERR(1, 163, __pyx_L1_error)
         }
         break;
       }
@@ -4772,22 +4835,22 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __Pyx_XDECREF_SET(__pyx_v_element, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":163
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":164
  *         cdef vector[string] cpp_input = []
  *         for element in secondaryDatasetIds:
  *             cpp_input.push_back(element)             # <<<<<<<<<<<<<<
  *         self.thisptr.setSecondaryDatasetIds(cpp_input)
  * 
  */
-    __pyx_t_6 = __pyx_convert_string_from_py_std__in_string(__pyx_v_element); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 163, __pyx_L1_error)
+    __pyx_t_6 = __pyx_convert_string_from_py_std__in_string(__pyx_v_element); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 164, __pyx_L1_error)
     try {
       __pyx_v_cpp_input.push_back(__pyx_t_6);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(1, 163, __pyx_L1_error)
+      __PYX_ERR(1, 164, __pyx_L1_error)
     }
 
-    /* "spatial_access/transitMatrixAdapterSxS.pyx":162
+    /* "spatial_access/transitMatrixAdapterSxS.pyx":163
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):
  *         cdef vector[string] cpp_input = []
  *         for element in secondaryDatasetIds:             # <<<<<<<<<<<<<<
@@ -4797,7 +4860,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":164
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":165
  *         for element in secondaryDatasetIds:
  *             cpp_input.push_back(element)
  *         self.thisptr.setSecondaryDatasetIds(cpp_input)             # <<<<<<<<<<<<<<
@@ -4808,10 +4871,10 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_v_self->thisptr->setSecondaryDatasetIds(((std::vector<string> )__pyx_v_cpp_input));
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 164, __pyx_L1_error)
+    __PYX_ERR(1, 165, __pyx_L1_error)
   }
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":160
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":161
  *         self.thisptr.setPrimaryDatasetIds(cpp_input)
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -4825,7 +4888,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.setSecondaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.setSecondaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_element);
@@ -4834,7 +4897,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":166
+/* "spatial_access/transitMatrixAdapterSxS.pyx":167
  *         self.thisptr.setSecondaryDatasetIds(cpp_input)
  * 
  *     def getRows(self):             # <<<<<<<<<<<<<<
@@ -4843,26 +4906,26 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_51getRows(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_51getRows(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_53getRows(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_53getRows(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getRows (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_50getRows(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_52getRows(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_50getRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_52getRows(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   unsigned int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getRows", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":167
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":168
  * 
  *     def getRows(self):
  *         return self.thisptr.getRows()             # <<<<<<<<<<<<<<
@@ -4874,15 +4937,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_self->thisptr->getRows();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 167, __pyx_L1_error)
+    __PYX_ERR(1, 168, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 167, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 168, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":166
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":167
  *         self.thisptr.setSecondaryDatasetIds(cpp_input)
  * 
  *     def getRows(self):             # <<<<<<<<<<<<<<
@@ -4893,7 +4956,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getRows", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getRows", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4901,7 +4964,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":169
+/* "spatial_access/transitMatrixAdapterSxS.pyx":170
  *         return self.thisptr.getRows()
  * 
  *     def getCols(self):             # <<<<<<<<<<<<<<
@@ -4910,26 +4973,26 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_53getCols(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_53getCols(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_55getCols(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_55getCols(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getCols (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_52getCols(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_54getCols(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_52getCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_54getCols(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   unsigned int __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getCols", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":170
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":171
  * 
  *     def getCols(self):
  *         return self.thisptr.getCols()             # <<<<<<<<<<<<<<
@@ -4941,15 +5004,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_self->thisptr->getCols();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 170, __pyx_L1_error)
+    __PYX_ERR(1, 171, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 170, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 171, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":169
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":170
  *         return self.thisptr.getRows()
  * 
  *     def getCols(self):             # <<<<<<<<<<<<<<
@@ -4960,7 +5023,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getCols", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getCols", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -4968,7 +5031,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":172
+/* "spatial_access/transitMatrixAdapterSxS.pyx":173
  *         return self.thisptr.getCols()
  * 
  *     def getIsSymmetric(self):             # <<<<<<<<<<<<<<
@@ -4977,26 +5040,26 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_55getIsSymmetric(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_55getIsSymmetric(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_57getIsSymmetric(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_57getIsSymmetric(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getIsSymmetric (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_54getIsSymmetric(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_56getIsSymmetric(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_54getIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_56getIsSymmetric(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   bool __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getIsSymmetric", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":173
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":174
  * 
  *     def getIsSymmetric(self):
  *         return self.thisptr.getIsSymmetric()             # <<<<<<<<<<<<<<
@@ -5008,15 +5071,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_self->thisptr->getIsSymmetric();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 173, __pyx_L1_error)
+    __PYX_ERR(1, 174, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 173, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":172
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":173
  *         return self.thisptr.getCols()
  * 
  *     def getIsSymmetric(self):             # <<<<<<<<<<<<<<
@@ -5027,7 +5090,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getIsSymmetric", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getIsSymmetric", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5035,7 +5098,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":175
+/* "spatial_access/transitMatrixAdapterSxS.pyx":176
  *         return self.thisptr.getIsSymmetric()
  * 
  *     def getDatasetRow(self, rowNum):             # <<<<<<<<<<<<<<
@@ -5044,19 +5107,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_57getDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_v_rowNum); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_57getDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_v_rowNum) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_59getDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_v_rowNum); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_59getDatasetRow(PyObject *__pyx_v_self, PyObject *__pyx_v_rowNum) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getDatasetRow (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_56getDatasetRow(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v_rowNum));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_58getDatasetRow(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v_rowNum));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_56getDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, PyObject *__pyx_v_rowNum) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_58getDatasetRow(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, PyObject *__pyx_v_rowNum) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   unsigned int __pyx_t_1;
@@ -5064,7 +5127,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("getDatasetRow", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":176
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":177
  * 
  *     def getDatasetRow(self, rowNum):
  *         return self.thisptr.getDatasetRow(rowNum)             # <<<<<<<<<<<<<<
@@ -5072,20 +5135,20 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def getDataset(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_rowNum); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 176, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_rowNum); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 177, __pyx_L1_error)
   try {
     __pyx_t_2 = __pyx_v_self->thisptr->getDatasetRow(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 176, __pyx_L1_error)
+    __PYX_ERR(1, 177, __pyx_L1_error)
   }
-  __pyx_t_3 = __pyx_convert_vector_to_py_unsigned_short(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 176, __pyx_L1_error)
+  __pyx_t_3 = __pyx_convert_vector_to_py_unsigned_short(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":175
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":176
  *         return self.thisptr.getIsSymmetric()
  * 
  *     def getDatasetRow(self, rowNum):             # <<<<<<<<<<<<<<
@@ -5096,7 +5159,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getDatasetRow", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getDatasetRow", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5104,7 +5167,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":178
+/* "spatial_access/transitMatrixAdapterSxS.pyx":179
  *         return self.thisptr.getDatasetRow(rowNum)
  * 
  *     def getDataset(self):             # <<<<<<<<<<<<<<
@@ -5113,26 +5176,26 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_59getDataset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_59getDataset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_61getDataset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_61getDataset(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getDataset (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_58getDataset(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_60getDataset(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_58getDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_60getDataset(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   std::vector<std::vector<__pyx_t_14spatial_access_23transitMatrixAdapterSxS_value> >  __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getDataset", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":179
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":180
  * 
  *     def getDataset(self):
  *         return self.thisptr.getDataset()             # <<<<<<<<<<<<<<
@@ -5144,15 +5207,15 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_self->thisptr->getDataset();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 179, __pyx_L1_error)
+    __PYX_ERR(1, 180, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_value_3e___(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 179, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c___pyx_t_14spatial_access_23transitMatrixAdapterSxS_value_3e___(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 180, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":178
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":179
  *         return self.thisptr.getDatasetRow(rowNum)
  * 
  *     def getDataset(self):             # <<<<<<<<<<<<<<
@@ -5163,7 +5226,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getDataset", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getDataset", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5171,7 +5234,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":181
+/* "spatial_access/transitMatrixAdapterSxS.pyx":182
  *         return self.thisptr.getDataset()
  * 
  *     def getPrimaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -5180,19 +5243,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_61getPrimaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_61getPrimaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_63getPrimaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_63getPrimaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getPrimaryDatasetIds (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_60getPrimaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_62getPrimaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_60getPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_62getPrimaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   std::vector<std::string>  __pyx_v_py_result;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -5200,7 +5263,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getPrimaryDatasetIds", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":182
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":183
  * 
  *     def getPrimaryDatasetIds(self):
  *         cdef vector[string] py_result = self.thisptr.getPrimaryDatasetIds()             # <<<<<<<<<<<<<<
@@ -5211,11 +5274,11 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_self->thisptr->getPrimaryDatasetIds();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 182, __pyx_L1_error)
+    __PYX_ERR(1, 183, __pyx_L1_error)
   }
   __pyx_v_py_result = ((std::vector<std::string> )__pyx_t_1);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":183
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":184
  *     def getPrimaryDatasetIds(self):
  *         cdef vector[string] py_result = self.thisptr.getPrimaryDatasetIds()
  *         return py_result             # <<<<<<<<<<<<<<
@@ -5223,13 +5286,13 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  *     def getSecondaryDatasetIds(self):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_string(__pyx_v_py_result); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 183, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_string(__pyx_v_py_result); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 184, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":181
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":182
  *         return self.thisptr.getDataset()
  * 
  *     def getPrimaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -5240,7 +5303,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getPrimaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getPrimaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5248,7 +5311,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   return __pyx_r;
 }
 
-/* "spatial_access/transitMatrixAdapterSxS.pyx":185
+/* "spatial_access/transitMatrixAdapterSxS.pyx":186
  *         return py_result
  * 
  *     def getSecondaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -5257,19 +5320,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_63getSecondaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_63getSecondaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_65getSecondaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_65getSecondaryDatasetIds(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getSecondaryDatasetIds (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_62getSecondaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_64getSecondaryDatasetIds(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_62getSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_64getSecondaryDatasetIds(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   std::vector<std::string>  __pyx_v_py_result;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -5277,7 +5340,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getSecondaryDatasetIds", 0);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":186
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":187
  * 
  *     def getSecondaryDatasetIds(self):
  *         cdef vector[string] py_result = self.thisptr.getSecondaryDatasetIds()             # <<<<<<<<<<<<<<
@@ -5287,23 +5350,23 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
     __pyx_t_1 = __pyx_v_self->thisptr->getSecondaryDatasetIds();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 186, __pyx_L1_error)
+    __PYX_ERR(1, 187, __pyx_L1_error)
   }
   __pyx_v_py_result = ((std::vector<std::string> )__pyx_t_1);
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":187
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":188
  *     def getSecondaryDatasetIds(self):
  *         cdef vector[string] py_result = self.thisptr.getSecondaryDatasetIds()
  *         return py_result             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_string(__pyx_v_py_result); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 187, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_string(__pyx_v_py_result); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "spatial_access/transitMatrixAdapterSxS.pyx":185
+  /* "spatial_access/transitMatrixAdapterSxS.pyx":186
  *         return py_result
  * 
  *     def getSecondaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -5314,7 +5377,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.getSecondaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.getSecondaryDatasetIds", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -5329,19 +5392,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_65__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_65__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_67__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_67__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_64__reduce_cython__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_66__reduce_cython__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_64__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_66__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5368,7 +5431,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.__reduce_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -5383,19 +5446,19 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_67__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_67__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_69__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_69__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_66__setstate_cython__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_68__setstate_cython__(((struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_66__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_68__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -5422,7 +5485,7 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_18pyTransit
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("spatial_access.transitMatrixAdapterSxS.pyTransitMatrix.__setstate_cython__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -6641,7 +6704,7 @@ static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c___pyx_t_14spati
   return __pyx_r;
 }
 
-static PyObject *__pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS(PyTypeObject *t, PyObject *a, PyObject *k) {
+static PyObject *__pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix(PyTypeObject *t, PyObject *a, PyObject *k) {
   PyObject *o;
   if (likely((t->tp_flags & Py_TPFLAGS_IS_ABSTRACT) == 0)) {
     o = (*t->tp_alloc)(t, 0);
@@ -6649,14 +6712,14 @@ static PyObject *__pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTrans
     o = (PyObject *) PyBaseObject_Type.tp_new(t, __pyx_empty_tuple, 0);
   }
   if (unlikely(!o)) return 0;
-  if (unlikely(__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_1__cinit__(o, a, k) < 0)) goto bad;
+  if (unlikely(__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_1__cinit__(o, a, k) < 0)) goto bad;
   return o;
   bad:
   Py_DECREF(o); o = 0;
   return NULL;
 }
 
-static void __pyx_tp_dealloc_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS(PyObject *o) {
+static void __pyx_tp_dealloc_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix(PyObject *o) {
   #if CYTHON_USE_TP_FINALIZE
   if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && (!PyType_IS_GC(Py_TYPE(o)) || !_PyGC_FINALIZED(o))) {
     if (PyObject_CallFinalizerFromDealloc(o)) return;
@@ -6666,55 +6729,56 @@ static void __pyx_tp_dealloc_14spatial_access_23transitMatrixAdapterSxS_pyTransi
     PyObject *etype, *eval, *etb;
     PyErr_Fetch(&etype, &eval, &etb);
     ++Py_REFCNT(o);
-    __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_3__dealloc__(o);
+    __pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_3__dealloc__(o);
     --Py_REFCNT(o);
     PyErr_Restore(etype, eval, etb);
   }
   (*Py_TYPE(o)->tp_free)(o);
 }
 
-static PyMethodDef __pyx_methods_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS[] = {
-  {"getDestsInRange", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_5getDestsInRange, METH_VARARGS|METH_KEYWORDS, 0},
-  {"getSourcesInRange", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_7getSourcesInRange, METH_VARARGS|METH_KEYWORDS, 0},
-  {"getValuesBySource", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_9getValuesBySource, METH_VARARGS|METH_KEYWORDS, 0},
-  {"getValuesByDest", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_11getValuesByDest, METH_VARARGS|METH_KEYWORDS, 0},
-  {"addToUserSourceDataContainer", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_13addToUserSourceDataContainer, METH_VARARGS|METH_KEYWORDS, 0},
-  {"addToUserDestDataContainer", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_15addToUserDestDataContainer, METH_VARARGS|METH_KEYWORDS, 0},
-  {"addEdgeToGraph", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_17addEdgeToGraph, METH_VARARGS|METH_KEYWORDS, 0},
-  {"compute", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_19compute, METH_O, 0},
-  {"getValueById", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_21getValueById, METH_VARARGS|METH_KEYWORDS, 0},
-  {"writeCSV", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_23writeCSV, METH_O, 0},
-  {"printDataFrame", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_25printDataFrame, METH_NOARGS, 0},
-  {"addToCategoryMap", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_27addToCategoryMap, METH_VARARGS|METH_KEYWORDS, 0},
-  {"timeToNearestDestPerCategory", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_29timeToNearestDestPerCategory, METH_VARARGS|METH_KEYWORDS, 0},
-  {"countDestsInRangePerCategory", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_31countDestsInRangePerCategory, METH_VARARGS|METH_KEYWORDS, 0},
-  {"timeToNearestDest", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_33timeToNearestDest, METH_O, 0},
-  {"countDestsInRange", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_35countDestsInRange, METH_VARARGS|METH_KEYWORDS, 0},
-  {"setRows", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_37setRows, METH_O, 0},
-  {"setCols", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_39setCols, METH_O, 0},
-  {"setIsSymmetric", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_41setIsSymmetric, METH_O, 0},
-  {"setDatasetRow", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_43setDatasetRow, METH_VARARGS|METH_KEYWORDS, 0},
-  {"setDataset", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_45setDataset, METH_O, 0},
-  {"setPrimaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_47setPrimaryDatasetIds, METH_O, 0},
-  {"setSecondaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_49setSecondaryDatasetIds, METH_O, 0},
-  {"getRows", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_51getRows, METH_NOARGS, 0},
-  {"getCols", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_53getCols, METH_NOARGS, 0},
-  {"getIsSymmetric", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_55getIsSymmetric, METH_NOARGS, 0},
-  {"getDatasetRow", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_57getDatasetRow, METH_O, 0},
-  {"getDataset", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_59getDataset, METH_NOARGS, 0},
-  {"getPrimaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_61getPrimaryDatasetIds, METH_NOARGS, 0},
-  {"getSecondaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_63getSecondaryDatasetIds, METH_NOARGS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_65__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_18pyTransitMatrixSxS_67__setstate_cython__, METH_O, 0},
+static PyMethodDef __pyx_methods_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix[] = {
+  {"prepareGraphWithVertices", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_5prepareGraphWithVertices, METH_O, 0},
+  {"getDestsInRange", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_7getDestsInRange, METH_VARARGS|METH_KEYWORDS, 0},
+  {"getSourcesInRange", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_9getSourcesInRange, METH_VARARGS|METH_KEYWORDS, 0},
+  {"getValuesBySource", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_11getValuesBySource, METH_VARARGS|METH_KEYWORDS, 0},
+  {"getValuesByDest", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_13getValuesByDest, METH_VARARGS|METH_KEYWORDS, 0},
+  {"addToUserSourceDataContainer", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_15addToUserSourceDataContainer, METH_VARARGS|METH_KEYWORDS, 0},
+  {"addToUserDestDataContainer", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_17addToUserDestDataContainer, METH_VARARGS|METH_KEYWORDS, 0},
+  {"addEdgeToGraph", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_19addEdgeToGraph, METH_VARARGS|METH_KEYWORDS, 0},
+  {"compute", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_21compute, METH_O, 0},
+  {"getValueById", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_23getValueById, METH_VARARGS|METH_KEYWORDS, 0},
+  {"writeCSV", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_25writeCSV, METH_O, 0},
+  {"printDataFrame", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_27printDataFrame, METH_NOARGS, 0},
+  {"addToCategoryMap", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_29addToCategoryMap, METH_VARARGS|METH_KEYWORDS, 0},
+  {"timeToNearestDestPerCategory", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_31timeToNearestDestPerCategory, METH_VARARGS|METH_KEYWORDS, 0},
+  {"countDestsInRangePerCategory", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_33countDestsInRangePerCategory, METH_VARARGS|METH_KEYWORDS, 0},
+  {"timeToNearestDest", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_35timeToNearestDest, METH_O, 0},
+  {"countDestsInRange", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_37countDestsInRange, METH_VARARGS|METH_KEYWORDS, 0},
+  {"setRows", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_39setRows, METH_O, 0},
+  {"setCols", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_41setCols, METH_O, 0},
+  {"setIsSymmetric", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_43setIsSymmetric, METH_O, 0},
+  {"setDatasetRow", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_45setDatasetRow, METH_VARARGS|METH_KEYWORDS, 0},
+  {"setDataset", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_47setDataset, METH_O, 0},
+  {"setPrimaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_49setPrimaryDatasetIds, METH_O, 0},
+  {"setSecondaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_51setSecondaryDatasetIds, METH_O, 0},
+  {"getRows", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_53getRows, METH_NOARGS, 0},
+  {"getCols", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_55getCols, METH_NOARGS, 0},
+  {"getIsSymmetric", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_57getIsSymmetric, METH_NOARGS, 0},
+  {"getDatasetRow", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_59getDatasetRow, METH_O, 0},
+  {"getDataset", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_61getDataset, METH_NOARGS, 0},
+  {"getPrimaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_63getPrimaryDatasetIds, METH_NOARGS, 0},
+  {"getSecondaryDatasetIds", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_65getSecondaryDatasetIds, METH_NOARGS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_67__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_14spatial_access_23transitMatrixAdapterSxS_15pyTransitMatrix_69__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
-static PyTypeObject __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS = {
+static PyTypeObject __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix = {
   PyVarObject_HEAD_INIT(0, 0)
-  "spatial_access.transitMatrixAdapterSxS.pyTransitMatrixSxS", /*tp_name*/
-  sizeof(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS), /*tp_basicsize*/
+  "spatial_access.transitMatrixAdapterSxS.pyTransitMatrix", /*tp_name*/
+  sizeof(struct __pyx_obj_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix), /*tp_basicsize*/
   0, /*tp_itemsize*/
-  __pyx_tp_dealloc_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS, /*tp_dealloc*/
+  __pyx_tp_dealloc_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix, /*tp_dealloc*/
   0, /*tp_print*/
   0, /*tp_getattr*/
   0, /*tp_setattr*/
@@ -6742,7 +6806,7 @@ static PyTypeObject __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTran
   0, /*tp_weaklistoffset*/
   0, /*tp_iter*/
   0, /*tp_iternext*/
-  __pyx_methods_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS, /*tp_methods*/
+  __pyx_methods_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix, /*tp_methods*/
   0, /*tp_members*/
   0, /*tp_getset*/
   0, /*tp_base*/
@@ -6752,7 +6816,7 @@ static PyTypeObject __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTran
   0, /*tp_dictoffset*/
   0, /*tp_init*/
   0, /*tp_alloc*/
-  __pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS, /*tp_new*/
+  __pyx_tp_new_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix, /*tp_new*/
   0, /*tp_free*/
   0, /*tp_is_gc*/
   0, /*tp_bases*/
@@ -6919,14 +6983,14 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS) < 0) __PYX_ERR(1, 58, __pyx_L1_error)
-  __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS.tp_print = 0;
-  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS.tp_dictoffset && __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS.tp_getattro == PyObject_GenericGetAttr)) {
-    __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS.tp_getattro = __Pyx_PyObject_GenericGetAttr;
+  if (PyType_Ready(&__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix) < 0) __PYX_ERR(1, 56, __pyx_L1_error)
+  __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix.tp_print = 0;
+  if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix.tp_dictoffset && __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix.tp_getattro == PyObject_GenericGetAttr)) {
+    __pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "pyTransitMatrixSxS", (PyObject *)&__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS) < 0) __PYX_ERR(1, 58, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS) < 0) __PYX_ERR(1, 58, __pyx_L1_error)
-  __pyx_ptype_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS = &__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrixSxS;
+  if (PyObject_SetAttrString(__pyx_m, "pyTransitMatrix", (PyObject *)&__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix) < 0) __PYX_ERR(1, 56, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix) < 0) __PYX_ERR(1, 56, __pyx_L1_error)
+  __pyx_ptype_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix = &__pyx_type_14spatial_access_23transitMatrixAdapterSxS_pyTransitMatrix;
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -8372,195 +8436,6 @@ raise_neg_overflow:
 }
 
 /* CIntFromPy */
-static CYTHON_INLINE unsigned short __Pyx_PyInt_As_unsigned_short(PyObject *x) {
-    const unsigned short neg_one = (unsigned short) -1, const_zero = (unsigned short) 0;
-    const int is_unsigned = neg_one > const_zero;
-#if PY_MAJOR_VERSION < 3
-    if (likely(PyInt_Check(x))) {
-        if (sizeof(unsigned short) < sizeof(long)) {
-            __PYX_VERIFY_RETURN_INT(unsigned short, long, PyInt_AS_LONG(x))
-        } else {
-            long val = PyInt_AS_LONG(x);
-            if (is_unsigned && unlikely(val < 0)) {
-                goto raise_neg_overflow;
-            }
-            return (unsigned short) val;
-        }
-    } else
-#endif
-    if (likely(PyLong_Check(x))) {
-        if (is_unsigned) {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (unsigned short) 0;
-                case  1: __PYX_VERIFY_RETURN_INT(unsigned short, digit, digits[0])
-                case 2:
-                    if (8 * sizeof(unsigned short) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) >= 2 * PyLong_SHIFT) {
-                            return (unsigned short) (((((unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0]));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(unsigned short) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) >= 3 * PyLong_SHIFT) {
-                            return (unsigned short) (((((((unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0]));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(unsigned short) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) >= 4 * PyLong_SHIFT) {
-                            return (unsigned short) (((((((((unsigned short)digits[3]) << PyLong_SHIFT) | (unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0]));
-                        }
-                    }
-                    break;
-            }
-#endif
-#if CYTHON_COMPILING_IN_CPYTHON
-            if (unlikely(Py_SIZE(x) < 0)) {
-                goto raise_neg_overflow;
-            }
-#else
-            {
-                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
-                if (unlikely(result < 0))
-                    return (unsigned short) -1;
-                if (unlikely(result == 1))
-                    goto raise_neg_overflow;
-            }
-#endif
-            if (sizeof(unsigned short) <= sizeof(unsigned long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, unsigned long, PyLong_AsUnsignedLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(unsigned short) <= sizeof(unsigned PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
-#endif
-            }
-        } else {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (unsigned short) 0;
-                case -1: __PYX_VERIFY_RETURN_INT(unsigned short, sdigit, (sdigit) (-(sdigit)digits[0]))
-                case  1: __PYX_VERIFY_RETURN_INT(unsigned short,  digit, +digits[0])
-                case -2:
-                    if (8 * sizeof(unsigned short) - 1 > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) - 1 > 2 * PyLong_SHIFT) {
-                            return (unsigned short) (((unsigned short)-1)*(((((unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
-                        }
-                    }
-                    break;
-                case 2:
-                    if (8 * sizeof(unsigned short) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) - 1 > 2 * PyLong_SHIFT) {
-                            return (unsigned short) ((((((unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
-                        }
-                    }
-                    break;
-                case -3:
-                    if (8 * sizeof(unsigned short) - 1 > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) - 1 > 3 * PyLong_SHIFT) {
-                            return (unsigned short) (((unsigned short)-1)*(((((((unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(unsigned short) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) - 1 > 3 * PyLong_SHIFT) {
-                            return (unsigned short) ((((((((unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
-                        }
-                    }
-                    break;
-                case -4:
-                    if (8 * sizeof(unsigned short) - 1 > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) - 1 > 4 * PyLong_SHIFT) {
-                            return (unsigned short) (((unsigned short)-1)*(((((((((unsigned short)digits[3]) << PyLong_SHIFT) | (unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(unsigned short) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned short) - 1 > 4 * PyLong_SHIFT) {
-                            return (unsigned short) ((((((((((unsigned short)digits[3]) << PyLong_SHIFT) | (unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
-                        }
-                    }
-                    break;
-            }
-#endif
-            if (sizeof(unsigned short) <= sizeof(long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, long, PyLong_AsLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(unsigned short) <= sizeof(PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, PY_LONG_LONG, PyLong_AsLongLong(x))
-#endif
-            }
-        }
-        {
-#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
-            PyErr_SetString(PyExc_RuntimeError,
-                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
-#else
-            unsigned short val;
-            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
- #if PY_MAJOR_VERSION < 3
-            if (likely(v) && !PyLong_Check(v)) {
-                PyObject *tmp = v;
-                v = PyNumber_Long(tmp);
-                Py_DECREF(tmp);
-            }
- #endif
-            if (likely(v)) {
-                int one = 1; int is_little = (int)*(unsigned char *)&one;
-                unsigned char *bytes = (unsigned char *)&val;
-                int ret = _PyLong_AsByteArray((PyLongObject *)v,
-                                              bytes, sizeof(val),
-                                              is_little, !is_unsigned);
-                Py_DECREF(v);
-                if (likely(!ret))
-                    return val;
-            }
-#endif
-            return (unsigned short) -1;
-        }
-    } else {
-        unsigned short val;
-        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
-        if (!tmp) return (unsigned short) -1;
-        val = __Pyx_PyInt_As_unsigned_short(tmp);
-        Py_DECREF(tmp);
-        return val;
-    }
-raise_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "value too large to convert to unsigned short");
-    return (unsigned short) -1;
-raise_neg_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "can't convert negative value to unsigned short");
-    return (unsigned short) -1;
-}
-
-/* CIntFromPy */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *x) {
     const int neg_one = (int) -1, const_zero = (int) 0;
     const int is_unsigned = neg_one > const_zero;
@@ -8747,6 +8622,195 @@ raise_neg_overflow:
     PyErr_SetString(PyExc_OverflowError,
         "can't convert negative value to int");
     return (int) -1;
+}
+
+/* CIntFromPy */
+static CYTHON_INLINE unsigned short __Pyx_PyInt_As_unsigned_short(PyObject *x) {
+    const unsigned short neg_one = (unsigned short) -1, const_zero = (unsigned short) 0;
+    const int is_unsigned = neg_one > const_zero;
+#if PY_MAJOR_VERSION < 3
+    if (likely(PyInt_Check(x))) {
+        if (sizeof(unsigned short) < sizeof(long)) {
+            __PYX_VERIFY_RETURN_INT(unsigned short, long, PyInt_AS_LONG(x))
+        } else {
+            long val = PyInt_AS_LONG(x);
+            if (is_unsigned && unlikely(val < 0)) {
+                goto raise_neg_overflow;
+            }
+            return (unsigned short) val;
+        }
+    } else
+#endif
+    if (likely(PyLong_Check(x))) {
+        if (is_unsigned) {
+#if CYTHON_USE_PYLONG_INTERNALS
+            const digit* digits = ((PyLongObject*)x)->ob_digit;
+            switch (Py_SIZE(x)) {
+                case  0: return (unsigned short) 0;
+                case  1: __PYX_VERIFY_RETURN_INT(unsigned short, digit, digits[0])
+                case 2:
+                    if (8 * sizeof(unsigned short) > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) >= 2 * PyLong_SHIFT) {
+                            return (unsigned short) (((((unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0]));
+                        }
+                    }
+                    break;
+                case 3:
+                    if (8 * sizeof(unsigned short) > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) >= 3 * PyLong_SHIFT) {
+                            return (unsigned short) (((((((unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0]));
+                        }
+                    }
+                    break;
+                case 4:
+                    if (8 * sizeof(unsigned short) > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) >= 4 * PyLong_SHIFT) {
+                            return (unsigned short) (((((((((unsigned short)digits[3]) << PyLong_SHIFT) | (unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0]));
+                        }
+                    }
+                    break;
+            }
+#endif
+#if CYTHON_COMPILING_IN_CPYTHON
+            if (unlikely(Py_SIZE(x) < 0)) {
+                goto raise_neg_overflow;
+            }
+#else
+            {
+                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
+                if (unlikely(result < 0))
+                    return (unsigned short) -1;
+                if (unlikely(result == 1))
+                    goto raise_neg_overflow;
+            }
+#endif
+            if (sizeof(unsigned short) <= sizeof(unsigned long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, unsigned long, PyLong_AsUnsignedLong(x))
+#ifdef HAVE_LONG_LONG
+            } else if (sizeof(unsigned short) <= sizeof(unsigned PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
+#endif
+            }
+        } else {
+#if CYTHON_USE_PYLONG_INTERNALS
+            const digit* digits = ((PyLongObject*)x)->ob_digit;
+            switch (Py_SIZE(x)) {
+                case  0: return (unsigned short) 0;
+                case -1: __PYX_VERIFY_RETURN_INT(unsigned short, sdigit, (sdigit) (-(sdigit)digits[0]))
+                case  1: __PYX_VERIFY_RETURN_INT(unsigned short,  digit, +digits[0])
+                case -2:
+                    if (8 * sizeof(unsigned short) - 1 > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) - 1 > 2 * PyLong_SHIFT) {
+                            return (unsigned short) (((unsigned short)-1)*(((((unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
+                        }
+                    }
+                    break;
+                case 2:
+                    if (8 * sizeof(unsigned short) > 1 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) - 1 > 2 * PyLong_SHIFT) {
+                            return (unsigned short) ((((((unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
+                        }
+                    }
+                    break;
+                case -3:
+                    if (8 * sizeof(unsigned short) - 1 > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) - 1 > 3 * PyLong_SHIFT) {
+                            return (unsigned short) (((unsigned short)-1)*(((((((unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
+                        }
+                    }
+                    break;
+                case 3:
+                    if (8 * sizeof(unsigned short) > 2 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) - 1 > 3 * PyLong_SHIFT) {
+                            return (unsigned short) ((((((((unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
+                        }
+                    }
+                    break;
+                case -4:
+                    if (8 * sizeof(unsigned short) - 1 > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) - 1 > 4 * PyLong_SHIFT) {
+                            return (unsigned short) (((unsigned short)-1)*(((((((((unsigned short)digits[3]) << PyLong_SHIFT) | (unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
+                        }
+                    }
+                    break;
+                case 4:
+                    if (8 * sizeof(unsigned short) > 3 * PyLong_SHIFT) {
+                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
+                            __PYX_VERIFY_RETURN_INT(unsigned short, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(unsigned short) - 1 > 4 * PyLong_SHIFT) {
+                            return (unsigned short) ((((((((((unsigned short)digits[3]) << PyLong_SHIFT) | (unsigned short)digits[2]) << PyLong_SHIFT) | (unsigned short)digits[1]) << PyLong_SHIFT) | (unsigned short)digits[0])));
+                        }
+                    }
+                    break;
+            }
+#endif
+            if (sizeof(unsigned short) <= sizeof(long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, long, PyLong_AsLong(x))
+#ifdef HAVE_LONG_LONG
+            } else if (sizeof(unsigned short) <= sizeof(PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(unsigned short, PY_LONG_LONG, PyLong_AsLongLong(x))
+#endif
+            }
+        }
+        {
+#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
+            PyErr_SetString(PyExc_RuntimeError,
+                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
+#else
+            unsigned short val;
+            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
+ #if PY_MAJOR_VERSION < 3
+            if (likely(v) && !PyLong_Check(v)) {
+                PyObject *tmp = v;
+                v = PyNumber_Long(tmp);
+                Py_DECREF(tmp);
+            }
+ #endif
+            if (likely(v)) {
+                int one = 1; int is_little = (int)*(unsigned char *)&one;
+                unsigned char *bytes = (unsigned char *)&val;
+                int ret = _PyLong_AsByteArray((PyLongObject *)v,
+                                              bytes, sizeof(val),
+                                              is_little, !is_unsigned);
+                Py_DECREF(v);
+                if (likely(!ret))
+                    return val;
+            }
+#endif
+            return (unsigned short) -1;
+        }
+    } else {
+        unsigned short val;
+        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
+        if (!tmp) return (unsigned short) -1;
+        val = __Pyx_PyInt_As_unsigned_short(tmp);
+        Py_DECREF(tmp);
+        return val;
+    }
+raise_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "value too large to convert to unsigned short");
+    return (unsigned short) -1;
+raise_neg_overflow:
+    PyErr_SetString(PyExc_OverflowError,
+        "can't convert negative value to unsigned short");
+    return (unsigned short) -1;
 }
 
 /* CIntFromPy */

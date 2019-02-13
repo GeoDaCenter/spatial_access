@@ -63,6 +63,9 @@ cdef class pyTransitMatrix:
     def __dealloc__(self):
         del self.thisptr
 
+    def prepareGraphWithVertices(self, vertices):
+        self.thisptr.prepareGraphWithVertices(vertices)
+
     def getDestsInRange(self, range_, numThreads):
         cdef unordered_map[string, vector[ulong]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
         return py_res

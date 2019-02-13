@@ -53,7 +53,7 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel" :
 
 
 
-cdef class pyTransitMatrixSxS:
+cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
@@ -64,6 +64,9 @@ cdef class pyTransitMatrixSxS:
         if self.thisptr is not NULL:
             del self.thisptr
             self.thisptr = NULL
+
+    def prepareGraphWithVertices(self, vertices):
+        self.thisptr.prepareGraphWithVertices(vertices)
 
     def getDestsInRange(self, range_, numThreads):
         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
