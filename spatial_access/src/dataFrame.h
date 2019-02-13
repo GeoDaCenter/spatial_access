@@ -44,6 +44,7 @@ public:
     unsigned int addToRowIndex(const row_label_type& row_id);
     unsigned int addToColIndex(const col_label_type& col_id);
     void setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row);
+    void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
 
     // Input/Output:
     bool writeCSV(const std::string &outfile) const;

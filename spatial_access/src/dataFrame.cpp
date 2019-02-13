@@ -66,6 +66,12 @@ unsigned int dataFrame<row_label_type, col_label_type>::getCols() const
 }
 
 template <class row_label_type, class col_label_type>
+void dataFrame<row_label_type, col_label_type>::setDataset(const std::vector<std::vector<unsigned short int>>& dataset)
+{
+    this->dataset = dataset;
+}
+
+template <class row_label_type, class col_label_type>
 void dataFrame<row_label_type, col_label_type>::setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row)
 {
     this->dataset.at(row) = datasetRow;

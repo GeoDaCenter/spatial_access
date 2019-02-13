@@ -14,15 +14,29 @@ if sys.platform == "darwin":
 
 
 EXTENSION = [Extension(
-    name = 'transitMatrixAdapterIntXInt', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterIntxInt.cpp'],
+    name = 'transitMatrixAdapterSxS', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterSxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
-    name = 'transitMatrixAdapterStringxString', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterStrinxString.cpp'],
+    name = 'transitMatrixAdapterIxI', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterIxI.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
+    ),Extension(
+    name = 'transitMatrixAdapterSxI', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterSxI.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
+    ),Extension(
+    name = 'transitMatrixAdapterIxS', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterIxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],

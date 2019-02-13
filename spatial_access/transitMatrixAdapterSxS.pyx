@@ -5,10 +5,12 @@ from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
 from libcpp.utility cimport pair
 
-cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
+ctypedef unsigned short int matrix
+ctypedef unsigned short int value
+
+cdef extern from "src/transitMatrix.cpp" namespace "lmnoel" :
 
     cdef cppclass transitMatrix[string,string]:
-        ctypedef unsigned short int value
 
         transitMatrix(bool, unsigned int, unsigned int) except +
 
@@ -21,15 +23,15 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         void compute(int) except +
         vector[pair[string, value]] getValuesByDest(string, bool) except +
         vector[pair[string, value]] getValuesBySource(string, bool) except +
-        unordered_map[string, vector[string]] getDestsInRange(string, int) except +
-        unordered_map[string, vector[string]] getSourcesInRange(string, int) except +
+        unordered_map[string, vector[string]] getDestsInRange(unsigned int, unsigned int) except +
+        unordered_map[string, vector[string]] getSourcesInRange(unsigned int, unsigned int) except +
         unsigned short int timeToNearestDestPerCategory(string, string) except +
         unsigned short int countDestsInRangePerCategory(string, string, unsigned short int) except +
         unsigned short int timeToNearestDest(string) except +
         unsigned short int countDestsInRange(string, unsigned short int) except +
 
 
-        unsigned short int getValueById(unsigned long, unsigned long) except +
+        unsigned short int getValueById(string, string) except +
         unsigned int getRows() except +
         unsigned int getCols() except +
         bool getIsSymmetric() except +
@@ -42,6 +44,7 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         void setCols(unsigned int) except +
         void setIsSymmetric(bool) except +
         void setDatasetRow(vector[unsigned short], unsigned int) except +
+        void setDataset(vector[vector[matrix]]) except +
         void setPrimaryDatasetIds(vector[string]) except +
         void setSecondaryDatasetIds(vector[string]) except +
 
@@ -50,7 +53,7 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
 
 
 
-cdef class pyTransitMatrix:
+cdef class pyTransitMatrixSxS:
     cdef transitMatrix *thisptr
 
     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
@@ -63,22 +66,30 @@ cdef class pyTransitMatrix:
             self.thisptr = NULL
 
     def getDestsInRange(self, range_, numThreads):
-        return self.thisptr.getDestsInRange(range_, numThreads)
+        cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
+        return py_res
 
     def getSourcesInRange(self, range_, numThreads):
-        return self.thisptr.getSourcesInRange(range_, numThreads)
+        cdef unordered_map[string, vector[string]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
+        return py_res
 
     def getValuesBySource(self, source_id, sort):
-        return self.thisptr.getValuesBySource(source_id, sort)
+        cdef string source_id_string = str.encode(source_id)
+        cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id_string, sort)
+        return cpp_result
 
     def getValuesByDest(self, dest_id, sort):
-        return self.thisptr.getValuesByDest(dest_id, sort)
+        cdef string dest_id_string = str.encode(dest_id)
+        cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesByDest(dest_id_string, sort)
+        return cpp_result
 
-    def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):
-        self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance)
+    def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
+        cdef string source_id_string = str.encode(source_id)
+        self.thisptr.addToUserSourceDataContainer(networkNodeId, source_id_string, lastMileDistance)
 
-    def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):
-        self.thisptr.addToUserDestDataContainer(networkNodeId, id_, lastMileDistance)
+    def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):
+        cdef string dest_id_string = str.encode(dest_id)
+        self.thisptr.addToUserDestDataContainer(networkNodeId, dest_id_string, lastMileDistance)
 
 
     def addEdgeToGraph(self, src, dst, weight, isBidirectional):
@@ -88,28 +99,39 @@ cdef class pyTransitMatrix:
         self.thisptr.compute(numThreads)
 
     def getValueById(self, source, dest):
-        return self.thisptr.getValueById(source, dest)
+        cdef string source_string = str.encode(source)
+        cdef string dest_string = str.encode(dest)
+        return self.thisptr.getValueById(source_string, dest_string)
 
     def writeCSV(self, outfile):
-        return self.thisptr.writeCSV(outfile)
+        cdef string outfile_string = str.encode(outfile)
+        return self.thisptr.writeCSV(outfile_string)
 
     def printDataFrame(self):
         self.thisptr.printDataFrame()
 
     def addToCategoryMap(self, dest_id, category):
-        self.thisptr.addToCategoryMap(dest_id, category)
+        cdef string string_dest_id = str.encode(dest_id)
+        cdef string string_category = str.encode(category)
+        self.thisptr.addToCategoryMap(string_dest_id, string_category)
 
     def timeToNearestDestPerCategory(self, source_id, category):
-        return self.thisptr.timeToNearestDestPerCategory(source_id, category)
+        cdef string string_source_id = str.encode(source_id)
+        cdef string string_category = str.encode(category)
+        return self.thisptr.timeToNearestDestPerCategory(string_source_id, string_category)
 
     def countDestsInRangePerCategory(self, source_id, category, range):
-        return self.thisptr.countDestsInRangePerCategory(source_id, category, range)
+        cdef string string_source_id = str.encode(source_id)
+        cdef string string_category = str.encode(category)
+        return self.thisptr.countDestsInRangePerCategory(string_source_id, string_category, range)
 
     def timeToNearestDest(self, source_id):
-        return self.thisptr.timeToNearestDest(source_id)
+        cdef string string_source_id = str.encode(source_id)
+        return self.thisptr.timeToNearestDest(string_source_id)
 
     def countDestsInRange(self, source_id, range):
-        return self.thisptr.countDestsInRange(source_id, range)
+        cdef string string_source_id = str.encode(source_id)
+        return self.thisptr.countDestsInRange(string_source_id, range)
 
     def setRows(self, rows):
         self.thisptr.setRows(rows)
@@ -123,11 +145,21 @@ cdef class pyTransitMatrix:
     def setDatasetRow(self, datasetRow, rowNum):
         self.thisptr.setDatasetRow(datasetRow, rowNum)
 
+    def setDataset(self, dataset):
+        cdef vector[vector[matrix]] cpp_input = dataset
+        self.thisptr.setDataset(cpp_input)
+
     def setPrimaryDatasetIds(self, primaryDatasetIds):
-        self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)
+        cdef vector[string] cpp_input = []
+        for element in primaryDatasetIds:
+            cpp_input.push_back(element)
+        self.thisptr.setPrimaryDatasetIds(cpp_input)
 
     def setSecondaryDatasetIds(self, secondaryDatasetIds):
-        self.thisptr.setSecondaryDatasetIds(secondaryDatasetIds)
+        cdef vector[string] cpp_input = []
+        for element in secondaryDatasetIds:
+            cpp_input.push_back(element)
+        self.thisptr.setSecondaryDatasetIds(cpp_input)
 
     def getRows(self):
         return self.thisptr.getRows()
@@ -145,7 +177,9 @@ cdef class pyTransitMatrix:
         return self.thisptr.getDataset()
 
     def getPrimaryDatasetIds(self):
-        return self.thisptr.getPrimaryDatasetIds()
+        cdef vector[string] py_result = self.thisptr.getPrimaryDatasetIds()
+        return py_result
 
     def getSecondaryDatasetIds(self):
-        return self.thisptr.getSecondaryDatasetIds()
+        cdef vector[string] py_result = self.thisptr.getSecondaryDatasetIds()
+        return py_result

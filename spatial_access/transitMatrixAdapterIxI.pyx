@@ -5,11 +5,12 @@ from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
 from libcpp.utility cimport pair
 
-ctypedef unsigned long int ulong
+ctypedef unsigned short int matrix
 cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
 
-    cdef cppclass transitMatrix[ulong,ulong]:
+    cdef cppclass transitMatrix[int_label, int_label]:
         ctypedef unsigned short int value
+        ctypedef unsigned long int int_label
 
         transitMatrix(bool, unsigned int, unsigned int) except +
 
@@ -20,10 +21,10 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         void addToCategoryMap(unsigned long, string) except +
 
         void compute(int) except +
-        vector[pair[ulong, value]] getValuesByDest(unsigned long, bool) except +
-        vector[pair[ulong, value]] getValuesBySource(unsigned long, bool) except +
-        unordered_map[ulong, vector[ulong]] getDestsInRange(unsigned int, int) except +
-        unordered_map[ulong, vector[ulong]] getSourcesInRange(unsigned int, int) except +
+        vector[pair[int_label, value]] getValuesByDest(unsigned long, bool) except +
+        vector[pair[int_label, value]] getValuesBySource(unsigned long, bool) except +
+        unordered_map[int_label, vector[int_label]] getDestsInRange(unsigned int, int) except +
+        unordered_map[int_label, vector[int_label]] getSourcesInRange(unsigned int, int) except +
         unsigned short int timeToNearestDestPerCategory(unsigned long, string) except +
         unsigned short int countDestsInRangePerCategory(unsigned long, string, unsigned short int) except +
         unsigned short int timeToNearestDest(unsigned long) except +
@@ -36,15 +37,16 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         bool getIsSymmetric() except +
         vector[unsigned short] getDatasetRow(unsigned int) except +
         vector[vector[value]] getDataset() except +
-        vector[ulong] getPrimaryDatasetIds() except+
-        vector[ulong] getSecondaryDatasetIds() except+
+        vector[unsigned long int] getPrimaryDatasetIds() except+
+        vector[unsigned long int] getSecondaryDatasetIds() except+
 
         void setRows(unsigned int) except +
         void setCols(unsigned int) except +
         void setIsSymmetric(bool) except +
         void setDatasetRow(vector[unsigned short], unsigned int) except +
-        void setPrimaryDatasetIds(vector[ulong]) except +
-        void setSecondaryDatasetIds(vector[ulong]) except +
+        void setDataset(vector[vector[matrix]]) except +
+        void setPrimaryDatasetIds(vector[unsigned long int]) except +
+        void setSecondaryDatasetIds(vector[unsigned long int]) except +
 
         bool writeCSV(string) except +
         void printDataFrame() except +
@@ -121,6 +123,10 @@ cdef class pyTransitMatrix:
 
     def setDatasetRow(self, datasetRow, rowNum):
         self.thisptr.setDatasetRow(datasetRow, rowNum)
+
+    def setDataset(self, dataset):
+        cdef vector[vector[matrix]] cpp_input = dataset
+        self.thisptr.setDataset(cpp_input)
 
     def setPrimaryDatasetIds(self, primaryDatasetIds):
         self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)

@@ -10,7 +10,7 @@
 #include <climits>
 
 #include "transitMatrix.h"
-
+using namespace std;
 
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
@@ -404,6 +404,11 @@ namespace lmnoel {
         df.setDatasetRow(datasetRow, row);
     }
 
+    template<class row_label_type, class col_label_type>
+    void transitMatrix<row_label_type, col_label_type>::setDataset(const std::vector<std::vector<unsigned short int>>& dataset)
+    {
+        df.setDataset(dataset);
+    }
 
     template<class row_label_type, class col_label_type>
     void transitMatrix<row_label_type, col_label_type>::setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds)

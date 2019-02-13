@@ -73,6 +73,7 @@ public:
     void setCols(unsigned int columns);
     void setIsSymmetric(bool isSymmetric);
     void setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row);
+    void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
     void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds);
     void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds);
 
@@ -90,8 +91,8 @@ private:
     // Private Members
     std::unordered_map<std::string, std::vector<col_label_type>> categoryToDestMap;
 
-
 };
 
 
 } // namespace lnoel
+typedef unsigned long int int_label;
