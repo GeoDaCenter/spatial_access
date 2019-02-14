@@ -18,14 +18,6 @@ const std::vector<userDataPoint>& userDataTract::retrieveDataPoints() const
     return data;
 }
 
-void userDataTract::print() const
-{
-    std::cout << networkNodeId << std::endl;
-    for (auto dataPoint : data)
-    {
-        std::cout << "(" << dataPoint.loc << "," << dataPoint.lastMileDistance << ")" << std::endl;
-    }
-}
 
 userDataTract::userDataTract(unsigned int networkNodeId)
 {
@@ -42,19 +34,6 @@ const std::vector<unsigned int>& userDataContainer::retrieveAllUserDataIds() con
     return this->ids;
 }
 
-
-void userDataContainer::print() const
-{
-    for (const auto entry : data)
-    {
-        entry.second.print();
-    }
-}
-
-userDataContainer::userDataContainer()
-{
-    this->isSymmetric = false;
-}
 
 bool userDataContainer::containsTract(unsigned int networkNodeId) const
 {

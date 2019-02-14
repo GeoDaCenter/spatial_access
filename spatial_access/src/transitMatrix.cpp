@@ -8,6 +8,8 @@
 #include <vector>
 #include <utility>
 #include <climits>
+#include <queue>
+#include <memory>
 
 #include "transitMatrix.h"
 using namespace std;
@@ -68,60 +70,33 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
     }
 }
 
+typedef std::pair<unsigned short int, unsigned int> queue_pair;
 
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 template<class row_label_type, class col_label_type>
 void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
-    int V = wa->graph.V;// Get the number of vertices in graph
+    unsigned int V = wa->graph.getV();// Get the number of vertices in graph
     
     std::vector<unsigned short int> dist(V, USHRT_MAX);
-
-    // minHeap represents set E
-    MinHeap minHeap(V);
- 
-    // Initialize min heap with all vertices. dist value of all vertices 
-    for (auto v = 0; v < V; ++v)
+    dist.at(src) = 0;
+    std::priority_queue<queue_pair, std::vector<queue_pair>> queue;
+    queue.push(std::make_pair(0, src));
+    std::vector<bool> visited(V, false);
+    while (!queue.empty())
     {
-        minHeap.array[v] = MinHeapNode(v, dist[v]);
-        minHeap.pos[v] = v;
-    }
- 
-    // Make dist value of src vertex as 0 so that it is extracted first
-    minHeap.array[src] = MinHeapNode(src, dist[src]);
-    minHeap.pos[src] = src;
-    dist[src] = 0;
-    minHeap.decreaseKey(src, dist[src]);
- 
-    // Initially size of min heap is equal to V
-    minHeap.size = V;
- 
-    // In the followin loop, min heap contains all nodes
-    // whose shortest distance is not yet finalized.
-    while (!minHeap.isEmpty())
-    {
-        // Extract the vertex with minimum distance value
-        auto minHeapNode = minHeap.extractMin();
-        int u = minHeapNode.v; // Store the extracted vertex number
- 
-        // Traverse through all adjacent vertices of u (the extracted
-        // vertex) and update their distance values
-        AdjListNode* pCrawl = wa->graph.array[u].head;
-        while (pCrawl != NULL)
+        unsigned int u = queue.top().second;
+        queue.pop();
+        visited.at(u) = true;
+        for (auto neighbor : wa->graph.neighbors.at(u))
         {
-            int v = pCrawl->dest;
- 
-            // If shortest distance to v is not finalized yet, and distance to v
-            // through u is less than its previously calculated distance
-            if (minHeap.isInMinHeap(v) && (dist[u] != USHRT_MAX) && 
-                                          (pCrawl->weight + dist[u] < dist[v]))
+            auto v = std::get<0>(neighbor);
+            auto weight = std::get<1>(neighbor);
+            if ((!visited.at(v)) and (dist.at(v) > dist.at(u) + weight))
             {
-                dist[v] = dist[u] + pCrawl->weight;
- 
-                // update distance value in min heap also
-                minHeap.decreaseKey(v, dist[v]);
+                dist.at(v) = dist.at(u) + weight;
+                queue.push(std::make_pair(dist.at(v), v));
             }
-            pCrawl = pCrawl->next;
         }
     }
 
@@ -152,7 +127,7 @@ namespace lmnoel {
 // Initialization
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::prepareGraphWithVertices(int V)
+    void transitMatrix<row_label_type, col_label_type>::prepareGraphWithVertices(unsigned int V)
     {
         numNodes = V;
         graph.initializeGraph(V);
@@ -174,7 +149,7 @@ namespace lmnoel {
     }
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(int src, int dest, int weight, bool isBidirectional)
+    void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(unsigned int src, unsigned int dest, unsigned short int weight, bool isBidirectional)
     {
         graph.addEdge(src, dest, weight);
         if (isBidirectional)
@@ -201,15 +176,15 @@ namespace lmnoel {
 
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::compute(int numThreads)
+    void transitMatrix<row_label_type, col_label_type>::compute(unsigned int numThreads)
     {
         try
         {
             graphWorkerArgs<row_label_type, col_label_type> wa(graph, userSourceDataContainer, userDestDataContainer,
                                                                numNodes, df);
             wa.initialize();
-            workerQueue<row_label_type, col_label_type> wq(numThreads);
-            wq.startGraphWorker(graphWorkerHandler, &wa);
+            workerQueue<row_label_type, col_label_type> wq(numThreads, graphWorkerHandler, &wa);
+            wq.startGraphWorker();
         } catch (...)
         {
             throw std::runtime_error("Failed to compute matrix");
@@ -396,12 +371,6 @@ namespace lmnoel {
     void transitMatrix<row_label_type, col_label_type>::setIsSymmetric(bool isSymmetric)
     {
         df.setIsSymmetric(isSymmetric);
-    }
-
-    template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row)
-    {
-        df.setDatasetRow(datasetRow, row);
     }
 
     template<class row_label_type, class col_label_type>

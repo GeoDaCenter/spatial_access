@@ -3,7 +3,6 @@
 #include "threadUtilities.cpp"
 #include "dataFrame.cpp"
 #include "Graph.cpp"
-#include "MinHeap.cpp"
 #include "userDataContainer.cpp"
 
 #include <mutex>
@@ -39,16 +38,15 @@ public:
     transitMatrix(bool isSymmetric, unsigned int rows, unsigned int cols) : df(isSymmetric, rows, cols), numNodes(0) {}
 
     // Initialization
-    void prepareGraphWithVertices(int V);
-    // TODO: investigate batch adding to user containers
+    void prepareGraphWithVertices(unsigned int V);
     void addToUserSourceDataContainer(unsigned int networkNodeId, const row_label_type& row_id, unsigned short int lastMileDistance);
     void addToUserDestDataContainer(unsigned int networkNodeId, const col_label_type& col_id, unsigned short int lastMileDistance);
-    void addEdgeToGraph(int src, int dest, int weight, bool isBidirectional);
+    void addEdgeToGraph(unsigned int src, unsigned int dest, unsigned short int weight, bool isBidirectional);
     void addToCategoryMap(const col_label_type& dest_id, const std::string& category);
 
 
     // Calculations
-    void compute(int numThreads);
+    void compute(unsigned int numThreads);
     const std::vector<std::pair<col_label_type, unsigned short int>> getValuesBySource(row_label_type source_id, bool sort) const;
     const std::vector<std::pair<row_label_type, unsigned short int>> getValuesByDest(col_label_type dest_id, bool sort) const;
     const std::unordered_map<row_label_type, std::vector<col_label_type>> getDestsInRange(unsigned int range, int numThreads) const;
@@ -72,7 +70,6 @@ public:
     void setRows(unsigned int rows);
     void setCols(unsigned int columns);
     void setIsSymmetric(bool isSymmetric);
-    void setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned int row);
     void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
     void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds);
     void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds);

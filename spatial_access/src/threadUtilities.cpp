@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 #include "threadUtilities.h"
 #include "Graph.h"
@@ -7,7 +8,7 @@
 
 /* initialize jobQueue, reserving size for known inputs*/
 
-jobQueue::jobQueue(int size_in) {
+jobQueue::jobQueue(unsigned int size_in) {
     data.reserve(size_in);
 }
 
@@ -21,64 +22,47 @@ void jobQueue::insert(unsigned int item) {
 /* pop from the jobQueue.*/
 unsigned int jobQueue::pop(bool &endNow) {
     unsigned int res = 0;
-    lock.lock();
+    std::lock_guard<std::mutex> guard(lock);
     if (!data.empty()) {
         res = data.front();
         data.erase(data.begin());
     } else {
         endNow = false;
     }
-    lock.unlock();
     return res;
 }
-
-
-/* Get size of jobQueue */
-int jobQueue::size(void) {
-    int res;
-    lock.lock();
-    res = data.size();
-    lock.unlock();
-    return res;
-}
-
 
 /* return true if jobQueue is empty */
-bool jobQueue::empty() {
+bool jobQueue::empty()
+{
     bool res;
-    lock.lock();
+    std::lock_guard<std::mutex> guard(lock);
     res = data.empty();
-    lock.unlock();
     return res;
 }
 
 /*initialize workerQueue */
 template<class row_label_type, class col_label_type>
-workerQueue<row_label_type, col_label_type>::workerQueue(int n_threads_in) {
-    threadArray = new std::thread[n_threads_in];
-    n_threads = n_threads_in;
-
+workerQueue<row_label_type, col_label_type>::workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa)
+{
+    for (auto i = 0; i < numThreads; i++)
+    {
+        this->threads.push_back(std::thread(f_in, wa));
+    }
 }
 
+void do_join(std::thread &t)
+{
+    t.join();
+}
 
 /* start the workerQueue */
 template<class row_label_type, class col_label_type>
-void workerQueue<row_label_type, col_label_type>::startGraphWorker(void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa) {
-    for (int i = 0; i < n_threads; i++) {
-        threadArray[i] = std::thread(f_in, wa);
-    }
-
-    for (int j = 0; j < n_threads; j++) {
-        threadArray[j].join();
-    }
+void workerQueue<row_label_type, col_label_type>::startGraphWorker()
+{
+   std::for_each(this->threads.begin(), this->threads.end(), do_join);
 }
 
-
-/* delete the workerQueue */
-template<class row_label_type, class col_label_type>
-workerQueue<row_label_type, col_label_type>::~workerQueue(void) {
-    delete [] threadArray;
-}
 
 template <class row_label_type, class col_label_type>
 void graphWorkerArgs<row_label_type, col_label_type>::initialize()

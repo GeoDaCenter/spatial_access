@@ -18,25 +18,23 @@ public:
     std::vector<userDataPoint> data;
     userDataTract(unsigned int networkNodeId);
     void addPoint(userDataPoint userData);
-    void print() const;
     const std::vector<userDataPoint>& retrieveDataPoints() const;
 };
 
 
 class userDataContainer
 {
-public:
-    bool isSymmetric;
+private:
     std::unordered_map<unsigned int, userDataTract> data;
     std::vector<unsigned int> allNetworkNodeIds;
     std::vector<unsigned int> ids;
     std::vector<unsigned int> uniqueNetworkNodeIds;
-    userDataContainer();
+public:
+    userDataContainer()= default;
     void addPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance);
     bool containsTract(unsigned int networkNodeId) const;
     const userDataTract& retrieveTract(unsigned int networkNodeId) const;
     const std::vector<unsigned int>& retrieveAllUserDataIds() const;
     const std::vector<unsigned int>& retrieveAllNetworkNodeIds() const;
     const std::vector<unsigned int>& retrieveUniqueNetworkNodeIds() const;
-    void print() const;
 };

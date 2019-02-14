@@ -3,7 +3,6 @@
 #include <thread>
 #include <mutex>
 #include <vector>
-#include <memory>
 
 #include "Graph.h"
 #include "userDataContainer.h"
@@ -15,11 +14,10 @@ private:
     std::vector <unsigned int> data;
     std::mutex lock;
 public:
-    jobQueue(int size_in);
+    jobQueue(unsigned int size_in);
     void insert(unsigned int item);
     unsigned int pop(bool &endNow);
-    int size(void);
-    bool empty(void);
+    bool empty();
 };
 
 
@@ -29,13 +27,10 @@ template<class row_label_type, class col_label_type> class graphWorkerArgs;
 template<class row_label_type, class col_label_type>
 class workerQueue {
 private:
-    std::thread *threadArray;
-    int n_threads;
-
+    std::vector<std::thread> threads;
 public:
-    workerQueue(int n_threads_in);
-    ~workerQueue(void);
-    void startGraphWorker(void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa);
+    workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa);
+    void startGraphWorker();
 };
 
 
