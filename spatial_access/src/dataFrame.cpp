@@ -117,7 +117,7 @@ unsigned short int dataFrame<row_label_type, col_label_type>::getValueByLoc(unsi
 }
 
 template <class row_label_type, class col_label_type>
-void dataFrame<row_label_type, col_label_type>::setValueById(row_label_type row_id, col_label_type col_id,
+void dataFrame<row_label_type, col_label_type>::setValueById(const row_label_type& row_id, const col_label_type& col_id,
                                                              unsigned short int value)
 {
     unsigned int row_loc = rowIdsToLoc.at(row_id);
@@ -126,7 +126,7 @@ void dataFrame<row_label_type, col_label_type>::setValueById(row_label_type row_
 }
 
 template <class row_label_type, class col_label_type>
-unsigned short int dataFrame<row_label_type, col_label_type>::getValueById(row_label_type row_id, col_label_type col_id) const
+unsigned short int dataFrame<row_label_type, col_label_type>::getValueById(const row_label_type& row_id, const col_label_type& col_id) const
 {
     unsigned short int row_loc = rowIdsToLoc.at(row_id);
     unsigned short int col_loc = colIdsToLoc.at(col_id);
@@ -134,7 +134,7 @@ unsigned short int dataFrame<row_label_type, col_label_type>::getValueById(row_l
 }
 
 template <class row_label_type, class col_label_type>
-const std::vector<std::pair<col_label_type, unsigned short int>> dataFrame<row_label_type, col_label_type>::getValuesByRowId(row_label_type row_id,
+const std::vector<std::pair<col_label_type, unsigned short int>> dataFrame<row_label_type, col_label_type>::getValuesByRowId(const row_label_type& row_id,
         bool sort) const
 {
     std::vector<std::pair<col_label_type, unsigned short int>> returnValue;
@@ -153,7 +153,7 @@ const std::vector<std::pair<col_label_type, unsigned short int>> dataFrame<row_l
 }
 
 template <class row_label_type, class col_label_type>
-const std::vector<std::pair<row_label_type, unsigned short int>> dataFrame<row_label_type, col_label_type>::getValuesByColId(col_label_type col_id,
+const std::vector<std::pair<row_label_type, unsigned short int>> dataFrame<row_label_type, col_label_type>::getValuesByColId(const col_label_type& col_id,
         bool sort) const
 {
     std::vector<std::pair<row_label_type, unsigned short int>> returnValue;
@@ -196,13 +196,13 @@ const col_label_type& dataFrame<row_label_type, col_label_type>::getColIdForLoc(
 }
 
 template <class row_label_type, class col_label_type>
-unsigned int dataFrame<row_label_type, col_label_type>::getRowLocForId(row_label_type row_id) const
+unsigned int dataFrame<row_label_type, col_label_type>::getRowLocForId(const row_label_type& row_id) const
 {
     return rowIdsToLoc.at(row_id);
 }
 
 template <class row_label_type, class col_label_type>
-unsigned int dataFrame<row_label_type, col_label_type>::getColLocForId(col_label_type col_id) const
+unsigned int dataFrame<row_label_type, col_label_type>::getColLocForId(const col_label_type& col_id) const
 {
     return colIdsToLoc.at(col_id);
 }

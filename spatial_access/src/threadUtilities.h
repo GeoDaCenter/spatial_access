@@ -12,12 +12,12 @@
 class jobQueue {
 private:
     std::vector <unsigned int> data;
-    std::mutex lock;
+    mutable std::mutex lock;
 public:
-    jobQueue(unsigned int size_in);
+    jobQueue(unsigned int size);
     void insert(unsigned int item);
     unsigned int pop(bool &endNow);
-    bool empty();
+    bool empty() const;
 };
 
 
@@ -42,7 +42,7 @@ public:
     jobQueue jq;
     userDataContainer userSourceData;
     userDataContainer userDestData;
-    int numNodes;
+    unsigned int numNodes;
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
                        int numNodes, dataFrame<row_label_type, col_label_type> &df)

@@ -75,7 +75,7 @@ public:
     void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds);
 
     // IO
-    bool writeCSV(const std::string &outfile);
+    bool writeCSV(const std::string &outfile) const;
     void printDataFrame() const;
 
     // Aliases (for cython bug)

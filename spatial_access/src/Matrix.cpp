@@ -3,50 +3,50 @@
 #include <vector>
 #include <unordered_map>
 
-void printArray(std::vector<unsigned long int> array)
-{
-    for (auto element : array)
-    {
-        std::cout << element << ", ";
-    }
-    std::cout << std::endl;
-}
-
-void printMapOfArrays(std::unordered_map<long unsigned int, std::vector<long unsigned int>> map)
-{
-    for (auto element : map)
-    {
-        std::cout << "row " << element.first << ":" << std::endl;
-        printArray(element.second);
-    }
-}
 
 using namespace lmnoel;
 int main()
 {
-    transitMatrix<std::string, std::string> tm(false, 9, 7);
-    tm.prepareGraphWithVertices(5);
+    transitMatrix<std::string, std::string> tm(false, 9, 10);
+    tm.prepareGraphWithVertices(7);
     tm.addEdgeToGraph(0, 1, 1, true);
     tm.addEdgeToGraph(1, 2, 6, true);
     tm.addEdgeToGraph(0, 3, 5, true);
     tm.addEdgeToGraph(1, 3, 2, true);
+    tm.addEdgeToGraph(0, 4, 2, true);
+    tm.addEdgeToGraph(3, 5, 3, true);
+    tm.addEdgeToGraph(2, 5, 1, true);
+    tm.addEdgeToGraph(1, 3, 1, true);
+    tm.addEdgeToGraph(4, 5, 1, true);
+    tm.addEdgeToGraph(2, 1, 1, true);
+    tm.addEdgeToGraph(6, 5, 1, true);
+    tm.addEdgeToGraph(5, 4, 1, true);
+    tm.addEdgeToGraph(6, 3, 1, true);
+    tm.addEdgeToGraph(6, 1, 1, true);
+    tm.addEdgeToGraph(6, 2, 1, true);
+
+
     tm.addToUserSourceDataContainer(1, "a", 4);
     tm.addToUserSourceDataContainer(0, "c", 2);
-    tm.addToUserSourceDataContainer(0, "d", 2);
-    tm.addToUserSourceDataContainer(0, "e", 2);
-    tm.addToUserSourceDataContainer(0, "f", 2);
-    tm.addToUserSourceDataContainer(0, "g", 2);
-    tm.addToUserSourceDataContainer(0, "h", 2);
-    tm.addToUserSourceDataContainer(0, "j", 2);
-    tm.addToUserSourceDataContainer(0, "i", 2);
+    tm.addToUserSourceDataContainer(2, "d", 3);
+    tm.addToUserSourceDataContainer(4, "j", 1);
+    tm.addToUserSourceDataContainer(4, "j", 1);
+    tm.addToUserSourceDataContainer(4, "j", 1);
+    tm.addToUserSourceDataContainer(4, "j", 1);
+    tm.addToUserSourceDataContainer(4, "j", 1);
+    tm.addToUserSourceDataContainer(4, "j", 1);
 
     tm.addToUserDestDataContainer(2, "k", 3);
     tm.addToUserDestDataContainer(3, "l", 2);
-    tm.addToUserDestDataContainer(2, "m", 4);
-    tm.addToUserDestDataContainer(1, "n", 2);
-    tm.addToUserDestDataContainer(3, "o", 7);
-    tm.addToUserDestDataContainer(2, "p", 1);
-    tm.addToUserDestDataContainer(1, "q", 1);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+    tm.addToUserDestDataContainer(5, "p", 5);
+
 
     tm.compute(1);
 

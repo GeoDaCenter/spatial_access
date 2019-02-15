@@ -8,8 +8,8 @@
 
 /* initialize jobQueue, reserving size for known inputs*/
 
-jobQueue::jobQueue(unsigned int size_in) {
-    data.reserve(size_in);
+jobQueue::jobQueue(unsigned int size) {
+    data.reserve(size);
 }
 
 
@@ -33,7 +33,7 @@ unsigned int jobQueue::pop(bool &endNow) {
 }
 
 /* return true if jobQueue is empty */
-bool jobQueue::empty()
+bool jobQueue::empty() const
 {
     bool res;
     std::lock_guard<std::mutex> guard(lock);

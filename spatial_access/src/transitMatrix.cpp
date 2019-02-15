@@ -1,15 +1,9 @@
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <stdexcept>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
-#include <utility>
 #include <climits>
 #include <queue>
-#include <memory>
+#include <functional>
 
 #include "transitMatrix.h"
 using namespace std;
@@ -80,7 +74,7 @@ void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> 
     
     std::vector<unsigned short int> dist(V, USHRT_MAX);
     dist.at(src) = 0;
-    std::priority_queue<queue_pair, std::vector<queue_pair>> queue;
+    std::priority_queue<queue_pair, std::vector<queue_pair>, std::greater<queue_pair>> queue;
     queue.push(std::make_pair(0, src));
     std::vector<bool> visited(V, false);
     while (!queue.empty())
@@ -315,17 +309,20 @@ namespace lmnoel {
 
 
     template<class row_label_type, class col_label_type>
-    unsigned int transitMatrix<row_label_type, col_label_type>::getRows() const {
+    unsigned int transitMatrix<row_label_type, col_label_type>::getRows() const
+    {
         return df.getRows();
     }
 
     template<class row_label_type, class col_label_type>
-    unsigned int transitMatrix<row_label_type, col_label_type>::getCols() const {
+    unsigned int transitMatrix<row_label_type, col_label_type>::getCols() const
+    {
         return df.getCols();
     }
 
     template<class row_label_type, class col_label_type>
-    bool transitMatrix<row_label_type, col_label_type>::getIsSymmetric() const {
+    bool transitMatrix<row_label_type, col_label_type>::getIsSymmetric() const
+    {
         return df.getIsSymmetric();
     }
 
@@ -402,7 +399,7 @@ namespace lmnoel {
     }
 
     template<class row_label_type, class col_label_type>
-    bool transitMatrix<row_label_type, col_label_type>::writeCSV(const std::string &outfile)
+    bool transitMatrix<row_label_type, col_label_type>::writeCSV(const std::string &outfile) const
     {
         try {
             return this->df.writeCSV(outfile);

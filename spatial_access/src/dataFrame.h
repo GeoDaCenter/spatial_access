@@ -16,25 +16,25 @@ public:
     
     // Getters:
     unsigned short int getValueByLoc(unsigned int row_loc, unsigned int col_loc) const;
-    unsigned short int getValueById(row_label_type row_id, col_label_type col_id) const;
+    unsigned short int getValueById(const row_label_type& row_id, const col_label_type& col_id) const;
 
     bool getIsSymmetric() const;
     unsigned int getRows() const;
     unsigned int getCols() const;
-    const std::vector<std::pair<col_label_type, unsigned short int>> getValuesByRowId(row_label_type row_id, bool sort) const;
-    const std::vector<std::pair<row_label_type, unsigned short int>> getValuesByColId(col_label_type col_id, bool sort) const;
+    const std::vector<std::pair<col_label_type, unsigned short int>> getValuesByRowId(const row_label_type &row_id, bool sort) const;
+    const std::vector<std::pair<row_label_type, unsigned short int>> getValuesByColId(const col_label_type &col_id, bool sort) const;
     const std::vector<row_label_type>& getRowIds() const;
     const std::vector<col_label_type>& getColIds() const;
     const row_label_type& getRowIdForLoc(unsigned int row_loc) const;
     const col_label_type& getColIdForLoc(unsigned int col_loc) const;
-    unsigned int getRowLocForId(row_label_type row_id) const;
-    unsigned int getColLocForId(col_label_type col_id) const;
+    unsigned int getRowLocForId(const row_label_type& row_id) const;
+    unsigned int getColLocForId(const col_label_type& col_id) const;
     const std::vector<unsigned short int>& getDatasetRow(unsigned int row) const;
     const std::vector<std::vector<unsigned short int>>& getDataset() const;
 
     // Setters
     void setValueByLoc(unsigned int row_loc, unsigned int col_loc, unsigned short int value);
-    void setValueById(row_label_type row_id, col_label_type col_id, unsigned short int value);
+    void setValueById(const row_label_type& row_id, const col_label_type& col_id, unsigned short int value);
     void setIsSymmetric(bool isSymmetric);
     void setRows(unsigned int rows);
     void setCols(unsigned int cols);
