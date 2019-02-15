@@ -9,9 +9,13 @@ import h5py
 from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
 from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
+from spatial_access.SpatialAccessExceptions import WriteH5FailedException
+from spatial_access.SpatialAccessExceptions import ReadH5FailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import PyTransitMatrixNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
+from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
+from spatial_access.SpatialAccessExceptions import InvalidIdTypeException
 
 try:
     import transitMatrixAdapterIxI
@@ -35,67 +39,72 @@ class MatrixInterface:
         self.dataset_name = None
         self.primary_ids_name = None
         self.secondary_ids_name = None
-        self.primary_ids = None
-        self.secondary_ids = None
 
     def write_h5(self, filename):
-        file = h5py.File(filename, 'w')
-        file['dataset_name'] = self.dataset_name.encode()
-        file['is_symmetric'] = self.transit_matrix.getIsSymmetric()
-        file['rows'] = self.transit_matrix.getRows()
-        file['columns'] = self.transit_matrix.getCols()
-        id_dataset = [self.primary_ids_name.encode()]
-        if self.secondary_ids_name:
-            id_dataset.append(self.secondary_ids_name.encode())
+        if self.primary_ids_name == 'rows':
+            raise WriteH5FailedException("Illegal primary_ids_name: {}".format(self.primary_ids_name))
+        if self.secondary_ids_name == 'cols':
+            raise WriteH5FailedException("Illegal secondary_ids_name: {}".format(self.secondary_ids_name))
 
-        primary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
-        file.create_dataset(self.primary_ids_name, data=self.transit_matrix.getPrimaryDatasetIds(),
-                            dtype=primary_ids_dtype)
-        if self.secondary_ids_name:
-            secondary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
-            file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
-                                dtype=secondary_ids_dtype)
-        file.create_dataset(self.dataset_name, data=self.transit_matrix.getDataset(), dtype="i2")
-        file.close()
+        with h5py.File(filename, 'w') as file:
+
+            file.attrs['dataset_name'] = self.dataset_name.encode()
+            file.attrs['is_symmetric'] = self.transit_matrix.getIsSymmetric()
+            file.attrs['rows'] = self.transit_matrix.getRows()
+            file.attrs['columns'] = self.transit_matrix.getCols()
+            id_dataset = [self.primary_ids_name.encode()]
+            if not self.transit_matrix.getIsSymmetric():
+                id_dataset.append(self.secondary_ids_name.encode())
+            file.attrs['id_dataset_name'] = id_dataset
+            primary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
+            file.create_dataset(self.primary_ids_name, data=self.transit_matrix.getPrimaryDatasetIds(),
+                                dtype=primary_ids_dtype)
+            if not self.transit_matrix.getIsSymmetric():
+                secondary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
+                file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
+                                    dtype=secondary_ids_dtype)
+            file.create_dataset(self.dataset_name, data=self.transit_matrix.getDataset(), dtype="i2")
 
     def read_h5(self, filename):
         if not os.path.exists(filename):
             raise FileNotFoundException(filename)
-        file = h5py.File(filename, 'r')
-        self.dataset_name = file['dataset_name'].decode()
-        is_symmetric = file['is_symmetric']
-        rows = file['rows']
-        columns = file['columns']
+        with h5py.File(filename, 'r') as file:
+            self.dataset_name = file.attrs.get('dataset_name').decode()
+            is_symmetric = file.attrs.get('is_symmetric')
+            rows = file.attrs.get('rows')
+            columns = file.attrs.get('columns')
+            id_dataset = file.attrs.get('id_dataset_name')
+            # id_dataset = [name.decode() for name in file.attrs.get('id_dataset_name')]
+            self.primary_ids_name = id_dataset[0]
+            if len(id_dataset) > 1:
+                self.secondary_ids_name = id_dataset[1]
+            if is_symmetric and self.secondary_ids_name is not None:
+                raise UnexpectedFileFormatException("Illogical to have a symmetric matrix with secondary ids")
+            if not is_symmetric and self.secondary_ids_name is None:
+                raise UnexpectedFileFormatException("Illogical to have an asymmetric matrix without secondary ids")
+            primary_ids = file.get(self.primary_ids_name)
+            self.primary_ids_are_string = primary_ids.dtype != int
+            if self.secondary_ids_name is None:
+                self.secondary_ids_name = self.primary_ids_name
+            secondary_ids = file.get(self.secondary_ids_name)
+            self.secondary_ids_are_string = secondary_ids.dtype != int
 
-        id_dataset = [name.decode() for name in file['id_dataset_name']]
-        self.primary_ids_name = id_dataset[0]
-        if len(id_dataset) > 1:
-            self.secondary_ids_name = id_dataset[1]
-        if is_symmetric and self.secondary_ids_name is not None:
-            raise UnexpectedFileFormatException("Illogical to have a symmetric matrix with secondary ids")
-        if not is_symmetric and self.secondary_ids_name is None:
-            raise UnexpectedFileFormatException("Illogical to have an asymmetric matrix without secondary ids")
-        self.primary_ids_are_string = file[self.primary_ids_name].type == str
-        if self.secondary_ids_name is None:
-            self.secondary_ids_name = self.primary_ids_name
-        self.secondary_ids_are_string = file[self.secondary_ids_name].type == str
+            if self.primary_ids_are_string and self.secondary_ids_are_string:
+                self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
+            elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+                self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
+            elif not self.primary_ids_are_string and self.primary_ids_are_string:
+                self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
+            elif not self.primary_ids_are_string and not self.primary_ids_are_string:
+                self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
+            else:
+                assert False, "Logic Error"
 
-        if self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
-        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and self.primary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and not self.primary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
-        else:
-            assert False, "Logic Error"
+            self.transit_matrix.setPrimaryDatasetIds(list(primary_ids[:]))
+            self.transit_matrix.setSecondaryDatasetIds(list(secondary_ids[:]))
+            self.transit_matrix.setDataset(list(file.get(self.dataset_name)[:]))
 
-        self.transit_matrix.setPrimaryDataIds(file[self.primary_ids_name])
-        self.transit_matrix.setSecondaryDataIds(file[self.secondary_ids_name])
-        self.transit_matrix.setDataset(file[self.dataset_name])
 
-        file.close()
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -127,18 +136,26 @@ class MatrixInterface:
 
         return no_cores
 
-    def add_user_source_data(self, network_id, user_id, distance, primary_only):
+    def add_user_source_data(self, network_id, user_id, distance, is_symmetric):
         """
         Add the user's source data point to the pyTransitMatrix.
         """
+        if self.primary_ids_are_string and not isinstance(user_id, str):
+            raise InvalidIdTypeException("source_id was declared to be string, but recieved {}".format(type(user_id)))
+        if not self.primary_ids_are_string and not isinstance(user_id, int):
+            raise InvalidIdTypeException("source_id was declared to be int, but recieved {}".format(type(user_id)))
         self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, distance)
-        if not primary_only:
-            self.transit_matrix.addToUserDestDataContainer(network_id, user_id, distance)
+        if is_symmetric:
+            self.add_user_dest_data(network_id, user_id, distance)
 
     def add_user_dest_data(self, network_id, user_id, distance):
         """
         Add the user's dest data point to the pyTransitMatrix.
         """
+        if self.secondary_ids_are_string and not isinstance(user_id, str):
+            raise InvalidIdTypeException("dest_id was declared to be string, but recieved {}".format(type(user_id)))
+        if not self.secondary_ids_are_string and not isinstance(user_id, int):
+            raise InvalidIdTypeException("dest_id was declared to be int, but recieved {}".format(type(user_id)))
         self.transit_matrix.addToUserDestDataContainer(network_id, user_id, distance)
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
@@ -147,11 +164,14 @@ class MatrixInterface:
         """
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-
     def prepare_matrix(self, is_symmetric, rows, columns, network_vertices):
         """
         Instantiate a pyTransitMatrix
         """
+        if is_symmetric and rows != columns:
+            raise UnexpectedShapeException("Symmetric matrices should be nxn, not {}x{}".format(rows, columns))
+        if is_symmetric:
+            self.secondary_ids_are_string = self.primary_ids_are_string
         if self.primary_ids_are_string and self.secondary_ids_are_string:
             self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
         elif self.primary_ids_are_string and not self.secondary_ids_are_string:
@@ -164,13 +184,13 @@ class MatrixInterface:
             assert False, "Logic Error"
         self.transit_matrix.prepareGraphWithVertices(network_vertices)
 
-    def write_to_csv(self, outfile):
+    def write_csv(self, outfile):
         """
         Write the data frame to csv
         """
         start = time.time()
         try:
-            self.transit_matrix.writeCSV(bytes(outfile, 'utf-8'))
+            self.transit_matrix.writeCSV(outfile)
         except BaseException:
             raise WriteCSVFailedException()
         if self.logger:
@@ -215,13 +235,13 @@ class MatrixInterface:
         num_threads = self._get_thread_limit()
         return self.transit_matrix.getSourcesInRange(threshold, num_threads)
 
-    def get_value(self, source, dest):
+    def get_value_by_id(self, source, dest):
         """
         Fetch the time value associated with the source, dest pair.
         Warning! This method expects int arguments only!
         """
         try:
-            return self.transit_matrix.get(source, dest)
+            return self.transit_matrix.getValueById(source, dest)
         except BaseException:
             raise IndecesNotFoundException() 
 
@@ -236,7 +256,7 @@ class MatrixInterface:
         Map the dest_id to the category in the
         transit matrix.
         """
-        self.transit_matrix.addToCategoryMap(dest_id, bytes(category, 'utf-8'))
+        self.transit_matrix.addToCategoryMap(dest_id, category)
 
     def time_to_nearest_dest(self, source_id, category=None):
         """
@@ -246,7 +266,7 @@ class MatrixInterface:
         if category is None:
             return self.transit_matrix.timeToNearestDest(source_id)
         else:
-            return self.transit_matrix.timeToNearestDestPerCategory(source_id, bytes(category, 'utf-8'))
+            return self.transit_matrix.timeToNearestDestPerCategory(source_id, category)
 
     def count_dests_in_range(self, source_id, threshold, category=None):
         """
@@ -256,4 +276,4 @@ class MatrixInterface:
         if category is None:
             return self.transit_matrix.countDestsInRange(source_id, threshold)
         else:
-            return self.transit_matrix.countDestsInRangePerCategory(source_id, bytes(category, 'utf-8'), threshold)
+            return self.transit_matrix.countDestsInRangePerCategory(source_id, category, threshold)

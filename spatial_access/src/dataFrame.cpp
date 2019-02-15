@@ -227,11 +227,22 @@ void dataFrame<row_label_type, col_label_type>::setValueByLoc(unsigned int row_l
 }
 
 template <class row_label_type, class col_label_type>
-void dataFrame<row_label_type, col_label_type>::setRowByRowLoc(const std::unordered_map<unsigned int, unsigned short int> &row_data, unsigned int source_loc)
+void dataFrame<row_label_type, col_label_type>::setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned int source_loc)
 {
-    for (auto element : row_data)
+
+    if (source_loc > getRows())
     {
-        this->setValueByLoc(source_loc, element.first, element.second);
+        throw std::runtime_error("row loc exceeds index of dataframe");
+    }
+    if (!getIsSymmetric())
+    {
+        this->dataset.at(source_loc) = row_data;
+
+    }
+    else
+    {
+        auto left_index = this->symmetricEquivalentLoc(source_loc, source_loc);
+        std::copy(row_data.begin(), row_data.end(), this->dataset.at(0).begin() + left_index);
     }
 }
 

@@ -35,12 +35,10 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         unsigned int getRows() except +
         unsigned int getCols() except +
         bool getIsSymmetric() except +
-        vector[unsigned short] getDatasetRow(unsigned int) except +
         vector[vector[value]] getDataset() except +
         vector[unsigned long int] getPrimaryDatasetIds() except+
         vector[unsigned long int] getSecondaryDatasetIds() except+
 
-        void setDatasetRow(vector[unsigned short], unsigned int) except +
         void setDataset(vector[vector[matrix]]) except +
         void setPrimaryDatasetIds(vector[unsigned long int]) except +
         void setSecondaryDatasetIds(vector[unsigned long int]) except +
@@ -92,28 +90,29 @@ cdef class pyTransitMatrix:
         return self.thisptr.getValueById(source, dest)
 
     def writeCSV(self, outfile):
-        return self.thisptr.writeCSV(outfile)
+        cdef string outfile_string = str.encode(outfile)
+        return self.thisptr.writeCSV(outfile_string)
 
     def printDataFrame(self):
         self.thisptr.printDataFrame()
 
     def addToCategoryMap(self, dest_id, category):
-        self.thisptr.addToCategoryMap(dest_id, category)
+        cdef string string_category = str.encode(category)
+        self.thisptr.addToCategoryMap(dest_id, string_category)
 
     def timeToNearestDestPerCategory(self, source_id, category):
-        return self.thisptr.timeToNearestDestPerCategory(source_id, category)
+        cdef string string_category = str.encode(category)
+        return self.thisptr.timeToNearestDestPerCategory(source_id, string_category)
 
     def countDestsInRangePerCategory(self, source_id, category, range):
-        return self.thisptr.countDestsInRangePerCategory(source_id, category, range)
+        cdef string string_category = str.encode(category)
+        return self.thisptr.countDestsInRangePerCategory(source_id, string_category, range)
 
     def timeToNearestDest(self, source_id):
         return self.thisptr.timeToNearestDest(source_id)
 
     def countDestsInRange(self, source_id, range):
         return self.thisptr.countDestsInRange(source_id, range)
-
-    def setDatasetRow(self, datasetRow, rowNum):
-        self.thisptr.setDatasetRow(datasetRow, rowNum)
 
     def setDataset(self, dataset):
         cdef vector[vector[matrix]] cpp_input = dataset
@@ -133,9 +132,6 @@ cdef class pyTransitMatrix:
 
     def getIsSymmetric(self):
         return self.thisptr.getIsSymmetric()
-
-    def getDatasetRow(self, rowNum):
-        return self.thisptr.getDatasetRow(rowNum)
 
     def getDataset(self):
         return self.thisptr.getDataset()

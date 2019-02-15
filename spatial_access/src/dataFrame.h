@@ -38,7 +38,7 @@ public:
     void setIsSymmetric(bool isSymmetric);
     void setRows(unsigned int rows);
     void setCols(unsigned int cols);
-    void setRowByRowLoc(const std::unordered_map<unsigned int, unsigned short int> &row_data, unsigned int row_loc);
+    void setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned int row_loc);
     void setRowIds(const std::vector<row_label_type>& row_ids);
     void setColIds(const std::vector<col_label_type>& col_ids);
     unsigned int addToRowIndex(const row_label_type& row_id);

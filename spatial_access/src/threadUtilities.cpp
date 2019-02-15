@@ -45,7 +45,7 @@ bool jobQueue::empty() const
 template<class row_label_type, class col_label_type>
 workerQueue<row_label_type, col_label_type>::workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa)
 {
-    for (auto i = 0; i < numThreads; i++)
+    for (unsigned int i = 0; i < numThreads; i++)
     {
         this->threads.push_back(std::thread(f_in, wa));
     }

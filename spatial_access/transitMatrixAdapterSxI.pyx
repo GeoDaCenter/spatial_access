@@ -35,12 +35,10 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         unsigned int getRows() except +
         unsigned int getCols() except +
         bool getIsSymmetric() except +
-        vector[unsigned short] getDatasetRow(unsigned int) except +
         vector[vector[value]] getDataset() except +
         vector[string] getPrimaryDatasetIds() except+
         vector[unsigned long int] getSecondaryDatasetIds() except+
 
-        void setDatasetRow(vector[unsigned short], unsigned int) except +
         void setDataset(vector[vector[value]]) except +
         void setPrimaryDatasetIds(vector[string]) except +
         void setSecondaryDatasetIds(vector[unsigned long int]) except +
@@ -126,9 +124,6 @@ cdef class pyTransitMatrix:
         cdef string string_source_id = str.encode(source_id)
         return self.thisptr.countDestsInRange(string_source_id, range)
 
-    def setDatasetRow(self, datasetRow, rowNum):
-        self.thisptr.setDatasetRow(datasetRow, rowNum)
-
     def setDataset(self, dataset):
         cdef vector[vector[value]] cpp_input = dataset
         self.thisptr.setDataset(cpp_input)
@@ -150,9 +145,6 @@ cdef class pyTransitMatrix:
 
     def getIsSymmetric(self):
         return self.thisptr.getIsSymmetric()
-
-    def getDatasetRow(self, rowNum):
-        return self.thisptr.getDatasetRow(rowNum)
 
     def getDataset(self):
         return self.thisptr.getDataset()

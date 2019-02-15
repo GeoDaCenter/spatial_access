@@ -11,6 +11,7 @@ using namespace std;
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
 void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned int src) {
+
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -21,8 +22,15 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
 
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
+        std::vector<unsigned short int> row_data;
+        if (wa->df.getIsSymmetric())
+        {
+            row_data.assign(wa->df.getCols() - sourceDataPoint.loc, USHRT_MAX);
+        } else
+        {
+            row_data.assign(wa->df.getCols(), USHRT_MAX);
+        }
 
-        std::unordered_map<unsigned int, unsigned short int> row_data;
         for (unsigned int destNodeId : destNodeIds)
         {
             auto destTract = wa->userDestData.retrieveTract(destNodeId);
@@ -54,7 +62,13 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
                     }
 
                 }
-                row_data.insert(std::make_pair(destDataPoint.loc, fin_imp));
+                if (wa->df.getIsSymmetric())
+                {
+                    row_data.at(destDataPoint.loc - sourceDataPoint.loc) = fin_imp;
+                } else{
+                    row_data.at(destDataPoint.loc) = fin_imp;
+                }
+
 
 
             }
@@ -106,7 +120,6 @@ void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
     bool endNow = false;
     while (!wa->jq.empty()) {
         src = wa->jq.pop(endNow);
-
         //exit loop if job queue was empty
         if (endNow) {
             break;
@@ -145,6 +158,7 @@ namespace lmnoel {
     template<class row_label_type, class col_label_type>
     void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(unsigned int src, unsigned int dest, unsigned short int weight, bool isBidirectional)
     {
+
         graph.addEdge(src, dest, weight);
         if (isBidirectional)
         {

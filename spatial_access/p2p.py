@@ -52,7 +52,7 @@ class TransitMatrix:
             epsilon=0.05,
             primary_input=None,
             secondary_input=None,
-            read_from_file=None,
+            read_from_h5=None,
             primary_hints=None,
             secondary_hints=None,
             use_meters=False,
@@ -65,7 +65,7 @@ class TransitMatrix:
         self.epsilon = epsilon
         self.primary_input = primary_input
         self.secondary_input = secondary_input
-        self.read_from_file = read_from_file
+        self.read_from_h5 = read_from_h5
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
         self.use_meters = use_meters
@@ -89,16 +89,12 @@ class TransitMatrix:
         if network_type not in ['drive', 'walk', 'bike', 'transit']:
             raise UnknownModeException()
 
-        # need to supply read_from_file for transit type
-        if network_type is 'transit' and read_from_file is None:
-            raise InsufficientDataException()
-
         # need to supply either:
-        if primary_input is None and read_from_file is None:
+        if primary_input is None and read_from_h5 is None:
             raise InsufficientDataException()
 
-        if read_from_file:
-            self.matrix_interface.read_from_file(read_from_file, is_otp_matrix=network_type == 'transit')
+        if read_from_h5:
+            self.matrix_interface.read_h5(read_from_h5)
 
     def set_logging(self, debug):
         """
@@ -197,10 +193,13 @@ class TransitMatrix:
             self.logger.warning(
                 "Rows dropped due to missing latitude or longitude values: %d", dropped_lines)
 
+        if primary:
+            self.matrix_interface.primary_ids_are_string = source_data['idx'].dtype == str
+        else:
+            self.matrix_interface.secondary_ids_are_string = source_data['idx'].dtype == str
         # set index and clean
         source_data.set_index(idx, inplace=True)
         source_data.rename(columns={lon: 'lon', lat: 'lat'}, inplace=True)
-
         if primary:
             self.primary_data = source_data[['lon', 'lat']]
             self.primary_hints = {'idx': idx, 'lon': lon, 'lat': lat}
@@ -346,7 +345,7 @@ class TransitMatrix:
 
             if isPrimary:
                 # pylint disable=line-too-long
-                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
+                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, not primary_only)
             else:
                 # pylint disable=line-too-long
                 self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
@@ -368,9 +367,9 @@ class TransitMatrix:
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension='csv')
         assert '.csv' in outfile, 'Error: given filename does not have the correct extension (.csv)'
-        self.matrix_interface.write_to_csv(outfile)
+        self.matrix_interface.write_csv(outfile)
 
-    def write_tmx(self, outfile=None):
+    def write_h5(self, outfile=None):
         """
         Write the transit matrix to tmx.
 
@@ -382,9 +381,9 @@ class TransitMatrix:
             outfile-optional string
         """
         if not outfile:
-            outfile = self._get_output_filename(self.network_type, extension=None)
-        assert '.' not in outfile, 'Error: output filename should not have an extension'
-        self.matrix_interface.write_to_tmx(outfile)
+            outfile = self._get_output_filename(self.network_type, extension='hdf5')
+        assert '.hdf5' in outfile, 'Error: given filename does not have the correct extension (.hdf5)'
+        self.matrix_interface.write_h5(outfile)
 
     def prefetch_network(self):
         """
@@ -413,8 +412,13 @@ class TransitMatrix:
 
         self.prefetch_network()
         is_symmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
-        self.matrix_interface.prepare_matrix(self._network_interface.number_of_nodes(),
-                                             is_symmetric)
+        rows = len(self.primary_data)
+        if is_symmetric:
+            cols = rows
+        else:
+            cols = len(self.secondary_data)
+        self.matrix_interface.prepare_matrix(is_symmetric, rows, cols,
+                                             self._network_interface.number_of_nodes())
 
         self._match_nn(True, not self.secondary_input)
         if self.secondary_input:

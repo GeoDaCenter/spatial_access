@@ -40,12 +40,32 @@ class BoundingBoxTooLargeException(NetworkInterfaceException):
 
 class UnexpectedFileFormatException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__("NetworkInterfaceException:" + errors)
+        super().__init__("UnexpectedFileFormatException:" + errors)
+
+
+class UnexpectedShapeException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedShapeException:" + errors)
+
+
+class InvalidIdTypeException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("InvalidIdTypeException:" + errors)
 
 
 class WriteCSVFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
         super().__init__("WriteCSVFailedException:" + errors)
+
+
+class WriteH5FailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("WriteH5FailedException:" + errors)
+
+
+class ReadH5FailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("ReadH5FailedException:" + errors)
 
 
 class IndecesNotFoundException(MatrixInterfaceException):
