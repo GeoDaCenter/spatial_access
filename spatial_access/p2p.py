@@ -23,6 +23,7 @@ from spatial_access.SpatialAccessExceptions import UnableToParsePrimaryDataExcep
 from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataException
 from spatial_access.SpatialAccessExceptions import UnknownModeException
 from spatial_access.SpatialAccessExceptions import InsufficientDataException
+from spatial_access.SpatialAccessExceptions import DuplicateInputException
 
 
 class TransitMatrix:
@@ -39,7 +40,7 @@ class TransitMatrix:
             the transit matrix will be symmetric using the primary input as rows and columns.
         -secondary_hints: [optional] a dictionary with the column names of
             the index, lon and lat in the secondary input
-        -read_from_file: [optional] a .csv or .tmx input of a previously calculated
+        -read_from_h5: [optional] a .csv or .tmx input of a previously calculated
             transit matrix to load
         -use_meters: [optional] Output will be in meters if True (seconds if False).
         -trim_edges: [optional] Merge sequential edges in the OSM network if True. Does not
@@ -82,12 +83,18 @@ class TransitMatrix:
 
         # instantiate interfaces
         self._config_interface = ConfigInterface(network_type, logger=self.logger)
-        self._network_interface = NetworkInterface(network_type, logger=self.logger, 
+        self._network_interface = NetworkInterface(network_type, logger=self.logger,
                                                    disable_area_threshold=disable_area_threshold)
-        self.matrix_interface = MatrixInterface(logger=self.logger)
+
+        self.matrix_interface = MatrixInterface(primary_input_name=primary_input,
+                                                secondary_input_name=secondary_input,
+                                                logger=self.logger, )
 
         if network_type not in ['drive', 'walk', 'bike', 'transit']:
             raise UnknownModeException()
+
+        if self.primary_input == self.secondary_input and self.primary_input is not None:
+            raise DuplicateInputException("Gave duplicate inputs: {}".format(self.primary_input))
 
         # need to supply either:
         if primary_input is None and read_from_h5 is None:
@@ -150,6 +157,7 @@ class TransitMatrix:
         idx = ''
         skip_user_input = False
         # use the column names if we already have them
+
         try:
             if primary and self.primary_hints:
                 lon = self.primary_hints['lon']
@@ -193,12 +201,13 @@ class TransitMatrix:
             self.logger.warning(
                 "Rows dropped due to missing latitude or longitude values: %d", dropped_lines)
 
-        if primary:
-            self.matrix_interface.primary_ids_are_string = source_data['idx'].dtype == str
-        else:
-            self.matrix_interface.secondary_ids_are_string = source_data['idx'].dtype == str
         # set index and clean
+        if primary:
+            self.matrix_interface.primary_ids_are_string = source_data[idx].dtype != int
+        else:
+            self.matrix_interface.secondary_ids_are_string = source_data[idx].dtype != int
         source_data.set_index(idx, inplace=True)
+
         source_data.rename(columns={lon: 'lon', lat: 'lat'}, inplace=True)
         if primary:
             self.primary_data = source_data[['lon', 'lat']]
@@ -219,6 +228,8 @@ class TransitMatrix:
             if not os.path.isfile(self.secondary_input):
                 self.logger.error("Unable to find secondary csv.")
                 raise SecondaryDataNotFoundException("Unable to find secondary csv")
+        else:
+            self.matrix_interface.secondary_ids_are_string = self.matrix_interface.primary_ids_are_string
         try:
             self._parse_csv(True)
             if self.secondary_input:
@@ -345,7 +356,7 @@ class TransitMatrix:
 
             if isPrimary:
                 # pylint disable=line-too-long
-                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, not primary_only)
+                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
             else:
                 # pylint disable=line-too-long
                 self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
@@ -358,7 +369,7 @@ class TransitMatrix:
         """
         Write the transit matrix to csv.
 
-        Note: Use write_tmx (as opposed to this method) to
+        Note: Use write_h5 (as opposed to this method) to
         save the transit matrix unless exporting for external use.
 
         Arguments:
@@ -371,7 +382,7 @@ class TransitMatrix:
 
     def write_h5(self, outfile=None):
         """
-        Write the transit matrix to tmx.
+        Write the transit matrix to h5.
 
         Note: Use this method (as opposed to write_csv) to 
         save the transit matrix unless exporting data for 
@@ -381,8 +392,8 @@ class TransitMatrix:
             outfile-optional string
         """
         if not outfile:
-            outfile = self._get_output_filename(self.network_type, extension='hdf5')
-        assert '.hdf5' in outfile, 'Error: given filename does not have the correct extension (.hdf5)'
+            outfile = self._get_output_filename(self.network_type, extension='h5')
+        assert '.h5' in outfile, 'Error: given filename does not have the correct extension (.h5)'
         self.matrix_interface.write_h5(outfile)
 
     def prefetch_network(self):
@@ -411,8 +422,10 @@ class TransitMatrix:
                           self.network_type, self.epsilon)
 
         self.prefetch_network()
-        is_symmetric = self.secondary_input is None and self.network_type in ['walk', 'bike']
+
+        is_symmetric = self.secondary_input is None
         rows = len(self.primary_data)
+
         if is_symmetric:
             cols = rows
         else:

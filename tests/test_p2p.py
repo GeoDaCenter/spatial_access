@@ -26,7 +26,7 @@ class TestClass():
             import shutil
             shutil.rmtree(self.datapath)
 
-    def test_1(self):
+    def test_01(self):
         """
         Tests that p2p can be imported and instantiated.
         """
@@ -38,7 +38,7 @@ class TestClass():
 
         assert True
 
-    def test_2(self):
+    def test_02(self):
         """
         Tests that p2p.load_inputs() does not cause failure and
         produces the expected result.
@@ -55,7 +55,7 @@ class TestClass():
         except:
             assert False
 
-    def test_3(self):
+    def test_03(self):
         """
         Tests that calling the network interface does not cause
         failure and produces the expected result
@@ -75,25 +75,6 @@ class TestClass():
         assert transit_matrix_1._network_interface.number_of_nodes() > 0
         assert transit_matrix_1._network_interface.number_of_edges() > 0
 
-    def test_4(self):
-        """
-        Tests that calling the _parse_network method does not cause
-        failure
-        """
-        hints = {'idx':'name', 'lat':'y', 'lon':'x'}
-        transit_matrix_1 = TransitMatrix('walk',
-            primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/dests.csv',
-            primary_hints=hints, secondary_hints=hints)
-        transit_matrix_1._load_inputs()
-        transit_matrix_1._network_interface.load_network(transit_matrix_1.primary_data,
-                                                        transit_matrix_1.secondary_data,
-                                                        secondary_input=True,
-                                                        epsilon=transit_matrix_1.epsilon)
-        transit_matrix_1.matrix_interface.prepare_matrix(transit_matrix_1._network_interface.number_of_nodes())
-        transit_matrix_1._parse_network()
-
-        assert True
 
     def test_5(self):
         """
@@ -119,7 +100,7 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-
+        transit_matrix_1.write_csv(self.datapath + "test_6.csv")
         assert True
 
     def test_7(self):
@@ -129,10 +110,10 @@ class TestClass():
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('bike',
             primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/sources.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
 
+        transit_matrix_1.write_h5(self.datapath + "test_7.h5")
         assert True
 
     def test_8(self):
@@ -168,7 +149,6 @@ class TestClass():
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('drive',
             primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/sources.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
 
@@ -182,8 +162,7 @@ class TestClass():
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('drive',
             primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/sources.csv',
-            primary_hints=hints, secondary_hints=hints)
+            primary_hints=hints)
         transit_matrix_1.prefetch_network()
 
         assert transit_matrix_1._network_interface.number_of_nodes() > 0
@@ -191,7 +170,7 @@ class TestClass():
 
     def test_12(self):
         """
-        Tests write_csv.
+        Tests write_h5.
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('bike',
@@ -199,16 +178,16 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        filename = self.datapath + 'test_12_file.csv'
-        transit_matrix_1.write_csv(filename)
+        filename = self.datapath + 'test_12_file.h5'
+        transit_matrix_1.write_h5(filename)
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_file=filename)
+        transit_matrix_2 = TransitMatrix('bike', read_from_h5=filename)
 
         assert True
 
     def test_13(self):
         """
-        Tests write_tmx (asymmetric).
+        Tests write_h5 (asymmetric).
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('bike',
@@ -216,27 +195,27 @@ class TestClass():
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
-        filename = self.datapath + 'test_13_file'
-        transit_matrix_1.write_tmx(filename)
+        filename = self.datapath + 'test_13_file.h5'
+        transit_matrix_1.write_h5(filename)
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_file=filename)
+        transit_matrix_2 = TransitMatrix('bike', read_from_h5=filename)
 
         assert True
 
     def test_14(self):
         """
-        Tests write_tmx (symmetric).
+        Tests write_h5 (symmetric).
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('walk',
             primary_input='tests/test_data/sources.csv',
-            secondary_input='tests/test_data/sources.csv',
-            primary_hints=hints, secondary_hints=hints)
-        transit_matrix_1.process()
-        filename = self.datapath + 'test_14_file'
-        transit_matrix_1.write_tmx(filename)
+            primary_hints=hints)
 
-        transit_matrix_2 = TransitMatrix('walk', read_from_file=filename)
+        transit_matrix_1.process()
+        filename = self.datapath + 'test_14_file.h5'
+        transit_matrix_1.write_h5(filename)
+
+        transit_matrix_2 = TransitMatrix('walk', read_from_h5=filename)
 
         assert True
 
@@ -245,22 +224,22 @@ class TestClass():
         Not specifying read_from_file throws InsufficientDataException
         """
         try:
-            transit_matrix_1 = TransitMatrix('transit')
+            transit_matrix_1 = TransitMatrix('drive')
             assert False
         except InsufficientDataException:
             assert True
 
-
-
     def test_16(self):
         """
-        Tests reading an OTP transit matrix.
+        Tests write_csv (symmetric).
         """
-        transit_matrix_1 = TransitMatrix('transit', read_from_file='tests/test_data/sample_otp.csv')
-
-        assert transit_matrix_1.matrix_interface.get_value(530330077002014, 530330077002014) == 0
-        assert transit_matrix_1.matrix_interface.get_value(530330077002014, 530330247021004) == 114
-        assert transit_matrix_1.matrix_interface.get_value(530330322102064, 530330222032019) == 65535
+        hints = {'idx':'name', 'lat':'y', 'lon':'x'}
+        transit_matrix_1 = TransitMatrix('walk',
+            primary_input='tests/test_data/sources.csv',
+            primary_hints=hints)
+        transit_matrix_1.process()
+        filename = self.datapath + 'test_16_file.csv'
+        transit_matrix_1.write_csv(filename)
 
         assert True
 

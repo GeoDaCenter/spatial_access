@@ -118,6 +118,11 @@ class InsufficientDataException(P2PException):
         super().__init__("InsufficientDataException:" + errors)
 
 
+class DuplicateInputException(P2PException):
+    def __init__(self, errors=''):
+        super().__init__("DuplicateInputException:" + errors)
+
+
 class TransitMatrixNotLoadedException(ScoreModelException):
     def __init__(self, errors=''):
         super().__init__("TransitMatrixNotLoadedException:" + errors)

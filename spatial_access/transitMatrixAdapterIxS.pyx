@@ -63,11 +63,18 @@ cdef class pyTransitMatrix:
 
     def getDestsInRange(self, range_, numThreads):
         cdef unordered_map[ulong, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
-        return py_res
+        rv = {}
+        for key, value in py_res:
+            rv[key] = [item.decode() for item in value]
+        return rv
+
 
     def getSourcesInRange(self, range_, numThreads):
         cdef unordered_map[string, vector[ulong]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
-        return py_res
+        rv = {}
+        for key, value in py_res:
+            rv[key.decode()] = value
+        return rv
 
     def getValuesBySource(self, source_id, sort):
         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id, sort)

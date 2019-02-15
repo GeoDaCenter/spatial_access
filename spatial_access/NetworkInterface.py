@@ -177,7 +177,7 @@ class NetworkInterface:
                                                                lat_max=self.bbox[2], lng_max=self.bbox[3],
                                                                custom_osm_filter=osm_bike_filter)
             else:
-                self.nodes, self.edges = osm.network_from_bbox(
+                self.nodes, self.edges = network_from_bbox(
                     lat_min=self.bbox[0], lng_min=self.bbox[1],
                     lat_max=self.bbox[2], lng_max=self.bbox[3],
                     network_type=self.network_type)

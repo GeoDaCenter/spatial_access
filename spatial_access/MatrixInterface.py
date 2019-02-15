@@ -31,16 +31,22 @@ class MatrixInterface:
     A wrapper for C++ based transit matrix.
     """
 
-    def __init__(self, logger=None):
+    def __init__(self, primary_input_name, secondary_input_name=None, logger=None):
         self.logger = logger
         self.transit_matrix = None
         self.primary_ids_are_string = False
         self.secondary_ids_are_string = False
-        self.dataset_name = None
-        self.primary_ids_name = None
-        self.secondary_ids_name = None
+        if primary_input_name is not None:
+            self.primary_ids_name = primary_input_name.split('.')[0]
+        if secondary_input_name is not None:
+            self.secondary_ids_name = secondary_input_name.split('.')[0]
+            self.dataset_name = '{}_{}'.format(primary_input_name, secondary_input_name)
+        else:
+            self.secondary_ids_name = None
+            self.dataset_name = '{}_{}'.format(primary_input_name, primary_input_name)
 
     def write_h5(self, filename):
+
         if self.primary_ids_name == 'rows':
             raise WriteH5FailedException("Illegal primary_ids_name: {}".format(self.primary_ids_name))
         if self.secondary_ids_name == 'cols':
@@ -60,7 +66,7 @@ class MatrixInterface:
             file.create_dataset(self.primary_ids_name, data=self.transit_matrix.getPrimaryDatasetIds(),
                                 dtype=primary_ids_dtype)
             if not self.transit_matrix.getIsSymmetric():
-                secondary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
+                secondary_ids_dtype = "S10" if self.secondary_ids_are_string else "i8"
                 file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
                                     dtype=secondary_ids_dtype)
             file.create_dataset(self.dataset_name, data=self.transit_matrix.getDataset(), dtype="i2")
@@ -168,6 +174,7 @@ class MatrixInterface:
         """
         Instantiate a pyTransitMatrix
         """
+
         if is_symmetric and rows != columns:
             raise UnexpectedShapeException("Symmetric matrices should be nxn, not {}x{}".format(rows, columns))
         if is_symmetric:
@@ -176,9 +183,9 @@ class MatrixInterface:
             self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
         elif self.primary_ids_are_string and not self.secondary_ids_are_string:
             self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and self.primary_ids_are_string:
+        elif not self.primary_ids_are_string and self.secondary_ids_are_string:
             self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and not self.primary_ids_are_string:
+        elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
             self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
         else:
             assert False, "Logic Error"
@@ -217,6 +224,7 @@ class MatrixInterface:
             self.logger.info('Shortest path matrix computed in {:,.2f} seconds using {} threads'
                              .format(logger_vars, thread_limit))
 
+
     def get_dests_in_range(self, threshold):
         """
         Return a source_id->[array of dest_id]
@@ -225,6 +233,7 @@ class MatrixInterface:
         """
         num_threads = self._get_thread_limit()
         return self.transit_matrix.getDestsInRange(threshold, num_threads)
+
 
     def get_sources_in_range(self, threshold):
         """

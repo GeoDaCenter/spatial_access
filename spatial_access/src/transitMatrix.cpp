@@ -11,7 +11,6 @@ using namespace std;
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
 void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned int src) {
-
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -75,6 +74,7 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
 
         }
         wa->df.setRowByRowLoc(row_data, sourceDataPoint.loc);
+
     }
 }
 
@@ -158,7 +158,6 @@ namespace lmnoel {
     template<class row_label_type, class col_label_type>
     void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(unsigned int src, unsigned int dest, unsigned short int weight, bool isBidirectional)
     {
-
         graph.addEdge(src, dest, weight);
         if (isBidirectional)
         {

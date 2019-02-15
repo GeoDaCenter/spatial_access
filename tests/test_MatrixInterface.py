@@ -22,18 +22,14 @@ class TestClass:
             import shutil
             shutil.rmtree(self.datapath)
 
-
     def test_01(self):
         """
         Tests asymmetric int x int matrix
         writing to and reading from .h5.
         """
 
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input", secondary_input_name="secondary_input")
         interface.prepare_matrix(is_symmetric=False, rows=3, columns=2, network_vertices=4)
-        interface.primary_ids_name = "row_ids"
-        interface.secondary_ids_name = "col_ids"
-        interface.dataset_name = "test_dataset"
 
         interface.add_edge_to_graph(0, 1, 3, False)
         interface.add_edge_to_graph(1, 0, 4, False)
@@ -61,7 +57,7 @@ class TestClass:
 
         interface.write_h5(self.datapath + "test_01.hdf5")
 
-        interface2 = MatrixInterface()
+        interface2 = MatrixInterface(primary_input_name="primary_input", secondary_input_name="secondary_input")
         interface2.read_h5(self.datapath + "test_01.hdf5")
 
         interface2.add_to_category_map(20, "a")
@@ -86,11 +82,8 @@ class TestClass:
         writing to and reading from .h5.
         """
 
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input")
         interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
-        interface.primary_ids_name = "row_ids"
-
-        interface.dataset_name = "test_dataset"
 
         interface.add_edge_to_graph(0, 1, 2, True)
         interface.add_edge_to_graph(1, 2, 1, True)
@@ -108,7 +101,7 @@ class TestClass:
         interface.write_h5(self.datapath + 'test_02.hdf5')
         interface.write_csv(self.datapath + 'test_02.csv')
 
-        interface2 = MatrixInterface()
+        interface2 = MatrixInterface(primary_input_name="primary_input")
         interface2.read_h5(self.datapath + "test_02.hdf5")
 
         assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
@@ -123,11 +116,9 @@ class TestClass:
         writing to and reading from .h5.
         """
 
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input")
         interface.primary_ids_are_string = True
         interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
-        interface.primary_ids_name = "row_ids"
-        interface.dataset_name = "test_dataset"
 
         interface.add_edge_to_graph(0, 1, 2, True)
         interface.add_edge_to_graph(1, 2, 1, True)
@@ -142,11 +133,11 @@ class TestClass:
 
         interface.build_matrix()
 
-        interface.write_h5(self.datapath + 'test_03.hdf5')
+        interface.write_h5(self.datapath + 'test_03.h5')
         interface.write_csv(self.datapath + 'test_03.csv')
 
-        interface2 = MatrixInterface()
-        interface2.read_h5(self.datapath + "test_03.hdf5")
+        interface2 = MatrixInterface(primary_input_name="primary_input")
+        interface2.read_h5(self.datapath + "test_03.h5")
 
         assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
         assert interface.transit_matrix.getPrimaryDatasetIds() == interface2.transit_matrix.getPrimaryDatasetIds()
@@ -158,10 +149,10 @@ class TestClass:
         """
         Tests throws FileNotFoundException
         """
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input")
         interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
         try:
-            interface.read_h5("nonexistant_filename.hdf5")
+            interface.read_h5("nonexistant_filename.h5")
         except FileNotFoundException:
             assert True
             return
@@ -172,11 +163,9 @@ class TestClass:
         """
         Tests throws IndecesNotFoundException. 
         """
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input")
         interface.primary_ids_are_string = True
         interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
-        interface.primary_ids_name = "row_ids"
-        interface.dataset_name = "test_dataset"
 
         interface.add_edge_to_graph(0, 1, 2, True)
         interface.add_edge_to_graph(1, 2, 1, True)
@@ -200,12 +189,10 @@ class TestClass:
         """
         Tests throws WriteH5FailedException.
         """
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="rows", secondary_input_name="secondary_input")
         interface.primary_ids_are_string = True
+
         interface.prepare_matrix(is_symmetric=False, rows=3, columns=2, network_vertices=4)
-        interface.primary_ids_name = "rows"
-        interface.secondary_ids_name = "col_ids"
-        interface.dataset_name = "test_dataset"
 
         interface.add_edge_to_graph(0, 1, 3, False)
         interface.add_edge_to_graph(1, 0, 4, False)
@@ -221,7 +208,7 @@ class TestClass:
         interface.add_user_dest_data(3, 20, 6)
 
         try:
-            interface.write_h5(self.datapath + "test_5.hdf5")
+            interface.write_h5(self.datapath + "test_5.h5")
         except WriteH5FailedException:
             assert True
             return
@@ -231,7 +218,7 @@ class TestClass:
         """
         Tests throws UnexpectedShapeException.
         """
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input")
         try:
             interface.prepare_matrix(is_symmetric=True, rows=3, columns=2,
                                      network_vertices=4)
@@ -244,7 +231,7 @@ class TestClass:
         """
         Tests throws InvalidIdTypeException.
         """
-        interface = MatrixInterface()
+        interface = MatrixInterface(primary_input_name="primary_input", secondary_input_name="secondary_input")
         interface.primary_ids_are_string = True
         interface.prepare_matrix(is_symmetric=False, rows=3, columns=2, network_vertices=4)
 

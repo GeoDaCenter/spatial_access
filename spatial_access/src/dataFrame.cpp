@@ -229,7 +229,6 @@ void dataFrame<row_label_type, col_label_type>::setValueByLoc(unsigned int row_l
 template <class row_label_type, class col_label_type>
 void dataFrame<row_label_type, col_label_type>::setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned int source_loc)
 {
-
     if (source_loc > getRows())
     {
         throw std::runtime_error("row loc exceeds index of dataframe");
