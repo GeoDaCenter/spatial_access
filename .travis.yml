@@ -12,7 +12,9 @@ before install:
 - sudo apt-get install libspatialindex-dev
 
 install:
-- pip3 install spatial_access
+- pip3 install cython
+- cython --cplus spatial_access/*.pyx
+- python3 setup.py install
 
 script:
 - pytest tests/
