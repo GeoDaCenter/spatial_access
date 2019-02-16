@@ -21,6 +21,7 @@ python:
 before install:
 - sudo apt-get update
 - sudo apt-get install libspatialindex-dev
+- sudo apt-get install g++-7
 
 install:
 - pip3 install cython
