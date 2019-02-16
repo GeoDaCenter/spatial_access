@@ -11,7 +11,7 @@ if sys.platform == "darwin":
     ouff_mac = ['-mmacosx-version-min=10.9']
     extra_dependency = ['rtree>=0.8.3']
 
-os.environ['CC'] = 'gcc'
+os.environ['CC'] = 'gcc-7'
 
 EXTENSION = [Extension(
     name = 'transitMatrixAdapterSxS', language = 'c++',
