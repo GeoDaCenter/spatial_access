@@ -6,7 +6,7 @@
 <tr>
   <td>Version</td>
   <td>
-    0.1.5
+    0.1.6.3
   </td>
 </tr>    
 <tr>
@@ -20,7 +20,7 @@
   <td>Development Build</td>
   <td>
     <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
-    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=v1.5" alt="travis build status" 
+    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=0.1.7" alt="travis build status" 
     </td>
 </tr>
 <tr>
@@ -42,29 +42,11 @@ To use this service as a ReST API, see: https://github.com/GeoDaCenter/spatial_a
 
 If you are a Windows user, instructions for installing Ubuntu on a virtual machine are at the bottom of the Readme.
 
-# Installation Options
 
-General Installation Instructions
+Installation 
 ----
-1. Clone this directory
-2. Requirements: python3, pip3
-3. (On Linux) `bash install-proto.sh`
-4. `sudo pip install .` (note the .)
-
-PyPi Distribution will come soon.
-
-
-## P2P: A python package to efficiently compute the shortest path transit matrices for very large datasets.
-
-=====
-
-### Introduction
-
-Generating large shortest path matrices for different transit types is an important tool for spatial data science, but does not currently have a solution that is open source, highly scalable and efficient. Several tools currently exist which fill a similar purpose to this software package. OSRM, Valhalla and Google Maps, among other services, offer matrix APIs to compute the shortest path distance for datasets but break down when appied to very large datasets.
-
-Each of the above services caps the number of entries in a request at 25-50, meaning that generating a matrix with 500,000 rows requires breaking the original matrix into millions of submatrices and making millions of individual queries. This approach works well for small datasets, but includes substantial overhead which is prohibitive on a large scale. P2P can generate shortest path matrices between a set of source and destination points (or source-source) in 2 lines of code, efficiently and with a low memory footprint.
-
-P2P generated a driving shortest path matrix for 46,265 blocks in Chicago in ~14 minutes (18 minutes for walking) whereas the same task took > 18 hours using MapZen's Valhalla. For this particular dataset, the mean difference between time values for the driving shortest path matrix and Google Maps' Matrix API was 2 minutes. For a demo of the workflow, see demo.ipynb.
+1. `brew install spatialindex` (mac) or `sudo apt-get install libspatialindex-dev` (ubuntu)
+2. `pip3 install spatial_access`
 
 
 ### Usage
