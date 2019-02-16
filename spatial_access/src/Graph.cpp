@@ -4,21 +4,21 @@
 
 #include "Graph.h"
 
-void Graph::initializeGraph(unsigned int vertices)
+void Graph::initializeGraph(unsigned long int vertices)
 {
-    std::vector<std::pair<unsigned int, unsigned short int>> value;
+    std::vector<std::pair<unsigned long int, unsigned short int>> value;
     this->neighbors.assign(vertices, value);
     this->vertices = vertices;
 }
 
-unsigned int Graph::getV() const
+unsigned long int Graph::getV() const
 {
     return this->vertices;
 }
 
 
 /* Adds an edge to an undirected graph */
-void Graph::addEdge(unsigned int src, unsigned int dest, unsigned short int weight)
+void Graph::addEdge(unsigned long int src, unsigned long int dest, unsigned short int weight)
 {
     try
     {

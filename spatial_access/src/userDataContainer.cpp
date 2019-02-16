@@ -6,7 +6,7 @@
 
 #include "userDataContainer.h"
 
-userDataPoint::userDataPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance)
+userDataPoint::userDataPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance)
 {
     this->networkNodeId = networkNodeId;
     this->loc = loc;
@@ -19,7 +19,7 @@ const std::vector<userDataPoint>& userDataTract::retrieveDataPoints() const
 }
 
 
-userDataTract::userDataTract(unsigned int networkNodeId)
+userDataTract::userDataTract(unsigned long int networkNodeId)
 {
     this->networkNodeId = networkNodeId;
 }
@@ -29,18 +29,18 @@ void userDataTract::addPoint(userDataPoint userData)
     data.push_back(userData);
 }
 
-const std::vector<unsigned int>& userDataContainer::retrieveAllUserDataIds() const
+const std::vector<unsigned long int>& userDataContainer::retrieveAllUserDataIds() const
 {
     return this->ids;
 }
 
 
-bool userDataContainer::containsTract(unsigned int networkNodeId) const
+bool userDataContainer::containsTract(unsigned long int networkNodeId) const
 {
     return data.find(networkNodeId) != data.end();
 }
 
-void userDataContainer::addPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance)
+void userDataContainer::addPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance)
 {
     ids.push_back(loc);
     allNetworkNodeIds.push_back(networkNodeId);
@@ -60,18 +60,18 @@ void userDataContainer::addPoint(unsigned int networkNodeId, unsigned int loc, u
 
 }
 
-const userDataTract& userDataContainer::retrieveTract(unsigned int networkNodeId) const
+const userDataTract& userDataContainer::retrieveTract(unsigned long int networkNodeId) const
 {
     return data.at(networkNodeId);
 }
 
-const std::vector<unsigned int>& userDataContainer::retrieveAllNetworkNodeIds() const
+const std::vector<unsigned long int>& userDataContainer::retrieveAllNetworkNodeIds() const
 {
     return allNetworkNodeIds;
 }
 
 
-const std::vector<unsigned int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
+const std::vector<unsigned long int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
 {
     return uniqueNetworkNodeIds;
 }

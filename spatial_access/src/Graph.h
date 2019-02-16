@@ -3,11 +3,11 @@
 class Graph
 {
 private:
-    unsigned int vertices;
+    unsigned long int vertices;
 public:
     Graph()= default;
-    void initializeGraph(unsigned int vertices);
-    std::vector<std::vector<std::pair<unsigned int, unsigned short int>>> neighbors;
-    unsigned int getV() const;
-    void addEdge(unsigned int src, unsigned int dest, unsigned short int weight);
+    void initializeGraph(unsigned long int vertices);
+    std::vector<std::vector<std::pair<unsigned long int, unsigned short int>>> neighbors;
+    unsigned long int getV() const;
+    void addEdge(unsigned long int src, unsigned long int dest, unsigned short int weight);
 };

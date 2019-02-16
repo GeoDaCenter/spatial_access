@@ -12,7 +12,6 @@ using namespace std;
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
 void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned int src) {
-    std::cerr << "calculating for src" << src << std::endl;
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -75,20 +74,19 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
             }
 
         }
-        std::cerr << "about to set row for sourceDataPoint.loc" << sourceDataPoint.loc << std::endl;
         wa->df.setRowByRowLoc(row_data, sourceDataPoint.loc);
-        std::cerr << "done setting row for sourceDataPoint.loc" << sourceDataPoint.loc << std::endl;
+
 
     }
 }
 
-typedef std::pair<unsigned short int, unsigned int> queue_pair;
+typedef std::pair<unsigned short int, unsigned long int> queue_pair;
 
 /* The main function that calulates distances of shortest paths from src to all*/
 /* vertices. It is a O(ELogV) function*/
 template<class row_label_type, class col_label_type>
-void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
-    unsigned int V = wa->graph.getV();// Get the number of vertices in graph
+void dijkstra(unsigned long int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
+    unsigned long int V = wa->graph.getV();// Get the number of vertices in graph
     
     std::vector<unsigned short int> dist(V, USHRT_MAX);
     dist.at(src) = 0;
@@ -97,7 +95,7 @@ void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> 
     std::vector<bool> visited(V, false);
     while (!queue.empty())
     {
-        unsigned int u = queue.top().second;
+        unsigned long int u = queue.top().second;
         queue.pop();
         visited.at(u) = true;
         for (auto neighbor : wa->graph.neighbors.at(u))
@@ -114,14 +112,13 @@ void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> 
 
     //calculate row and add to dataFrame
     calculateRow(dist, wa, src);
-    std::cerr << "finished inserting for src" << src << std::endl;
     
 }
 
 template<class row_label_type, class col_label_type>
 void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
 {
-    unsigned int src;
+    unsigned long int src;
     bool endNow = false;
     while (!wa->jq.empty()) {
         src = wa->jq.pop(endNow);
@@ -139,29 +136,29 @@ namespace lmnoel {
 // Initialization
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::prepareGraphWithVertices(unsigned int V)
+    void transitMatrix<row_label_type, col_label_type>::prepareGraphWithVertices(unsigned long int V)
     {
         numNodes = V;
         graph.initializeGraph(V);
     }
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::addToUserSourceDataContainer(unsigned int networkNodeId, const row_label_type& row_id, unsigned short int lastMileDistance)
+    void transitMatrix<row_label_type, col_label_type>::addToUserSourceDataContainer(unsigned long int networkNodeId, const row_label_type& row_id, unsigned short int lastMileDistance)
     {
-        unsigned int row_loc = df.addToRowIndex(row_id);
+        unsigned long int row_loc = df.addToRowIndex(row_id);
         this->userSourceDataContainer.addPoint(networkNodeId, row_loc, lastMileDistance);
 
     }
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::addToUserDestDataContainer(unsigned int networkNodeId, const col_label_type& col_id, unsigned short int lastMileDistance)
+    void transitMatrix<row_label_type, col_label_type>::addToUserDestDataContainer(unsigned long int networkNodeId, const col_label_type& col_id, unsigned short int lastMileDistance)
     {
-        unsigned int col_loc = this->df.addToColIndex(col_id);
+        unsigned long int col_loc = this->df.addToColIndex(col_id);
         this->userDestDataContainer.addPoint(networkNodeId, col_loc, lastMileDistance);
     }
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(unsigned int src, unsigned int dest, unsigned short int weight, bool isBidirectional)
+    void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(unsigned long int src, unsigned long int dest, unsigned short int weight, bool isBidirectional)
     {
 
         graph.addEdge(src, dest, weight);
@@ -193,14 +190,11 @@ namespace lmnoel {
     {
         try
         {
-            std::cerr << "entered compute" << std::endl;
             graphWorkerArgs<row_label_type, col_label_type> wa(graph, userSourceDataContainer, userDestDataContainer,
                                                                numNodes, df);
             wa.initialize();
             workerQueue<row_label_type, col_label_type> wq(numThreads, graphWorkerHandler, &wa);
-            std::cerr << "starting graph worker" << std::endl;
             wq.startGraphWorker();
-            std::cerr << "started graph worker" << std::endl;
         } catch (...)
         {
             throw std::runtime_error("Failed to compute matrix");
@@ -222,14 +216,14 @@ namespace lmnoel {
 
 
     template<class row_label_type, class col_label_type>
-    const std::unordered_map<row_label_type, std::vector<col_label_type>> transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, int numThreads) const
+    const std::unordered_map<row_label_type, std::vector<col_label_type>> transitMatrix<row_label_type, col_label_type>::getDestsInRange(unsigned int threshold, unsigned int numThreads) const
     {
         // Initialize maps
         std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
-        for (unsigned int row_loc = 0; row_loc < df.getRows(); row_loc++)
+        for (unsigned long int row_loc = 0; row_loc < df.getRows(); row_loc++)
         {
             std::vector<col_label_type> valueData;
-            for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++) {
+            for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++) {
                 if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
                     valueData.push_back(df.getColIdForLoc(col_loc));
                 }
@@ -242,14 +236,14 @@ namespace lmnoel {
     }
 
     template<class row_label_type, class col_label_type>
-    const std::unordered_map<col_label_type, std::vector<row_label_type>> transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, int numThreads) const
+    const std::unordered_map<col_label_type, std::vector<row_label_type>> transitMatrix<row_label_type, col_label_type>::getSourcesInRange(unsigned int threshold, unsigned int numThreads) const
     {
         // Initialize maps
         std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
-        for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
+        for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++)
         {
             std::vector<row_label_type> valueData;
-            for (unsigned int row_loc = 0; row_loc < df.getRows(); row_loc++) {
+            for (unsigned long int row_loc = 0; row_loc < df.getRows(); row_loc++) {
                 if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
                     valueData.push_back(df.getRowIdForLoc(row_loc));
                 }
@@ -294,8 +288,8 @@ namespace lmnoel {
     unsigned short int transitMatrix<row_label_type, col_label_type>::timeToNearestDest(const row_label_type& source_id) const
     {
         unsigned short int minimum = USHRT_MAX;
-        unsigned int row_loc = df.getRowLocForId(source_id);
-        for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
+        unsigned long int row_loc = df.getRowLocForId(source_id);
+        for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++)
         {
             unsigned short int dest_time = this->df.getValueByLoc(row_loc, col_loc);
             if (dest_time <= minimum)
@@ -311,8 +305,8 @@ namespace lmnoel {
     {
 
         unsigned short int count = 0;
-        unsigned int row_loc = df.getRowLocForId(source_id);
-        for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)
+        unsigned long int row_loc = df.getRowLocForId(source_id);
+        for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++)
         {
             if (this->df.getValueByLoc(row_loc, col_loc) <= range)
             {
@@ -332,13 +326,13 @@ namespace lmnoel {
 
 
     template<class row_label_type, class col_label_type>
-    unsigned int transitMatrix<row_label_type, col_label_type>::getRows() const
+    unsigned long int transitMatrix<row_label_type, col_label_type>::getRows() const
     {
         return df.getRows();
     }
 
     template<class row_label_type, class col_label_type>
-    unsigned int transitMatrix<row_label_type, col_label_type>::getCols() const
+    unsigned long int transitMatrix<row_label_type, col_label_type>::getCols() const
     {
         return df.getCols();
     }
@@ -350,7 +344,7 @@ namespace lmnoel {
     }
 
     template<class row_label_type, class col_label_type>
-    const std::vector<unsigned short int>& transitMatrix<row_label_type, col_label_type>::getDatasetRow(unsigned int datasetRow) const
+    const std::vector<unsigned short int>& transitMatrix<row_label_type, col_label_type>::getDatasetRow(unsigned long int datasetRow) const
     {
         return df.getDatasetRow(datasetRow);
     }
@@ -376,13 +370,13 @@ namespace lmnoel {
     // Setters
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::setRows(unsigned int rows) {
+    void transitMatrix<row_label_type, col_label_type>::setRows(unsigned long int rows) {
         df.setRows(rows);
     }
 
 
     template<class row_label_type, class col_label_type>
-    void transitMatrix<row_label_type, col_label_type>::setCols(unsigned int cols) {
+    void transitMatrix<row_label_type, col_label_type>::setCols(unsigned long int cols) {
         df.setCols(cols);
     }
 

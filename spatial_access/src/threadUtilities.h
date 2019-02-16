@@ -11,12 +11,12 @@
 /* jobQueue: a thread-safe queue for dispensing integer jobs*/
 class jobQueue {
 private:
-    std::vector <unsigned int> data;
+    std::vector <unsigned long int> data;
     mutable std::mutex lock;
 public:
-    jobQueue(unsigned int size);
-    void insert(unsigned int item);
-    unsigned int pop(bool &endNow);
+    jobQueue(unsigned long int size);
+    void insert(unsigned long int item);
+    unsigned long int pop(bool &endNow);
     bool empty() const;
 };
 
@@ -42,7 +42,7 @@ public:
     jobQueue jq;
     userDataContainer userSourceData;
     userDataContainer userDestData;
-    unsigned int numNodes;
+    unsigned long int numNodes;
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
                        int numNodes, dataFrame<row_label_type, col_label_type> &df)

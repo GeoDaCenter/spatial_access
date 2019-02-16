@@ -6,9 +6,9 @@ class userDataPoint
 {
 public:
     int networkNodeId;
-    unsigned int loc;
+    unsigned long int loc;
     unsigned short int lastMileDistance;
-    userDataPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance);
+    userDataPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance);
 };
 
 class userDataTract
@@ -16,7 +16,7 @@ class userDataTract
 public:
     int networkNodeId;
     std::vector<userDataPoint> data;
-    userDataTract(unsigned int networkNodeId);
+    userDataTract(unsigned long int networkNodeId);
     void addPoint(userDataPoint userData);
     const std::vector<userDataPoint>& retrieveDataPoints() const;
 };
@@ -25,16 +25,16 @@ public:
 class userDataContainer
 {
 private:
-    std::unordered_map<unsigned int, userDataTract> data;
-    std::vector<unsigned int> allNetworkNodeIds;
-    std::vector<unsigned int> ids;
-    std::vector<unsigned int> uniqueNetworkNodeIds;
+    std::unordered_map<unsigned long int, userDataTract> data;
+    std::vector<unsigned long int> allNetworkNodeIds;
+    std::vector<unsigned long int> ids;
+    std::vector<unsigned long int> uniqueNetworkNodeIds;
 public:
     userDataContainer()= default;
-    void addPoint(unsigned int networkNodeId, unsigned int loc, unsigned short int lastMileDistance);
-    bool containsTract(unsigned int networkNodeId) const;
-    const userDataTract& retrieveTract(unsigned int networkNodeId) const;
-    const std::vector<unsigned int>& retrieveAllUserDataIds() const;
-    const std::vector<unsigned int>& retrieveAllNetworkNodeIds() const;
-    const std::vector<unsigned int>& retrieveUniqueNetworkNodeIds() const;
+    void addPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance);
+    bool containsTract(unsigned long int networkNodeId) const;
+    const userDataTract& retrieveTract(unsigned long int networkNodeId) const;
+    const std::vector<unsigned long int>& retrieveAllUserDataIds() const;
+    const std::vector<unsigned long int>& retrieveAllNetworkNodeIds() const;
+    const std::vector<unsigned long int>& retrieveUniqueNetworkNodeIds() const;
 };

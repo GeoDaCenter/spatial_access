@@ -59,13 +59,13 @@ class MatrixInterface:
             file.attrs['rows'] = self.transit_matrix.getRows()
             file.attrs['columns'] = self.transit_matrix.getCols()
             id_dataset = [self.primary_ids_name.encode()]
-            if not self.transit_matrix.getIsSymmetric():
+            if self.secondary_ids_name is not None:
                 id_dataset.append(self.secondary_ids_name.encode())
             file.attrs['id_dataset_name'] = id_dataset
             primary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
             file.create_dataset(self.primary_ids_name, data=self.transit_matrix.getPrimaryDatasetIds(),
                                 dtype=primary_ids_dtype)
-            if not self.transit_matrix.getIsSymmetric():
+            if self.secondary_ids_name is not None:
                 secondary_ids_dtype = "S10" if self.secondary_ids_are_string else "i8"
                 file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
                                     dtype=secondary_ids_dtype)
@@ -80,7 +80,7 @@ class MatrixInterface:
             rows = file.attrs.get('rows')
             columns = file.attrs.get('columns')
             id_dataset = file.attrs.get('id_dataset_name')
-            # id_dataset = [name.decode() for name in file.attrs.get('id_dataset_name')]
+
             self.primary_ids_name = id_dataset[0]
             if len(id_dataset) > 1:
                 self.secondary_ids_name = id_dataset[1]

@@ -8,20 +8,20 @@
 
 /* initialize jobQueue, reserving size for known inputs*/
 
-jobQueue::jobQueue(unsigned int size) {
+jobQueue::jobQueue(unsigned long int size) {
     data.reserve(size);
 }
 
 
 /* insert to the jobQueue */
-void jobQueue::insert(unsigned int item) {
+void jobQueue::insert(unsigned long int item) {
     data.insert(data.end(), item);
 }
 
 
 /* pop from the jobQueue.*/
-unsigned int jobQueue::pop(bool &endNow) {
-    unsigned int res = 0;
+unsigned long int jobQueue::pop(bool &endNow) {
+    unsigned long int res = 0;
     std::lock_guard<std::mutex> guard(lock);
     if (!data.empty()) {
         res = data.front();
@@ -45,7 +45,7 @@ bool jobQueue::empty() const
 template<class row_label_type, class col_label_type>
 workerQueue<row_label_type, col_label_type>::workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa)
 {
-    for (unsigned int i = 0; i < numThreads; i++)
+    for (unsigned long int i = 0; i < numThreads; i++)
     {
         this->threads.push_back(std::thread(f_in, wa));
     }
