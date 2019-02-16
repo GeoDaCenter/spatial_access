@@ -19,6 +19,8 @@ install:
 - cython --cplus spatial_access/*.pyx
 - python3 setup.py sdist build_ext
 - python3 setup.py install
+- pip3 uninstall numpy
+- pip3 install numpy==1.15.4
 
 script:
 - pytest tests/
