@@ -6,7 +6,7 @@ returns the local resources if available.
 
 import os
 import pandas as pd
-from pandana.loaders import osm
+from osmnet.load import network_from_bbox
 from geopy import distance
 
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
@@ -173,11 +173,11 @@ class NetworkInterface:
         try:
             if self.network_type == 'bike':
                 osm_bike_filter = '["highway"!~"motor|proposed|construction|abandoned|platform|raceway"]["foot"!~"no"]["bicycle"!~"no"]'
-                self.nodes, self.edges = osm.network_from_bbox(lat_min=self.bbox[0], lng_min=self.bbox[1],
+                self.nodes, self.edges = network_from_bbox(lat_min=self.bbox[0], lng_min=self.bbox[1],
                                                                lat_max=self.bbox[2], lng_max=self.bbox[3],
                                                                custom_osm_filter=osm_bike_filter)
             else:
-                self.nodes, self.edges = osm.network_from_bbox(
+                self.nodes, self.edges = network_from_bbox(
                     lat_min=self.bbox[0], lng_min=self.bbox[1],
                     lat_max=self.bbox[2], lng_max=self.bbox[3],
                     network_type=self.network_type)

@@ -67,7 +67,7 @@ class DestFloatingCatchmentArea:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
         else:
             self.categories = ['all_categories']
 
@@ -90,9 +90,10 @@ class DestFloatingCatchmentArea:
                                                     columns=['service_pop',
                                                              'percap_spending',
                                                              'category'])
+        return self.model_results
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -109,6 +110,9 @@ class DestFloatingCatchmentArea:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -142,16 +146,6 @@ class DestFloatingCatchmentArea:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_dest_ids = self.model_data.get_remapped_dest_ids()
-        if remapped_dest_ids:
-            reversed_ids = {value: key for key, value in remapped_dest_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
-
 
 class TwoStageFloatingCatchmentArea:
     """
@@ -176,7 +170,7 @@ class TwoStageFloatingCatchmentArea:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
         else:
             self.categories = ['all_categories']
 
@@ -220,9 +214,10 @@ class TwoStageFloatingCatchmentArea:
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        return self.model_results
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -239,6 +234,9 @@ class TwoStageFloatingCatchmentArea:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -272,15 +270,7 @@ class TwoStageFloatingCatchmentArea:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
+
 
 
 class AccessTime:
@@ -305,7 +295,7 @@ class AccessTime:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
             # Add category->dest_id map to sp matrix
             self.model_data.map_categories_to_sp_matrix()
 
@@ -327,9 +317,10 @@ class AccessTime:
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        return self.model_results
 
     def aggregate(self, aggregation_type, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -346,6 +337,9 @@ class AccessTime:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -379,15 +373,6 @@ class AccessTime:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
 
 
 class AccessCount:
@@ -413,7 +398,7 @@ class AccessCount:
         if self.categories is not None:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(unrecognized_categories)
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
             # Add category->dest_id map to sp matrix
             self.model_data.map_categories_to_sp_matrix()
         else:
@@ -437,8 +422,10 @@ class AccessCount:
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
+        return self.model_results
+
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -452,6 +439,9 @@ class AccessCount:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -484,16 +474,6 @@ class AccessCount:
                                         categories=categories,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
-
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
 
 
 class AccessModel:
@@ -632,6 +612,8 @@ class AccessModel:
                 new_key = column.replace('_score', '_good_access')
                 self.model_results[new_key] = self.model_results[column] > good_access_threshold
 
+        return self.model_results
+
     def _normalize(self, column, normalize_type):
         if normalize_type == 'linear':
             max_score = self.model_results[column].max()
@@ -646,7 +628,7 @@ class AccessModel:
             raise UnexpectedNormalizeTypeException(normalize_type)
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326'):
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
         """
         Aggregate results by community area
         """
@@ -663,6 +645,9 @@ class AccessModel:
                                                                   shapefile=shapefile,
                                                                   spatial_index=spatial_index,
                                                                   projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
         return self.aggregated_results
 
     def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
@@ -696,12 +681,3 @@ class AccessModel:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results

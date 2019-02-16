@@ -1,191 +1,214 @@
 class SpatialAccessException(Exception):
-    """Base class for package exceptions"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("SpatialAccessException:" + errors)
 
 
 class MatrixInterfaceException(SpatialAccessException):
-    """Base class for MatrixInterface Exceptions"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("MatrixInterfaceException:" + errors)
 
 
 class NetworkInterfaceException(SpatialAccessException):
-    """Base class for NetworkInterface Exceptions"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("NetworkInterfaceException:" + errors)
 
 
 class P2PException(SpatialAccessException):
-    """Base class for p2p Exceptions"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("P2PException:" + errors)
 
 
 class ScoreModelException(SpatialAccessException):
-    """Base class for ScoreModel Exceptions"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("ScoreModelException:" + errors)
 
 
 class CommunityAnalyticsException(SpatialAccessException):
-    """Base class for CommunityAnalytics Exceptions"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("CommunityAnalyticsException:" + errors)
 
 
 class UnableToConnectException(NetworkInterfaceException):
-    """Throws when the client is unable to connect to OSM server"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnableToConnectException:" + errors)
 
 
 class BoundingBoxTooLargeException(NetworkInterfaceException):
-    """Throws when the input data has too large of a bounding box"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("BoundingBoxTooLargeException:" + errors)
 
 
-class ReadTMXFailedException(MatrixInterfaceException):
-    """Throws when readTMX fails"""
-    pass
+class UnexpectedFileFormatException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedFileFormatException:" + errors)
 
 
-class ReadCSVFailedException(MatrixInterfaceException):
-    """Throws when readTMX fails"""
-    pass
+class UnexpectedShapeException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedShapeException:" + errors)
 
 
-class WriteTMXFailedException(MatrixInterfaceException):
-    """Throws when writeTMX fails"""
-    pass
+class InvalidIdTypeException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("InvalidIdTypeException:" + errors)
 
 
 class WriteCSVFailedException(MatrixInterfaceException):
-    """Throws when writeCSV fails"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("WriteCSVFailedException:" + errors)
+
+
+class WriteH5FailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("WriteH5FailedException:" + errors)
+
+
+class ReadH5FailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("ReadH5FailedException:" + errors)
 
 
 class IndecesNotFoundException(MatrixInterfaceException):
-    """Throws when indeces are not found in the matrix """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("IndecesNotFoundException:" + errors)
 
 
 class UnableToBuildMatrixException(MatrixInterfaceException):
-    """Throws when matrix cannot be built (this is a bad one)"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnableToBuildMatrixException:" + errors)
+
+
+class FileNotFoundException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnableToBuildMatrixException:" + errors)
 
 
 class PyTransitMatrixNotBuiltException(MatrixInterfaceException):
-    """Throws when pyTransitMatrix cannot be imported """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("PyTransitMatrixNotBuiltException:" + errors)
 
 
 class PrimaryDataNotFoundException(P2PException):
-    """ Throws when the primary data does not exist"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("PrimaryDataNotFoundException:" + errors)
 
 
 class SecondaryDataNotFoundException(P2PException):
-    """ Throws when the secondary data does not exist"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("SecondaryDataNotFoundException:" + errors)
 
 
 class UnableToParsePrimaryDataException(P2PException):
-    """ Throws when the given column mapping for primary data fails"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnableToParsePrimaryDataException:" + errors)
 
 
 class UnableToParseSecondaryDataException(P2PException):
-    """ Throws when the given column mapping for secondary data fails"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnableToParseSecondaryDataException:" + errors)
 
 
 class UnknownModeException(P2PException):
-    """ Throws when the user supplies an unknown mode of transit"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnknownModeException:" + errors)
 
 
 class InsufficientDataException(P2PException):
-    """ Throws when the user supplies neither source input data or a matrix file"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("InsufficientDataException:" + errors)
+
+
+class DuplicateInputException(P2PException):
+    def __init__(self, errors=''):
+        super().__init__("DuplicateInputException:" + errors)
 
 
 class TransitMatrixNotLoadedException(ScoreModelException):
-    """ Throws when the user has not loaded the transit matrix (shortest path matrix) """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("TransitMatrixNotLoadedException:" + errors)
 
 
 class SourceDataNotFoundException(ScoreModelException):
-    """Throws when source data cannot be found """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("SourceDataNotFoundException:" + errors)
 
 
 class DestDataNotFoundException(ScoreModelException):
-    """ Throws when the destination cannot be found"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("DestDataNotFoundException:" + errors)
 
 
 class SourceDataNotParsableException(ScoreModelException):
-    """Throws when the source data is not parsable using supplied hints """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("SourceDataNotParsableException:" + errors)
 
 
 class DestDataNotParsableException(ScoreModelException):
-    """Throws when the dest data is not parsable using supplied hints """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("DestDataNotParsableException:" + errors)
 
 
 class ShapefileNotFoundException(ScoreModelException):
-    """Throws when the shapefile cannot be found """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("ShapefileNotFoundException:" + errors)
 
 
 class TooManyCategoriesToPlotException(ScoreModelException):
-    """Throws when there are too many categories to plot in the cdf """
-    pass
+    def __init__(self, errors=''):
+        super().__init__("TooManyCategoriesToPlotException:" + errors)
 
 
 class SpatialIndexNotMatchedException(ScoreModelException):
-    """Throws when the spatial index cannot be matched in the shapefile"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("SpatialIndexNotMatchedException:" + errors)
 
 
 class UnexpectedPlotColumnException(ScoreModelException):
-    """Throws when the the column is not in the model results columns"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedPlotColumnException:" + errors)
 
 
 class UnrecognizedCategoriesException(CommunityAnalyticsException):
-    """ Throws when the user supplies categories which are not present in the data"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnrecognizedCategoriesException:" + errors)
 
 
 class UnrecognizedDecayFunctionException(CommunityAnalyticsException):
-    """ Throws when the user supplies categories which are not present in the data"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnrecognizedDecayFunctionException:" + errors)
 
 
 class IncompleteCategoryDictException(CommunityAnalyticsException):
-    """ Throws when the user supplies an incomplete/malformed category dictionary"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("IncompleteCategoryDictException:" + errors)
 
 
 class ModelNotAggregatedException(CommunityAnalyticsException):
-    """ Throws when the user tries to perform an action that requires
-    aggregation but has not yet called aggregate"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("ModelNotAggregatedException:" + errors)
 
 
 class UnexpectedNormalizeTypeException(CommunityAnalyticsException):
-    """ Throws when the user gives an unexpected normalization type"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedNormalizeTypeException:" + errors)
 
 
 class UnexpectedNormalizeColumnsException(CommunityAnalyticsException):
-    """ Throws when the user gives an type for the normalize parameter"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedNormalizeColumnsException:" + errors)
 
 
 class UnexpectedEmptyColumnException(CommunityAnalyticsException):
-    """ Throws when the model results have empty column while trying to
-    normalize to z-score"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedEmptyColumnException:" + errors)
 
 
 class UnexpectedAggregationTypeException(CommunityAnalyticsException):
-    """ Throws when the user passes an illegal aggregation type"""
-    pass
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedAggregationTypeException:" + errors)
+
+
+class AggregateOutputTypeNotExpectedException(CommunityAnalyticsException):
+    def __init__(self, errors=''):
+        super().__init__("UnexpectedAggregationTypeException:" + errors)
 

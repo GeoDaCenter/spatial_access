@@ -6,10 +6,10 @@
 
 #include "userDataContainer.h"
 
-userDataPoint::userDataPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
+userDataPoint::userDataPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance)
 {
     this->networkNodeId = networkNodeId;
-    this->id = id;
+    this->loc = loc;
     this->lastMileDistance = lastMileDistance;
 }
 
@@ -18,16 +18,8 @@ const std::vector<userDataPoint>& userDataTract::retrieveDataPoints() const
     return data;
 }
 
-void userDataTract::print() const
-{
-    std::cout << networkNodeId << std::endl;
-    for (auto dataPoint : data)
-    {
-        std::cout << "(" << dataPoint.id << "," << dataPoint.lastMileDistance << ")" << std::endl;
-    }
-}
 
-userDataTract::userDataTract(int networkNodeId)
+userDataTract::userDataTract(unsigned long int networkNodeId)
 {
     this->networkNodeId = networkNodeId;
 }
@@ -43,29 +35,16 @@ const std::vector<unsigned long int>& userDataContainer::retrieveAllUserDataIds(
 }
 
 
-void userDataContainer::print() const
-{
-    for (auto entry : data)
-    {
-        entry.second.print();
-    }
-}
-
-userDataContainer::userDataContainer()
-{
-    this->isSymmetric = false;
-}
-
-bool userDataContainer::containsTract(int networkNodeId) const
+bool userDataContainer::containsTract(unsigned long int networkNodeId) const
 {
     return data.find(networkNodeId) != data.end();
 }
 
-void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int lastMileDistance)
+void userDataContainer::addPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance)
 {
-    ids.push_back(id);
+    ids.push_back(loc);
     allNetworkNodeIds.push_back(networkNodeId);
-    userDataPoint newDataPoint(networkNodeId, id, lastMileDistance);
+    userDataPoint newDataPoint(networkNodeId, loc, lastMileDistance);
     if (containsTract(networkNodeId))
     {
         data.at(networkNodeId).addPoint(newDataPoint);
@@ -81,18 +60,18 @@ void userDataContainer::addPoint(int networkNodeId, unsigned long int id, int la
 
 }
 
-const userDataTract& userDataContainer::retrieveTract(int networkNodeId) const
+const userDataTract& userDataContainer::retrieveTract(unsigned long int networkNodeId) const
 {
     return data.at(networkNodeId);
 }
 
-const std::vector<int>& userDataContainer::retrieveAllNetworkNodeIds() const
+const std::vector<unsigned long int>& userDataContainer::retrieveAllNetworkNodeIds() const
 {
     return allNetworkNodeIds;
 }
 
 
-const std::vector<int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
+const std::vector<unsigned long int>& userDataContainer::retrieveUniqueNetworkNodeIds() const
 {
     return uniqueNetworkNodeIds;
 }

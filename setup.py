@@ -1,32 +1,9 @@
-import distutils.extension, setuptools, sys, os
-from setuptools.command.install import install
-try:
-    import Cython.Build
-except ModuleNotFoundError:
-    os.system('pip3 install Cython')
-    import Cython.Build
+import sys, os
+from setuptools.extension import Extension
+from setuptools import setup
 
-
-class CustomInstallCommand(install):
-    """Customized setuptools install command"""
-    def run(self):
-        try:
-            os.chdir('spatial_access/src/protobuf')
-            os.system('protoc --cpp_out=. p2p.proto')
-            os.chdir('../../..')
-        except BaseException:
-            raise Exception('Error compiling p2p.proto. Make sure protobuf2 is installed and compiled.')
-        if sys.platform == "darwin":
-            os.system('brew install spatialindex')
-        elif sys.platform.startswith('linux'):
-            os.system('sudo apt-get install libspatialindex-dev')
-        else:
-            exception_message = '''You are trying to install spatial_access on an unsupported 
-                                   platform. Note: This package does not support Windows.'''
-
-            raise Exception(exception_message, os.system)
-        install.run(self)
-
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 ouff_mac = []
 extra_dependency = []
@@ -34,21 +11,36 @@ if sys.platform == "darwin":
     ouff_mac = ['-mmacosx-version-min=10.9']
     extra_dependency = ['rtree>=0.8.3']
 
-EXTENSION = distutils.extension.Extension(
-    name = 'transitMatrixAdapter', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapter.pyx', 
-               'spatial_access/src/Graph.cpp',
-               'spatial_access/src/MinHeap.cpp',
-               'spatial_access/src/userDataContainer.cpp',
-               'spatial_access/src/dataFrame.cpp',
-               'spatial_access/src/threadUtilities.cpp',
-               'spatial_access/src/transitMatrix.cpp'],
-    extra_compile_args = ['-std=c++11', '-Wall', '-O3'
+EXTENSION = [Extension(
+    name = 'transitMatrixAdapterSxS', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterSxS.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac + ['-lprotobuf']
-    )
-EXT_MODULES=Cython.Build.cythonize([EXTENSION])
+    extra_link_args    = ouff_mac
+    ),Extension(
+    name = 'transitMatrixAdapterIxI', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterIxI.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
+    ),Extension(
+    name = 'transitMatrixAdapterSxI', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterSxI.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
+    ),Extension(
+    name = 'transitMatrixAdapterIxS', language = 'c++',
+    sources = ['spatial_access/transitMatrixAdapterIxS.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
+    )]
+
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'cython>=0.28.2',
@@ -58,34 +50,38 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'psutil>=5.4.3',
                          'pandas>=0.19.2',
                          'numpy==1.15.4',
-                         'osmnet>=0.1.4',
-                         'pandana>=0.4.0',
+                         'osmnet>=0.1.5',
                          'scipy>=0.18.1',
                          'geopy>=1.11.0',
-                         'Shapely>=1.6.1',
+                         'shapely',
+                         'tables==3.4.2',
                          'scikit_learn>=0.19.1',
                          'atlas>=0.27.0',
                          'descartes>=1.1.0',
-                         'rtree>=0.8.3']
+                         'rtree>=0.8.3',
+                         'h5py>=2.8.0']
 
 REQUIRED_DEPENDENCIES += extra_dependency
 
-SUBMODULE_NAMES = ['spatial_access.p2p', 
-                   'spatial_access.ScoreModel', 
+SUBMODULE_NAMES = ['spatial_access.p2p',
+                   'spatial_access.ScoreModel',
                    'spatial_access.CommunityAnalytics',
                    'spatial_access.ConfigInterface',
                    'spatial_access.NetworkInterface',
                    'spatial_access.MatrixInterface',
                    'spatial_access.SpatialAccessExceptions']
 
-setuptools.setup(
-    cmdclass = {'install':CustomInstallCommand},
+setup(
     name = 'spatial_access',
     author = 'Logan Noel (lmnoel)',
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version='0.1.4',
-    ext_modules=EXT_MODULES,
+    version='0.1.6.3',
+    ext_modules=EXTENSION,
     install_requires=REQUIRED_DEPENDENCIES,
-    py_modules=SUBMODULE_NAMES
+    py_modules=SUBMODULE_NAMES,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    license="GPL"
     )
+

@@ -9,6 +9,8 @@ from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionExce
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
+import json
+
 
 class TestClass:
     """Suite of tests for the Community Analytics Package"""
@@ -39,26 +41,26 @@ class TestClass:
                                                                       'capacity': 'capacity', 'category': 'cat'})
         coverage_model.calculate(100)
 
-        assert coverage_model.model_results.loc[0]['service_pop'] == 76
-        assert coverage_model.model_results.loc[1]['service_pop'] == 76
-        assert coverage_model.model_results.loc[2]['service_pop'] == 469
-        assert coverage_model.model_results.loc[3]['service_pop'] == 76
-        assert coverage_model.model_results.loc[4]['service_pop'] == 76
-        assert coverage_model.model_results.loc[5]['service_pop'] == 469
+        assert coverage_model.model_results.loc['place_a']['service_pop'] == 76
+        assert coverage_model.model_results.loc['place_b']['service_pop'] == 76
+        assert coverage_model.model_results.loc['place_c']['service_pop'] == 469
+        assert coverage_model.model_results.loc['place_d']['service_pop'] == 76
+        assert coverage_model.model_results.loc['place_e']['service_pop'] == 76
+        assert coverage_model.model_results.loc['place_f']['service_pop'] == 469
 
-        assert coverage_model.model_results.loc[0]['percap_spending'] <= 0.066
-        assert coverage_model.model_results.loc[1]['percap_spending'] <= 0.606
-        assert coverage_model.model_results.loc[2]['percap_spending'] <= 0.738
-        assert coverage_model.model_results.loc[3]['percap_spending'] <= 3.053
-        assert coverage_model.model_results.loc[4]['percap_spending'] <= 5.264
-        assert coverage_model.model_results.loc[5]['percap_spending'] <= 1.210
+        assert coverage_model.model_results.loc['place_a']['percap_spending'] <= 0.066
+        assert coverage_model.model_results.loc['place_b']['percap_spending'] <= 0.606
+        assert coverage_model.model_results.loc['place_c']['percap_spending'] <= 0.738
+        assert coverage_model.model_results.loc['place_d']['percap_spending'] <= 3.053
+        assert coverage_model.model_results.loc['place_e']['percap_spending'] <= 5.264
+        assert coverage_model.model_results.loc['place_f']['percap_spending'] <= 1.210
 
-        assert coverage_model.model_results.loc[0]['percap_spending'] >= 0.065
-        assert coverage_model.model_results.loc[1]['percap_spending'] >= 0.605
-        assert coverage_model.model_results.loc[2]['percap_spending'] >= 0.737
-        assert coverage_model.model_results.loc[3]['percap_spending'] >= 3.052
-        assert coverage_model.model_results.loc[4]['percap_spending'] >= 5.263
-        assert coverage_model.model_results.loc[5]['percap_spending'] >= 1.208
+        assert coverage_model.model_results.loc['place_a']['percap_spending'] >= 0.065
+        assert coverage_model.model_results.loc['place_b']['percap_spending'] >= 0.605
+        assert coverage_model.model_results.loc['place_c']['percap_spending'] >= 0.737
+        assert coverage_model.model_results.loc['place_d']['percap_spending'] >= 3.052
+        assert coverage_model.model_results.loc['place_e']['percap_spending'] >= 5.263
+        assert coverage_model.model_results.loc['place_f']['percap_spending'] >= 1.208
 
     def test_02(self):
         """
@@ -96,13 +98,12 @@ class TestClass:
                                                    categories=['A', 'C'])
         coverage_model.calculate(600)
 
-        remapped_dests = coverage_model.model_data.get_remapped_dest_ids()
 
-        assert set(coverage_model.model_results.index) == {remapped_dests['place_a'],
-                                                           remapped_dests['place_c'],
-                                                           remapped_dests['place_d'],
-                                                           remapped_dests['place_e'],
-                                                           remapped_dests['place_f']}
+        assert set(coverage_model.model_results.index) == {'place_a',
+                                                           'place_c',
+                                                           'place_d',
+                                                           'place_e',
+                                                           'place_f'}
 
     def test_4(self):
         """
@@ -492,7 +493,12 @@ class TestClass:
                                                    categories=['A','C'])
         coverage_model.calculate(600)
 
-        coverage_model.aggregate()
+        aggregate_df = coverage_model.aggregate(output_filename=self.datapath + 'test_19.json')
+        with open(self.datapath + 'test_19.json', 'r') as file:
+            aggregate_data = json.load(file)
+
+        assert(aggregate_df.loc['HYDE PARK', 'percap_spending'] == aggregate_data['HYDE PARK']['percap_spending'])
+
         coverage_model.plot_cdf('percap_spending')
         coverage_model.plot_choropleth(column='percap_spending')
 
@@ -591,16 +597,15 @@ class TestClass:
                                                                         'population': 'pop'},
                                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'})
-        coverage_model.calculate(100)
+        results = coverage_model.calculate(100)
 
-        results = coverage_model.get_results()
 
-        assert list(results.index) == ['place_a',
+        assert set(results.index) == {'place_a',
                                        'place_b',
                                        'place_c',
                                        'place_d',
                                        'place_e',
-                                       'place_f']
+                                       'place_f'}
 
     def test_25(self):
         """
@@ -615,8 +620,8 @@ class TestClass:
                                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
                                                         categories=categories)
-        accesspop_model.calculate(200)
-        results = accesspop_model.get_results()
+        results = accesspop_model.calculate(200)
+
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
     def test_26(self):
@@ -635,8 +640,8 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1],
                                 'C': [1]}
-        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
-        results = coverage_model.get_results()
+        results = coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
     def test_27(self):
@@ -652,8 +657,8 @@ class TestClass:
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'},
                                       categories=categories)
-        accesstime_model.calculate()
-        results = accesstime_model.get_results()
+        results = accesstime_model.calculate()
+
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
     def test_28(self):
@@ -669,6 +674,6 @@ class TestClass:
                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                            'capacity': 'capacity', 'category': 'cat'},
                                         categories=categories)
-        accesscount_model.calculate(200)
-        results = accesscount_model.get_results()
+        results = accesscount_model.calculate(200)
+
         assert list(results.index) == [3, 4, 5, 6, 7, 8]

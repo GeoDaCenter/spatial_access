@@ -1,56 +1,74 @@
 #pragma once
 #include <unordered_map>
+#include <vector>
 
-#include "protobuf/p2p.pb.h"
 
 /* a pandas-like dataFrame */
+template <class row_label_type, class col_label_type>
 class dataFrame {
-public:
-    std::unordered_map <unsigned long int, p2p::dataRow> row_id_map;
-
-    // Map the column id to a location in an array
-    std::unordered_map<unsigned long int, unsigned long int> col_id_to_loc;
-
-    p2p::metaData metaData;
 
 public:
+    // Public Members
+    std::vector<std::vector<unsigned short int>> dataset;
 
     // Initialization:
-    dataFrame();
-    void reserve(const std::vector<unsigned long int> &primary_ids, const std::vector<unsigned long int> &secondary_ids);
+    dataFrame(bool isSymmetric, unsigned long int rows, unsigned long int cols);
     
-    // Getters and Setters:
-    unsigned short int retrieveValue(unsigned long int row_id, unsigned long int col_id) const;
-    void insertValue(unsigned short int value, unsigned long int row_id, unsigned long int col_id);
-    bool isSymmetric() const;
-    void setSymmetric(bool isSymmetric);
-    void insertRow(const std::unordered_map<unsigned long int, unsigned short int> &row_data, unsigned long int source_id);
-    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesByRow(unsigned long int row_id, bool sort);
-    const std::vector<std::pair<unsigned long int, unsigned short int>> getValuesByCol(unsigned long int row_id, bool sort);
-    unsigned long int cacheUserStringId(const std::string& user_string_id, bool isRow);
-    std::unordered_map<std::string, unsigned long int> getUserRowIdCache() const;
-    std::unordered_map<std::string, unsigned long int> getUserColIdCache() const;
+    // Getters:
+    unsigned short int getValueByLoc(unsigned long int row_loc, unsigned long int col_loc) const;
+    unsigned short int getValueById(const row_label_type& row_id, const col_label_type& col_id) const;
+
+    bool getIsSymmetric() const;
+    unsigned long int getRows() const;
+    unsigned long int getCols() const;
+    const std::vector<std::pair<col_label_type, unsigned short int>> getValuesByRowId(const row_label_type &row_id, bool sort) const;
+    const std::vector<std::pair<row_label_type, unsigned short int>> getValuesByColId(const col_label_type &col_id, bool sort) const;
+    const std::vector<row_label_type>& getRowIds() const;
+    const std::vector<col_label_type>& getColIds() const;
+    const row_label_type& getRowIdForLoc(unsigned long int row_loc) const;
+    const col_label_type& getColIdForLoc(unsigned long int col_loc) const;
+    unsigned long int getRowLocForId(const row_label_type& row_id) const;
+    unsigned long int getColLocForId(const col_label_type& col_id) const;
+    const std::vector<unsigned short int>& getDatasetRow(unsigned long int row) const;
+    const std::vector<std::vector<unsigned short int>>& getDataset() const;
+
+    // Setters
+    void setValueByLoc(unsigned long int row_loc, unsigned long int col_loc, unsigned short int value);
+    void setValueById(const row_label_type& row_id, const col_label_type& col_id, unsigned short int value);
+    void setIsSymmetric(bool isSymmetric);
+    void setRows(unsigned long int rows);
+    void setCols(unsigned long int cols);
+    void setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned long int row_loc);
+    void setRowIds(const std::vector<row_label_type>& row_ids);
+    void setColIds(const std::vector<col_label_type>& col_ids);
+    unsigned long int addToRowIndex(const row_label_type& row_id);
+    unsigned long int addToColIndex(const col_label_type& col_id);
+    void setDatasetRow(const std::vector<unsigned short int>& datasetRow, unsigned long int row);
+    void setDataset(const std::vector<std::vector<unsigned short int>>& dataset);
 
     // Input/Output:
-    bool readCSV(const std::string &infile);
-    bool readTMX(const std::string &infile);
     bool writeCSV(const std::string &outfile) const;
-    bool writeTMX(const std::string &outfile) const;
-    bool writeMetadata(const std::string &outfile) const;
-    bool writeRowdata(const std::string &outfile, unsigned long int row_id) const;
-    bool readMetadata(const std::string &outfile);
-    bool readRowdata(const std::string &outfile, unsigned long int row_id);
     void printDataFrame() const;
-    bool readOTPMatrix(const std::string& infile);
 
     // Utility
-    bool isUnderDiagonal(unsigned long int row_id, unsigned long int col_id) const;
+    bool isUnderDiagonal(unsigned long int row_loc, unsigned long int col_loc) const;
+
 
 private:
     // Input/Output
     bool writeToStream(std::ostream& streamToWrite) const;
 
-    unsigned long int row_label_remap_counter;
-    unsigned long int col_label_remap_counter;
+    // Private Members
+    bool isSymmetric;
+    unsigned long int rows;
+    unsigned long int cols;
+    std::vector<row_label_type> rowIds;
+    std::vector<col_label_type> colIds;
 
+    std::unordered_map<row_label_type, unsigned long int> rowIdsToLoc;
+    std::unordered_map<col_label_type, unsigned long int> colIdsToLoc;
+
+    // Utility
+    unsigned long int symmetricEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc) const;
+    unsigned long int dataset_size;
 };

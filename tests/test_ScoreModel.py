@@ -38,7 +38,7 @@ class TestClass:
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
 
-        model_data.write_shortest_path_matrix_to_tmx(self.datapath + 'score_model_test_1')
+        model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_1.h5')
 
         assert True
 
@@ -55,7 +55,7 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix(self.datapath + "score_model_test_1")
+        model_data.load_sp_matrix(self.datapath + "score_model_test_1.h5")
 
         assert True
 
@@ -107,7 +107,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
+            model_data.load_sp_matrix(self.datapath + 'score_model_test_1.h5')
         except SourceDataNotParsableException:
             assert True
             return
@@ -125,7 +125,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'wrong_key': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix(self.datapath + 'score_model_test_1')
+            model_data.load_sp_matrix(self.datapath + 'score_model_test_1.h5')
         except DestDataNotParsableException:
             assert True
             return
@@ -174,15 +174,16 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
+
         model_data.load_sp_matrix()
-        model_data._sp_matrix.write_tmx(self.datapath + 'score_model_test_8')
+        model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_8.h5')
 
         model_data.calculate_dests_in_range(125)
         model_data.calculate_sources_in_range(125)
 
-        remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
-        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_b']) == [3, 4, 6]
-        assert model_data.get_sources_in_range_of_dest(remapped_dests['place_c']) == [3, 4, 5, 6]
+
+        assert model_data.get_sources_in_range_of_dest('place_b') == [3, 4, 6]
+        assert model_data.get_sources_in_range_of_dest('place_c') == [3, 4, 5, 6]
 
         model_data2 = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                 destinations_filename="tests/test_data/dests_a.csv",
@@ -191,14 +192,14 @@ class TestClass:
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                    'capacity': 'capacity', 'category': 'cat'})
 
-        model_data2.load_sp_matrix(self.datapath + 'score_model_test_8')
+
+        model_data2.load_sp_matrix(self.datapath + 'score_model_test_8.h5')
 
         model_data2.calculate_dests_in_range(125)
         model_data2.calculate_sources_in_range(125)
 
-        remapped_dests2 = model_data2._sp_matrix.matrix_interface.get_dest_id_remap()
-        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_b']) == [3, 4, 6]
-        assert model_data2.get_sources_in_range_of_dest(remapped_dests2['place_c']) == [3, 4, 5, 6]
+        assert model_data2.get_sources_in_range_of_dest('place_b') == [3, 4, 6]
+        assert model_data2.get_sources_in_range_of_dest('place_c') == [3, 4, 5, 6]
 
     def test_9(self):
         """
@@ -212,11 +213,10 @@ class TestClass:
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
         model_data.calculate_sources_in_range(50)
-        remapped_dests = model_data._sp_matrix.matrix_interface.get_dest_id_remap()
 
-        assert model_data.get_population_in_range(remapped_dests['place_a']) == 0
-        assert model_data.get_population_in_range(remapped_dests['place_b']) == 31
-        assert model_data.get_population_in_range(remapped_dests['place_c']) == 76
+        assert model_data.get_population_in_range('place_a') == 0
+        assert model_data.get_population_in_range('place_b') == 31
+        assert model_data.get_population_in_range('place_c') == 76
 
     def test_10(self):
         """

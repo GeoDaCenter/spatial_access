@@ -3,6 +3,8 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib as mpl
 import matplotlib.patches as mpatches
+import matplotlib.pyplot
+import json
 from spatial_access.p2p import TransitMatrix
 
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
@@ -15,6 +17,7 @@ from spatial_access.SpatialAccessExceptions import ShapefileNotFoundException
 from spatial_access.SpatialAccessExceptions import SpatialIndexNotMatchedException
 from spatial_access.SpatialAccessExceptions import TooManyCategoriesToPlotException
 from spatial_access.SpatialAccessExceptions import UnexpectedPlotColumnException
+from spatial_access.SpatialAccessExceptions import AggregateOutputTypeNotExpectedException
 
 
 import os.path
@@ -67,11 +70,11 @@ class ModelData(object):
         """
         self._sp_matrix.write_csv(filename)
 
-    def write_shortest_path_matrix_to_tmx(self, filename=None):
+    def write_shortest_path_matrix_to_h5(self, filename=None):
         """
-        Write sp matrix to csv.
+        Write sp matrix to h5.
         """
-        self._sp_matrix.write_tmx(filename)
+        self._sp_matrix.write_h5(filename)
 
     @staticmethod
     def get_output_filename(keyword, extension='csv', file_path='data/'):
@@ -168,7 +171,7 @@ class ModelData(object):
 
         if filename:
             self._sp_matrix = TransitMatrix(self.network_type,
-                                            read_from_file=filename)
+                                            read_from_h5=filename)
 
         else:
 
@@ -267,10 +270,6 @@ class ModelData(object):
         columns_to_keep = list(rename_cols.values())
         self.sources = self.sources[columns_to_keep]
 
-        # remap to numeric id if original data used string ids
-        remapped_ids = self.get_remapped_source_ids()
-        if isinstance(remapped_ids, dict):
-            self.sources.index = self.sources.index.map(remapped_ids)
 
     def reload_dests(self, filename=None):
         """
@@ -361,10 +360,6 @@ class ModelData(object):
         columns_to_keep = list(rename_cols.values())
         self.dests = self.dests[columns_to_keep]
 
-        # remap to numeric id if original data used string ids
-        remapped_ids = self.get_remapped_dest_ids()
-        if isinstance(remapped_ids, dict):
-            self.dests.index = self.dests.index.map(remapped_ids)
 
     def get_dests_in_range_of_source(self, source_id):
         """
@@ -463,20 +458,6 @@ class ModelData(object):
         """
         self._sp_matrix.matrix_interface.print_data_frame()
 
-    def get_remapped_source_ids(self):
-        """
-        Return a dictionary of the mapping from
-        new (integer) source ids to original (string) source ids.
-        """
-        return self._sp_matrix.matrix_interface.get_source_id_remap()
-
-    def get_remapped_dest_ids(self):
-        """
-        Return a dictionary of the mapping from
-        new (integer) dest ids to original (string) dest ids.
-        """
-        return self._sp_matrix.matrix_interface.get_dest_id_remap()
-
     def _spatial_join_community_index(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                                       spatial_index='community',  projection='epsg:4326'):
         """
@@ -534,6 +515,26 @@ class ModelData(object):
 
         aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
         return aggregated_results
+
+    def write_aggregated_results(self, aggregated_results, output_type='csv', output_filename=None):
+        if output_filename is not None:
+            output_type = output_filename.split('.')[1]
+        else:
+            output_filename = self.get_output_filename(keyword='aggregate',
+                                                       extension=output_type,
+                                                       file_path='data/')
+        if output_type == 'csv':
+            aggregated_results.to_csv(output_filename)
+        elif output_type == 'json':
+            output = {}
+            for row in aggregated_results.itertuples():
+                output[row[0]] = {}
+                for i, column in enumerate(aggregated_results.columns):
+                    output[row[0]][column] = row[i + 1]
+            with open(output_filename, 'w') as file:
+                json.dump(output, file)
+        else:
+            raise AggregateOutputTypeNotExpectedException(output_type)
 
     @staticmethod
     def _join_aggregated_data_with_boundaries(aggregated_results, spatial_index,
