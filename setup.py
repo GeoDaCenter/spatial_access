@@ -82,7 +82,6 @@ setup(
     py_modules=SUBMODULE_NAMES,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    license="GPL",
-    tests_require=['pytest']
+    license="GPL"
     )
 
