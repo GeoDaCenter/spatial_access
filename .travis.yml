@@ -14,7 +14,7 @@ before install:
 install:
 - pip3 install cython
 - cython --cplus spatial_access/*.pyx
-- python3 setup.py install
+- sudo pip3 install dist/spatial_access-*.tar.gz
 
 script:
 - pytest tests/
