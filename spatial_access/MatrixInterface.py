@@ -46,7 +46,7 @@ class MatrixInterface:
             self.dataset_name = '{}_{}'.format(primary_input_name, primary_input_name)
 
     def write_h5(self, filename):
-
+        start = time.time()
         if self.primary_ids_name == 'rows':
             raise WriteH5FailedException("Illegal primary_ids_name: {}".format(self.primary_ids_name))
         if self.secondary_ids_name == 'cols':
@@ -70,8 +70,11 @@ class MatrixInterface:
                 file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
                                     dtype=secondary_ids_dtype)
             file.create_dataset(self.dataset_name, data=self.transit_matrix.getDataset(), dtype="i2")
+        if self.logger:
+            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
     def read_h5(self, filename):
+        start = time.time()
         if not os.path.exists(filename):
             raise FileNotFoundException(filename)
         with h5py.File(filename, 'r') as file:
@@ -110,6 +113,8 @@ class MatrixInterface:
             self.transit_matrix.setSecondaryDatasetIds(list(secondary_ids[:]))
             self.transit_matrix.setDataset(list(file.get(self.dataset_name)[:]))
 
+        if self.logger:
+            self.logger.info('Read from {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
 
     def get_values_by_source(self, source_id, sort=False):
@@ -139,7 +144,7 @@ class MatrixInterface:
             no_cores -= 1
         else:
             no_cores = 1
-        return 1
+
         return no_cores
 
     def add_user_source_data(self, network_id, user_id, distance, is_symmetric):
