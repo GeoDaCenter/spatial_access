@@ -43,8 +43,6 @@ class TransitMatrix:
         -read_from_h5: [optional] a .csv or .tmx input of a previously calculated
             transit matrix to load
         -use_meters: [optional] Output will be in meters if True (seconds if False).
-        -trim_edges: [optional] Merge sequential edges in the OSM network if True. Does not
-            reduce accuracy, but is costly. Advised only for large networks.
         -debug: [optional] Enable debugging output.
     """
     def __init__(
@@ -58,7 +56,6 @@ class TransitMatrix:
             secondary_hints=None,
             use_meters=False,
             disable_area_threshold=False,
-            trim_edges=False,
             debug=False):
 
         # arguments
@@ -70,7 +67,6 @@ class TransitMatrix:
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
         self.use_meters = use_meters
-        self.trim_edges = trim_edges
 
         # member variables
         self.primary_data = None
@@ -408,6 +404,12 @@ class TransitMatrix:
                                              self.secondary_input is not None,
                                              self.epsilon)
 
+    def clear_cache(self):
+        """
+        Clear the network cache.
+        """
+        self._network_interface.clear_cache()
+
     def process(self):
         """
         Process the data.
@@ -436,13 +438,6 @@ class TransitMatrix:
         self._match_nn(True, is_symmetric=is_symmetric)
         if self.secondary_input:
             self._match_nn(False, is_symmetric=False)
-
-        if self.trim_edges:
-            try:
-                self._network_interface.trim_edges()
-            except BaseException:
-                if self.logger:
-                    self.logger.warning('Failed to optimize network. Please report this event.')
 
         self._parse_network()
 

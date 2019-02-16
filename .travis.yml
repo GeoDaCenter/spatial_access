@@ -4,6 +4,8 @@ language: python
 os:
 - linux
 
+dist: xenial
+
 compiler: clang
 
 python:
@@ -16,7 +18,8 @@ before install:
 install:
 - pip3 install cython
 - cython --cplus spatial_access/*.pyx
-- pip3 install dist/spatial_access-*.tar.gz
+- python3 setup.py sdist build_ext
+- python3 setup.py install
 
 script:
 - pytest tests/
