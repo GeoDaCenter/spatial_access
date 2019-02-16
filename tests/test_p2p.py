@@ -322,16 +322,14 @@ class TestClass():
         transit_matrix_1 = TransitMatrix('bike',
                                          primary_input='tests/test_data/sources.csv',
                                          secondary_input='tests/test_data/dests.csv',
-                                         primary_hints=hints, secondary_hints=hints,
-                                         trim_edges=True)
+                                         primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
 
         hints = {'idx': 'name', 'lat': 'y', 'lon': 'x'}
         transit_matrix_2 = TransitMatrix('bike',
                                          primary_input='tests/test_data/sources.csv',
                                          secondary_input='tests/test_data/dests.csv',
-                                         primary_hints=hints, secondary_hints=hints,
-                                         trim_edges=False)
+                                         primary_hints=hints, secondary_hints=hints)
         transit_matrix_2.process()
 
         for source_id in transit_matrix_1.primary_data.index:
