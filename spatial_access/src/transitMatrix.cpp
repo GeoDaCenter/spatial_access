@@ -4,6 +4,7 @@
 #include <climits>
 #include <queue>
 #include <functional>
+#include <numeric>
 
 #include "transitMatrix.h"
 using namespace std;
@@ -11,6 +12,7 @@ using namespace std;
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
 void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned int src) {
+    std::cerr << "calculating for src" << src << std::endl;
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -73,7 +75,9 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
             }
 
         }
+        std::cerr << "about to set row for sourceDataPoint.loc" << sourceDataPoint.loc << std::endl;
         wa->df.setRowByRowLoc(row_data, sourceDataPoint.loc);
+        std::cerr << "done setting row for sourceDataPoint.loc" << sourceDataPoint.loc << std::endl;
 
     }
 }
@@ -110,6 +114,7 @@ void dijkstra(unsigned int src, graphWorkerArgs<row_label_type, col_label_type> 
 
     //calculate row and add to dataFrame
     calculateRow(dist, wa, src);
+    std::cerr << "finished inserting for src" << src << std::endl;
     
 }
 
@@ -158,6 +163,7 @@ namespace lmnoel {
     template<class row_label_type, class col_label_type>
     void transitMatrix<row_label_type, col_label_type>::addEdgeToGraph(unsigned int src, unsigned int dest, unsigned short int weight, bool isBidirectional)
     {
+
         graph.addEdge(src, dest, weight);
         if (isBidirectional)
         {
@@ -187,11 +193,14 @@ namespace lmnoel {
     {
         try
         {
+            std::cerr << "entered compute" << std::endl;
             graphWorkerArgs<row_label_type, col_label_type> wa(graph, userSourceDataContainer, userDestDataContainer,
                                                                numNodes, df);
             wa.initialize();
             workerQueue<row_label_type, col_label_type> wq(numThreads, graphWorkerHandler, &wa);
+            std::cerr << "starting graph worker" << std::endl;
             wq.startGraphWorker();
+            std::cerr << "started graph worker" << std::endl;
         } catch (...)
         {
             throw std::runtime_error("Failed to compute matrix");
@@ -300,6 +309,7 @@ namespace lmnoel {
     template<class row_label_type, class col_label_type>
     unsigned short int transitMatrix<row_label_type, col_label_type>::countDestsInRange(const row_label_type& source_id, unsigned short int range) const
     {
+
         unsigned short int count = 0;
         unsigned int row_loc = df.getRowLocForId(source_id);
         for (unsigned int col_loc = 0; col_loc < df.getCols(); col_loc++)

@@ -174,6 +174,7 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
+
         model_data.load_sp_matrix()
         model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_8.h5')
 
@@ -190,6 +191,7 @@ class TestClass:
                                                      'population': 'pop'},
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                    'capacity': 'capacity', 'category': 'cat'})
+
 
         model_data2.load_sp_matrix(self.datapath + 'score_model_test_8.h5')
 

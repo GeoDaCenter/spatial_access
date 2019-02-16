@@ -235,13 +235,18 @@ void dataFrame<row_label_type, col_label_type>::setRowByRowLoc(const std::vector
     }
     if (!getIsSymmetric())
     {
+
         this->dataset.at(source_loc) = row_data;
 
     }
     else
     {
-        auto left_index = this->symmetricEquivalentLoc(source_loc, source_loc);
+        std::cerr << "about to setRowByRowLoc: " << source_loc << std::endl;
+        unsigned int left_index = this->symmetricEquivalentLoc(source_loc, source_loc);
+        std::cerr << "leftIndex: " << left_index << std::endl;
+        std::cerr << "len of vector" << row_data.size() << std::endl;
         std::copy(row_data.begin(), row_data.end(), this->dataset.at(0).begin() + left_index);
+        std::cerr << "about to setRowByRowLoc: " << source_loc << std::endl;
     }
 }
 

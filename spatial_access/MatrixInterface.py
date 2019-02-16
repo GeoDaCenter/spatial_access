@@ -99,9 +99,9 @@ class MatrixInterface:
                 self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
             elif self.primary_ids_are_string and not self.secondary_ids_are_string:
                 self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
-            elif not self.primary_ids_are_string and self.primary_ids_are_string:
+            elif not self.primary_ids_are_string and self.secondary_ids_are_string:
                 self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
-            elif not self.primary_ids_are_string and not self.primary_ids_are_string:
+            elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
                 self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
             else:
                 assert False, "Logic Error"
@@ -139,7 +139,7 @@ class MatrixInterface:
             no_cores -= 1
         else:
             no_cores = 1
-
+        return 1
         return no_cores
 
     def add_user_source_data(self, network_id, user_id, distance, is_symmetric):

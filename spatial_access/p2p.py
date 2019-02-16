@@ -313,7 +313,7 @@ class TransitMatrix:
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
-    def _match_nn(self, isPrimary=True, primary_only=True):
+    def _match_nn(self, isPrimary=True, is_symmetric=False):
         """
         Maps each the index of each node in the raw distance
         matrix to a tuple
@@ -356,7 +356,7 @@ class TransitMatrix:
 
             if isPrimary:
                 # pylint disable=line-too-long
-                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, primary_only)
+                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, is_symmetric)
             else:
                 # pylint disable=line-too-long
                 self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
@@ -423,19 +423,19 @@ class TransitMatrix:
 
         self.prefetch_network()
 
-        is_symmetric = self.secondary_input is None
+        is_symmetric = self.secondary_input is None and self.network_type is not 'drive'
         rows = len(self.primary_data)
 
-        if is_symmetric:
+        if self.secondary_input is None:
             cols = rows
         else:
             cols = len(self.secondary_data)
         self.matrix_interface.prepare_matrix(is_symmetric, rows, cols,
                                              self._network_interface.number_of_nodes())
 
-        self._match_nn(True, not self.secondary_input)
+        self._match_nn(True, is_symmetric=is_symmetric)
         if self.secondary_input:
-            self._match_nn(False, self.secondary_input)
+            self._match_nn(False, is_symmetric=False)
 
         if self.trim_edges:
             try:

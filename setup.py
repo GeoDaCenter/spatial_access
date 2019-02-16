@@ -61,7 +61,7 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'atlas>=0.27.0',
                          'descartes>=1.1.0',
                          'rtree>=0.8.3',
-                         'h5py>=2.9.0']
+                         'h5py>=2.8.0']
 
 REQUIRED_DEPENDENCIES += extra_dependency
 

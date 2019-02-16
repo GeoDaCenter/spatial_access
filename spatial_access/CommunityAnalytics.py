@@ -90,6 +90,7 @@ class DestFloatingCatchmentArea:
                                                     columns=['service_pop',
                                                              'percap_spending',
                                                              'category'])
+        return self.model_results
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                   spatial_index='community', projection='epsg:4326', output_filename=None):
@@ -144,16 +145,6 @@ class DestFloatingCatchmentArea:
                                         categories=categories,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
-
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_dest_ids = self.model_data.get_remapped_dest_ids()
-        if remapped_dest_ids:
-            reversed_ids = {value: key for key, value in remapped_dest_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
 
 
 class TwoStageFloatingCatchmentArea:
@@ -223,6 +214,7 @@ class TwoStageFloatingCatchmentArea:
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        return self.model_results
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                   spatial_index='community', projection='epsg:4326', output_filename=None):
@@ -278,15 +270,7 @@ class TwoStageFloatingCatchmentArea:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
+
 
 
 class AccessTime:
@@ -333,6 +317,7 @@ class AccessTime:
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        return self.model_results
 
     def aggregate(self, aggregation_type, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                   spatial_index='community', projection='epsg:4326', output_filename=None):
@@ -388,15 +373,6 @@ class AccessTime:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
 
 
 class AccessCount:
@@ -445,6 +421,8 @@ class AccessCount:
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+
+        return self.model_results
 
     def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                   spatial_index='community', projection='epsg:4326', output_filename=None):
@@ -496,16 +474,6 @@ class AccessCount:
                                         categories=categories,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
-
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results
 
 
 class AccessModel:
@@ -644,6 +612,8 @@ class AccessModel:
                 new_key = column.replace('_score', '_good_access')
                 self.model_results[new_key] = self.model_results[column] > good_access_threshold
 
+        return self.model_results
+
     def _normalize(self, column, normalize_type):
         if normalize_type == 'linear':
             max_score = self.model_results[column].max()
@@ -711,12 +681,3 @@ class AccessModel:
                                         shapefile=shapefile,
                                         spatial_index=spatial_index)
 
-    def get_results(self):
-        """
-        Return the results dataframe with original indeces.
-        """
-        remapped_source_ids = self.model_data.get_remapped_source_ids()
-        if remapped_source_ids:
-            reversed_ids = {value: key for key, value in remapped_source_ids.items()}
-            self.model_results.rename(index=reversed_ids, inplace=True)
-        return self.model_results

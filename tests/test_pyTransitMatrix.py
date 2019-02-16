@@ -73,15 +73,15 @@ class TestClass():
 
         assert count_dests_in_range_10 == 2
 
-        matrix.addToCategoryMap(10, b"a")
-        matrix.addToCategoryMap(11, b"a")
-        matrix.addToCategoryMap(12, b"b")
+        matrix.addToCategoryMap(10, "a")
+        matrix.addToCategoryMap(11, "a")
+        matrix.addToCategoryMap(12, "b")
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, b"b")
+        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
 
         assert time_to_nearest_by_cat == 8
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, b"a", 7)
+        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 7)
 
         assert count_dests_in_range_by_cat == 2
 
@@ -159,14 +159,14 @@ class TestClass():
 
         assert count_dests_in_range_10 == 0
 
-        matrix.addToCategoryMap(21, b"a")
-        matrix.addToCategoryMap(20, b"b")
+        matrix.addToCategoryMap(21, "a")
+        matrix.addToCategoryMap(20, "b")
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, b"b")
+        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
 
         assert time_to_nearest_by_cat == 18
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, b"a", 20)
+        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 20)
 
         assert count_dests_in_range_by_cat == 1
 
@@ -234,15 +234,15 @@ class TestClass():
 
         assert count_dests_in_range_10 == 2
 
-        matrix.addToCategoryMap(10, b"a")
-        matrix.addToCategoryMap(11, b"a")
-        matrix.addToCategoryMap(12, b"b")
+        matrix.addToCategoryMap(10, "a")
+        matrix.addToCategoryMap(11, "a")
+        matrix.addToCategoryMap(12, "b")
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, b"b")
+        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
 
         assert time_to_nearest_by_cat == 8
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, b"a", 7)
+        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 7)
 
         assert count_dests_in_range_by_cat == 2
 
@@ -308,14 +308,14 @@ class TestClass():
 
         assert count_dests_in_range_10 == 0
 
-        matrix.addToCategoryMap(21, b"a")
-        matrix.addToCategoryMap(20, b"b")
+        matrix.addToCategoryMap(21, "a")
+        matrix.addToCategoryMap(20, "b")
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, b"b")
+        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
 
         assert time_to_nearest_by_cat == 18
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, b"a", 20)
+        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 20)
 
         assert count_dests_in_range_by_cat == 1
 
@@ -360,14 +360,14 @@ class TestClass():
 
         dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {b"A": [20],
-                                  b"B": [20],
-                                  b"C": [20, 21]}
+        assert dests_in_range == {"A": [20],
+                                  "B": [20],
+                                  "C": [20, 21]}
 
         sources_in_range = matrix.getSourcesInRange(8, 1)
 
         assert sources_in_range == {21: [],
-                                    20: [b"C"]}
+                                    20: ["C"]}
 
         values_by_source_A = matrix.getValuesBySource("A", True)
 
@@ -379,11 +379,11 @@ class TestClass():
 
         values_by_dest_21 = matrix.getValuesByDest(21, False)
 
-        assert values_by_dest_21 == [(b"A", 18), (b"B", 19), (b"C", 12)]
+        assert values_by_dest_21 == [("A", 18), ("B", 19), ("C", 12)]
 
         values_by_dest_20 = matrix.getValuesByDest(20, True)
 
-        assert values_by_dest_20 == [(b"C", 5), (b"A", 11), (b"B", 12)]
+        assert values_by_dest_20 == [("C", 5), ("A", 11), ("B", 12)]
 
         time_to_nearest = matrix.timeToNearestDest("C")
 
@@ -433,14 +433,14 @@ class TestClass():
 
         dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {b"A": [20],
-                                  b"B": [20],
-                                  b"C": [20, 21]}
+        assert dests_in_range == {"A": [20],
+                                  "B": [20],
+                                  "C": [20, 21]}
 
         sources_in_range = matrix.getSourcesInRange(8, 1)
 
         assert sources_in_range == {21: [],
-                                    20: [b"C"]}
+                                    20: ["C"]}
 
         values_by_source_A = matrix.getValuesBySource("A", True)
 
@@ -452,11 +452,11 @@ class TestClass():
 
         values_by_dest_21 = matrix.getValuesByDest(21, False)
 
-        assert values_by_dest_21 == [(b"A", 18), (b"B", 19), (b"C", 12)]
+        assert values_by_dest_21 == [("A", 18), ("B", 19), ("C", 12)]
 
         values_by_dest_20 = matrix.getValuesByDest(20, True)
 
-        assert values_by_dest_20 == [(b"C", 5), (b"A", 11), (b"B", 12)]
+        assert values_by_dest_20 == [("C", 5), ("A", 11), ("B", 12)]
 
         time_to_nearest = matrix.timeToNearestDest("C")
 
@@ -519,22 +519,22 @@ class TestClass():
 
         dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {10: [b"A"],
-                                  11: [b"A"],
-                                  12: [b"A", b"B"]}
+        assert dests_in_range == {10: ["A"],
+                                  11: ["A"],
+                                  12: ["A", "B"]}
 
         sources_in_range = matrix.getSourcesInRange(8, 1)
 
-        assert sources_in_range == {b"A": [12],
-                                    b"B": []}
+        assert sources_in_range == {"A": [12],
+                                    "B": []}
 
         values_by_source_10 = matrix.getValuesBySource(10, True)
 
-        assert values_by_source_10 == [(b"A", 11), (b"B", 18)]
+        assert values_by_source_10 == [("A", 11), ("B", 18)]
 
         values_by_source_11 = matrix.getValuesBySource(11, False)
 
-        assert values_by_source_11 == [(b"A", 12), (b"B", 19)]
+        assert values_by_source_11 == [("A", 12), ("B", 19)]
 
         values_by_dest_A = matrix.getValuesByDest("A", False)
 
@@ -592,22 +592,22 @@ class TestClass():
 
         dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {10: [b"A"],
-                                  11: [b"A"],
-                                  12: [b"A", b"B"]}
+        assert dests_in_range == {10: ["A"],
+                                  11: ["A"],
+                                  12: ["A", "B"]}
 
         sources_in_range = matrix.getSourcesInRange(8, 1)
 
-        assert sources_in_range == {b"A": [12],
-                                    b"B": []}
+        assert sources_in_range == {"A": [12],
+                                    "B": []}
 
         values_by_source_10 = matrix.getValuesBySource(10, True)
 
-        assert values_by_source_10 == [(b"A", 11), (b"B", 18)]
+        assert values_by_source_10 == [("A", 11), ("B", 18)]
 
         values_by_source_11 = matrix.getValuesBySource(11, False)
 
-        assert values_by_source_11 == [(b"A", 12), (b"B", 19)]
+        assert values_by_source_11 == [("A", 12), ("B", 19)]
 
         values_by_dest_A = matrix.getValuesByDest("A", False)
 
@@ -677,30 +677,30 @@ class TestClass():
 
         dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {b"A": [b"dest_A"],
-                                  b"B": [b"dest_A"],
-                                  b"C": [b"dest_A", b"dest_B"]}
+        assert dests_in_range == {"A": ["dest_A"],
+                                  "B": ["dest_A"],
+                                  "C": ["dest_A", "dest_B"]}
 
         sources_in_range = matrix.getSourcesInRange(8, 1)
 
-        assert sources_in_range == {b"dest_A": [b"C"],
-                                    b"dest_B": []}
+        assert sources_in_range == {"dest_A": ["C"],
+                                    "dest_B": []}
 
         values_by_source_A = matrix.getValuesBySource("A", True)
 
-        assert values_by_source_A == [(b"dest_A", 11), (b"dest_B", 18)]
+        assert values_by_source_A == [("dest_A", 11), ("dest_B", 18)]
 
         values_by_source_B = matrix.getValuesBySource("B", False)
 
-        assert values_by_source_B == [(b"dest_A", 12), (b"dest_B", 19)]
+        assert values_by_source_B == [("dest_A", 12), ("dest_B", 19)]
 
         values_by_dest_A = matrix.getValuesByDest("dest_A", False)
 
-        assert values_by_dest_A == [(b"A", 11), (b"B", 12), (b"C", 5)]
+        assert values_by_dest_A == [("A", 11), ("B", 12), ("C", 5)]
 
         values_by_dest_B = matrix.getValuesByDest("dest_B", True)
 
-        assert values_by_dest_B == [(b"C", 12), (b"A", 18), (b"B", 19)]
+        assert values_by_dest_B == [("C", 12), ("A", 18), ("B", 19)]
 
         time_to_nearest = matrix.timeToNearestDest("C")
 
@@ -750,30 +750,30 @@ class TestClass():
 
         dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {b"A": [b"dest_A"],
-                                  b"B": [b"dest_A"],
-                                  b"C": [b"dest_A", b"dest_B"]}
+        assert dests_in_range == {"A": ["dest_A"],
+                                  "B": ["dest_A"],
+                                  "C": ["dest_A", "dest_B"]}
 
         sources_in_range = matrix.getSourcesInRange(8, 1)
 
-        assert sources_in_range == {b"dest_A": [b"C"],
-                                    b"dest_B": []}
+        assert sources_in_range == {"dest_A": ["C"],
+                                    "dest_B": []}
 
         values_by_source_A = matrix.getValuesBySource("A", True)
 
-        assert values_by_source_A == [(b"dest_A", 11), (b"dest_B", 18)]
+        assert values_by_source_A == [("dest_A", 11), ("dest_B", 18)]
 
         values_by_source_B = matrix.getValuesBySource("B", False)
 
-        assert values_by_source_B == [(b"dest_A", 12), (b"dest_B", 19)]
+        assert values_by_source_B == [("dest_A", 12), ("dest_B", 19)]
 
         values_by_dest_A = matrix.getValuesByDest("dest_A", False)
 
-        assert values_by_dest_A == [(b"A", 11), (b"B", 12), (b"C", 5)]
+        assert values_by_dest_A == [("A", 11), ("B", 12), ("C", 5)]
 
         values_by_dest_B = matrix.getValuesByDest("dest_B", True)
 
-        assert values_by_dest_B == [(b"C", 12), (b"A", 18), (b"B", 19)]
+        assert values_by_dest_B == [("C", 12), ("A", 18), ("B", 19)]
 
         time_to_nearest = matrix.timeToNearestDest("C")
 

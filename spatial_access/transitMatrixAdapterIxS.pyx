@@ -78,7 +78,10 @@ cdef class pyTransitMatrix:
 
     def getValuesBySource(self, source_id, sort):
         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id, sort)
-        return cpp_result
+        rv = []
+        for a, b in cpp_result:
+            rv.append((a.decode(), b))
+        return rv
 
     def getValuesByDest(self, dest_id, sort):
         cdef string dest_id_string = str.encode(dest_id)

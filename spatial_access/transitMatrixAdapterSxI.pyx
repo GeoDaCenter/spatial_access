@@ -63,11 +63,20 @@ cdef class pyTransitMatrix:
 
     def getDestsInRange(self, range_, numThreads):
         cdef unordered_map[string, vector[ulong]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
-        return py_res
+        rv = {}
+        for key, value in py_res:
+            rv[key.decode()] = value
+        return rv
 
     def getSourcesInRange(self, range_, numThreads):
         cdef unordered_map[ulong, vector[string]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
-        return py_res
+        rv = {}
+        for key, value in py_res:
+            key_rv = []
+            for element in value:
+                key_rv.append(element.decode())
+            rv[key] = key_rv
+        return rv
 
     def getValuesBySource(self, source_id, sort):
         cdef string source_id_string = str.encode(source_id)
@@ -75,7 +84,10 @@ cdef class pyTransitMatrix:
 
     def getValuesByDest(self, dest_id, sort):
         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesByDest(dest_id, sort)
-        return cpp_result
+        rv = []
+        for a, b in cpp_result:
+            rv.append((a.decode(), b))
+        return rv
 
     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
         cdef string source_id_string = str.encode(source_id)

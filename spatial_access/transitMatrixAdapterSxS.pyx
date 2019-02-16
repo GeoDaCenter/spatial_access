@@ -65,21 +65,40 @@ cdef class pyTransitMatrix:
 
     def getDestsInRange(self, range_, numThreads):
         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
-        return py_res
+        rv = {}
+        for key, value in py_res:
+            rv_key = []
+            for element in value:
+                rv_key.append(element.decode())
+            rv[key.decode()] = rv_key
+        return rv
+
 
     def getSourcesInRange(self, range_, numThreads):
         cdef unordered_map[string, vector[string]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
-        return py_res
+        rv = {}
+        for key, value in py_res:
+            rv_key = []
+            for element in value:
+                rv_key.append(element.decode())
+            rv[key.decode()] = rv_key
+        return rv
 
     def getValuesBySource(self, source_id, sort):
         cdef string source_id_string = str.encode(source_id)
         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id_string, sort)
-        return cpp_result
+        rv = []
+        for a, b in cpp_result:
+            rv.append((a.decode(), b))
+        return rv
 
     def getValuesByDest(self, dest_id, sort):
         cdef string dest_id_string = str.encode(dest_id)
         cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesByDest(dest_id_string, sort)
-        return cpp_result
+        rv = []
+        for a, b in cpp_result:
+            rv.append((a.decode(), b))
+        return rv
 
     def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
         cdef string source_id_string = str.encode(source_id)
