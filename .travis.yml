@@ -17,6 +17,7 @@ before install:
 
 install:
 - pip3 install cython
+- pip3 install osmnet
 - cython --cplus spatial_access/*.pyx
 - python3 setup.py sdist build_ext
 - python3 setup.py install
