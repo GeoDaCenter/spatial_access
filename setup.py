@@ -63,6 +63,14 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
 
 REQUIRED_DEPENDENCIES += extra_dependency
 
+SUBMODULE_NAMES = ['spatial_access.p2p',
+                   'spatial_access.ScoreModel',
+                   'spatial_access.CommunityAnalytics',
+                   'spatial_access.ConfigInterface',
+                   'spatial_access.NetworkInterface',
+                   'spatial_access.MatrixInterface',
+'spatial_access.SpatialAccessExceptions']
+
 setup(
     name = 'spatial_access',
     author = 'Logan Noel (lmnoel)',
@@ -70,7 +78,7 @@ setup(
     author_email='lnoel@uchicago.edu',
     version='0.1.6.4',
     ext_modules=EXTENSION,
-    py_modules='spatial_access',
+    py_modules=SUBMODULE_NAMES,
     install_requires=REQUIRED_DEPENDENCIES,
     long_description=long_description,
     long_description_content_type="text/markdown",
