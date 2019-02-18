@@ -63,8 +63,6 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
 
 REQUIRED_DEPENDENCIES += extra_dependency
 
-
-
 setup(
     name = 'spatial_access',
     author = 'Logan Noel (lmnoel)',
@@ -72,6 +70,7 @@ setup(
     author_email='lnoel@uchicago.edu',
     version='0.1.6.4',
     ext_modules=EXTENSION,
+    py_modules='spatial_access',
     install_requires=REQUIRED_DEPENDENCIES,
     long_description=long_description,
     long_description_content_type="text/markdown",
