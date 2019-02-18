@@ -64,8 +64,8 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
 REQUIRED_DEPENDENCIES += extra_dependency
 
 SUBMODULE_NAMES = ['spatial_access.p2p',
-                   'spatial_access.ScoreModel',
-                   'spatial_access.CommunityAnalytics',
+                   'spatial_access.BaseModel',
+                   'spatial_access.Models',
                    'spatial_access.ConfigInterface',
                    'spatial_access.NetworkInterface',
                    'spatial_access.MatrixInterface',
