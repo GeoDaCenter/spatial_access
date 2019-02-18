@@ -1,6 +1,7 @@
-"""
-Abstract interface for the c++ implementation of a matrix.
-"""
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
+
 import multiprocessing
 import time
 import os

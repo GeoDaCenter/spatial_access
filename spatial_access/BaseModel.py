@@ -1,3 +1,7 @@
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
+
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
@@ -438,7 +442,7 @@ class ModelData(object):
         else:
             return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, category)
 
-    def count_dests_in_range_by_categories(self, source_id, upper_threshold, category):
+    def count_dests_in_range_by_categories(self, source_id, category, upper_threshold):
         """
         Return the count of destinations in range
         of the source id per category
@@ -452,11 +456,25 @@ class ModelData(object):
                                                                          upper_threshold,
                                                                          category)
 
+        # TODO: optimize this method
+    def count_sum_in_range_by_categories(self, source_id, category):
+        """
+        Return the count of destinations in range
+        of the source id per category
+        """
+        running_sum = 0
+        for dest_id in self.get_dests_in_range_of_source(source_id):
+            if self.get_category(dest_id) == category or category == 'all_categories':
+                running_sum += self.get_capacity(dest_id)
+        return running_sum
+
     def _print_data_frame(self):
         """
         Print the transit matrix.
         """
         self._sp_matrix.matrix_interface.print_data_frame()
+
+
 
     def _spatial_join_community_index(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                                       spatial_index='community',  projection='epsg:4326'):
@@ -503,11 +521,14 @@ class ModelData(object):
 
     def build_aggregate(self, model_results, is_source, aggregation_args,
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community',  projection='epsg:4326'):
+                        spatial_index='community',  projection='epsg:4326',
+                        rejoin_coordinates=True):
         """
         Aggregate model results.
         """
-        model_results = self.rejoin_results_with_coordinates(model_results, is_source)
+        if rejoin_coordinates:
+            model_results = self.rejoin_results_with_coordinates(model_results, is_source)
+
         spatial_joined_results = self._spatial_join_community_index(dataframe=model_results,
                                                                     shapefile=shapefile,
                                                                     spatial_index=spatial_index,

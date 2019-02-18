@@ -7,7 +7,7 @@ from libcpp.utility cimport pair
 
 ctypedef unsigned short int value
 ctypedef unsigned long ulong
-cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
+cdef extern from "../src/transitMatrix.cpp" namespace "lmnoel":
 
     cdef cppclass transitMatrix[string, int_label]:
         ctypedef unsigned long int int_label

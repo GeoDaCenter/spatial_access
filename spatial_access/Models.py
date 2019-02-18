@@ -1,5 +1,9 @@
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
+
 import pandas as pd
-from spatial_access.ScoreModel import ModelData
+from spatial_access.BaseModel import ModelData
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
@@ -43,9 +47,9 @@ def logit_decay_function(time, upper):
         return 1-(1/(math.exp((upper/180)-(.48/60)*time)+1))
 
 
-class DestFloatingCatchmentArea:
+class Coverage:
     """
-    Build DestFloatingCatchmentArea which captures
+    Build Coverage which captures
     the level of spending for low income residents in
     urban environments.
     """
@@ -147,9 +151,90 @@ class DestFloatingCatchmentArea:
                                         spatial_index=spatial_index)
 
 
-class TwoStageFloatingCatchmentArea:
+class DestSum:
     """
-    Build the TwoStageFloatingCatchmentArea which quantifies
+    Build DestSum which captures the capacity
+    and capacity per capita of providers in a
+    community area.
+    """
+
+    def __init__(self, network_type, sources_filename=None, source_column_names=None,
+                 destinations_filename=None, dest_column_names=None,
+                 categories=None):
+
+        self.model_data = ModelData(network_type=network_type,
+                                    sources_filename=sources_filename,
+                                    destinations_filename=destinations_filename,
+                                    source_column_names=source_column_names,
+                                    dest_column_names=dest_column_names)
+        self.model_data.reload_sources(sources_filename)
+        self.model_data.reload_dests(destinations_filename)
+
+        self.aggregated_results = None
+        self.categories = categories
+        if self.categories is not None:
+            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
+            if len(unrecognized_categories) > 0:
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
+        else:
+            self.categories = ['all_categories']
+
+    def calculate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
+        """
+        Calculate the capacity/capacity per capita of providers in spatial areas.
+        """
+
+        dests_copy = self.model_data.dests.copy(deep=True)
+
+        capacity_col = dests_copy.columns.get_loc('capacity') + 1
+        category_col = dests_copy.columns.get_loc('category') + 1
+        for row in dests_copy.itertuples():
+            dests_copy.loc[row[0], row[category_col]] = row[capacity_col]
+            dests_copy.loc[row[0], 'all_categories'] = row[capacity_col]
+        dest_aggregation_args = {key:'sum' for key in set(dests_copy['category'])}
+        dest_aggregation_args['all_categories'] = 'sum'
+        dests_copy.fillna(value=0, inplace=True)
+        aggregated_dests = self.model_data.build_aggregate(dests_copy,
+                                                           shapefile=shapefile,
+                                                           rejoin_coordinates=False,
+                                                           aggregation_args=dest_aggregation_args,
+                                                           is_source=False)
+
+        aggregated_sources = self.model_data.build_aggregate(self.model_data.sources,
+                                                           shapefile=shapefile,
+                                                           rejoin_coordinates=False,
+                                                           aggregation_args={'population': 'sum'},
+                                                           is_source=True)
+
+        for column in aggregated_dests.columns:
+            aggregated_dests[column + '_per_capita'] = aggregated_dests[column] / aggregated_sources['population']
+        self.aggregated_results = aggregated_dests
+        return self.aggregated_results
+
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
+        """
+        Plot choropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)
+
+
+class TSFCA:
+    """
+    Build the TSFCA which quantifies
     the per-resident spending for given categories.
     """
 
@@ -405,18 +490,15 @@ class AccessCount:
             self.categories = ['all_categories']
 
     def calculate(self, upper_threshold):
-        """
-        Calculate the closest destination for each source per category.
-        """
-
         results = {}
         column_names = ['count_in_range_' + category for category in self.categories]
+        self.model_data.calculate_dests_in_range(upper_threshold)
         for source_id in self.model_data.get_all_source_ids():
             results[source_id] = []
             for category in self.categories:
-                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id,
-                                                                                    upper_threshold,
-                                                                                    category)
+                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id=source_id,
+                                                                                category=category,
+                                                                                    upper_threshold=upper_threshold)
                 results[source_id].append(count_in_range)
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
@@ -450,6 +532,104 @@ class AccessCount:
         """
         self.model_data.plot_cdf(model_results=self.model_results,
                                  plot_type='count_in_range',
+                                 xlabel=xlabel,
+                                 ylabel=ylabel,
+                                 title=title,
+                                 is_source=True)
+
+    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community'):
+        """
+        Plot choropleth of results
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.categories
+        else:
+            categories = None
+        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
+                                        column=column,
+                                        title=title,
+                                        color_map=color_map,
+                                        categories=categories,
+                                        shapefile=shapefile,
+                                        spatial_index=spatial_index)
+
+
+class AccessSum:
+    """
+    Measures the capacity of providers in range
+    for each source per category.
+    """
+
+    def __init__(self, network_type, sources_filename=None, source_column_names=None,
+                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 categories=None):
+
+        self.model_data = ModelData(network_type=network_type,
+                                    sources_filename=sources_filename,
+                                    destinations_filename=destinations_filename,
+                                    source_column_names=source_column_names,
+                                    dest_column_names=dest_column_names)
+
+        self.model_data.load_sp_matrix(sp_matrix_filename)
+        self.model_results = None
+        self.aggregated_results = None
+        self.categories = categories
+        if self.categories is not None:
+            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
+            if len(unrecognized_categories) > 0:
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
+            # Add category->dest_id map to sp matrix
+            self.model_data.map_categories_to_sp_matrix()
+        else:
+            self.categories = ['all_categories']
+
+    def calculate(self, upper_threshold):
+
+        results = {}
+        column_names = ['sum_in_range_' + category for category in self.categories]
+        self.model_data.calculate_dests_in_range(upper_threshold)
+        for source_id in self.model_data.get_all_source_ids():
+            results[source_id] = []
+            for category in self.categories:
+                sum_in_range = self.model_data.count_sum_in_range_by_categories(source_id,
+                                                                                    category)
+                results[source_id].append(sum_in_range)
+
+        self.model_results = pd.DataFrame.from_dict(results, orient='index',
+                                                    columns=column_names)
+
+        return self.model_results
+
+    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                  spatial_index='community', projection='epsg:4326', output_filename=None):
+        """
+        Aggregate results by community area
+        """
+        aggregation_args = {}
+        for column in self.model_results.columns:
+            aggregation_args[column] = 'mean'
+
+        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
+                                                                  is_source=True,
+                                                                  aggregation_args=aggregation_args,
+                                                                  shapefile=shapefile,
+                                                                  spatial_index=spatial_index,
+                                                                  projection=projection)
+        if output_filename:
+            self.model_data.write_aggregated_results(self.aggregated_results,
+                                                     output_filename=output_filename)
+        return self.aggregated_results
+
+    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
+        """
+        Plot cdf of results
+        """
+        self.model_data.plot_cdf(model_results=self.model_results,
+                                 plot_type='sum_in_range',
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,

@@ -4,8 +4,6 @@ import transitMatrixAdapterSxI
 import transitMatrixAdapterIxS
 import transitMatrixAdapterSxS
 
-# TODO parse bytes to strings in all adapted classes and update tests in this to reflect it
-
 class TestClass():
 
     def setup_class(self):

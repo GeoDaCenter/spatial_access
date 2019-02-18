@@ -1,7 +1,7 @@
-"""
-An interface for a network query to OSM. Caches results and
-returns the local resources if available.
-"""
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
+
 # pylint: skip-file
 
 import os
