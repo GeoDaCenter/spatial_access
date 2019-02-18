@@ -1,11 +1,9 @@
-# pylint disable=invalid-name
-"""
-Program to calculate the network time between every point in a set, hence: "p2p".
-Written by Logan Noel for the Center for Spatial Data Science, 2018.
-(runs in O(Elog(V)) time)
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
 
-Data credits: www.openstreetmap.org
-"""
+# pylint disable=invalid-name
+
 import time
 import logging
 import os

@@ -1,4 +1,3 @@
-recursive-include spatial_access/src
-include spatial_access/src/*
+recursive-include spatial_access/
 include setup.py
 include README.md

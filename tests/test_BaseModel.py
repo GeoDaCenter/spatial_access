@@ -1,6 +1,6 @@
 # pylint: skip-file
 
-from spatial_access.ScoreModel import ModelData
+from spatial_access.BaseModel import ModelData
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
 from spatial_access.SpatialAccessExceptions import DestDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceDataNotParsableException

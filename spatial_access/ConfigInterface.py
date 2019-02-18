@@ -1,8 +1,6 @@
-"""
-Abstracts the network parameter configurations.
-"""
-
-import json
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
 
 # pylint: disable=invalid-name, too-many-instance-attributes
 class ConfigInterface():
@@ -10,7 +8,7 @@ class ConfigInterface():
     A utility class to abstract the network parameter
     configurations.
     """
-    filename = 'spatial_access/p2p_parameters.json'
+
     def __init__(self, network_type, logger=None):
         self.network_type = network_type
         self.logger = logger

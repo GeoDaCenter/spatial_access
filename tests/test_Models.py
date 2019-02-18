@@ -1,9 +1,11 @@
 # pylint: skip-file
-from spatial_access.CommunityAnalytics import DestFloatingCatchmentArea
-from spatial_access.CommunityAnalytics import TwoStageFloatingCatchmentArea
-from spatial_access.CommunityAnalytics import AccessTime
-from spatial_access.CommunityAnalytics import AccessCount
-from spatial_access.CommunityAnalytics import AccessModel
+from spatial_access.Models import Coverage
+from spatial_access.Models import TSFCA
+from spatial_access.Models import AccessTime
+from spatial_access.Models import AccessCount
+from spatial_access.Models import AccessModel
+from spatial_access.Models import AccessSum
+from spatial_access.Models import DestSum
 from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
@@ -29,15 +31,15 @@ class TestClass:
 
     def test_01(self):
         """
-        Test the DestFloatingCatchmentArea model through instantiation and
+        Test the Coverage model through instantiation and
         calculate.
         """
-        coverage_model = DestFloatingCatchmentArea('drive',
-                                                   sources_filename='tests/test_data/sources_a.csv',
-                                                   destinations_filename='tests/test_data/dests_b.csv',
-                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        coverage_model = Coverage('drive',
+                                  sources_filename='tests/test_data/sources_a.csv',
+                                  destinations_filename='tests/test_data/dests_b.csv',
+                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                         'population': 'pop'},
-                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'})
         coverage_model.calculate(100)
 
@@ -69,14 +71,14 @@ class TestClass:
         which are not present in the data
         """
         try:
-            coverage_model = DestFloatingCatchmentArea('drive',
-                                                       sources_filename='tests/test_data/sources.csv',
-                                                       destinations_filename='tests/test_data/dests.csv',
-                                                       source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+            coverage_model = Coverage('drive',
+                                      sources_filename='tests/test_data/sources.csv',
+                                      destinations_filename='tests/test_data/dests.csv',
+                                      source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                             'population': 'pop'},
-                                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                           'capacity': 'capacity', 'category': 'cat'},
-                                                       categories=['A', 'C'])
+                                      categories=['A', 'C'])
             coverage_model.calculate(600)
         except UnrecognizedCategoriesException:
             assert True
@@ -88,14 +90,14 @@ class TestClass:
         Test the DestFloatingCatchmentAreaModel through instantiation and
         calculate, with categories specified.
         """
-        coverage_model = DestFloatingCatchmentArea('drive',
-                                                   sources_filename='tests/test_data/sources_a.csv',
-                                                   destinations_filename='tests/test_data/dests_b.csv',
-                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        coverage_model = Coverage('drive',
+                                  sources_filename='tests/test_data/sources_a.csv',
+                                  destinations_filename='tests/test_data/dests_b.csv',
+                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                         'population': 'pop'},
-                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'},
-                                                   categories=['A', 'C'])
+                                  categories=['A', 'C'])
         coverage_model.calculate(600)
 
 
@@ -107,15 +109,15 @@ class TestClass:
 
     def test_4(self):
         """
-        Test TwoStageFloatingCatchmentArea through instantiation and
+        Test TSFCA through instantiation and
         calculate.
         """
-        accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                                        sources_filename='tests/test_data/sources_a.csv',
-                                                        destinations_filename='tests/test_data/dests_b.csv',
-                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        accesspop_model = TSFCA('drive',
+                                sources_filename='tests/test_data/sources_a.csv',
+                                destinations_filename='tests/test_data/dests_b.csv',
+                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                              'population': 'pop'},
-                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'})
         accesspop_model.calculate(100)
 
@@ -140,15 +142,15 @@ class TestClass:
         which are not present in the data
         """
         try:
-            accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                                            sources_filename='tests/test_data/sources.csv',
-                                                            destinations_filename='tests/test_data/dests.csv',
-                                                            source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+            accesspop_model = TSFCA('drive',
+                                    sources_filename='tests/test_data/sources.csv',
+                                    destinations_filename='tests/test_data/dests.csv',
+                                    source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                                  'population': 'pop'},
-                                                            dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                                'capacity': 'capacity',
                                                                                'category': 'cat'},
-                                                            categories=['A', 'E'])
+                                    categories=['A', 'E'])
             accesspop_model.calculate(600)
         except UnrecognizedCategoriesException:
             assert True
@@ -157,18 +159,18 @@ class TestClass:
 
     def test_6(self):
         """
-        Test TwoStageFloatingCatchmentArea through instantiation and
+        Test TSFCA through instantiation and
         calculate, with categories specified.
         """
         categories = ['A', 'C']
-        accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                                        sources_filename='tests/test_data/sources_a.csv',
-                                                        destinations_filename='tests/test_data/dests_b.csv',
-                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        accesspop_model = TSFCA('drive',
+                                sources_filename='tests/test_data/sources_a.csv',
+                                destinations_filename='tests/test_data/dests_b.csv',
+                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                              'population': 'pop'},
-                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
-                                                        categories=categories)
+                                categories=categories)
         accesspop_model.calculate(100)
 
         assert len(accesspop_model.model_results.columns) == len(categories)
@@ -483,14 +485,14 @@ class TestClass:
         """
         Test the DestFloatingCatchmentAreaModel aggregation.
         """
-        coverage_model = DestFloatingCatchmentArea('drive',
-                                                   sources_filename='tests/test_data/sources_a.csv',
-                                                   destinations_filename='tests/test_data/dests_b.csv',
-                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        coverage_model = Coverage('drive',
+                                  sources_filename='tests/test_data/sources_a.csv',
+                                  destinations_filename='tests/test_data/dests_b.csv',
+                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                         'population': 'pop'},
-                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'},
-                                                   categories=['A','C'])
+                                  categories=['A','C'])
         coverage_model.calculate(600)
 
         aggregate_df = coverage_model.aggregate(output_filename=self.datapath + 'test_19.json')
@@ -504,17 +506,17 @@ class TestClass:
 
     def test_20(self):
         """
-        Test TwoStageFloatingCatchmentArea aggregation.
+        Test TSFCA aggregation.
         """
         categories = ['A', 'C']
-        accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                                        sources_filename='tests/test_data/sources_a.csv',
-                                                        destinations_filename='tests/test_data/dests_b.csv',
-                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        accesspop_model = TSFCA('drive',
+                                sources_filename='tests/test_data/sources_a.csv',
+                                destinations_filename='tests/test_data/dests_b.csv',
+                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                              'population': 'pop'},
-                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
-                                                        categories=categories)
+                                categories=categories)
         accesspop_model.calculate(600)
         accesspop_model.aggregate()
         accesspop_model.plot_cdf('percap_spend')
@@ -590,12 +592,12 @@ class TestClass:
         """
         Test get_results method
         """
-        coverage_model = DestFloatingCatchmentArea('drive',
-                                                   sources_filename='tests/test_data/sources_a.csv',
-                                                   destinations_filename='tests/test_data/dests_b.csv',
-                                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        coverage_model = Coverage('drive',
+                                  sources_filename='tests/test_data/sources_a.csv',
+                                  destinations_filename='tests/test_data/dests_b.csv',
+                                  source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                         'population': 'pop'},
-                                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                  dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'})
         results = coverage_model.calculate(100)
 
@@ -612,14 +614,14 @@ class TestClass:
         Test get_results
         """
         categories = ['A', 'C']
-        accesspop_model = TwoStageFloatingCatchmentArea('drive',
-                                                        sources_filename='tests/test_data/sources_a.csv',
-                                                        destinations_filename='tests/test_data/dests_b.csv',
-                                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+        accesspop_model = TSFCA('drive',
+                                sources_filename='tests/test_data/sources_a.csv',
+                                destinations_filename='tests/test_data/dests_b.csv',
+                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                              'population': 'pop'},
-                                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
-                                                        categories=categories)
+                                categories=categories)
         results = accesspop_model.calculate(200)
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
@@ -677,3 +679,68 @@ class TestClass:
         results = accesscount_model.calculate(200)
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
+
+    def test_29(self):
+        """
+        Test AccessSum calculate and aggregate
+        """
+
+        categories = ['A', 'D']
+        access_sum_model = AccessSum('drive',
+                                     sources_filename='tests/test_data/sources_a.csv',
+                                     destinations_filename='tests/test_data/dests_b.csv',
+                                     source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'population': 'pop'},
+                                     dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'capacity': 'capacity', 'category': 'cat'},
+                                     categories=categories)
+        access_sum_model.calculate(100)
+
+        access_sum_model.aggregate()
+
+        access_sum_model.plot_cdf()
+
+        access_sum_model.plot_choropleth(column='sum_in_range_A')
+
+        assert list(access_sum_model.aggregated_results.columns.values) == ['sum_in_range_A', 'sum_in_range_D']
+        assert access_sum_model.model_results.loc[3]['sum_in_range_A'] == 978
+        assert access_sum_model.model_results.loc[4]['sum_in_range_A'] == 978
+        assert access_sum_model.model_results.loc[5]['sum_in_range_A'] == 346
+        assert access_sum_model.model_results.loc[6]['sum_in_range_A'] == 346
+        assert access_sum_model.model_results.loc[7]['sum_in_range_A'] == 346
+        assert access_sum_model.model_results.loc[8]['sum_in_range_A'] == 346
+
+        assert access_sum_model.model_results.loc[3]['sum_in_range_D'] == 46
+        assert access_sum_model.model_results.loc[4]['sum_in_range_D'] == 46
+        assert access_sum_model.model_results.loc[5]['sum_in_range_D'] == 0
+        assert access_sum_model.model_results.loc[6]['sum_in_range_D'] == 0
+        assert access_sum_model.model_results.loc[7]['sum_in_range_D'] == 0
+        assert access_sum_model.model_results.loc[8]['sum_in_range_D'] == 0
+
+    def test_30(self):
+        """
+        Test DestSum calculation and aggregation.
+        """
+
+        dest_sum_model = DestSum('drive',
+                                   sources_filename='tests/test_data/sources_a.csv',
+                                   destinations_filename='tests/test_data/dests_b.csv',
+                                   source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'population': 'pop'},
+                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                      'capacity': 'capacity', 'category': 'cat'})
+        model_results = dest_sum_model.calculate()
+        dest_sum_model.plot_choropleth(column='A_per_capita')
+        assert model_results.loc["HYDE PARK", 'A'] == 978.0
+        assert model_results.loc["HYDE PARK", 'D'] == 46.0
+        assert model_results.loc["HYDE PARK", 'C'] == 572.0
+        assert model_results.loc["HYDE PARK", 'all_categories'] == 1596.0
+        assert model_results.loc["HYDE PARK", 'A_per_capita'] <=2.0853
+        assert model_results.loc["HYDE PARK", 'A_per_capita'] >= 2.0852
+        assert model_results.loc["HYDE PARK", 'D_per_capita'] <= 0.099
+        assert model_results.loc["HYDE PARK", 'D_per_capita'] >= 0.098
+        assert model_results.loc["HYDE PARK", 'C_per_capita'] <= 1.2197
+        assert model_results.loc["HYDE PARK", 'C_per_capita'] >= 1.2196
+        assert model_results.loc["HYDE PARK", 'all_categories_per_capita'] <= 3.403
+        assert model_results.loc["HYDE PARK", 'all_categories_per_capita'] >= 3.402
+

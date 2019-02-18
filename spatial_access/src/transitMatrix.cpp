@@ -1,3 +1,7 @@
+// Logan Noel (github.com/lmnoel)
+//
+// ©2017-2019, Center for Spatial Data Science
+
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>

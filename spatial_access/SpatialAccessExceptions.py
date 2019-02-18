@@ -1,3 +1,7 @@
+# Logan Noel (github.com/lmnoel)
+#
+# ©2017-2019, Center for Spatial Data Science
+
 class SpatialAccessException(Exception):
     def __init__(self, errors=''):
         super().__init__("SpatialAccessException:" + errors)

@@ -13,28 +13,28 @@ if sys.platform == "darwin":
 
 EXTENSION = [Extension(
     name = 'transitMatrixAdapterSxS', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterSxS.cpp'],
+    sources = ['spatial_access/adapters/transitMatrixAdapterSxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxI', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterIxI.cpp'],
+    sources = ['spatial_access/adapters/transitMatrixAdapterIxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterSxI', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterSxI.cpp'],
+    sources = ['spatial_access/adapters/transitMatrixAdapterSxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxS', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterIxS.cpp'],
+    sources = ['spatial_access/adapters/transitMatrixAdapterIxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
@@ -63,23 +63,16 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
 
 REQUIRED_DEPENDENCIES += extra_dependency
 
-SUBMODULE_NAMES = ['spatial_access.p2p',
-                   'spatial_access.ScoreModel',
-                   'spatial_access.CommunityAnalytics',
-                   'spatial_access.ConfigInterface',
-                   'spatial_access.NetworkInterface',
-                   'spatial_access.MatrixInterface',
-                   'spatial_access.SpatialAccessExceptions']
+
 
 setup(
     name = 'spatial_access',
     author = 'Logan Noel (lmnoel)',
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version='0.1.6.3',
+    version='0.1.6.4',
     ext_modules=EXTENSION,
     install_requires=REQUIRED_DEPENDENCIES,
-    py_modules=SUBMODULE_NAMES,
     long_description=long_description,
     long_description_content_type="text/markdown",
     license="GPL"
