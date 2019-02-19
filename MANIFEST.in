@@ -1,5 +1,4 @@
 include setup.py
 include README.md
 include spatial_access/*
-include spatial_access/adapters/*
 include spatial_access/src/*
