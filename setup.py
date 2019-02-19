@@ -72,9 +72,7 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
 'spatial_access.SpatialAccessExceptions']
 
 DESCRIPTION = '''
-Compute travel times and spatial access measures at scale (millions of origin-destination pairs in minutes). 
-Travel times for three modes: walking, biking, driving. 
-Spatial access measures:  provider-to-people ratio, avg. time to nearest provider, count/attribute sum of nearby providers, weighted access scores and floating catchment areas.
+Compute travel times and spatial access measures at scale (millions of origin-destination pairs in minutes). Travel times for three modes: walking, biking, driving. Spatial access measures:  provider-to-people ratio, avg. time to nearest provider, count/attribute sum of nearby providers, weighted access scores and floating catchment areas.
 '''
 
 setup(
@@ -82,7 +80,7 @@ setup(
     author = 'Logan Noel (lmnoel)',
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version='0.1.6.7',
+    version='0.1.6.8',
     ext_modules=EXTENSION,
     py_modules=SUBMODULE_NAMES,
     install_requires=REQUIRED_DEPENDENCIES,
