@@ -13,28 +13,28 @@ if sys.platform == "darwin":
 
 EXTENSION = [Extension(
     name = 'transitMatrixAdapterSxS', language = 'c++',
-    sources = ['spatial_access/adapters/transitMatrixAdapterSxS.cpp'],
+    sources = ['spatial_access/transitMatrixAdapterSxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxI', language = 'c++',
-    sources = ['spatial_access/adapters/transitMatrixAdapterIxI.cpp'],
+    sources = ['spatial_access/transitMatrixAdapterIxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterSxI', language = 'c++',
-    sources = ['spatial_access/adapters/transitMatrixAdapterSxI.cpp'],
+    sources = ['spatial_access/transitMatrixAdapterSxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxS', language = 'c++',
-    sources = ['spatial_access/adapters/transitMatrixAdapterIxS.cpp'],
+    sources = ['spatial_access/transitMatrixAdapterIxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
@@ -76,7 +76,7 @@ setup(
     author = 'Logan Noel (lmnoel)',
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version='0.1.6.4',
+    version='0.1.6.5',
     ext_modules=EXTENSION,
     py_modules=SUBMODULE_NAMES,
     install_requires=REQUIRED_DEPENDENCIES,

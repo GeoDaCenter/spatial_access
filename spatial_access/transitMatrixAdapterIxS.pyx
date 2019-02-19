@@ -5,43 +5,43 @@ from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
 from libcpp.utility cimport pair
 
-ctypedef unsigned short int matrix
-cdef extern from "../src/transitMatrix.cpp" namespace "lmnoel":
+ctypedef unsigned short int value
+ctypedef unsigned long ulong
+cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
 
-    cdef cppclass transitMatrix[int_label, int_label]:
-        ctypedef unsigned short int value
+    cdef cppclass transitMatrix[int_label, string]:
         ctypedef unsigned long int int_label
 
         transitMatrix(bool, unsigned int, unsigned int) except +
 
         void prepareGraphWithVertices(int V) except +
         void addToUserSourceDataContainer(unsigned int, unsigned long, unsigned short int) except +
-        void addToUserDestDataContainer(unsigned int, unsigned long, unsigned short int) except +
+        void addToUserDestDataContainer(unsigned int, string, unsigned short int) except +
         void addEdgeToGraph(int, int, int, bool) except +
-        void addToCategoryMap(unsigned long, string) except +
+        void addToCategoryMap(string, string) except +
 
         void compute(int) except +
-        vector[pair[int_label, value]] getValuesByDest(unsigned long, bool) except +
-        vector[pair[int_label, value]] getValuesBySource(unsigned long, bool) except +
-        unordered_map[int_label, vector[int_label]] getDestsInRange(unsigned int, int) except +
-        unordered_map[int_label, vector[int_label]] getSourcesInRange(unsigned int, int) except +
+        vector[pair[ulong, value]] getValuesByDest(string, bool) except +
+        vector[pair[string, value]] getValuesBySource(unsigned long, bool) except +
+        unordered_map[ulong, vector[string]] getDestsInRange(unsigned int, int) except +
+        unordered_map[string, vector[ulong]] getSourcesInRange(unsigned int, int) except +
         unsigned short int timeToNearestDestPerCategory(unsigned long, string) except +
         unsigned short int countDestsInRangePerCategory(unsigned long, string, unsigned short int) except +
         unsigned short int timeToNearestDest(unsigned long) except +
         unsigned short int countDestsInRange(unsigned long, unsigned short int) except +
 
 
-        unsigned short int getValueById(unsigned long, unsigned long) except +
+        unsigned short int getValueById(unsigned long, string) except +
         unsigned int getRows() except +
         unsigned int getCols() except +
         bool getIsSymmetric() except +
         vector[vector[value]] getDataset() except +
         vector[unsigned long int] getPrimaryDatasetIds() except+
-        vector[unsigned long int] getSecondaryDatasetIds() except+
+        vector[string] getSecondaryDatasetIds() except+
 
-        void setDataset(vector[vector[matrix]]) except +
+        void setDataset(vector[vector[value]]) except +
         void setPrimaryDatasetIds(vector[unsigned long int]) except +
-        void setSecondaryDatasetIds(vector[unsigned long int]) except +
+        void setSecondaryDatasetIds(vector[string]) except +
 
         bool writeCSV(string) except +
         void printDataFrame() except +
@@ -62,22 +62,37 @@ cdef class pyTransitMatrix:
         self.thisptr.prepareGraphWithVertices(vertices)
 
     def getDestsInRange(self, range_, numThreads):
-        return self.thisptr.getDestsInRange(range_, numThreads)
+        cdef unordered_map[ulong, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
+        rv = {}
+        for key, value in py_res:
+            rv[key] = [item.decode() for item in value]
+        return rv
+
 
     def getSourcesInRange(self, range_, numThreads):
-        return self.thisptr.getSourcesInRange(range_, numThreads)
+        cdef unordered_map[string, vector[ulong]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
+        rv = {}
+        for key, value in py_res:
+            rv[key.decode()] = value
+        return rv
 
     def getValuesBySource(self, source_id, sort):
-        return self.thisptr.getValuesBySource(source_id, sort)
+        cdef vector[pair[string, value]] cpp_result = self.thisptr.getValuesBySource(source_id, sort)
+        rv = []
+        for a, b in cpp_result:
+            rv.append((a.decode(), b))
+        return rv
 
     def getValuesByDest(self, dest_id, sort):
-        return self.thisptr.getValuesByDest(dest_id, sort)
+        cdef string dest_id_string = str.encode(dest_id)
+        return self.thisptr.getValuesByDest(dest_id_string, sort)
 
-    def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):
-        self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance)
+    def addToUserSourceDataContainer(self, networkNodeId, source_id, lastMileDistance):
+        self.thisptr.addToUserSourceDataContainer(networkNodeId, source_id, lastMileDistance)
 
-    def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):
-        self.thisptr.addToUserDestDataContainer(networkNodeId, id_, lastMileDistance)
+    def addToUserDestDataContainer(self, networkNodeId, dest_id, lastMileDistance):
+        cdef string dest_id_string = str.encode(dest_id)
+        self.thisptr.addToUserDestDataContainer(networkNodeId, dest_id_string, lastMileDistance)
 
 
     def addEdgeToGraph(self, src, dst, weight, isBidirectional):
@@ -87,7 +102,8 @@ cdef class pyTransitMatrix:
         self.thisptr.compute(numThreads)
 
     def getValueById(self, source, dest):
-        return self.thisptr.getValueById(source, dest)
+        cdef string dest_string = str.encode(source)
+        return self.thisptr.getValueById(source, dest_string)
 
     def writeCSV(self, outfile):
         cdef string outfile_string = str.encode(outfile)
@@ -98,7 +114,8 @@ cdef class pyTransitMatrix:
 
     def addToCategoryMap(self, dest_id, category):
         cdef string string_category = str.encode(category)
-        self.thisptr.addToCategoryMap(dest_id, string_category)
+        cdef string string_dest_id = str.encode(dest_id)
+        self.thisptr.addToCategoryMap(string_dest_id, string_category)
 
     def timeToNearestDestPerCategory(self, source_id, category):
         cdef string string_category = str.encode(category)
@@ -115,14 +132,17 @@ cdef class pyTransitMatrix:
         return self.thisptr.countDestsInRange(source_id, range)
 
     def setDataset(self, dataset):
-        cdef vector[vector[matrix]] cpp_input = dataset
+        cdef vector[vector[value]] cpp_input = dataset
         self.thisptr.setDataset(cpp_input)
 
     def setPrimaryDatasetIds(self, primaryDatasetIds):
         self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)
 
     def setSecondaryDatasetIds(self, secondaryDatasetIds):
-        self.thisptr.setSecondaryDatasetIds(secondaryDatasetIds)
+        cdef vector[string] cpp_input = []
+        for element in secondaryDatasetIds:
+            cpp_input.push_back(element)
+        self.thisptr.setSecondaryDatasetIds(cpp_input)
 
     def getRows(self):
         return self.thisptr.getRows()
@@ -140,4 +160,5 @@ cdef class pyTransitMatrix:
         return self.thisptr.getPrimaryDatasetIds()
 
     def getSecondaryDatasetIds(self):
-        return self.thisptr.getSecondaryDatasetIds()
+        cdef vector[string] py_result = self.thisptr.getSecondaryDatasetIds()
+        return py_result
