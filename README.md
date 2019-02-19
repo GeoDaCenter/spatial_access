@@ -1,12 +1,14 @@
 
 
 # spatial_access: Compute travel times and spatial access metrics at scale
-
+Compute travel times and spatial access measures at scale (millions of origin-destination pairs in minutes). 
+Travel times for three modes: walking, biking, driving. 
+Spatial access measures: provider-to-people ratio, avg. time to nearest provider, count/attribute sum of nearby providers, weighted access scores and floating catchment areas.
 <table>
 <tr>
   <td>Version</td>
   <td>
-    0.1.6.9
+    0.1.6.10
   </td>
 </tr>    
 <tr>
@@ -26,7 +28,7 @@
 </table>
 
 
-## Components of spatial_access :
+Components of spatial_access :
 ----
 spatial_access has two submodules:
 - p2p: Generate many to many matrices with travel times for sets of coordinates. Use `walk` ,`bike` or `drive` network types (import `transit` from other sources), or get the distance in meters.
@@ -53,7 +55,7 @@ See the iPython notebooks in docs/ for example usage.
 
 - If updating Cython or C++ code (anything in spatial_access/adapters/ or spatial_access/src/)
 you must install cython
-- To regenerate .pyx files, from repository root run: `cython --cplus spatial_access/adapters/*.pyx`
+- To regenerate .pyx files, from repository root run: `cython --cplus spatial_access/*.pyx`
 - To install locally, from repository root run: `sudo python3 setup.py install `
 
 ### PyPi Maintenance
