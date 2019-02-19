@@ -6,7 +6,7 @@
 <tr>
   <td>Version</td>
   <td>
-    0.1.6.4
+    0.1.6.6
   </td>
 </tr>    
 <tr>
@@ -16,13 +16,7 @@
     <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=master" alt="travis build status" />
   </td>
 </tr>
-<tr>
-  <td>Development Build</td>
-  <td>
-    <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
-    <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=0.1.7" alt="travis build status" 
-    </td>
-</tr>
+
 <tr>
   <td>Supported Operating Systems</td>
   <td>

@@ -76,7 +76,7 @@ setup(
     author = 'Logan Noel (lmnoel)',
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version='0.1.6.5',
+    version='0.1.6.6',
     ext_modules=EXTENSION,
     py_modules=SUBMODULE_NAMES,
     install_requires=REQUIRED_DEPENDENCIES,
