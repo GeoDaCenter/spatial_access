@@ -1,6 +1,6 @@
 
 
-# spatial_access: Perform large scale spatial analysis
+# spatial_access: Compute travel times and spatial access metrics at scale
 
 <table>
 <tr>
@@ -29,8 +29,8 @@
 ## Components of spatial_access :
 ----
 spatial_access has two submodules:
-- p2p: Generate many to many matrices with travel times for sets of coordinates. Use `drive`, `walk`, `bike`, or `transit` network types, or get the distance in meters.
-- Models: Contains a suite of models for studying spatial accessibility to amenities.
+- p2p: Generate many to many matrices with travel times for sets of coordinates. Use `walk` ,`bike` or `drive` network types (import `transit` from other sources), or get the distance in meters.
+- Models: Contains a suite of models for calculating spatial accessibility to amenities.
  
 To use this service as a ReST API, see: https://github.com/GeoDaCenter/spatial_access_api 
 
@@ -78,4 +78,10 @@ to generate a new encrypted password.
 
 ### Questions/Feedback?
 
-lnoel@uchicago.edu
+lnoel@uchicago.edu or spatial@uchicago.edu
+
+### Acknowledgments
+
+Developed by Logan Noel at the University of Chicago's Center for Spatial Data Science (CSDS) with support from the Public Health National Center for Innovations (PHNCI), the University of Chicago, and CSDS. 
+
+
