@@ -6,6 +6,9 @@ compiler: clang
 python:
 - '3.6'
 install:
+- pip3 install setuptools>=38.6.0
+- pip3 install wheel>=0.31.0
+- pip3 install twine>=1.11.0
 - sudo apt-get update
 - sudo apt-get install libspatialindex-dev
 - pip3 install cython
