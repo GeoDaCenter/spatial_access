@@ -8,7 +8,7 @@ import time
 import logging
 import os
 import scipy.spatial
-from geopy.distance import vincenty
+from geopy import distance
 import pandas as pd
 
 from spatial_access.MatrixInterface import MatrixInterface
@@ -344,9 +344,9 @@ class TransitMatrix:
 
             # keep track of nodes that are used to snap a user data point
             self._network_interface.user_node_friends.add(node_number)
-            distance = vincenty(origin_location, closest_node_location).m
+            edge_distance = distance.distance(origin_location, closest_node_location).m
 
-            edge_weight = int(distance / self._config_interface.default_edge_cost)
+            edge_weight = int(edge_distance / self._config_interface.default_edge_cost)
 
             if isPrimary:
                 # pylint disable=line-too-long

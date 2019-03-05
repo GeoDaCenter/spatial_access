@@ -8,7 +8,7 @@ Spatial access measures: provider-to-people ratio, avg. time to nearest provider
 <tr>
   <td>Version</td>
   <td>
-    0.1.6.10
+    0.1.6.11
   </td>
 </tr>    
 <tr>
@@ -41,9 +41,21 @@ If you are a Windows user, instructions for installing Ubuntu on a virtual machi
 
 Installation 
 ----
-1. `brew install spatialindex` (MacOS) 
-or `sudo apt-get install libspatialindex-dev` (Ubuntu 16.04+)
-2. `pip3 install spatial_access`
+1. Dependencies 
+
+    - MacOS:
+
+        `brew install spatialindex`
+
+    - Ubuntu:
+
+        `sudo apt-get install libspatialindex-dev`
+    
+        `sudo apt-get install python-tk`
+ 
+2. Package 
+
+    `pip3 install spatial_access`
 
 
 Usage

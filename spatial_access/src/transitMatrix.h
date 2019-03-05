@@ -5,7 +5,7 @@
 #pragma once
 
 #include "threadUtilities.cpp"
-#include "dataFrame.cpp"
+#include "dataFrame.h"
 #include "Graph.cpp"
 #include "userDataContainer.cpp"
 
@@ -36,7 +36,7 @@ public:
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
     Graph graph;
-    int numNodes;
+    unsigned long int numNodes;
 
     // Constructors
     transitMatrix(bool isSymmetric, unsigned long int rows, unsigned long int cols) : df(isSymmetric, rows, cols), numNodes(0) {}
