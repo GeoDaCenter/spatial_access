@@ -6,13 +6,15 @@ Travel times for three modes: walking, biking, driving.
 Spatial access measures: provider-to-people ratio, avg. time to nearest provider, count/attribute sum of nearby providers, weighted access scores and floating catchment areas.
 <table>
 <tr>
-  <td>Version</td>
+  <td>Latest Release</td>
   <td>
-    0.1.6.11
+    <a href="https://pypi.org/project/spatial-access/">
+    <img src="https://img.shields.io/pypi/v/spatial-access.svg" alt="latest release" />
+    </a>
   </td>
 </tr>    
 <tr>
-  <td>Latest Release</td>
+  <td>Build Status</td>
   <td>
     <a href="https://travis-ci.org/GeoDaCenter/spatial_access">
     <img src="https://travis-ci.org/GeoDaCenter/spatial_access.svg?branch=master" alt="travis build status" />
