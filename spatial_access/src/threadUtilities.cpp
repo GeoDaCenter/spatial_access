@@ -12,14 +12,11 @@
 
 /* initialize jobQueue, reserving size for known inputs*/
 
-jobQueue::jobQueue(unsigned long int size) {
-    data.reserve(size);
-}
 
 
 /* insert to the jobQueue */
 void jobQueue::insert(unsigned long int item) {
-    data.insert(data.end(), item);
+    data.push(item);
 }
 
 
@@ -29,7 +26,8 @@ unsigned long int jobQueue::pop(bool &endNow) {
     std::lock_guard<std::mutex> guard(lock);
     if (!data.empty()) {
         res = data.front();
-        data.erase(data.begin());
+        data.pop();
+
     } else {
         endNow = false;
     }

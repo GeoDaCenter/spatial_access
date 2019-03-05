@@ -7,6 +7,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <queue>
 
 #include "Graph.h"
 #include "userDataContainer.h"
@@ -15,10 +16,10 @@
 /* jobQueue: a thread-safe queue for dispensing integer jobs*/
 class jobQueue {
 private:
-    std::vector <unsigned long int> data;
+    std::queue <unsigned long int> data;
     mutable std::mutex lock;
 public:
-    jobQueue(unsigned long int size);
+    jobQueue() = default;
     void insert(unsigned long int item);
     unsigned long int pop(bool &endNow);
     bool empty() const;
@@ -50,7 +51,7 @@ public:
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
                        int numNodes, dataFrame<row_label_type, col_label_type> &df)
-    : graph(graph), df(df), jq(numNodes), userSourceData(userSourceData), userDestData(userDestData),
+    : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData),
      numNodes(numNodes) {}
     void initialize();
 };
