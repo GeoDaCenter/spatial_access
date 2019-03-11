@@ -9,6 +9,7 @@
 #include "Graph.cpp"
 #include "userDataContainer.cpp"
 
+
 #include <mutex>
 
 
@@ -81,6 +82,7 @@ public:
     // IO
     bool writeCSV(const std::string &outfile) const;
     void printDataFrame() const;
+    void writeTMX(const std::string &outfile) const;
 
     // Aliases (for cython bug)
     typedef unsigned short int value;

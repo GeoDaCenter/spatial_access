@@ -421,11 +421,11 @@ namespace lmnoel {
     bool transitMatrix<row_label_type, col_label_type>::writeCSV(const std::string &outfile) const
     {
         try {
-            return this->df.writeCSV(outfile);
+            df.writeTMX(outfile);
         }
         catch (...)
         {
-            throw std::runtime_error("Unable to write csv");
+            throw std::runtime_error("Unable to write tmx");
         }
     }
 

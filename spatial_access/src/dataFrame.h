@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <climits>
+#include "Serializer.h"
 
 #define UNDEFINED (USHRT_MAX)
 
@@ -37,6 +38,10 @@ public:
     std::unordered_map<row_label_type, unsigned long int> rowIdsToLoc;
     std::unordered_map<col_label_type, unsigned long int> colIdsToLoc;
     unsigned long int dataset_size;
+
+    // Specialized Methods
+    void writeTMX(const std::string& filename);
+    void readTMX(const std::string& filename);
 
     // Methods
 
@@ -385,4 +390,10 @@ public:
 
 };
 
+enum MatrixType {
+    IxI,
+    IxS,
+    SxI,
+    SxS
+};
 
