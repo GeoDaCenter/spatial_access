@@ -307,7 +307,7 @@ class TransitMatrix:
         time_delta = time.time() - start_time
         self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
-    def _match_nn(self, isPrimary=True, is_symmetric=False):
+    def _match_nn(self, is_primary=True, is_also_secondary=False):
         """
         Maps each the index of each node in the raw distance
         matrix to a tuple
@@ -317,7 +317,7 @@ class TransitMatrix:
         between the (primary/secondary) source and its nearest OSM node.
         """
 
-        if isPrimary:
+        if is_primary:
             data = self.primary_data
         else:
             data = self.secondary_data
@@ -348,12 +348,17 @@ class TransitMatrix:
 
             edge_weight = int(edge_distance / self._config_interface.default_edge_cost)
 
-            if isPrimary:
+            if is_primary:
                 # pylint disable=line-too-long
-                self.matrix_interface.add_user_source_data(node_loc, origin_id, edge_weight, is_symmetric)
+                self.matrix_interface.add_user_source_data(network_id=node_loc,
+                                                           user_id=origin_id,
+                                                           weight=edge_weight,
+                                                           is_also_dest=is_also_secondary)
             else:
                 # pylint disable=line-too-long
-                self.matrix_interface.add_user_dest_data(node_loc, origin_id, edge_weight)
+                self.matrix_interface.add_user_dest_data(network_id=node_loc,
+                                                         user_id=origin_id,
+                                                         weight=edge_weight)
 
         time_delta = time.time() - start_time
         self.logger.debug(
@@ -413,7 +418,7 @@ class TransitMatrix:
         Process the data.
         """
         if self.network_type == 'transit':
-            self.logger.warning("Don't need to call process for matrix of type transit. Returning...")
+            self.logger.error("Don't need to call process for matrix of type transit. Returning...")
             return
 
         start_time = time.time()
@@ -430,12 +435,14 @@ class TransitMatrix:
             cols = rows
         else:
             cols = len(self.secondary_data)
-        self.matrix_interface.prepare_matrix(is_symmetric, rows, cols,
-                                             self._network_interface.number_of_nodes())
+        self.matrix_interface.prepare_matrix(is_symmetric=is_symmetric, rows=rows, columns=cols,
+                                             network_vertices=self._network_interface.number_of_nodes())
 
-        self._match_nn(True, is_symmetric=is_symmetric)
         if self.secondary_input:
-            self._match_nn(False, is_symmetric=False)
+            self._match_nn(is_primary=True, is_also_secondary=False)
+            self._match_nn(is_primary=False, is_also_secondary=False)
+        else:
+            self._match_nn(is_primary=True, is_also_secondary=True)
 
         self._parse_network()
 

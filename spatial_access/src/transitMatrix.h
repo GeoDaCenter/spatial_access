@@ -14,7 +14,7 @@
 
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
-void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, int src);
+void calculateRow(const std::vector<int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned long int src);
 
 
 /* Calulates distances of shortest paths from src to all*/

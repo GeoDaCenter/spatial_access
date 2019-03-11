@@ -148,7 +148,7 @@ class MatrixInterface:
 
         return no_cores
 
-    def add_user_source_data(self, network_id, user_id, distance, is_symmetric):
+    def add_user_source_data(self, network_id, user_id, weight, is_also_dest):
         """
         Add the user's source data point to the pyTransitMatrix.
         """
@@ -156,11 +156,11 @@ class MatrixInterface:
             raise InvalidIdTypeException("source_id was declared to be string, but recieved {}".format(type(user_id)))
         if not self.primary_ids_are_string and not isinstance(user_id, int):
             raise InvalidIdTypeException("source_id was declared to be int, but recieved {}".format(type(user_id)))
-        self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, distance)
-        if is_symmetric:
-            self.add_user_dest_data(network_id, user_id, distance)
+        self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, weight)
+        if is_also_dest:
+            self.add_user_dest_data(network_id, user_id, weight)
 
-    def add_user_dest_data(self, network_id, user_id, distance):
+    def add_user_dest_data(self, network_id, user_id, weight):
         """
         Add the user's dest data point to the pyTransitMatrix.
         """
@@ -168,7 +168,7 @@ class MatrixInterface:
             raise InvalidIdTypeException("dest_id was declared to be string, but recieved {}".format(type(user_id)))
         if not self.secondary_ids_are_string and not isinstance(user_id, int):
             raise InvalidIdTypeException("dest_id was declared to be int, but recieved {}".format(type(user_id)))
-        self.transit_matrix.addToUserDestDataContainer(network_id, user_id, distance)
+        self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
 
     def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
         """

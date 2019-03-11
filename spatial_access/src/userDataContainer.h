@@ -9,7 +9,7 @@
 class userDataPoint
 {
 public:
-    int networkNodeId;
+    unsigned long int networkNodeId;
     unsigned long int loc;
     unsigned short int lastMileDistance;
     userDataPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance);

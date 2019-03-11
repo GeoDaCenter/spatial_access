@@ -50,7 +50,7 @@ public:
     unsigned long int numNodes;
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
-                       int numNodes, dataFrame<row_label_type, col_label_type> &df)
+                       unsigned long int numNodes, dataFrame<row_label_type, col_label_type> &df)
     : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData),
      numNodes(numNodes) {}
     void initialize();

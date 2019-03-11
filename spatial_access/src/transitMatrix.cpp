@@ -15,13 +15,12 @@ using namespace std;
 
 /*write_row: write a row to file*/
 template<class row_label_type, class col_label_type>
-void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned int src) {
+void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned long int src) {
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
     for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
     {
-
         src_imp = sourceDataPoint.lastMileDistance;
 
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
@@ -35,7 +34,7 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
             row_data.assign(wa->df.getCols(), USHRT_MAX);
         }
 
-        for (unsigned int destNodeId : destNodeIds)
+        for (unsigned long int destNodeId : destNodeIds)
         {
             auto destTract = wa->userDestData.retrieveTract(destNodeId);
             auto destPoints = destTract.retrieveDataPoints();
@@ -69,10 +68,9 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
                 if (wa->df.getIsSymmetric())
                 {
                     row_data.at(destDataPoint.loc - sourceDataPoint.loc) = fin_imp;
-                } else{
+                } else {
                     row_data.at(destDataPoint.loc) = fin_imp;
                 }
-
 
 
             }
