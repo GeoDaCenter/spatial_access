@@ -50,6 +50,7 @@ class TransitMatrix:
             primary_input=None,
             secondary_input=None,
             read_from_h5=None,
+            read_from_tmx=None,
             primary_hints=None,
             secondary_hints=None,
             use_meters=False,
@@ -91,11 +92,13 @@ class TransitMatrix:
             raise DuplicateInputException("Gave duplicate inputs: {}".format(self.primary_input))
 
         # need to supply either:
-        if primary_input is None and read_from_h5 is None:
+        if primary_input is None and (read_from_h5 is None and read_from_tmx is None):
             raise InsufficientDataException()
 
         if read_from_h5:
             self.matrix_interface.read_h5(read_from_h5)
+        if read_from_tmx:
+            self.matrix_interface.read_tmx(read_from_tmx)
 
     def set_logging(self, debug):
         """
@@ -394,6 +397,22 @@ class TransitMatrix:
             outfile = self._get_output_filename(self.network_type, extension='h5')
         assert '.h5' in outfile, 'Error: given filename does not have the correct extension (.h5)'
         self.matrix_interface.write_h5(outfile)
+
+    def write_tmx(self, outfile=None):
+        """
+        Write the transit matrix to tmx.
+
+        Note: Use this method (as opposed to write_csv) to
+        save the transit matrix unless exporting data for
+        external use.
+
+        Arguments:
+            outfile-optional string
+        """
+        if not outfile:
+            outfile = self._get_output_filename(self.network_type, extension='tmx')
+        assert '.tmx' in outfile, 'Error: given filename does not have the correct extension (.tmx)'
+        self.matrix_interface.write_tmx(outfile)
 
     def prefetch_network(self):
         """

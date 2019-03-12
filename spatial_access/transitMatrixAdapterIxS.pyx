@@ -43,7 +43,7 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         void setPrimaryDatasetIds(vector[unsigned long int]) except +
         void setSecondaryDatasetIds(vector[string]) except +
 
-        bool writeCSV(string) except +
+        void writeCSV(string) except +
         void printDataFrame() except +
 
 

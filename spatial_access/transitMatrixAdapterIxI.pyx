@@ -6,6 +6,7 @@ from libcpp.unordered_map cimport unordered_map
 from libcpp.utility cimport pair
 
 ctypedef unsigned short int matrix
+
 cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
 
     cdef cppclass transitMatrix[int_label, int_label]:
@@ -13,6 +14,7 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         ctypedef unsigned long int int_label
 
         transitMatrix(bool, unsigned int, unsigned int) except +
+        transitMatrix() except +
 
         void prepareGraphWithVertices(int V) except +
         void addToUserSourceDataContainer(unsigned int, unsigned long, unsigned short int) except +
@@ -43,7 +45,9 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         void setPrimaryDatasetIds(vector[unsigned long int]) except +
         void setSecondaryDatasetIds(vector[unsigned long int]) except +
 
-        bool writeCSV(string) except +
+        void writeCSV(string) except +
+        void writeTMX(string) except +
+        void readTMX(string) except +
         void printDataFrame() except +
 
 
@@ -53,6 +57,10 @@ cdef class pyTransitMatrix:
 
     def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
         self.thisptr = new transitMatrix(isSymmetric, rows, columns)
+        return
+
+    def __cinit__(self):
+        self.thisptr = new transitMatrix()
         return
 
     def __dealloc__(self):
@@ -91,7 +99,15 @@ cdef class pyTransitMatrix:
 
     def writeCSV(self, outfile):
         cdef string outfile_string = str.encode(outfile)
-        return self.thisptr.writeCSV(outfile_string)
+        self.thisptr.writeCSV(outfile_string)
+
+    def writeTMX(self, outfile):
+        cdef string outfile_string = str.encode(outfile)
+        self.thisptr.writeTMX(outfile_string)
+
+    def readTMX(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readTMX(infile_string)
 
     def printDataFrame(self):
         self.thisptr.printDataFrame()

@@ -117,6 +117,18 @@ class MatrixInterface:
         if self.logger:
             self.logger.info('Read from {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
+    def read_tmx(self, filename):
+        """
+        Read tmx from file
+        """
+        self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix()
+        self.transit_matrix.readTMX(filename)
+
+    def write_tmx(self, filename):
+        """
+        Write tmx to file
+        """
+        self.transit_matrix.writeTMX(filename)
 
     def get_values_by_source(self, source_id, sort=False):
         """

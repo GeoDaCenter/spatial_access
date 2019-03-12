@@ -1,6 +1,6 @@
+// Logan Noel (github.com/lmnoel)
 //
-// Created by Logan Noel on 2019-03-11.
-//
+// ©2017-2019, Center for Spatial Data Science
 
 #pragma once
 

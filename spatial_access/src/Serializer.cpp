@@ -1,8 +1,8 @@
+// Logan Noel (github.com/lmnoel)
 //
-// Created by Logan Noel on 2019-03-11.
-//
+// ©2017-2019, Center for Spatial Data Science
 
-
+#include <iostream>
 
 #include "Serializer.h"
 
@@ -133,7 +133,7 @@ void Deserializer::readVectorString(std::vector<std::string>& value)
 void Deserializer::readVectorVector(std::vector<std::vector<unsigned short int>>& value)
 {
     unsigned long int vec_size = readLongInt();
-    for (auto i = 0; i < vec_size; i++)
+    for (unsigned long int i = 0; i < vec_size; i++)
     {
 
         std::vector<unsigned short int> element;

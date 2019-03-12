@@ -3786,7 +3786,6 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransit
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   std::string __pyx_t_5;
-  bool __pyx_t_6;
   __Pyx_RefNannySetupContext("writeCSV", 0);
 
   /* "spatial_access/transitMatrixAdapterSxS.pyx":124
@@ -3854,12 +3853,12 @@ static PyObject *__pyx_pf_14spatial_access_23transitMatrixAdapterSxS_15pyTransit
  */
   __Pyx_XDECREF(__pyx_r);
   try {
-    __pyx_t_6 = __pyx_v_self->thisptr->writeCSV(((string)__pyx_v_outfile_string));
+    __pyx_v_self->thisptr->writeCSV(((string)__pyx_v_outfile_string));
   } catch(...) {
     __Pyx_CppExn2PyErr();
     __PYX_ERR(1, 125, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyBool_FromLong(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 125, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;

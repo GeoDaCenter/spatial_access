@@ -11,30 +11,32 @@ if sys.platform == "darwin":
     ouff_mac = ['-mmacosx-version-min=10.9']
     extra_dependency = ['rtree>=0.8.3']
 
+SOURCES = ["spatial_access/src/dataFrame.cpp"]
+
 EXTENSION = [Extension(
     name = 'transitMatrixAdapterSxS', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterSxS.cpp'],
+    sources = SOURCES + ['spatial_access/transitMatrixAdapterSxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxI', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterIxI.cpp'],
+    sources = SOURCES + ['spatial_access/transitMatrixAdapterIxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterSxI', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterSxI.cpp'],
+    sources = SOURCES + ['spatial_access/transitMatrixAdapterSxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxS', language = 'c++',
-    sources = ['spatial_access/transitMatrixAdapterIxS.cpp'],
+    sources = SOURCES + ['spatial_access/transitMatrixAdapterIxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],

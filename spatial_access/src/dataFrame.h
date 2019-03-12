@@ -3,18 +3,16 @@
 // ©2017-2019, Center for Spatial Data Science
 
 #pragma once
+
 #include <unordered_map>
 #include <vector>
-#include <sstream>
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <unordered_map>
 #include <stdexcept>
-#include <vector>
 #include <algorithm>
-#include <sys/stat.h>
+
 #include <climits>
+
 #include "Serializer.h"
 
 #define UNDEFINED (USHRT_MAX)
@@ -40,7 +38,7 @@ public:
     unsigned long int dataset_size;
 
     // Specialized Methods
-    void writeTMX(const std::string& filename);
+    void writeTMX(const std::string& filename) const;
     void readTMX(const std::string& filename);
 
     // Methods
@@ -71,6 +69,8 @@ public:
         }
 
     }
+
+    dataFrame()=default;
 
 
 
