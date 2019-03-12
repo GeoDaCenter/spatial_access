@@ -22,6 +22,9 @@ from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataExc
 from spatial_access.SpatialAccessExceptions import UnknownModeException
 from spatial_access.SpatialAccessExceptions import InsufficientDataException
 from spatial_access.SpatialAccessExceptions import DuplicateInputException
+from spatial_access.SpatialAccessExceptions import WriteH5FailedException
+from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
+from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 
 
 class TransitMatrix:
@@ -379,7 +382,8 @@ class TransitMatrix:
         """
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension='csv')
-        assert '.csv' in outfile, 'Error: given filename does not have the correct extension (.csv)'
+        if '.csv' not in outfile:
+            raise WriteCSVFailedException('given filename does not have the correct extension (.csv)')
         self.matrix_interface.write_csv(outfile)
 
     def write_h5(self, outfile=None):
@@ -395,7 +399,8 @@ class TransitMatrix:
         """
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension='h5')
-        assert '.h5' in outfile, 'Error: given filename does not have the correct extension (.h5)'
+        if '.h5' not in outfile:
+            raise WriteH5FailedException('given filename does not have the correct extension (.h5)')
         self.matrix_interface.write_h5(outfile)
 
     def write_tmx(self, outfile=None):
@@ -411,7 +416,8 @@ class TransitMatrix:
         """
         if not outfile:
             outfile = self._get_output_filename(self.network_type, extension='tmx')
-        assert '.tmx' in outfile, 'Error: given filename does not have the correct extension (.tmx)'
+        if '.tmx' not in outfile:
+            raise WriteTMXFailedException('given filename does not have the correct extension (.tmx)')
         self.matrix_interface.write_tmx(outfile)
 
     def prefetch_network(self):

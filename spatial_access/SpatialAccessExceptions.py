@@ -67,9 +67,19 @@ class WriteH5FailedException(MatrixInterfaceException):
         super().__init__("WriteH5FailedException:" + errors)
 
 
+class WriteTMXFailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("WriteTMXFailedException:" + errors)
+
+
 class ReadH5FailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
         super().__init__("ReadH5FailedException:" + errors)
+
+
+class ReadTMXFailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("ReadTMXFailedException:" + errors)
 
 
 class IndecesNotFoundException(MatrixInterfaceException):

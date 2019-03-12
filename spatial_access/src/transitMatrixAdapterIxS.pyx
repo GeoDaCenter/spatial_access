@@ -13,6 +13,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         ctypedef unsigned long int int_label
 
         transitMatrix(bool, unsigned int, unsigned int) except +
+        transitMatrix() except +
 
         void prepareGraphWithVertices(int V) except +
         void addToUserSourceDataContainer(unsigned int, unsigned long, unsigned short int) except +
@@ -44,6 +45,8 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         void setSecondaryDatasetIds(vector[string]) except +
 
         void writeCSV(string) except +
+        void writeTMX(string) except +
+        void readTMX(string) except +
         void printDataFrame() except +
 
 
@@ -51,9 +54,11 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
-        self.thisptr = new transitMatrix(isSymmetric, rows, columns)
-        return
+    def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
+        if rows == 0 and columns == 0:
+            self.thisptr = new transitMatrix()
+        else:
+            self.thisptr = new transitMatrix(isSymmetric, rows, columns)
 
     def __dealloc__(self):
         del self.thisptr
@@ -108,6 +113,14 @@ cdef class pyTransitMatrix:
     def writeCSV(self, outfile):
         cdef string outfile_string = str.encode(outfile)
         return self.thisptr.writeCSV(outfile_string)
+
+    def writeTMX(self, outfile):
+        cdef string outfile_string = str.encode(outfile)
+        self.thisptr.writeTMX(outfile_string)
+
+    def readTMX(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readTMX(infile_string)
 
     def printDataFrame(self):
         self.thisptr.printDataFrame()

@@ -702,7 +702,7 @@ class TestClass:
 
         access_sum_model.plot_choropleth(column='sum_in_range_A')
 
-        assert list(access_sum_model.aggregated_results.columns.values) == ['sum_in_range_A', 'sum_in_range_D']
+        assert set(access_sum_model.aggregated_results.columns.values) == {'sum_in_range_A', 'sum_in_range_D'}
         assert access_sum_model.model_results.loc[3]['sum_in_range_A'] == 978
         assert access_sum_model.model_results.loc[4]['sum_in_range_A'] == 978
         assert access_sum_model.model_results.loc[5]['sum_in_range_A'] == 346

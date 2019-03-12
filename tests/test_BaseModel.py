@@ -39,6 +39,7 @@ class TestClass:
         model_data.load_sp_matrix()
 
         model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_1.h5')
+        model_data.write_shortest_path_matrix_to_tmx(self.datapath + 'score_model_test_1.tmx')
 
         assert True
 
@@ -55,7 +56,7 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix(self.datapath + "score_model_test_1.h5")
+        model_data.load_sp_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
 
         assert True
 
@@ -107,7 +108,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix(self.datapath + 'score_model_test_1.h5')
+            model_data.load_sp_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
         except SourceDataNotParsableException:
             assert True
             return
@@ -125,7 +126,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'wrong_key': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix(self.datapath + 'score_model_test_1.h5')
+            model_data.load_sp_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
         except DestDataNotParsableException:
             assert True
             return
@@ -177,6 +178,7 @@ class TestClass:
 
         model_data.load_sp_matrix()
         model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_8.h5')
+        model_data.write_shortest_path_matrix_to_tmx(self.datapath + 'score_model_test_8.tmx')
 
         model_data.calculate_dests_in_range(125)
         model_data.calculate_sources_in_range(125)
@@ -193,7 +195,7 @@ class TestClass:
                                                    'capacity': 'capacity', 'category': 'cat'})
 
 
-        model_data2.load_sp_matrix(self.datapath + 'score_model_test_8.h5')
+        model_data2.load_sp_matrix(read_from_tmx=self.datapath + 'score_model_test_8.tmx')
 
         model_data2.calculate_dests_in_range(125)
         model_data2.calculate_sources_in_range(125)

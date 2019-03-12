@@ -69,8 +69,8 @@ See the iPython notebooks in docs/ for example usage.
 
 - If updating Cython or C++ code (anything in spatial_access/adapters/ or spatial_access/src/)
 you must install cython
-- To regenerate .pyx files, from repository root run: `cython --cplus spatial_access/*.pyx`
-- To install locally, from repository root run: `sudo python3 setup.py install `
+- To regenerate .pyx files, run: `bash cythonize.sh`
+- To install locally, run: `sudo python3 setup.py install `
 
 ### PyPi Maintenance
 The package lives at: `https://pypi.org/project/spatial-access/`

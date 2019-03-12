@@ -2,6 +2,7 @@
 from spatial_access.MatrixInterface import MatrixInterface
 
 from spatial_access.SpatialAccessExceptions import WriteH5FailedException
+from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
@@ -79,7 +80,7 @@ class TestClass:
     def test_2(self):
         """
         Tests symmetric int x int matrix
-        writing to and reading from .h5.
+        writing to and reading from .h5/.tmx.
         """
 
         interface = MatrixInterface(primary_input_name="primary_input")
@@ -99,21 +100,29 @@ class TestClass:
         interface.build_matrix()
 
         interface.write_h5(self.datapath + 'test_02.hdf5')
+        interface.write_tmx(self.datapath + 'test_02.tmx')
         interface.write_csv(self.datapath + 'test_02.csv')
 
         interface2 = MatrixInterface(primary_input_name="primary_input")
         interface2.read_h5(self.datapath + "test_02.hdf5")
 
+        interface3 = MatrixInterface()
+        interface3.read_tmx(self.datapath + 'test_02.tmx')
+
         assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
         assert interface.transit_matrix.getPrimaryDatasetIds() == interface2.transit_matrix.getPrimaryDatasetIds()
         assert interface.transit_matrix.getSecondaryDatasetIds() == interface2.transit_matrix.getSecondaryDatasetIds()
+
+        assert interface.transit_matrix.getDataset() == interface3.transit_matrix.getDataset()
+        assert interface.transit_matrix.getPrimaryDatasetIds() == interface3.transit_matrix.getPrimaryDatasetIds()
+        assert interface.transit_matrix.getSecondaryDatasetIds() == interface3.transit_matrix.getSecondaryDatasetIds()
 
         assert True
 
     def test_3(self):
         """
         Tests symmetric str x str matrix
-        writing to and reading from .h5.
+        writing to and reading from .h5/.tmx.
         """
 
         interface = MatrixInterface(primary_input_name="primary_input")
@@ -135,13 +144,21 @@ class TestClass:
 
         interface.write_h5(self.datapath + 'test_03.h5')
         interface.write_csv(self.datapath + 'test_03.csv')
+        interface.write_tmx(self.datapath + 'test_03.tmx')
 
         interface2 = MatrixInterface(primary_input_name="primary_input")
         interface2.read_h5(self.datapath + "test_03.h5")
 
+        interface3 = MatrixInterface()
+        interface3.read_tmx(self.datapath + "test_03.tmx")
+
         assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
         assert interface.transit_matrix.getPrimaryDatasetIds() == interface2.transit_matrix.getPrimaryDatasetIds()
         assert interface.transit_matrix.getSecondaryDatasetIds() == interface2.transit_matrix.getSecondaryDatasetIds()
+
+        assert interface.transit_matrix.getDataset() == interface3.transit_matrix.getDataset()
+        assert interface.transit_matrix.getPrimaryDatasetIds() == interface3.transit_matrix.getPrimaryDatasetIds()
+        assert interface.transit_matrix.getSecondaryDatasetIds() == interface3.transit_matrix.getSecondaryDatasetIds()
 
         assert True
 
@@ -246,3 +263,14 @@ class TestClass:
             assert True
             return False
         assert False
+
+    def test_9(self):
+        """
+        Test throws ReadTMXFailedException.
+        """
+        try:
+            interface = MatrixInterface()
+            interface.read_tmx("nonexistantfile")
+            assert False
+        except ReadTMXFailedException:
+            assert True

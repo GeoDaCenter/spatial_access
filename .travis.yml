@@ -10,7 +10,7 @@ install:
 - sudo apt-get install libspatialindex-dev
 - pip3 install cython
 - pip3 install osmnet
-- cython --cplus spatial_access/*.pyx
+- bash cythonize.sh
 - python3 setup.py sdist build_ext
 - python3 setup.py install
 - pip3 install numpy==1.15.4 --force

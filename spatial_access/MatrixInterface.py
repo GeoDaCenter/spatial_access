@@ -11,7 +11,9 @@ from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
 from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 from spatial_access.SpatialAccessExceptions import WriteH5FailedException
+from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import ReadH5FailedException
+from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import PyTransitMatrixNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
@@ -23,6 +25,7 @@ try:
     import transitMatrixAdapterSxS
     import transitMatrixAdapterSxI
     import transitMatrixAdapterIxS
+    import TMXUtils
 except ImportError:
     raise PyTransitMatrixNotBuiltException()
 
@@ -32,7 +35,7 @@ class MatrixInterface:
     A wrapper for C++ based transit matrix.
     """
 
-    def __init__(self, primary_input_name, secondary_input_name=None, logger=None):
+    def __init__(self, primary_input_name=None, secondary_input_name=None, logger=None):
         self.logger = logger
         self.transit_matrix = None
         self.primary_ids_are_string = False
@@ -47,6 +50,8 @@ class MatrixInterface:
             self.dataset_name = '{}_{}'.format(primary_input_name, primary_input_name)
 
     def write_h5(self, filename):
+        if self.logger:
+            self.logger.warning("write_h5 will be deprecated! Please use write_tmx instead.")
         start = time.time()
         if self.primary_ids_name == 'rows':
             raise WriteH5FailedException("Illegal primary_ids_name: {}".format(self.primary_ids_name))
@@ -121,14 +126,33 @@ class MatrixInterface:
         """
         Read tmx from file
         """
-        self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix()
-        self.transit_matrix.readTMX(filename)
+        utils = TMXUtils.pyTMXUtils()
+        if not os.path.exists(filename):
+            raise ReadTMXFailedException("{} does not exist".format(filename))
+        tmxType = utils.getTypeOfTMX(filename)
+        if tmxType == 0:
+            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix()
+        elif tmxType == 1:
+            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix()
+        elif tmxType == 2:
+            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix()
+        elif tmxType == 3:
+            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix()
+        else:
+            raise ReadTMXFailedException("Unrecognized tmx type: {}".format(tmxType))
+        try:
+            self.transit_matrix.readTMX(filename)
+        except BaseException:
+            raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
 
     def write_tmx(self, filename):
         """
         Write tmx to file
         """
-        self.transit_matrix.writeTMX(filename)
+        try:
+            self.transit_matrix.writeTMX(filename)
+        except BaseException:
+            raise WriteTMXFailedException("Unable to write tmx to {}".format(filename))
 
     def get_values_by_source(self, source_id, sort=False):
         """

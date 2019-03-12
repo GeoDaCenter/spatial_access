@@ -7,6 +7,7 @@ from spatial_access.SpatialAccessExceptions import UnableToParsePrimaryDataExcep
 from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataException
 from spatial_access.SpatialAccessExceptions import UnknownModeException
 from spatial_access.SpatialAccessExceptions import InsufficientDataException
+from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 
 
 class TestClass():
@@ -113,7 +114,7 @@ class TestClass():
             primary_hints=hints, secondary_hints=hints)
         transit_matrix_1.process()
 
-        transit_matrix_1.write_h5(self.datapath + "test_7.h5")
+        transit_matrix_1.write_tmx(self.datapath + "test_7.tmx")
         assert True
 
     def test_8(self):
@@ -337,8 +338,61 @@ class TestClass():
             tm_2_values = transit_matrix_2.matrix_interface.get_values_by_source(source_id)
             assert tm_1_values == tm_2_values
 
+    def test_23(self):
+        """
+        Tests write_tmx.
+        """
+        hints = {'idx':'name', 'lat':'y', 'lon':'x'}
+        transit_matrix_1 = TransitMatrix('bike',
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+        filename = self.datapath + 'test_23_file.tmx'
+        transit_matrix_1.write_tmx(filename)
 
+        transit_matrix_2 = TransitMatrix('bike', read_from_tmx=filename)
 
+        assert True
 
+    def test_24(self):
+        """
+        Tests write_tmx (asymmetric).
+        """
+        hints = {'idx':'name', 'lat':'y', 'lon':'x'}
+        transit_matrix_1 = TransitMatrix('bike',
+            primary_input='tests/test_data/sources.csv',
+            secondary_input='tests/test_data/dests.csv',
+            primary_hints=hints, secondary_hints=hints)
+        transit_matrix_1.process()
+        filename = self.datapath + 'test_24_file.tmx'
+        transit_matrix_1.write_tmx(filename)
 
+        transit_matrix_2 = TransitMatrix('bike', read_from_tmx=filename)
 
+        assert True
+
+    def test_25(self):
+        """
+        Tests write_h5 (symmetric).
+        """
+        hints = {'idx':'name', 'lat':'y', 'lon':'x'}
+        transit_matrix_1 = TransitMatrix('walk',
+            primary_input='tests/test_data/sources.csv',
+            primary_hints=hints)
+
+        transit_matrix_1.process()
+        bad_filename = self.datapath + 'test_25_file.ext'
+        filename = self.datapath + 'test_25_file.tmx'
+
+        try:
+            transit_matrix_1.write_tmx(bad_filename)
+            assert False
+        except WriteTMXFailedException:
+            pass
+
+        transit_matrix_1.write_tmx(filename)
+
+        transit_matrix_2 = TransitMatrix('walk', read_from_tmx=filename)
+
+        assert True
