@@ -3,7 +3,8 @@
 // ©2017-2019, Center for Spatial Data Science
 
 #include <iostream>
-#include "transitMatrix.h"
+#include "include/transitMatrix.h"
+#include "include/TMXUtils.h"
 #include <vector>
 #include <unordered_map>
 
@@ -34,7 +35,9 @@ int main()
     matrix.printDataFrame();
     matrix.writeTMX("tmx_test.tmx");
 
-    std::cout << "type of tmx:" << getTypeOfTMX("tmx_test.tmx") << std::endl;
+    TMXUtils util;
+
+    std::cout << "type of tmx:" << util.getTypeOfTMX("tmx_test.tmx") << std::endl;
 //    std::cout << "next" << std::endl;
     transitMatrix<unsigned long int, unsigned long int> matrix2;
     matrix2.readTMX("tmx_test.tmx");

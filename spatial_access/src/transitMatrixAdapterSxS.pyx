@@ -8,7 +8,7 @@ from libcpp.utility cimport pair
 ctypedef unsigned short int matrix
 ctypedef unsigned short int value
 
-cdef extern from "src/transitMatrix.cpp" namespace "lmnoel" :
+cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
 
     cdef cppclass transitMatrix[string,string]:
 

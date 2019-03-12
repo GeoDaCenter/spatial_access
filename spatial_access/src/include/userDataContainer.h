@@ -4,7 +4,11 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
 #include <unordered_map>
+#include <unordered_set>
+#include <iostream>
 
 class userDataPoint
 {
@@ -18,7 +22,7 @@ public:
 class userDataTract
 {
 public:
-    int networkNodeId;
+    unsigned long int networkNodeId;
     std::vector<userDataPoint> data;
     userDataTract(unsigned long int networkNodeId);
     void addPoint(userDataPoint userData);

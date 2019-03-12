@@ -11,32 +11,47 @@ if sys.platform == "darwin":
     ouff_mac = ['-mmacosx-version-min=10.9']
     extra_dependency = ['rtree>=0.8.3']
 
-SOURCES = ["spatial_access/src/dataFrame.cpp"]
+SRC_PATH = "spatial_access/src/"
+
+SOURCES = ["dataFrame.cpp",
+           "Serializer.cpp",
+           "userDataContainer.cpp",
+           "Graph.cpp",
+           "threadUtilities.cpp"]
+
+SOURCES = [SRC_PATH + source for source in SOURCES]
 
 EXTENSION = [Extension(
+    name = 'TMXUtils', language = 'c++',
+    sources = [SRC_PATH + 'TMXUtils.cpp', SRC_PATH + 'Serializer.cpp'],
+    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
+                          ] + ouff_mac,
+    undef_macros       = ["NDEBUG"],
+    extra_link_args    = ouff_mac
+    ),Extension(
     name = 'transitMatrixAdapterSxS', language = 'c++',
-    sources = SOURCES + ['spatial_access/transitMatrixAdapterSxS.cpp'],
+    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterSxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxI', language = 'c++',
-    sources = SOURCES + ['spatial_access/transitMatrixAdapterIxI.cpp'],
+    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterIxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterSxI', language = 'c++',
-    sources = SOURCES + ['spatial_access/transitMatrixAdapterSxI.cpp'],
+    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterSxI.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],
     extra_link_args    = ouff_mac
     ),Extension(
     name = 'transitMatrixAdapterIxS', language = 'c++',
-    sources = SOURCES + ['spatial_access/transitMatrixAdapterIxS.cpp'],
+    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterIxS.cpp'],
     extra_compile_args = ['--std=c++11', '-Wall', '-O3'
                           ] + ouff_mac,
     undef_macros       = ["NDEBUG"],

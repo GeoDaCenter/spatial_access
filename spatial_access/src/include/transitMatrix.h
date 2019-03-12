@@ -4,12 +4,6 @@
 
 #pragma once
 
-#include "threadUtilities.cpp"
-#include "dataFrame.h"
-#include "Graph.cpp"
-#include "userDataContainer.cpp"
-#include "Serializer.cpp"
-
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -17,16 +11,14 @@
 #include <queue>
 #include <functional>
 #include <numeric>
-
-
 #include <mutex>
-using namespace std;
 
-int getTypeOfTMX(const std::string& filename)
-{
-    Deserializer d(filename);
-    return d.readShortInt();
-}
+#include "threadUtilities.h"
+#include "dataFrame.h"
+#include "Graph.h"
+#include "userDataContainer.h"
+#include "Serializer.h"
+using namespace std;
 
 template<class row_label_type, class col_label_type>
 void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned long int src) {
@@ -94,6 +86,7 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
 
 
     }
+
 }
 
 
@@ -166,8 +159,10 @@ public:
 
     void prepareGraphWithVertices(unsigned long int V)
     {
+
         numNodes = V;
         graph.initializeGraph(V);
+
     }
 
 
@@ -227,7 +222,6 @@ public:
         {
             throw std::runtime_error("Failed to compute matrix");
         }
-
     }
 
 

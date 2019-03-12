@@ -8,6 +8,8 @@
 #include <mutex>
 #include <vector>
 #include <queue>
+#include <iostream>
+#include <algorithm>
 
 #include "Graph.h"
 #include "userDataContainer.h"
@@ -25,6 +27,7 @@ public:
     bool empty() const;
 };
 
+void do_join(std::thread &t);
 
 template<class row_label_type, class col_label_type> class graphWorkerArgs;
 
@@ -34,8 +37,18 @@ class workerQueue {
 private:
     std::vector<std::thread> threads;
 public:
-    workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa);
-    void startGraphWorker();
+    workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa)
+    {
+        for (unsigned long int i = 0; i < numThreads; i++)
+        {
+            this->threads.push_back(std::thread(f_in, wa));
+        }
+    }
+    void startGraphWorker()
+    {
+        std::for_each(this->threads.begin(), this->threads.end(), do_join);
+    }
+
 };
 
 
@@ -53,5 +66,11 @@ public:
                        unsigned long int numNodes, dataFrame<row_label_type, col_label_type> &df)
     : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData),
      numNodes(numNodes) {}
-    void initialize();
+    void initialize()
+    {
+        //initialize job queue
+        for (auto i : userSourceData.retrieveUniqueNetworkNodeIds()) {
+            jq.insert(i);
+        }
+    }
 };

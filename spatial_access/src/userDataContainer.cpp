@@ -2,13 +2,8 @@
 //
 // ©2017-2019, Center for Spatial Data Science
 
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <iostream>
 
-#include "userDataContainer.h"
+#include "include/userDataContainer.h"
 
 userDataPoint::userDataPoint(unsigned long int networkNodeId, unsigned long int loc, unsigned short int lastMileDistance)
 {

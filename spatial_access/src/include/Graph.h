@@ -4,6 +4,10 @@
 
 #pragma once
 
+#include <vector>
+#include <tuple>
+#include <stdexcept>
+
 class Graph
 {
 private:

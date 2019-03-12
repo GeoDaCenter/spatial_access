@@ -7,8 +7,7 @@ from libcpp.utility cimport pair
 
 ctypedef unsigned short int matrix
 
-cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
-
+cdef extern from "include/transitMatrix.h" namespace "lmnoel":
     cdef cppclass transitMatrix[int_label, int_label]:
         ctypedef unsigned short int value
         ctypedef unsigned long int int_label
@@ -50,17 +49,14 @@ cdef extern from "src/transitMatrix.cpp" namespace "lmnoel":
         void readTMX(string) except +
         void printDataFrame() except +
 
-
-
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isSymmetric, unsigned int rows, unsigned int columns):
-        self.thisptr = new transitMatrix(isSymmetric, rows, columns)
-        return
-
-    def __cinit__(self):
-        self.thisptr = new transitMatrix()
+    def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
+        if rows == 0 and columns == 0:
+            self.thisptr = new transitMatrix()
+        else:
+            self.thisptr = new transitMatrix(isSymmetric, rows, columns)
         return
 
     def __dealloc__(self):
