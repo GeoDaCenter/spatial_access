@@ -14,19 +14,19 @@ class ConfigInterface():
         self.logger = logger
         self.ONE_HOUR = 3600 # seconds
         self.ONE_KM = 1000 # meters
-        self.HUMAN_WALK_SPEED = 5
+        self.walk_speed = 5
         self.WALK_NODE_PENALTY = 0
 
         self.DEFAULT_DRIVE_SPEED = 40
         self.DRIVE_NODE_PENALTY = 0
 
-        self.BIKE_SPEED = 15.5
+        self.bike_speed = 15.5
         self.BIKE_NODE_PENALTY = 0
 
         self.WALK_CONSTANT = (
-            self.HUMAN_WALK_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
+            self.walk_speed / self.ONE_HOUR) * self.ONE_KM # meters/ second
         self.BIKE_CONSTANT = (
-            self.BIKE_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
+            self.bike_speed / self.ONE_HOUR) * self.ONE_KM # meters/ second
         self.DRIVE_CONSTANT = (
             self.DEFAULT_DRIVE_SPEED / self.ONE_HOUR) * self.ONE_KM # meters/ second
         if self.network_type == 'walk':
@@ -111,3 +111,14 @@ class ConfigInterface():
                                 }
 
 
+    def update_walking_speed(self, walk_speed):
+        self.walk_speed = walk_speed
+        self.WALK_CONSTANT = (self.walk_speed / self.ONE_HOUR) * self.ONE_KM  # meters/ second
+        if self.network_type == 'walk':
+            self.default_edge_cost = self.WALK_CONSTANT
+
+    def update_biking_speed(self, bike_speed):
+        self.bike_speed = bike_speed
+        self.BIKE_CONSTANT = (self.bike_speed / self.ONE_HOUR) * self.ONE_KM  # meters/ second
+        if self.network_type == 'bike':
+            self.default_edge_cost = bike_speed

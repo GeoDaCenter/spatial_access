@@ -56,13 +56,15 @@ class Coverage:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+                                    dest_column_names=dest_column_names,
+                                    walk_speed=walk_speed,
+                                    bike_speed=bike_speed)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -119,7 +121,7 @@ class Coverage:
                                                      output_filename=output_filename)
         return self.aggregated_results
 
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
         """
         Plot cdf of results
         """
@@ -128,11 +130,12 @@ class Coverage:
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
-                                 is_source=False)
+                                 is_source=False,
+                                 filename=filename)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -148,7 +151,8 @@ class Coverage:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index,
+                                        filename=None)
 
 
 class DestSum:
@@ -160,13 +164,15 @@ class DestSum:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None,
-                 categories=None):
+                 categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+                                    dest_column_names=dest_column_names,
+                                    walk_speed=walk_speed,
+                                    bike_speed=bike_speed)
         self.model_data.reload_sources(sources_filename)
         self.model_data.reload_dests(destinations_filename)
 
@@ -213,7 +219,7 @@ class DestSum:
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -229,7 +235,8 @@ class DestSum:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index,
+                                        filename=None)
 
 
 class TSFCA:
@@ -240,13 +247,15 @@ class TSFCA:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+                                    dest_column_names=dest_column_names,
+                                    walk_speed=walk_speed,
+                                    bike_speed=bike_speed)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -324,7 +333,7 @@ class TSFCA:
                                                      output_filename=output_filename)
         return self.aggregated_results
 
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
         """
         Plot cdf of results
         """
@@ -333,11 +342,12 @@ class TSFCA:
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
-                                 is_source=True)
+                                 is_source=True,
+                                 filename=filename)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Purples',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -353,7 +363,8 @@ class TSFCA:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index,
+                                        filename=filename)
 
 
 
@@ -365,13 +376,15 @@ class AccessTime:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+                                    dest_column_names=dest_column_names,
+                                    walk_speed=walk_speed,
+                                    bike_speed=bike_speed)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -427,7 +440,7 @@ class AccessTime:
                                                      output_filename=output_filename)
         return self.aggregated_results
 
-    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
         """
         Plot cdf of results
         """
@@ -436,11 +449,12 @@ class AccessTime:
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
-                                 is_source=True)
+                                 is_source=True,
+                                 filename=filename)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Blues',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -456,7 +470,8 @@ class AccessTime:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index,
+                                        filename=filename)
 
 
 
@@ -468,13 +483,15 @@ class AccessCount:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+                                    dest_column_names=dest_column_names,
+                                    walk_speed=walk_speed,
+                                    bike_speed=bike_speed)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -526,7 +543,7 @@ class AccessCount:
                                                      output_filename=output_filename)
         return self.aggregated_results
 
-    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
         """
         Plot cdf of results
         """
@@ -535,11 +552,12 @@ class AccessCount:
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
-                                 is_source=True)
+                                 is_source=True,
+                                 filename=filename)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -555,7 +573,8 @@ class AccessCount:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index,
+                                        filename=filename)
 
 
 class AccessSum:
@@ -566,13 +585,15 @@ class AccessSum:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
                                     sources_filename=sources_filename,
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+                                    dest_column_names=dest_column_names,
+                                    walk_speed=walk_speed,
+                                    bike_speed=bike_speed)
 
         self.model_data.load_sp_matrix(sp_matrix_filename)
         self.model_results = None
@@ -624,7 +645,7 @@ class AccessSum:
                                                      output_filename=output_filename)
         return self.aggregated_results
 
-    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
         """
         Plot cdf of results
         """
@@ -633,11 +654,12 @@ class AccessSum:
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
-                                 is_source=True)
+                                 is_source=True,
+                                 filename=filename)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -653,7 +675,7 @@ class AccessSum:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index, filename=None)
 
 
 class AccessModel:
@@ -830,7 +852,7 @@ class AccessModel:
                                                      output_filename=output_filename)
         return self.aggregated_results
 
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
+    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
         """
         Plot cdf of results
         """
@@ -839,11 +861,12 @@ class AccessModel:
                                  xlabel=xlabel,
                                  ylabel=ylabel,
                                  title=title,
-                                 is_source=True)
+                                 is_source=True,
+                                 filename=filename)
 
     def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Reds',
                         shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
+                        spatial_index='community', filename=None):
         """
         Plot choropleth of results
         """
@@ -859,5 +882,6 @@ class AccessModel:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index)
+                                        spatial_index=spatial_index,
+                                        filename=filename)
 

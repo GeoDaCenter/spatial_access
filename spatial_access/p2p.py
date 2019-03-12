@@ -30,7 +30,7 @@ from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 class TransitMatrix:
 
     """
-    A unified class to manage all aspects of computing a transit time matrix.
+    A unified class to manage all aspects of computing a transit matrix.
     Arguments:
         -network_type: 'walk', 'drive' or 'bike'
         -epsilon: [optional] smooth out the network edges
@@ -41,8 +41,10 @@ class TransitMatrix:
             the transit matrix will be symmetric using the primary input as rows and columns.
         -secondary_hints: [optional] a dictionary with the column names of
             the index, lon and lat in the secondary input
-        -read_from_h5: [optional] a .csv or .tmx input of a previously calculated
+        -read_from_tmx: [optional] a .tmx input of a previously calculated
             transit matrix to load
+        -walk_speed: [optional] use a custom walk speed
+        -bike_speed: [optional] use a custom bike speed
         -use_meters: [optional] Output will be in meters if True (seconds if False).
         -debug: [optional] Enable debugging output.
     """
@@ -58,6 +60,8 @@ class TransitMatrix:
             secondary_hints=None,
             use_meters=False,
             disable_area_threshold=False,
+            walk_speed=None,
+            bike_speed=None,
             debug=False):
 
         # arguments
@@ -86,7 +90,12 @@ class TransitMatrix:
 
         self.matrix_interface = MatrixInterface(primary_input_name=primary_input,
                                                 secondary_input_name=secondary_input,
-                                                logger=self.logger, )
+                                                logger=self.logger)
+
+        if walk_speed is not None:
+            self._config_interface.update_walking_speed(walk_speed=walk_speed)
+        if bike_speed is not None:
+            self._config_interface.update_biking_speed(bike_speed=bike_speed)
 
         if network_type not in ['drive', 'walk', 'bike', 'transit']:
             raise UnknownModeException()

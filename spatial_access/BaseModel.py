@@ -39,11 +39,14 @@ class ModelData(object):
     def __init__(self, network_type, sources_filename,
                  destinations_filename,
                  source_column_names=None, dest_column_names=None,
-                 debug=False):
+                 debug=False, walk_speed=None, bike_speed=None):
         self.network_type = network_type
         self._sp_matrix = None
         self.dests = None
         self.sources = None
+
+        self.walk_speed = walk_speed
+        self.bike_speed = bike_speed
 
         self.sources_filename = sources_filename
         self.destinations_filename = destinations_filename
@@ -192,7 +195,9 @@ class ModelData(object):
                                             primary_input=self.sources_filename,
                                             secondary_input=self.destinations_filename,
                                             primary_hints=self.source_column_names,
-                                            secondary_hints=self.dest_column_names)
+                                            secondary_hints=self.dest_column_names,
+                                            walk_speed=self.walk_speed,
+                                            bike_speed=self.bike_speed)
             try:
                 self._sp_matrix.process()
             except PrimaryDataNotFoundException:
@@ -586,7 +591,7 @@ class ModelData(object):
         return results[columns_to_keep]
 
     def plot_cdf(self, model_results, plot_type, xlabel, ylabel, title,
-                 is_source, bins=100, is_density=False):
+                 is_source, bins=100, is_density=False, filename=None):
         """
         Plot a cdf of the model results
         """
@@ -620,14 +625,15 @@ class ModelData(object):
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
-        fig_name = self.get_output_filename(keyword='figure', extension='png',
-                                            file_path='figures/')
-        mpl.pyplot.savefig(fig_name, dpi=400)
-        self.logger.info('Plot was saved to: {}'.format(fig_name))
+        if filename is None:
+            filename = self.get_output_filename(keyword='figure', extension='png',
+                                                file_path='figures/')
+        mpl.pyplot.savefig(filename, dpi=400)
+        self.logger.info('Plot was saved to: {}'.format(filename))
 
     def plot_choropleth(self, aggregate_results, column, title, color_map,
                         shapefile, spatial_index,
-                        categories=None):
+                        categories=None, filename=None):
         """
         Plot a chloropleth of the aggregated results.
         """
@@ -668,9 +674,10 @@ class ModelData(object):
                     mpl.pyplot.legend(loc='best', handles=color_keys)
 
         mpl.pyplot.title(title)
-        fig_name = self.get_output_filename(keyword='figure', extension='png',
+        if filename is None:
+            filename = self.get_output_filename(keyword='figure', extension='png',
                                             file_path='figures/')
-        mpl.pyplot.savefig(fig_name, dpi=400)
+        mpl.pyplot.savefig(filename, dpi=400)
 
-        self.logger.info('Figure was saved to: {}'.format(fig_name))
+        self.logger.info('Figure was saved to: {}'.format(filename))
         return

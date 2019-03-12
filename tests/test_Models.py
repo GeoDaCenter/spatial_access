@@ -519,8 +519,9 @@ class TestClass:
                                 categories=categories)
         accesspop_model.calculate(600)
         accesspop_model.aggregate()
-        accesspop_model.plot_cdf('percap_spend')
-        accesspop_model.plot_choropleth(column='percap_spend_A', include_destinations=False)
+        accesspop_model.plot_cdf('percap_spend', filename=self.datapath + 'test_20_a.png')
+        accesspop_model.plot_choropleth(column='percap_spend_A', include_destinations=False,
+                                        filename=self.datapath + 'test_20_b.png')
 
     def test_21(self):
         """
@@ -539,8 +540,9 @@ class TestClass:
         accesstime_model.aggregate('mean')
         accesstime_model.aggregate('min')
         accesstime_model.aggregate('max')
-        accesstime_model.plot_cdf()
-        accesstime_model.plot_choropleth(column='time_to_nearest_C', include_destinations=True)
+        accesstime_model.plot_cdf(filename=self.datapath + 'test_21_a.png')
+        accesstime_model.plot_choropleth(column='time_to_nearest_C', include_destinations=True,
+                                         filename=self.datapath + 'test_21_b.png')
         try:
             accesstime_model.aggregate('blah')
         except UnexpectedAggregationTypeException:
@@ -562,8 +564,8 @@ class TestClass:
                                         categories=categories)
         accesscount_model.calculate(200)
         accesscount_model.aggregate()
-        accesscount_model.plot_cdf()
-        accesscount_model.plot_choropleth('count_in_range_C')
+        accesscount_model.plot_cdf(filename=self.datapath + 'test_22_a.png')
+        accesscount_model.plot_choropleth('count_in_range_C', filename=self.datapath + 'test_22_b.png')
 
     def test_23(self):
         """
@@ -583,10 +585,10 @@ class TestClass:
                                 'C': [1]}
         coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
         coverage_model.aggregate()
-        coverage_model.plot_cdf('score')
-        coverage_model.plot_cdf('good_access')
-        coverage_model.plot_choropleth('A_good_access')
-        coverage_model.plot_choropleth('C_score')
+        coverage_model.plot_cdf('score', filename=self.datapath + 'test_23_a.png')
+        coverage_model.plot_cdf('good_access', filename=self.datapath + 'test_23_b.png')
+        coverage_model.plot_choropleth('A_good_access', filename=self.datapath + 'test_23_c.png')
+        coverage_model.plot_choropleth('C_score', filename=self.datapath + 'test_23_d.png')
 
     def test_24(self):
         """
@@ -698,9 +700,9 @@ class TestClass:
 
         access_sum_model.aggregate()
 
-        access_sum_model.plot_cdf()
+        access_sum_model.plot_cdf(filename=self.datapath + 'test_29_a.png')
 
-        access_sum_model.plot_choropleth(column='sum_in_range_A')
+        access_sum_model.plot_choropleth(column='sum_in_range_A', filename=self.datapath + 'test_29_b.png')
 
         assert set(access_sum_model.aggregated_results.columns.values) == {'sum_in_range_A', 'sum_in_range_D'}
         assert access_sum_model.model_results.loc[3]['sum_in_range_A'] == 978
@@ -730,7 +732,7 @@ class TestClass:
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
         model_results = dest_sum_model.calculate()
-        dest_sum_model.plot_choropleth(column='A_per_capita')
+        dest_sum_model.plot_choropleth(column='A_per_capita', filename=self.datapath + 'test_30_a.png')
         assert model_results.loc["HYDE PARK", 'A'] == 978.0
         assert model_results.loc["HYDE PARK", 'D'] == 46.0
         assert model_results.loc["HYDE PARK", 'C'] == 572.0
