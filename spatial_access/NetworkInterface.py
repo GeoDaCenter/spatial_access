@@ -35,9 +35,6 @@ class NetworkInterface:
         assert isinstance(network_type, str)
         self.cache_filename = 'data/osm_query_cache'
         self._try_create_cache()
-        self._second_visit = None
-        self._connected_components = None
-        self._transpose_graph = None
 
     def clear_cache(self):
         """
@@ -220,20 +217,6 @@ class NetworkInterface:
         assert self.edges is not None
         return len(self.edges)
 
-    def _explore_graph_components(self, v):
-        """
-        Recursively explore graph components.
-        """
-        self._second_visit[v] = True
-
-        # add this node to the most recent component
-        self._connected_components[-1].append(v)
-
-        # Recur for all the vertices adjacent to this vertex
-        for i in self._transpose_graph[v]:
-            if not self._second_visit[i]:
-                self._explore_graph_components(i)
-
     def _get_adjacent_vertices(self, v):
         """
         Return a list of vertices with edges from v.
@@ -299,22 +282,32 @@ class NetworkInterface:
                 first_visit[v] = True
 
         # Create a transpose graph
-        self._transpose_graph = self._build_transpose_graph()
+        transpose_graph = self._build_transpose_graph()
 
-        self._second_visit = {vertex: False for vertex in self._get_vertices_as_list()}
-        self._connected_components = [[]]
+        second_visit = {vertex: False for vertex in self._get_vertices_as_list()}
+        connected_components = []
 
         # Now process all vertices in order defined by Stack
+        counter = 0
         while stack:
+            if counter == 0:
+                connected_components.append([])
             v = stack.pop()
-            if not self._second_visit[v]:
-                self._explore_graph_components(v)
-                self._connected_components.append([])
+            if counter > 0:
+                counter -= 1
 
-        self._connected_components.sort(key=len, reverse=True)
+            if not second_visit[v]:
+                second_visit[v] = True
+                connected_components[-1].append(v)
+                for i in transpose_graph[v]:
+                    if not second_visit[i]:
+                        counter += 1
+                        stack.append(i)
 
-        assert len(self._connected_components) > 0, 'Did not find a single connected component. Stopping executing.'
-        main_component = self._connected_components[0]
+        connected_components.sort(key=len, reverse=True)
+
+        assert len(connected_components) > 0, 'Did not find a single connected component. Stopping executing.'
+        main_component = connected_components[0]
         nodes_to_remove = set(self._get_vertices_as_list()) - set(main_component)
 
         self._remove_disconnected_vertices(nodes_to_remove)
@@ -324,7 +317,4 @@ class NetworkInterface:
             nodes_diff = len_nodes_before - len(self.nodes)
             time_diff = time.time() - start_time
             self.logger.info("Removed {} edges and {} nodes which were disconnected components in {:,.2f} seconds".format(edges_diff, nodes_diff, time_diff))
-        self._connected_components = None
-        self._second_visit = None
-        self._transpose_graph = None
 
