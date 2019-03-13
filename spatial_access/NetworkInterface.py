@@ -221,6 +221,7 @@ class NetworkInterface:
         """
         Return a list of vertices with edges from v.
         """
+        #return list(self.edges[self.edges['from'] == v])
         return list(self.edges.iloc[self.edges.index.get_level_values(0) == v].to)
 
     def _get_edges_as_list(self):
@@ -265,44 +266,57 @@ class NetworkInterface:
         len_edges_before = len(self.edges)
         len_nodes_before = len(self.nodes)
         start_time = time.time()
-        stack = []
 
         first_visit = {vertex: False for vertex in self._get_vertices_as_list()}
 
-        nodes_to_visit = self._get_vertices_as_list()
-
+        # dummy = {'a':['b'],
+        #          'b':['c','f', 'e'],
+        #          'c':['d', 'g'],
+        #          'd':['c', 'h'],
+        #          'e':['a', 'f'],
+        #          'f':['g'],
+        #          'g':['f'],
+        #          'h':['g','d']}
         # Determine order of nodes to visit
-        while len(nodes_to_visit) > 0:
-            v = nodes_to_visit.pop()
-            if not first_visit[v]:
-                for u in self._get_adjacent_vertices(v):
-                    if not first_visit[u]:
-                        nodes_to_visit.append(u)
-                stack.append(v)
-                first_visit[v] = True
-
+        nodes = self._get_vertices_as_list()
+        pre_stack = []
+        post_stack = []
+        while len(post_stack) < len_nodes_before:
+            v = nodes.pop()
+            if first_visit[v]:
+                continue
+            pre_stack.append((v, False))
+            while len(pre_stack) > 0:
+                u, flag = pre_stack.pop()
+                if flag:
+                    post_stack.append(u)
+                elif not first_visit[u]:
+                    first_visit[u] = True
+                    pre_stack.append((u, True))
+                    # pre_stack += [(v, False) for v in dummy[u]]
+                    pre_stack += [(v, False) for v in self._get_adjacent_vertices(u)]
         # Create a transpose graph
         transpose_graph = self._build_transpose_graph()
 
         second_visit = {vertex: False for vertex in self._get_vertices_as_list()}
         connected_components = []
 
-        # Now process all vertices in order defined by Stack
-        counter = 0
-        while stack:
-            if counter == 0:
-                connected_components.append([])
-            v = stack.pop()
-            if counter > 0:
-                counter -= 1
+        while len(post_stack) > 0:
+            v = post_stack.pop()
+            if second_visit[v]:
+                continue
+            connected_components.append([])
+            secondary_stack = [v]
+            while len(secondary_stack) > 0:
+                u = secondary_stack.pop()
+                second_visit[u] = True
+                connected_components[-1].append(u)
+                for t in transpose_graph[u]:
+                    if not second_visit[t]:
+                        secondary_stack.append(t)
 
-            if not second_visit[v]:
-                second_visit[v] = True
-                connected_components[-1].append(v)
-                for i in transpose_graph[v]:
-                    if not second_visit[i]:
-                        counter += 1
-                        stack.append(i)
+
+
 
         connected_components.sort(key=len, reverse=True)
 
