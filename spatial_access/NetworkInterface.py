@@ -330,5 +330,13 @@ class NetworkInterface:
             edges_diff = len_edges_before - len(self.edges)
             nodes_diff = len_nodes_before - len(self.nodes)
             time_diff = time.time() - start_time
-            self.logger.info("Removed {} edges and {} nodes which were disconnected components in {:,.2f} seconds".format(edges_diff, nodes_diff, time_diff))
+            edges_diff_percent = edges_diff / len_edges_before
+            nodes_diff_percent = nodes_diff / len_edges_before
+            self.logger.info("Removed {}/{} ({:,.2f}%) edges and {}/{} ({:,.2f}%) nodes which were disconnected components in {:,.2f} seconds".format(edges_diff,
+                                                                                                                                            len_edges_before,
+                                                                                                                                            edges_diff_percent,
+                                                                                                                                            nodes_diff,
+                                                                                                                                            len_nodes_before,
+                                                                                                                                            nodes_diff_percent,
+                                                                                                                                            time_diff))
 
