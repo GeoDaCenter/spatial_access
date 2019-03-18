@@ -21,14 +21,24 @@ void Serializer::close()
     output.close();
 }
 
+void Serializer::checkStreamIsGood()
+{
+    if (!output.good()) {
+        close();
+        throw std::runtime_error("SerializerError: Serialization failed");
+    }
+}
+
 void Serializer::writeShortInt(unsigned short int value)
 {
     output.write ( reinterpret_cast<char *>(&value),sizeof(unsigned short int) );
+    checkStreamIsGood();
 }
 
 void Serializer::writeLongInt(unsigned long int value)
 {
     output.write ( reinterpret_cast<char *>(&value),sizeof(unsigned long int) );
+    checkStreamIsGood();
 }
 
 void Serializer::writeVectorShortInt(const std::vector<unsigned short int>& value)
@@ -36,6 +46,7 @@ void Serializer::writeVectorShortInt(const std::vector<unsigned short int>& valu
     unsigned long int vec_size = value.size();
     writeLongInt(vec_size);
     output.write((char *) &value[0], vec_size * sizeof( unsigned short int));
+    checkStreamIsGood();
 }
 
 void Serializer::writeVectorLongInt(const std::vector<unsigned long int>& value)
@@ -43,6 +54,7 @@ void Serializer::writeVectorLongInt(const std::vector<unsigned long int>& value)
     unsigned long int vec_size = value.size();
     writeLongInt(vec_size);
     output.write((char *) &value[0], vec_size * sizeof( unsigned long int));
+    checkStreamIsGood();
 }
 
 void Serializer::writeVectorString(const std::vector<std::string>& value)
@@ -57,15 +69,17 @@ void Serializer::writeVectorString(const std::vector<std::string>& value)
         output.write((char*)&element_size, sizeof(element_size));
         output.write(&value[i][0], element_size);
     }
+    checkStreamIsGood();
 }
 
 void Serializer::writeVectorVector(const std::vector<std::vector<unsigned short int>>& value)
 {
     unsigned long int vec_size = value.size();
     writeLongInt(vec_size);
-    for (auto element : value) {
+    for (const auto &element : value) {
         writeVectorShortInt(element);
     }
+    checkStreamIsGood();
 }
 
 Deserializer::Deserializer(const std::string &filename)
@@ -83,10 +97,19 @@ void Deserializer::close()
     input.close();
 }
 
+void Deserializer::checkStreamIsGood()
+{
+    if (!input.good()) {
+        close();
+        throw std::runtime_error("DeserializerError: Deserialization failed");
+    }
+}
+
 unsigned long int Deserializer::readLongInt()
 {
     unsigned long int value;
     input.read( reinterpret_cast<char *>(&value), sizeof( unsigned long int));
+    checkStreamIsGood();
     return value;
 
 }
@@ -95,6 +118,7 @@ unsigned short int Deserializer::readShortInt()
 {
     unsigned short int value;
     input.read( reinterpret_cast<char *>(&value), sizeof( unsigned short int));
+    checkStreamIsGood();
     return value;
 }
 
@@ -104,7 +128,7 @@ void Deserializer::readVectorLongInt(std::vector<unsigned long int>& value)
 
     value.assign(vec_size, 0);
     input.read(reinterpret_cast<char *>(&value[0]), vec_size*sizeof( unsigned long int) );
-
+    checkStreamIsGood();
 }
 
 void Deserializer::readVectorShortInt(std::vector<unsigned short int>& value)
@@ -113,6 +137,7 @@ void Deserializer::readVectorShortInt(std::vector<unsigned short int>& value)
 
     value.assign(vec_size, 0);
     input.read(reinterpret_cast<char *>(&value[0]), vec_size*sizeof( unsigned short int) );
+    checkStreamIsGood();
 }
 
 
@@ -121,7 +146,7 @@ void Deserializer::readVectorString(std::vector<std::string>& value)
     typename std::vector<std::string>::size_type size = 0;
     input.read((char*)&size, sizeof(size));
     value.resize(size);
-
+    checkStreamIsGood();
     for (typename std::vector<std::string>::size_type i = 0; i < size; ++i)
     {
         typename std::vector<std::string>::size_type element_size = 0;
@@ -129,6 +154,7 @@ void Deserializer::readVectorString(std::vector<std::string>& value)
         value[i].resize(element_size);
         input.read(&value[i][0], element_size);
     }
+    checkStreamIsGood();
 }
 
 void Deserializer::readVectorVector(std::vector<std::vector<unsigned short int>>& value)
@@ -141,4 +167,5 @@ void Deserializer::readVectorVector(std::vector<std::vector<unsigned short int>>
         readVectorShortInt(element);
         value.push_back(element);
     }
+    checkStreamIsGood();
 }

@@ -22,6 +22,7 @@ public:
     void writeVectorShortInt(const std::vector<unsigned short int>& value);
     void writeVectorString(const std::vector<std::string>& value);
     void writeVectorVector(const std::vector<std::vector<unsigned short int>>& value);
+    void checkStreamIsGood();
 };
 
 class Deserializer {
@@ -37,4 +38,5 @@ public:
     void readVectorShortInt( std::vector<unsigned short int>& value);
     void readVectorString( std::vector<std::string>& value);
     void readVectorVector( std::vector<std::vector<unsigned short int>>& value);
+    void checkStreamIsGood();
 };
