@@ -37,7 +37,7 @@ class ConfigInterface():
             self.default_edge_cost = self.BIKE_CONSTANT
 
         self.speed_limit_dict = {"urban": 
-                                    {"road": 3,
+                                    {"road": 30,
                                      "motorway": 96, 
                                      "motorway_link": 48, 
                                      "motorway_junction": 48, 

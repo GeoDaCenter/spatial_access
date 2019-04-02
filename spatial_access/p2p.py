@@ -462,7 +462,7 @@ class TransitMatrix:
 
         self.prefetch_network()
 
-        is_symmetric = self.secondary_input is None and self.network_type is not 'drive'
+        is_symmetric = self.secondary_input is None and self.network_type is 'drive'
         rows = len(self.primary_data)
 
         if self.secondary_input is None:
