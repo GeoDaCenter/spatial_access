@@ -202,23 +202,6 @@ class TestClass():
 
         assert True
 
-    def test_14(self):
-        """
-        Tests write_h5 (symmetric).
-        """
-        hints = {'idx':'name', 'lat':'y', 'lon':'x'}
-        transit_matrix_1 = TransitMatrix('walk',
-            primary_input='tests/test_data/sources.csv',
-            primary_hints=hints)
-
-        transit_matrix_1.process()
-        filename = self.datapath + 'test_14_file.h5'
-        transit_matrix_1.write_h5(filename)
-
-        transit_matrix_2 = TransitMatrix('walk', read_from_h5=filename)
-
-        assert True
-
     def test_15(self):
         """
         Not specifying read_from_file throws InsufficientDataException
