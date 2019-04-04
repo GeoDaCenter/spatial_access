@@ -12,7 +12,7 @@
 using namespace lmnoel;
 int main()
 {
-    transitMatrix<unsigned long int, unsigned long int> matrix(true, 3, 3);
+    transitMatrix<unsigned long int, unsigned long int> matrix(true, true, 3, 3);
 
     matrix.prepareGraphWithVertices(5);
 
@@ -31,7 +31,7 @@ int main()
     matrix.addToUserDestDataContainer(4, 11, 2);
     matrix.addToUserDestDataContainer(3, 12, 3);
 
-    matrix.compute(10);
+    matrix.compute(1);
     matrix.printDataFrame();
     matrix.writeTMX("tmx_test.tmx");
 

@@ -9,7 +9,7 @@
 #else
 #define CYTHON_ABI "0_29_5"
 #define CYTHON_HEX_VERSION 0x001D05F0
-#define CYTHON_FUTURE_DIVISION 0
+#define CYTHON_FUTURE_DIVISION 1
 #include <stddef.h>
 #ifndef offsetof
   #define offsetof(type, member) ( (size_t) & ((type*)0) -> member )
@@ -823,7 +823,7 @@ static const char *__pyx_f[] = {
   "spatial_access/src/transitMatrixAdapterIxI.pyx",
 };
 
-/* "transitMatrixAdapterIxI.pyx":8
+/* "transitMatrixAdapterIxI.pyx":9
  * from libcpp.utility cimport pair
  * 
  * ctypedef unsigned short int matrix             # <<<<<<<<<<<<<<
@@ -835,7 +835,7 @@ typedef unsigned short __pyx_t_23transitMatrixAdapterIxI_matrix;
 /*--- Type declarations ---*/
 struct __pyx_obj_23transitMatrixAdapterIxI_pyTransitMatrix;
 
-/* "transitMatrixAdapterIxI.pyx":52
+/* "transitMatrixAdapterIxI.pyx":53
  *         void printDataFrame() except +
  * 
  * cdef class pyTransitMatrix:             # <<<<<<<<<<<<<<
@@ -1340,7 +1340,7 @@ static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 /* Late includes */
 
-/* "transitMatrixAdapterIxI.pyx":55
+/* "transitMatrixAdapterIxI.pyx":56
  *     cdef transitMatrix *thisptr
  * 
  *     def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):             # <<<<<<<<<<<<<<
@@ -1394,7 +1394,7 @@ static int __pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_1__cinit__(PyObj
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 55, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 56, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -1409,24 +1409,24 @@ static int __pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_1__cinit__(PyObj
       }
     }
     if (values[0]) {
-      __pyx_v_isSymmetric = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_isSymmetric == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 55, __pyx_L3_error)
+      __pyx_v_isSymmetric = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_isSymmetric == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 56, __pyx_L3_error)
     } else {
       __pyx_v_isSymmetric = ((bool)0);
     }
     if (values[1]) {
-      __pyx_v_rows = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_rows == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 55, __pyx_L3_error)
+      __pyx_v_rows = __Pyx_PyInt_As_unsigned_int(values[1]); if (unlikely((__pyx_v_rows == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 56, __pyx_L3_error)
     } else {
       __pyx_v_rows = ((unsigned int)0);
     }
     if (values[2]) {
-      __pyx_v_columns = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_columns == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 55, __pyx_L3_error)
+      __pyx_v_columns = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_columns == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 56, __pyx_L3_error)
     } else {
       __pyx_v_columns = ((unsigned int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 55, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 56, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1447,7 +1447,7 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
   lmnoel::transitMatrix<int_label,int_label>  *__pyx_t_3;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":56
+  /* "transitMatrixAdapterIxI.pyx":57
  * 
  *     def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
  *         if rows == 0 and columns == 0:             # <<<<<<<<<<<<<<
@@ -1465,7 +1465,7 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
-    /* "transitMatrixAdapterIxI.pyx":57
+    /* "transitMatrixAdapterIxI.pyx":58
  *     def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
  *         if rows == 0 and columns == 0:
  *             self.thisptr = new transitMatrix()             # <<<<<<<<<<<<<<
@@ -1476,11 +1476,11 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
       __pyx_t_3 = new lmnoel::transitMatrix<int_label,int_label> ();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(1, 57, __pyx_L1_error)
+      __PYX_ERR(1, 58, __pyx_L1_error)
     }
     __pyx_v_self->thisptr = __pyx_t_3;
 
-    /* "transitMatrixAdapterIxI.pyx":56
+    /* "transitMatrixAdapterIxI.pyx":57
  * 
  *     def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
  *         if rows == 0 and columns == 0:             # <<<<<<<<<<<<<<
@@ -1490,7 +1490,7 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
     goto __pyx_L3;
   }
 
-  /* "transitMatrixAdapterIxI.pyx":59
+  /* "transitMatrixAdapterIxI.pyx":60
  *             self.thisptr = new transitMatrix()
  *         else:
  *             self.thisptr = new transitMatrix(isSymmetric, rows, columns)             # <<<<<<<<<<<<<<
@@ -1502,13 +1502,13 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
       __pyx_t_3 = new lmnoel::transitMatrix<int_label,int_label> (__pyx_v_isSymmetric, __pyx_v_rows, __pyx_v_columns);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(1, 59, __pyx_L1_error)
+      __PYX_ERR(1, 60, __pyx_L1_error)
     }
     __pyx_v_self->thisptr = __pyx_t_3;
   }
   __pyx_L3:;
 
-  /* "transitMatrixAdapterIxI.pyx":60
+  /* "transitMatrixAdapterIxI.pyx":61
  *         else:
  *             self.thisptr = new transitMatrix(isSymmetric, rows, columns)
  *         return             # <<<<<<<<<<<<<<
@@ -1518,7 +1518,7 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
   __pyx_r = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":55
+  /* "transitMatrixAdapterIxI.pyx":56
  *     cdef transitMatrix *thisptr
  * 
  *     def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):             # <<<<<<<<<<<<<<
@@ -1535,7 +1535,7 @@ static int __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix___cinit__(struct
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":62
+/* "transitMatrixAdapterIxI.pyx":63
  *         return
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1558,7 +1558,7 @@ static void __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_2__dealloc__(st
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":63
+  /* "transitMatrixAdapterIxI.pyx":64
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -1567,7 +1567,7 @@ static void __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_2__dealloc__(st
  */
   delete __pyx_v_self->thisptr;
 
-  /* "transitMatrixAdapterIxI.pyx":62
+  /* "transitMatrixAdapterIxI.pyx":63
  *         return
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1579,7 +1579,7 @@ static void __pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_2__dealloc__(st
   __Pyx_RefNannyFinishContext();
 }
 
-/* "transitMatrixAdapterIxI.pyx":65
+/* "transitMatrixAdapterIxI.pyx":66
  *         del self.thisptr
  * 
  *     def prepareGraphWithVertices(self, vertices):             # <<<<<<<<<<<<<<
@@ -1606,22 +1606,22 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_4prepareGr
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("prepareGraphWithVertices", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":66
+  /* "transitMatrixAdapterIxI.pyx":67
  * 
  *     def prepareGraphWithVertices(self, vertices):
  *         self.thisptr.prepareGraphWithVertices(vertices)             # <<<<<<<<<<<<<<
  * 
  *     def getDestsInRange(self, range_, numThreads):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_vertices); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 66, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_vertices); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 67, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->prepareGraphWithVertices(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 66, __pyx_L1_error)
+    __PYX_ERR(1, 67, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":65
+  /* "transitMatrixAdapterIxI.pyx":66
  *         del self.thisptr
  * 
  *     def prepareGraphWithVertices(self, vertices):             # <<<<<<<<<<<<<<
@@ -1641,7 +1641,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_4prepareGr
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":68
+/* "transitMatrixAdapterIxI.pyx":69
  *         self.thisptr.prepareGraphWithVertices(vertices)
  * 
  *     def getDestsInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
@@ -1680,11 +1680,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_7getDestsI
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_numThreads)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 68, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 69, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getDestsInRange") < 0)) __PYX_ERR(1, 68, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getDestsInRange") < 0)) __PYX_ERR(1, 69, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1697,7 +1697,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_7getDestsI
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 68, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 69, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.getDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1719,7 +1719,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_6getDestsI
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getDestsInRange", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":69
+  /* "transitMatrixAdapterIxI.pyx":70
  * 
  *     def getDestsInRange(self, range_, numThreads):
  *         return self.thisptr.getDestsInRange(range_, numThreads)             # <<<<<<<<<<<<<<
@@ -1727,21 +1727,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_6getDestsI
  *     def getSourcesInRange(self, range_, numThreads):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 69, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 69, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 70, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 70, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getDestsInRange(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 69, __pyx_L1_error)
+    __PYX_ERR(1, 70, __pyx_L1_error)
   }
-  __pyx_t_4 = __pyx_convert_unordered_map_to_py_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label____std_3a__3a_vector_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 69, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_unordered_map_to_py_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label____std_3a__3a_vector_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 70, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":68
+  /* "transitMatrixAdapterIxI.pyx":69
  *         self.thisptr.prepareGraphWithVertices(vertices)
  * 
  *     def getDestsInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
@@ -1760,7 +1760,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_6getDestsI
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":71
+/* "transitMatrixAdapterIxI.pyx":72
  *         return self.thisptr.getDestsInRange(range_, numThreads)
  * 
  *     def getSourcesInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
@@ -1799,11 +1799,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_9getSource
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_numThreads)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, 1); __PYX_ERR(1, 71, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, 1); __PYX_ERR(1, 72, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getSourcesInRange") < 0)) __PYX_ERR(1, 71, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getSourcesInRange") < 0)) __PYX_ERR(1, 72, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1816,7 +1816,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_9getSource
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 71, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getSourcesInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 72, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.getSourcesInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1838,7 +1838,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_8getSource
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getSourcesInRange", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":72
+  /* "transitMatrixAdapterIxI.pyx":73
  * 
  *     def getSourcesInRange(self, range_, numThreads):
  *         return self.thisptr.getSourcesInRange(range_, numThreads)             # <<<<<<<<<<<<<<
@@ -1846,21 +1846,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_8getSource
  *     def getValuesBySource(self, source_id, sort):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 72, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 72, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_range_); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 73, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 73, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getSourcesInRange(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 72, __pyx_L1_error)
+    __PYX_ERR(1, 73, __pyx_L1_error)
   }
-  __pyx_t_4 = __pyx_convert_unordered_map_to_py_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label____std_3a__3a_vector_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 72, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_unordered_map_to_py_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label____std_3a__3a_vector_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":71
+  /* "transitMatrixAdapterIxI.pyx":72
  *         return self.thisptr.getDestsInRange(range_, numThreads)
  * 
  *     def getSourcesInRange(self, range_, numThreads):             # <<<<<<<<<<<<<<
@@ -1879,7 +1879,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_8getSource
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":74
+/* "transitMatrixAdapterIxI.pyx":75
  *         return self.thisptr.getSourcesInRange(range_, numThreads)
  * 
  *     def getValuesBySource(self, source_id, sort):             # <<<<<<<<<<<<<<
@@ -1918,11 +1918,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_11getValue
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sort)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, 1); __PYX_ERR(1, 74, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, 1); __PYX_ERR(1, 75, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesBySource") < 0)) __PYX_ERR(1, 74, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesBySource") < 0)) __PYX_ERR(1, 75, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1935,7 +1935,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_11getValue
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 74, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getValuesBySource", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 75, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.getValuesBySource", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1957,7 +1957,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_10getValue
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getValuesBySource", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":75
+  /* "transitMatrixAdapterIxI.pyx":76
  * 
  *     def getValuesBySource(self, source_id, sort):
  *         return self.thisptr.getValuesBySource(source_id, sort)             # <<<<<<<<<<<<<<
@@ -1965,21 +1965,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_10getValue
  *     def getValuesByDest(self, dest_id, sort):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 75, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_2 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 75, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 76, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_2 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 76, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getValuesBySource(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 75, __pyx_L1_error)
+    __PYX_ERR(1, 76, __pyx_L1_error)
   }
-  __pyx_t_4 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_2c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_value_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 75, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_2c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_value_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 76, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":74
+  /* "transitMatrixAdapterIxI.pyx":75
  *         return self.thisptr.getSourcesInRange(range_, numThreads)
  * 
  *     def getValuesBySource(self, source_id, sort):             # <<<<<<<<<<<<<<
@@ -1998,7 +1998,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_10getValue
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":77
+/* "transitMatrixAdapterIxI.pyx":78
  *         return self.thisptr.getValuesBySource(source_id, sort)
  * 
  *     def getValuesByDest(self, dest_id, sort):             # <<<<<<<<<<<<<<
@@ -2037,11 +2037,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_13getValue
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_sort)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, 1); __PYX_ERR(1, 77, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, 1); __PYX_ERR(1, 78, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesByDest") < 0)) __PYX_ERR(1, 77, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValuesByDest") < 0)) __PYX_ERR(1, 78, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2054,7 +2054,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_13getValue
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 77, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getValuesByDest", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 78, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.getValuesByDest", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2076,7 +2076,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_12getValue
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getValuesByDest", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":78
+  /* "transitMatrixAdapterIxI.pyx":79
  * 
  *     def getValuesByDest(self, dest_id, sort):
  *         return self.thisptr.getValuesByDest(dest_id, sort)             # <<<<<<<<<<<<<<
@@ -2084,21 +2084,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_12getValue
  *     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_dest_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 78, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_2 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 78, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_dest_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 79, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_sort); if (unlikely((__pyx_t_2 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 79, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getValuesByDest(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 78, __pyx_L1_error)
+    __PYX_ERR(1, 79, __pyx_L1_error)
   }
-  __pyx_t_4 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_2c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_value_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 78, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_int_label_2c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_value_3e___(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":77
+  /* "transitMatrixAdapterIxI.pyx":78
  *         return self.thisptr.getValuesBySource(source_id, sort)
  * 
  *     def getValuesByDest(self, dest_id, sort):             # <<<<<<<<<<<<<<
@@ -2117,7 +2117,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_12getValue
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":80
+/* "transitMatrixAdapterIxI.pyx":81
  *         return self.thisptr.getValuesByDest(dest_id, sort)
  * 
  *     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2159,17 +2159,17 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_15addToUse
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_id)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 80, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 81, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_lastMileDistance)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 80, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 81, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserSourceDataContainer") < 0)) __PYX_ERR(1, 80, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserSourceDataContainer") < 0)) __PYX_ERR(1, 81, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2184,7 +2184,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_15addToUse
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 80, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addToUserSourceDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 81, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.addToUserSourceDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2205,24 +2205,24 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_14addToUse
   unsigned short __pyx_t_3;
   __Pyx_RefNannySetupContext("addToUserSourceDataContainer", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":81
+  /* "transitMatrixAdapterIxI.pyx":82
  * 
  *     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance)             # <<<<<<<<<<<<<<
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 81, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_long(__pyx_v_id_); if (unlikely((__pyx_t_2 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 81, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_3 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 81, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 82, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_long(__pyx_v_id_); if (unlikely((__pyx_t_2 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 82, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_3 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 82, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addToUserSourceDataContainer(__pyx_t_1, __pyx_t_2, __pyx_t_3);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 81, __pyx_L1_error)
+    __PYX_ERR(1, 82, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":80
+  /* "transitMatrixAdapterIxI.pyx":81
  *         return self.thisptr.getValuesByDest(dest_id, sort)
  * 
  *     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2242,7 +2242,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_14addToUse
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":83
+/* "transitMatrixAdapterIxI.pyx":84
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance)
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2284,17 +2284,17 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_17addToUse
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_id)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 83, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 1); __PYX_ERR(1, 84, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_lastMileDistance)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 83, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, 2); __PYX_ERR(1, 84, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserDestDataContainer") < 0)) __PYX_ERR(1, 83, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToUserDestDataContainer") < 0)) __PYX_ERR(1, 84, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2309,7 +2309,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_17addToUse
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 83, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addToUserDestDataContainer", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 84, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.addToUserDestDataContainer", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2330,24 +2330,24 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_16addToUse
   unsigned short __pyx_t_3;
   __Pyx_RefNannySetupContext("addToUserDestDataContainer", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":84
+  /* "transitMatrixAdapterIxI.pyx":85
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):
  *         self.thisptr.addToUserDestDataContainer(networkNodeId, id_, lastMileDistance)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 84, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_long(__pyx_v_id_); if (unlikely((__pyx_t_2 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 84, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_3 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 84, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_int(__pyx_v_networkNodeId); if (unlikely((__pyx_t_1 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 85, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_long(__pyx_v_id_); if (unlikely((__pyx_t_2 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 85, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_unsigned_short(__pyx_v_lastMileDistance); if (unlikely((__pyx_t_3 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 85, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addToUserDestDataContainer(__pyx_t_1, __pyx_t_2, __pyx_t_3);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 84, __pyx_L1_error)
+    __PYX_ERR(1, 85, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":83
+  /* "transitMatrixAdapterIxI.pyx":84
  *         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance)
  * 
  *     def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):             # <<<<<<<<<<<<<<
@@ -2367,7 +2367,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_16addToUse
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":87
+/* "transitMatrixAdapterIxI.pyx":88
  * 
  * 
  *     def addEdgeToGraph(self, src, dst, weight, isBidirectional):             # <<<<<<<<<<<<<<
@@ -2412,23 +2412,23 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_19addEdgeT
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dst)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 1); __PYX_ERR(1, 87, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 1); __PYX_ERR(1, 88, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_weight)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 2); __PYX_ERR(1, 87, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 2); __PYX_ERR(1, 88, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isBidirectional)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 3); __PYX_ERR(1, 87, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, 3); __PYX_ERR(1, 88, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addEdgeToGraph") < 0)) __PYX_ERR(1, 87, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addEdgeToGraph") < 0)) __PYX_ERR(1, 88, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -2445,7 +2445,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_19addEdgeT
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 87, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addEdgeToGraph", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 88, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.addEdgeToGraph", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2467,25 +2467,25 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_18addEdgeT
   bool __pyx_t_4;
   __Pyx_RefNannySetupContext("addEdgeToGraph", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":88
+  /* "transitMatrixAdapterIxI.pyx":89
  * 
  *     def addEdgeToGraph(self, src, dst, weight, isBidirectional):
  *         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)             # <<<<<<<<<<<<<<
  * 
  *     def compute(self, numThreads):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_src); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 88, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_dst); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 88, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_weight); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 88, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_isBidirectional); if (unlikely((__pyx_t_4 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 88, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_src); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 89, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_dst); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 89, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_weight); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 89, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_v_isBidirectional); if (unlikely((__pyx_t_4 == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 89, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addEdgeToGraph(__pyx_t_1, __pyx_t_2, __pyx_t_3, __pyx_t_4);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 88, __pyx_L1_error)
+    __PYX_ERR(1, 89, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":87
+  /* "transitMatrixAdapterIxI.pyx":88
  * 
  * 
  *     def addEdgeToGraph(self, src, dst, weight, isBidirectional):             # <<<<<<<<<<<<<<
@@ -2505,7 +2505,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_18addEdgeT
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":90
+/* "transitMatrixAdapterIxI.pyx":91
  *         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
  * 
  *     def compute(self, numThreads):             # <<<<<<<<<<<<<<
@@ -2532,22 +2532,22 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_20compute(
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("compute", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":91
+  /* "transitMatrixAdapterIxI.pyx":92
  * 
  *     def compute(self, numThreads):
  *         self.thisptr.compute(numThreads)             # <<<<<<<<<<<<<<
  * 
  *     def getValueById(self, source, dest):
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 91, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_numThreads); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(1, 92, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->compute(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 91, __pyx_L1_error)
+    __PYX_ERR(1, 92, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":90
+  /* "transitMatrixAdapterIxI.pyx":91
  *         self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
  * 
  *     def compute(self, numThreads):             # <<<<<<<<<<<<<<
@@ -2567,7 +2567,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_20compute(
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":93
+/* "transitMatrixAdapterIxI.pyx":94
  *         self.thisptr.compute(numThreads)
  * 
  *     def getValueById(self, source, dest):             # <<<<<<<<<<<<<<
@@ -2606,11 +2606,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_23getValue
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dest)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, 1); __PYX_ERR(1, 93, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, 1); __PYX_ERR(1, 94, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValueById") < 0)) __PYX_ERR(1, 93, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getValueById") < 0)) __PYX_ERR(1, 94, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2623,7 +2623,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_23getValue
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 93, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getValueById", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 94, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.getValueById", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2645,7 +2645,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_22getValue
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("getValueById", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":94
+  /* "transitMatrixAdapterIxI.pyx":95
  * 
  *     def getValueById(self, source, dest):
  *         return self.thisptr.getValueById(source, dest)             # <<<<<<<<<<<<<<
@@ -2653,21 +2653,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_22getValue
  *     def writeCSV(self, outfile):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 94, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_long(__pyx_v_dest); if (unlikely((__pyx_t_2 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 94, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_long(__pyx_v_dest); if (unlikely((__pyx_t_2 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 95, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->getValueById(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 94, __pyx_L1_error)
+    __PYX_ERR(1, 95, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_PyInt_From_unsigned_short(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 94, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_unsigned_short(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 95, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":93
+  /* "transitMatrixAdapterIxI.pyx":94
  *         self.thisptr.compute(numThreads)
  * 
  *     def getValueById(self, source, dest):             # <<<<<<<<<<<<<<
@@ -2686,7 +2686,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_22getValue
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":96
+/* "transitMatrixAdapterIxI.pyx":97
  *         return self.thisptr.getValueById(source, dest)
  * 
  *     def writeCSV(self, outfile):             # <<<<<<<<<<<<<<
@@ -2717,14 +2717,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_24writeCSV
   std::string __pyx_t_4;
   __Pyx_RefNannySetupContext("writeCSV", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":97
+  /* "transitMatrixAdapterIxI.pyx":98
  * 
  *     def writeCSV(self, outfile):
  *         cdef string outfile_string = str.encode(outfile)             # <<<<<<<<<<<<<<
  *         self.thisptr.writeCSV(outfile_string)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 97, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2738,14 +2738,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_24writeCSV
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_outfile) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_outfile);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 97, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 97, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 98, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_outfile_string = __pyx_t_4;
 
-  /* "transitMatrixAdapterIxI.pyx":98
+  /* "transitMatrixAdapterIxI.pyx":99
  *     def writeCSV(self, outfile):
  *         cdef string outfile_string = str.encode(outfile)
  *         self.thisptr.writeCSV(outfile_string)             # <<<<<<<<<<<<<<
@@ -2756,10 +2756,10 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_24writeCSV
     __pyx_v_self->thisptr->writeCSV(__pyx_v_outfile_string);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 98, __pyx_L1_error)
+    __PYX_ERR(1, 99, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":96
+  /* "transitMatrixAdapterIxI.pyx":97
  *         return self.thisptr.getValueById(source, dest)
  * 
  *     def writeCSV(self, outfile):             # <<<<<<<<<<<<<<
@@ -2782,7 +2782,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_24writeCSV
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":100
+/* "transitMatrixAdapterIxI.pyx":101
  *         self.thisptr.writeCSV(outfile_string)
  * 
  *     def writeTMX(self, outfile):             # <<<<<<<<<<<<<<
@@ -2813,14 +2813,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_26writeTMX
   std::string __pyx_t_4;
   __Pyx_RefNannySetupContext("writeTMX", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":101
+  /* "transitMatrixAdapterIxI.pyx":102
  * 
  *     def writeTMX(self, outfile):
  *         cdef string outfile_string = str.encode(outfile)             # <<<<<<<<<<<<<<
  *         self.thisptr.writeTMX(outfile_string)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 101, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 102, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2834,14 +2834,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_26writeTMX
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_outfile) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_outfile);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 101, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 102, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 101, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 102, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_outfile_string = __pyx_t_4;
 
-  /* "transitMatrixAdapterIxI.pyx":102
+  /* "transitMatrixAdapterIxI.pyx":103
  *     def writeTMX(self, outfile):
  *         cdef string outfile_string = str.encode(outfile)
  *         self.thisptr.writeTMX(outfile_string)             # <<<<<<<<<<<<<<
@@ -2852,10 +2852,10 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_26writeTMX
     __pyx_v_self->thisptr->writeTMX(__pyx_v_outfile_string);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 102, __pyx_L1_error)
+    __PYX_ERR(1, 103, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":100
+  /* "transitMatrixAdapterIxI.pyx":101
  *         self.thisptr.writeCSV(outfile_string)
  * 
  *     def writeTMX(self, outfile):             # <<<<<<<<<<<<<<
@@ -2878,7 +2878,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_26writeTMX
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":104
+/* "transitMatrixAdapterIxI.pyx":105
  *         self.thisptr.writeTMX(outfile_string)
  * 
  *     def readTMX(self, infile):             # <<<<<<<<<<<<<<
@@ -2909,14 +2909,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_28readTMX(
   std::string __pyx_t_4;
   __Pyx_RefNannySetupContext("readTMX", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":105
+  /* "transitMatrixAdapterIxI.pyx":106
  * 
  *     def readTMX(self, infile):
  *         cdef string infile_string = str.encode(infile)             # <<<<<<<<<<<<<<
  *         self.thisptr.readTMX(infile_string)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 105, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -2930,14 +2930,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_28readTMX(
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_infile) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_infile);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 105, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 106, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 105, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 106, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_infile_string = __pyx_t_4;
 
-  /* "transitMatrixAdapterIxI.pyx":106
+  /* "transitMatrixAdapterIxI.pyx":107
  *     def readTMX(self, infile):
  *         cdef string infile_string = str.encode(infile)
  *         self.thisptr.readTMX(infile_string)             # <<<<<<<<<<<<<<
@@ -2948,10 +2948,10 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_28readTMX(
     __pyx_v_self->thisptr->readTMX(__pyx_v_infile_string);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 106, __pyx_L1_error)
+    __PYX_ERR(1, 107, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":104
+  /* "transitMatrixAdapterIxI.pyx":105
  *         self.thisptr.writeTMX(outfile_string)
  * 
  *     def readTMX(self, infile):             # <<<<<<<<<<<<<<
@@ -2974,7 +2974,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_28readTMX(
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":108
+/* "transitMatrixAdapterIxI.pyx":109
  *         self.thisptr.readTMX(infile_string)
  * 
  *     def printDataFrame(self):             # <<<<<<<<<<<<<<
@@ -3000,7 +3000,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_30printDat
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("printDataFrame", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":109
+  /* "transitMatrixAdapterIxI.pyx":110
  * 
  *     def printDataFrame(self):
  *         self.thisptr.printDataFrame()             # <<<<<<<<<<<<<<
@@ -3011,10 +3011,10 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_30printDat
     __pyx_v_self->thisptr->printDataFrame();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 109, __pyx_L1_error)
+    __PYX_ERR(1, 110, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":108
+  /* "transitMatrixAdapterIxI.pyx":109
  *         self.thisptr.readTMX(infile_string)
  * 
  *     def printDataFrame(self):             # <<<<<<<<<<<<<<
@@ -3034,7 +3034,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_30printDat
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":111
+/* "transitMatrixAdapterIxI.pyx":112
  *         self.thisptr.printDataFrame()
  * 
  *     def addToCategoryMap(self, dest_id, category):             # <<<<<<<<<<<<<<
@@ -3073,11 +3073,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_33addToCat
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_category)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, 1); __PYX_ERR(1, 111, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, 1); __PYX_ERR(1, 112, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToCategoryMap") < 0)) __PYX_ERR(1, 111, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "addToCategoryMap") < 0)) __PYX_ERR(1, 112, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3090,7 +3090,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_33addToCat
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 111, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("addToCategoryMap", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 112, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.addToCategoryMap", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3114,14 +3114,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_32addToCat
   unsigned long __pyx_t_5;
   __Pyx_RefNannySetupContext("addToCategoryMap", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":112
+  /* "transitMatrixAdapterIxI.pyx":113
  * 
  *     def addToCategoryMap(self, dest_id, category):
  *         cdef string string_category = str.encode(category)             # <<<<<<<<<<<<<<
  *         self.thisptr.addToCategoryMap(dest_id, string_category)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 112, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3135,29 +3135,29 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_32addToCat
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_category) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 112, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 112, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 113, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_category = __pyx_t_4;
 
-  /* "transitMatrixAdapterIxI.pyx":113
+  /* "transitMatrixAdapterIxI.pyx":114
  *     def addToCategoryMap(self, dest_id, category):
  *         cdef string string_category = str.encode(category)
  *         self.thisptr.addToCategoryMap(dest_id, string_category)             # <<<<<<<<<<<<<<
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):
  */
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_dest_id); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 113, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_dest_id); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 114, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->addToCategoryMap(__pyx_t_5, __pyx_v_string_category);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 113, __pyx_L1_error)
+    __PYX_ERR(1, 114, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":111
+  /* "transitMatrixAdapterIxI.pyx":112
  *         self.thisptr.printDataFrame()
  * 
  *     def addToCategoryMap(self, dest_id, category):             # <<<<<<<<<<<<<<
@@ -3180,7 +3180,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_32addToCat
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":115
+/* "transitMatrixAdapterIxI.pyx":116
  *         self.thisptr.addToCategoryMap(dest_id, string_category)
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):             # <<<<<<<<<<<<<<
@@ -3219,11 +3219,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_35timeToNe
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_category)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, 1); __PYX_ERR(1, 115, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, 1); __PYX_ERR(1, 116, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "timeToNearestDestPerCategory") < 0)) __PYX_ERR(1, 115, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "timeToNearestDestPerCategory") < 0)) __PYX_ERR(1, 116, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3236,7 +3236,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_35timeToNe
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 115, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("timeToNearestDestPerCategory", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 116, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.timeToNearestDestPerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3261,14 +3261,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_34timeToNe
   unsigned short __pyx_t_6;
   __Pyx_RefNannySetupContext("timeToNearestDestPerCategory", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":116
+  /* "transitMatrixAdapterIxI.pyx":117
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):
  *         cdef string string_category = str.encode(category)             # <<<<<<<<<<<<<<
  *         return self.thisptr.timeToNearestDestPerCategory(source_id, string_category)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 116, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 117, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3282,14 +3282,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_34timeToNe
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_category) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 116, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 116, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 117, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_category = __pyx_t_4;
 
-  /* "transitMatrixAdapterIxI.pyx":117
+  /* "transitMatrixAdapterIxI.pyx":118
  *     def timeToNearestDestPerCategory(self, source_id, category):
  *         cdef string string_category = str.encode(category)
  *         return self.thisptr.timeToNearestDestPerCategory(source_id, string_category)             # <<<<<<<<<<<<<<
@@ -3297,20 +3297,20 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_34timeToNe
  *     def countDestsInRangePerCategory(self, source_id, category, range):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 117, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 118, __pyx_L1_error)
   try {
     __pyx_t_6 = __pyx_v_self->thisptr->timeToNearestDestPerCategory(__pyx_t_5, __pyx_v_string_category);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 117, __pyx_L1_error)
+    __PYX_ERR(1, 118, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 117, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 118, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":115
+  /* "transitMatrixAdapterIxI.pyx":116
  *         self.thisptr.addToCategoryMap(dest_id, string_category)
  * 
  *     def timeToNearestDestPerCategory(self, source_id, category):             # <<<<<<<<<<<<<<
@@ -3331,7 +3331,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_34timeToNe
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":119
+/* "transitMatrixAdapterIxI.pyx":120
  *         return self.thisptr.timeToNearestDestPerCategory(source_id, string_category)
  * 
  *     def countDestsInRangePerCategory(self, source_id, category, range):             # <<<<<<<<<<<<<<
@@ -3373,17 +3373,17 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_37countDes
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_category)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 1); __PYX_ERR(1, 119, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 1); __PYX_ERR(1, 120, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_range_2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 2); __PYX_ERR(1, 119, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, 2); __PYX_ERR(1, 120, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRangePerCategory") < 0)) __PYX_ERR(1, 119, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRangePerCategory") < 0)) __PYX_ERR(1, 120, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -3398,7 +3398,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_37countDes
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 119, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("countDestsInRangePerCategory", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 120, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.countDestsInRangePerCategory", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3424,14 +3424,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_36countDes
   unsigned short __pyx_t_7;
   __Pyx_RefNannySetupContext("countDestsInRangePerCategory", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":120
+  /* "transitMatrixAdapterIxI.pyx":121
  * 
  *     def countDestsInRangePerCategory(self, source_id, category, range):
  *         cdef string string_category = str.encode(category)             # <<<<<<<<<<<<<<
  *         return self.thisptr.countDestsInRangePerCategory(source_id, string_category, range)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 120, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -3445,14 +3445,14 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_36countDes
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_category) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_category);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 120, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 121, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 120, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 121, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_string_category = __pyx_t_4;
 
-  /* "transitMatrixAdapterIxI.pyx":121
+  /* "transitMatrixAdapterIxI.pyx":122
  *     def countDestsInRangePerCategory(self, source_id, category, range):
  *         cdef string string_category = str.encode(category)
  *         return self.thisptr.countDestsInRangePerCategory(source_id, string_category, range)             # <<<<<<<<<<<<<<
@@ -3460,21 +3460,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_36countDes
  *     def timeToNearestDest(self, source_id):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 121, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_6 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 121, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 122, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_6 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 122, __pyx_L1_error)
   try {
     __pyx_t_7 = __pyx_v_self->thisptr->countDestsInRangePerCategory(__pyx_t_5, __pyx_v_string_category, __pyx_t_6);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 121, __pyx_L1_error)
+    __PYX_ERR(1, 122, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 121, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_short(__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":119
+  /* "transitMatrixAdapterIxI.pyx":120
  *         return self.thisptr.timeToNearestDestPerCategory(source_id, string_category)
  * 
  *     def countDestsInRangePerCategory(self, source_id, category, range):             # <<<<<<<<<<<<<<
@@ -3495,7 +3495,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_36countDes
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":123
+/* "transitMatrixAdapterIxI.pyx":124
  *         return self.thisptr.countDestsInRangePerCategory(source_id, string_category, range)
  * 
  *     def timeToNearestDest(self, source_id):             # <<<<<<<<<<<<<<
@@ -3524,7 +3524,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_38timeToNe
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("timeToNearestDest", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":124
+  /* "transitMatrixAdapterIxI.pyx":125
  * 
  *     def timeToNearestDest(self, source_id):
  *         return self.thisptr.timeToNearestDest(source_id)             # <<<<<<<<<<<<<<
@@ -3532,20 +3532,20 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_38timeToNe
  *     def countDestsInRange(self, source_id, range):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 124, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 125, __pyx_L1_error)
   try {
     __pyx_t_2 = __pyx_v_self->thisptr->timeToNearestDest(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 124, __pyx_L1_error)
+    __PYX_ERR(1, 125, __pyx_L1_error)
   }
-  __pyx_t_3 = __Pyx_PyInt_From_unsigned_short(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 124, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_unsigned_short(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":123
+  /* "transitMatrixAdapterIxI.pyx":124
  *         return self.thisptr.countDestsInRangePerCategory(source_id, string_category, range)
  * 
  *     def timeToNearestDest(self, source_id):             # <<<<<<<<<<<<<<
@@ -3564,7 +3564,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_38timeToNe
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":126
+/* "transitMatrixAdapterIxI.pyx":127
  *         return self.thisptr.timeToNearestDest(source_id)
  * 
  *     def countDestsInRange(self, source_id, range):             # <<<<<<<<<<<<<<
@@ -3603,11 +3603,11 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_41countDes
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_range_2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 126, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, 1); __PYX_ERR(1, 127, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRange") < 0)) __PYX_ERR(1, 126, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "countDestsInRange") < 0)) __PYX_ERR(1, 127, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3620,7 +3620,7 @@ static PyObject *__pyx_pw_23transitMatrixAdapterIxI_15pyTransitMatrix_41countDes
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 126, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("countDestsInRange", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 127, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterIxI.pyTransitMatrix.countDestsInRange", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3642,7 +3642,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_40countDes
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("countDestsInRange", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":127
+  /* "transitMatrixAdapterIxI.pyx":128
  * 
  *     def countDestsInRange(self, source_id, range):
  *         return self.thisptr.countDestsInRange(source_id, range)             # <<<<<<<<<<<<<<
@@ -3650,21 +3650,21 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_40countDes
  *     def setDataset(self, dataset):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 127, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_2 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 127, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_unsigned_long(__pyx_v_source_id); if (unlikely((__pyx_t_1 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(1, 128, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_unsigned_short(__pyx_v_range); if (unlikely((__pyx_t_2 == (unsigned short)-1) && PyErr_Occurred())) __PYX_ERR(1, 128, __pyx_L1_error)
   try {
     __pyx_t_3 = __pyx_v_self->thisptr->countDestsInRange(__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 127, __pyx_L1_error)
+    __PYX_ERR(1, 128, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_PyInt_From_unsigned_short(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 127, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_unsigned_short(__pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(1, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":126
+  /* "transitMatrixAdapterIxI.pyx":127
  *         return self.thisptr.timeToNearestDest(source_id)
  * 
  *     def countDestsInRange(self, source_id, range):             # <<<<<<<<<<<<<<
@@ -3683,7 +3683,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_40countDes
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":129
+/* "transitMatrixAdapterIxI.pyx":130
  *         return self.thisptr.countDestsInRange(source_id, range)
  * 
  *     def setDataset(self, dataset):             # <<<<<<<<<<<<<<
@@ -3711,17 +3711,17 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_42setDatas
   std::vector<std::vector<__pyx_t_23transitMatrixAdapterIxI_matrix> >  __pyx_t_1;
   __Pyx_RefNannySetupContext("setDataset", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":130
+  /* "transitMatrixAdapterIxI.pyx":131
  * 
  *     def setDataset(self, dataset):
  *         cdef vector[vector[matrix]] cpp_input = dataset             # <<<<<<<<<<<<<<
  *         self.thisptr.setDataset(cpp_input)
  * 
  */
-  __pyx_t_1 = __pyx_convert_vector_from_py_std_3a__3a_vector_3c___pyx_t_23transitMatrixAdapterIxI_matrix_3e___(__pyx_v_dataset); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 130, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_from_py_std_3a__3a_vector_3c___pyx_t_23transitMatrixAdapterIxI_matrix_3e___(__pyx_v_dataset); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 131, __pyx_L1_error)
   __pyx_v_cpp_input = __pyx_t_1;
 
-  /* "transitMatrixAdapterIxI.pyx":131
+  /* "transitMatrixAdapterIxI.pyx":132
  *     def setDataset(self, dataset):
  *         cdef vector[vector[matrix]] cpp_input = dataset
  *         self.thisptr.setDataset(cpp_input)             # <<<<<<<<<<<<<<
@@ -3732,10 +3732,10 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_42setDatas
     __pyx_v_self->thisptr->setDataset(__pyx_v_cpp_input);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 131, __pyx_L1_error)
+    __PYX_ERR(1, 132, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":129
+  /* "transitMatrixAdapterIxI.pyx":130
  *         return self.thisptr.countDestsInRange(source_id, range)
  * 
  *     def setDataset(self, dataset):             # <<<<<<<<<<<<<<
@@ -3755,7 +3755,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_42setDatas
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":133
+/* "transitMatrixAdapterIxI.pyx":134
  *         self.thisptr.setDataset(cpp_input)
  * 
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -3782,22 +3782,22 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_44setPrima
   std::vector<unsigned long>  __pyx_t_1;
   __Pyx_RefNannySetupContext("setPrimaryDatasetIds", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":134
+  /* "transitMatrixAdapterIxI.pyx":135
  * 
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):
  *         self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)             # <<<<<<<<<<<<<<
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):
  */
-  __pyx_t_1 = __pyx_convert_vector_from_py_unsigned_long(__pyx_v_primaryDatasetIds); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 134, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_from_py_unsigned_long(__pyx_v_primaryDatasetIds); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 135, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->setPrimaryDatasetIds(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 134, __pyx_L1_error)
+    __PYX_ERR(1, 135, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":133
+  /* "transitMatrixAdapterIxI.pyx":134
  *         self.thisptr.setDataset(cpp_input)
  * 
  *     def setPrimaryDatasetIds(self, primaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -3817,7 +3817,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_44setPrima
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":136
+/* "transitMatrixAdapterIxI.pyx":137
  *         self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -3844,22 +3844,22 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_46setSecon
   std::vector<unsigned long>  __pyx_t_1;
   __Pyx_RefNannySetupContext("setSecondaryDatasetIds", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":137
+  /* "transitMatrixAdapterIxI.pyx":138
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):
  *         self.thisptr.setSecondaryDatasetIds(secondaryDatasetIds)             # <<<<<<<<<<<<<<
  * 
  *     def getRows(self):
  */
-  __pyx_t_1 = __pyx_convert_vector_from_py_unsigned_long(__pyx_v_secondaryDatasetIds); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 137, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_from_py_unsigned_long(__pyx_v_secondaryDatasetIds); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 138, __pyx_L1_error)
   try {
     __pyx_v_self->thisptr->setSecondaryDatasetIds(__pyx_t_1);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 137, __pyx_L1_error)
+    __PYX_ERR(1, 138, __pyx_L1_error)
   }
 
-  /* "transitMatrixAdapterIxI.pyx":136
+  /* "transitMatrixAdapterIxI.pyx":137
  *         self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)
  * 
  *     def setSecondaryDatasetIds(self, secondaryDatasetIds):             # <<<<<<<<<<<<<<
@@ -3879,7 +3879,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_46setSecon
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":139
+/* "transitMatrixAdapterIxI.pyx":140
  *         self.thisptr.setSecondaryDatasetIds(secondaryDatasetIds)
  * 
  *     def getRows(self):             # <<<<<<<<<<<<<<
@@ -3907,7 +3907,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_48getRows(
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getRows", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":140
+  /* "transitMatrixAdapterIxI.pyx":141
  * 
  *     def getRows(self):
  *         return self.thisptr.getRows()             # <<<<<<<<<<<<<<
@@ -3919,15 +3919,15 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_48getRows(
     __pyx_t_1 = __pyx_v_self->thisptr->getRows();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 140, __pyx_L1_error)
+    __PYX_ERR(1, 141, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 140, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":139
+  /* "transitMatrixAdapterIxI.pyx":140
  *         self.thisptr.setSecondaryDatasetIds(secondaryDatasetIds)
  * 
  *     def getRows(self):             # <<<<<<<<<<<<<<
@@ -3946,7 +3946,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_48getRows(
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":142
+/* "transitMatrixAdapterIxI.pyx":143
  *         return self.thisptr.getRows()
  * 
  *     def getCols(self):             # <<<<<<<<<<<<<<
@@ -3974,7 +3974,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_50getCols(
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getCols", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":143
+  /* "transitMatrixAdapterIxI.pyx":144
  * 
  *     def getCols(self):
  *         return self.thisptr.getCols()             # <<<<<<<<<<<<<<
@@ -3986,15 +3986,15 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_50getCols(
     __pyx_t_1 = __pyx_v_self->thisptr->getCols();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 143, __pyx_L1_error)
+    __PYX_ERR(1, 144, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 143, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_unsigned_int(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":142
+  /* "transitMatrixAdapterIxI.pyx":143
  *         return self.thisptr.getRows()
  * 
  *     def getCols(self):             # <<<<<<<<<<<<<<
@@ -4013,7 +4013,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_50getCols(
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":145
+/* "transitMatrixAdapterIxI.pyx":146
  *         return self.thisptr.getCols()
  * 
  *     def getIsSymmetric(self):             # <<<<<<<<<<<<<<
@@ -4041,7 +4041,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_52getIsSym
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getIsSymmetric", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":146
+  /* "transitMatrixAdapterIxI.pyx":147
  * 
  *     def getIsSymmetric(self):
  *         return self.thisptr.getIsSymmetric()             # <<<<<<<<<<<<<<
@@ -4053,15 +4053,15 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_52getIsSym
     __pyx_t_1 = __pyx_v_self->thisptr->getIsSymmetric();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 146, __pyx_L1_error)
+    __PYX_ERR(1, 147, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 146, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":145
+  /* "transitMatrixAdapterIxI.pyx":146
  *         return self.thisptr.getCols()
  * 
  *     def getIsSymmetric(self):             # <<<<<<<<<<<<<<
@@ -4080,7 +4080,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_52getIsSym
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":148
+/* "transitMatrixAdapterIxI.pyx":149
  *         return self.thisptr.getIsSymmetric()
  * 
  *     def getDataset(self):             # <<<<<<<<<<<<<<
@@ -4108,7 +4108,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_54getDatas
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getDataset", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":149
+  /* "transitMatrixAdapterIxI.pyx":150
  * 
  *     def getDataset(self):
  *         return self.thisptr.getDataset()             # <<<<<<<<<<<<<<
@@ -4120,15 +4120,15 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_54getDatas
     __pyx_t_1 = __pyx_v_self->thisptr->getDataset();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 149, __pyx_L1_error)
+    __PYX_ERR(1, 150, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_value_3e___(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 149, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_lmnoel_3a__3a_transitMatrix_3c_int_label_2c_int_label_3e____3a__3a_value_3e___(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":148
+  /* "transitMatrixAdapterIxI.pyx":149
  *         return self.thisptr.getIsSymmetric()
  * 
  *     def getDataset(self):             # <<<<<<<<<<<<<<
@@ -4147,7 +4147,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_54getDatas
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":151
+/* "transitMatrixAdapterIxI.pyx":152
  *         return self.thisptr.getDataset()
  * 
  *     def getPrimaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -4175,7 +4175,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_56getPrima
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getPrimaryDatasetIds", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":152
+  /* "transitMatrixAdapterIxI.pyx":153
  * 
  *     def getPrimaryDatasetIds(self):
  *         return self.thisptr.getPrimaryDatasetIds()             # <<<<<<<<<<<<<<
@@ -4187,15 +4187,15 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_56getPrima
     __pyx_t_1 = __pyx_v_self->thisptr->getPrimaryDatasetIds();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 152, __pyx_L1_error)
+    __PYX_ERR(1, 153, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_long(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 152, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_long(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":151
+  /* "transitMatrixAdapterIxI.pyx":152
  *         return self.thisptr.getDataset()
  * 
  *     def getPrimaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -4214,7 +4214,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_56getPrima
   return __pyx_r;
 }
 
-/* "transitMatrixAdapterIxI.pyx":154
+/* "transitMatrixAdapterIxI.pyx":155
  *         return self.thisptr.getPrimaryDatasetIds()
  * 
  *     def getSecondaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -4241,7 +4241,7 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_58getSecon
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getSecondaryDatasetIds", 0);
 
-  /* "transitMatrixAdapterIxI.pyx":155
+  /* "transitMatrixAdapterIxI.pyx":156
  * 
  *     def getSecondaryDatasetIds(self):
  *         return self.thisptr.getSecondaryDatasetIds()             # <<<<<<<<<<<<<<
@@ -4251,15 +4251,15 @@ static PyObject *__pyx_pf_23transitMatrixAdapterIxI_15pyTransitMatrix_58getSecon
     __pyx_t_1 = __pyx_v_self->thisptr->getSecondaryDatasetIds();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 155, __pyx_L1_error)
+    __PYX_ERR(1, 156, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_long(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 155, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_long(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "transitMatrixAdapterIxI.pyx":154
+  /* "transitMatrixAdapterIxI.pyx":155
  *         return self.thisptr.getPrimaryDatasetIds()
  * 
  *     def getSecondaryDatasetIds(self):             # <<<<<<<<<<<<<<
@@ -5536,13 +5536,13 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix) < 0) __PYX_ERR(1, 52, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix) < 0) __PYX_ERR(1, 53, __pyx_L1_error)
   __pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix.tp_dictoffset && __pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_pyTransitMatrix, (PyObject *)&__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix) < 0) __PYX_ERR(1, 52, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix) < 0) __PYX_ERR(1, 52, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_pyTransitMatrix, (PyObject *)&__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix) < 0) __PYX_ERR(1, 53, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix) < 0) __PYX_ERR(1, 53, __pyx_L1_error)
   __pyx_ptype_23transitMatrixAdapterIxI_pyTransitMatrix = &__pyx_type_23transitMatrixAdapterIxI_pyTransitMatrix;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -5775,8 +5775,8 @@ if (!__Pyx_RefNanny) {
 
   /* "transitMatrixAdapterIxI.pyx":1
  * # distutils: language=c++             # <<<<<<<<<<<<<<
+ * # cython: language_level=3
  * from libcpp.string cimport string
- * from libcpp cimport bool
  */
   __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

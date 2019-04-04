@@ -9,7 +9,7 @@
 #else
 #define CYTHON_ABI "0_29_5"
 #define CYTHON_HEX_VERSION 0x001D05F0
-#define CYTHON_FUTURE_DIVISION 0
+#define CYTHON_FUTURE_DIVISION 1
 #include <stddef.h>
 #ifndef offsetof
   #define offsetof(type, member) ( (size_t) & ((type*)0) -> member )
@@ -823,7 +823,7 @@ static const char *__pyx_f[] = {
 /*--- Type declarations ---*/
 struct __pyx_obj_8TMXUtils_pyTMXUtils;
 
-/* "TMXUtils.pyx":8
+/* "TMXUtils.pyx":9
  *         int getTypeOfTMX(string) except +
  * 
  * cdef class pyTMXUtils:             # <<<<<<<<<<<<<<
@@ -1198,7 +1198,7 @@ static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 /* Late includes */
 
-/* "TMXUtils.pyx":11
+/* "TMXUtils.pyx":12
  *     cdef TMXUtils *thisptr
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -1228,7 +1228,7 @@ static int __pyx_pf_8TMXUtils_10pyTMXUtils___cinit__(struct __pyx_obj_8TMXUtils_
   TMXUtils *__pyx_t_1;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "TMXUtils.pyx":12
+  /* "TMXUtils.pyx":13
  * 
  *     def __cinit__(self):
  *         self.thisptr = new TMXUtils()             # <<<<<<<<<<<<<<
@@ -1239,11 +1239,11 @@ static int __pyx_pf_8TMXUtils_10pyTMXUtils___cinit__(struct __pyx_obj_8TMXUtils_
     __pyx_t_1 = new TMXUtils();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 12, __pyx_L1_error)
+    __PYX_ERR(1, 13, __pyx_L1_error)
   }
   __pyx_v_self->thisptr = __pyx_t_1;
 
-  /* "TMXUtils.pyx":11
+  /* "TMXUtils.pyx":12
  *     cdef TMXUtils *thisptr
  * 
  *     def __cinit__(self):             # <<<<<<<<<<<<<<
@@ -1262,7 +1262,7 @@ static int __pyx_pf_8TMXUtils_10pyTMXUtils___cinit__(struct __pyx_obj_8TMXUtils_
   return __pyx_r;
 }
 
-/* "TMXUtils.pyx":14
+/* "TMXUtils.pyx":15
  *         self.thisptr = new TMXUtils()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1285,7 +1285,7 @@ static void __pyx_pf_8TMXUtils_10pyTMXUtils_2__dealloc__(struct __pyx_obj_8TMXUt
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "TMXUtils.pyx":15
+  /* "TMXUtils.pyx":16
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
@@ -1294,7 +1294,7 @@ static void __pyx_pf_8TMXUtils_10pyTMXUtils_2__dealloc__(struct __pyx_obj_8TMXUt
  */
   delete __pyx_v_self->thisptr;
 
-  /* "TMXUtils.pyx":14
+  /* "TMXUtils.pyx":15
  *         self.thisptr = new TMXUtils()
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1306,7 +1306,7 @@ static void __pyx_pf_8TMXUtils_10pyTMXUtils_2__dealloc__(struct __pyx_obj_8TMXUt
   __Pyx_RefNannyFinishContext();
 }
 
-/* "TMXUtils.pyx":17
+/* "TMXUtils.pyx":18
  *         del self.thisptr
  * 
  *     def getTypeOfTMX(self, filename):             # <<<<<<<<<<<<<<
@@ -1338,13 +1338,13 @@ static PyObject *__pyx_pf_8TMXUtils_10pyTMXUtils_4getTypeOfTMX(struct __pyx_obj_
   int __pyx_t_5;
   __Pyx_RefNannySetupContext("getTypeOfTMX", 0);
 
-  /* "TMXUtils.pyx":18
+  /* "TMXUtils.pyx":19
  * 
  *     def getTypeOfTMX(self, filename):
  *         cdef string filename_string = str.encode(filename)             # <<<<<<<<<<<<<<
  *         return self.thisptr.getTypeOfTMX(filename_string)
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyString_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 18, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)(&PyUnicode_Type)), __pyx_n_s_encode); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -1358,14 +1358,14 @@ static PyObject *__pyx_pf_8TMXUtils_10pyTMXUtils_4getTypeOfTMX(struct __pyx_obj_
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_filename) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_filename);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 18, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 18, __pyx_L1_error)
+  __pyx_t_4 = __pyx_convert_string_from_py_std__in_string(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 19, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_filename_string = __pyx_t_4;
 
-  /* "TMXUtils.pyx":19
+  /* "TMXUtils.pyx":20
  *     def getTypeOfTMX(self, filename):
  *         cdef string filename_string = str.encode(filename)
  *         return self.thisptr.getTypeOfTMX(filename_string)             # <<<<<<<<<<<<<<
@@ -1375,15 +1375,15 @@ static PyObject *__pyx_pf_8TMXUtils_10pyTMXUtils_4getTypeOfTMX(struct __pyx_obj_
     __pyx_t_5 = __pyx_v_self->thisptr->getTypeOfTMX(__pyx_v_filename_string);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 19, __pyx_L1_error)
+    __PYX_ERR(1, 20, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 19, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "TMXUtils.pyx":17
+  /* "TMXUtils.pyx":18
  *         del self.thisptr
  * 
  *     def getTypeOfTMX(self, filename):             # <<<<<<<<<<<<<<
@@ -1802,13 +1802,13 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_8TMXUtils_pyTMXUtils) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_8TMXUtils_pyTMXUtils) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
   __pyx_type_8TMXUtils_pyTMXUtils.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_8TMXUtils_pyTMXUtils.tp_dictoffset && __pyx_type_8TMXUtils_pyTMXUtils.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_8TMXUtils_pyTMXUtils.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_pyTMXUtils, (PyObject *)&__pyx_type_8TMXUtils_pyTMXUtils) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_8TMXUtils_pyTMXUtils) < 0) __PYX_ERR(1, 8, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_pyTMXUtils, (PyObject *)&__pyx_type_8TMXUtils_pyTMXUtils) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_8TMXUtils_pyTMXUtils) < 0) __PYX_ERR(1, 9, __pyx_L1_error)
   __pyx_ptype_8TMXUtils_pyTMXUtils = &__pyx_type_8TMXUtils_pyTMXUtils;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -2041,8 +2041,8 @@ if (!__Pyx_RefNanny) {
 
   /* "TMXUtils.pyx":1
  * # distutils: language=c++             # <<<<<<<<<<<<<<
+ * # cython: language_level=3
  * from libcpp.string cimport string
- * 
  */
   __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

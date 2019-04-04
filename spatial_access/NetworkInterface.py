@@ -13,7 +13,7 @@ from geopy import distance
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
 from spatial_access.SpatialAccessExceptions import UnableToConnectException
 
-
+#  TODO: move trimming to an extension
 class NetworkInterface:
     """
     Abstracts the connection for querying OSM

@@ -60,12 +60,10 @@ public:
     jobQueue jq;
     userDataContainer userSourceData;
     userDataContainer userDestData;
-    unsigned long int numNodes;
     graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
                        userDataContainer &userDestData, 
-                       unsigned long int numNodes, dataFrame<row_label_type, col_label_type> &df)
-    : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData),
-     numNodes(numNodes) {}
+                       dataFrame<row_label_type, col_label_type> &df)
+    : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData) {}
     void initialize()
     {
         //initialize job queue

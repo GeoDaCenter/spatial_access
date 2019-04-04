@@ -467,6 +467,7 @@ class TransitMatrix:
 
         if self.secondary_input is None:
             cols = rows
+            self.matrix_interface.secondary_ids_are_string = self.matrix_interface.primary_ids_are_string
         else:
             cols = len(self.secondary_data)
         self.matrix_interface.prepare_matrix(is_symmetric=is_symmetric, rows=rows, columns=cols,

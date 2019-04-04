@@ -21,7 +21,8 @@
 using namespace std;
 
 template<class row_label_type, class col_label_type>
-void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned long int src) {
+void calculateSingleRowOfDataFrame(const std::vector<unsigned short int> &dist,
+                                   graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned long int src) {
     unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
@@ -32,12 +33,12 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
         std::vector<unsigned short int> row_data;
-        if (wa->df.getIsSymmetric())
+        if (wa->df.isCompressible)
         {
-            row_data.assign(wa->df.getCols() - sourceDataPoint.loc, USHRT_MAX);
+            row_data.assign(wa->df.cols - sourceDataPoint.loc, USHRT_MAX);
         } else
         {
-            row_data.assign(wa->df.getCols(), USHRT_MAX);
+            row_data.assign(wa->df.cols, USHRT_MAX);
         }
 
         for (unsigned long int destNodeId : destNodeIds)
@@ -46,7 +47,7 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
             auto destPoints = destTract.retrieveDataPoints();
             for (auto destDataPoint : destPoints)
             {
-                if (wa->df.getIsSymmetric())
+                if (wa->df.isCompressible)
                 {
                     if (wa->df.isUnderDiagonal(sourceDataPoint.loc, destDataPoint.loc))
                     {
@@ -54,7 +55,7 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
                     }
                 }
                 calc_imp = dist.at(destNodeId);
-                if ((wa->df.getIsSymmetric()) && (destDataPoint.loc == sourceDataPoint.loc))
+                if ((wa->df.isSymmetric) && (destDataPoint.loc == sourceDataPoint.loc))
                 {
                     fin_imp = 0;
                 }
@@ -71,7 +72,7 @@ void calculateRow(const std::vector<unsigned short int> &dist, graphWorkerArgs<r
                     }
 
                 }
-                if (wa->df.getIsSymmetric())
+                if (wa->df.isCompressible)
                 {
                     row_data.at(destDataPoint.loc - sourceDataPoint.loc) = fin_imp;
                 } else {
@@ -94,7 +95,7 @@ typedef std::pair<unsigned short int, unsigned long int> queue_pair;
 
 
 template<class row_label_type, class col_label_type>
-void dijkstra(unsigned long int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
+void doDijstraFromOneNetworkNode(unsigned long int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
     unsigned long int V = wa->graph.getV();// Get the number of vertices in graph
 
     std::vector<unsigned short int> dist(V, USHRT_MAX);
@@ -120,7 +121,7 @@ void dijkstra(unsigned long int src, graphWorkerArgs<row_label_type, col_label_t
     }
 
     //calculate row and add to dataFrame
-    calculateRow(dist, wa, src);
+    calculateSingleRowOfDataFrame(dist, wa, src);
 
 }
 
@@ -135,7 +136,7 @@ void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
         if (endNow) {
             break;
         }
-        dijkstra(src, wa);
+        doDijstraFromOneNetworkNode(src, wa);
     }
 }
 
@@ -151,22 +152,22 @@ public:
     userDataContainer userSourceDataContainer;
     userDataContainer userDestDataContainer;
     Graph graph;
-    unsigned long int numNodes;
 
     // Constructors
-    transitMatrix(bool isSymmetric, unsigned long int rows, unsigned long int cols) : df(isSymmetric, rows, cols), numNodes(0) {}
+    transitMatrix(bool isCompressible, bool isSymmetric,  unsigned long int rows, unsigned long int cols)
+    : df(isCompressible, isSymmetric, rows, cols) {}
     transitMatrix()= default;
 
-    void prepareGraphWithVertices(unsigned long int V)
+    void
+    prepareGraphWithVertices(unsigned long int V)
     {
-
-        numNodes = V;
         graph.initializeGraph(V);
 
     }
 
 
-    void addToUserSourceDataContainer(unsigned long int networkNodeId, const row_label_type& row_id, unsigned short int lastMileDistance)
+    void
+    addToUserSourceDataContainer(unsigned long int networkNodeId, const row_label_type& row_id, unsigned short int lastMileDistance)
     {
         unsigned long int row_loc = df.addToRowIndex(row_id);
         this->userSourceDataContainer.addPoint(networkNodeId, row_loc, lastMileDistance);
@@ -174,14 +175,16 @@ public:
     }
 
 
-    void addToUserDestDataContainer(unsigned long int networkNodeId, const col_label_type& col_id, unsigned short int lastMileDistance)
+    void
+    addToUserDestDataContainer(unsigned long int networkNodeId, const col_label_type& col_id, unsigned short int lastMileDistance)
     {
         unsigned long int col_loc = this->df.addToColIndex(col_id);
         this->userDestDataContainer.addPoint(networkNodeId, col_loc, lastMileDistance);
     }
 
 
-    void addEdgeToGraph(unsigned long int src, unsigned long int dest, unsigned short int weight, bool isBidirectional)
+    void
+    addEdgeToGraph(unsigned long int src, unsigned long int dest, unsigned short int weight, bool isBidirectional)
     {
 
         graph.addEdge(src, dest, weight);
@@ -192,7 +195,8 @@ public:
     }
 
 
-    void addToCategoryMap(const col_label_type& dest_id, const std::string& category)
+    void
+    addToCategoryMap(const col_label_type& dest_id, const std::string& category)
     {
         if (categoryToDestMap.find(category) != categoryToDestMap.end())
         {
@@ -209,12 +213,13 @@ public:
 
 
 
-    void compute(unsigned int numThreads)
+    void
+    compute(unsigned int numThreads)
     {
         try
         {
             graphWorkerArgs<row_label_type, col_label_type> wa(graph, userSourceDataContainer, userDestDataContainer,
-                                                               numNodes, df);
+                                                               df);
             wa.initialize();
             workerQueue<row_label_type, col_label_type> wq(numThreads, graphWorkerHandler, &wa);
             wq.startGraphWorker();
@@ -225,27 +230,30 @@ public:
     }
 
 
-    const std::vector<std::pair<col_label_type, unsigned short int>> getValuesBySource(row_label_type source_id, bool sort) const
+    const std::vector<std::pair<col_label_type, unsigned short int>>
+    getValuesBySource(row_label_type source_id, bool sort) const
     {
         return this->df.getValuesByRowId(source_id, sort);
     }
 
 
-    const std::vector<std::pair<row_label_type, unsigned short int>> getValuesByDest(col_label_type dest_id, bool sort) const
+    const std::vector<std::pair<row_label_type, unsigned short int>>
+    getValuesByDest(col_label_type dest_id, bool sort) const
     {
         return this->df.getValuesByColId(dest_id, sort);
     }
 
 
 
-    const std::unordered_map<row_label_type, std::vector<col_label_type>> getDestsInRange(unsigned int threshold, unsigned int numThreads) const
+    const std::unordered_map<row_label_type, std::vector<col_label_type>>
+    getDestsInRange(unsigned int threshold, unsigned int numThreads) const
     {
         // Initialize maps
         std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
         for (unsigned long int row_loc = 0; row_loc < df.getRows(); row_loc++)
         {
             std::vector<col_label_type> valueData;
-            for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++) {
+            for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++) {
                 if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
                     valueData.push_back(df.getColIdForLoc(col_loc));
                 }
@@ -258,11 +266,12 @@ public:
     }
 
 
-    const std::unordered_map<col_label_type, std::vector<row_label_type>> getSourcesInRange(unsigned int threshold, unsigned int numThreads) const
+    const std::unordered_map<col_label_type, std::vector<row_label_type>>
+    getSourcesInRange(unsigned int threshold, unsigned int numThreads) const
     {
         // Initialize maps
         std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
-        for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++)
+        for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
         {
             std::vector<row_label_type> valueData;
             for (unsigned long int row_loc = 0; row_loc < df.getRows(); row_loc++) {
@@ -278,7 +287,8 @@ public:
     }
 
 
-    unsigned short int timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const
+    unsigned short int
+    timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const
     {
         unsigned short int minimum = USHRT_MAX;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
@@ -293,7 +303,8 @@ public:
     }
 
 
-    unsigned short int countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, unsigned short int range) const
+    unsigned short int
+    countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, unsigned short int range) const
     {
         unsigned short int count = 0;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
@@ -307,11 +318,12 @@ public:
     }
 
 
-    unsigned short int timeToNearestDest(const row_label_type& source_id) const
+    unsigned short int
+    timeToNearestDest(const row_label_type& source_id) const
     {
         unsigned short int minimum = USHRT_MAX;
         unsigned long int row_loc = df.getRowLocForId(source_id);
-        for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++)
+        for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
         {
             unsigned short int dest_time = this->df.getValueByLoc(row_loc, col_loc);
             if (dest_time <= minimum)
@@ -323,12 +335,13 @@ public:
     }
 
 
-    unsigned short int countDestsInRange(const row_label_type& source_id, unsigned short int range) const
+    unsigned short int
+    countDestsInRange(const row_label_type& source_id, unsigned short int range) const
     {
 
         unsigned short int count = 0;
         unsigned long int row_loc = df.getRowLocForId(source_id);
-        for (unsigned long int col_loc = 0; col_loc < df.getCols(); col_loc++)
+        for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
         {
             if (this->df.getValueByLoc(row_loc, col_loc) <= range)
             {
@@ -341,108 +354,28 @@ public:
     // Getters
 
 
-    unsigned short int getValueById(const row_label_type& row_id, const col_label_type& col_id) const
+    unsigned short int
+    getValueById(const row_label_type& row_id, const col_label_type& col_id) const
     {
         return df.getValueById(row_id, col_id);
     }
 
-
-
-    unsigned long int getRows() const
-    {
-        return df.getRows();
-    }
-
-
-    unsigned long int getCols() const
-    {
-        return df.getCols();
-    }
-
-
-    bool getIsSymmetric() const
-    {
-        return df.getIsSymmetric();
-    }
-
-
-    const std::vector<unsigned short int>& getDatasetRow(unsigned long int datasetRow) const
-    {
-        return df.getDatasetRow(datasetRow);
-    }
-
-
-    const std::vector<std::vector<unsigned short int>>& getDataset() const
-    {
-        return df.getDataset();
-    }
-
-
-    const std::vector<row_label_type>& getPrimaryDatasetIds() const
-    {
-        return df.getRowIds();
-    }
-
-
-    const std::vector<col_label_type>& getSecondaryDatasetIds() const
-    {
-        return df.getColIds();
-    }
-
-    // Setters
-
-
-    void setRows(unsigned long int rows) {
-        df.setRows(rows);
-    }
-
-
-
-    void setCols(unsigned long int cols) {
-        df.setCols(cols);
-    }
-
-
-
-    void setIsSymmetric(bool isSymmetric)
-    {
-        df.setIsSymmetric(isSymmetric);
-    }
-
-
-    void setDataset(const std::vector<std::vector<unsigned short int>>& dataset)
-    {
-        df.setDataset(dataset);
-    }
-
-
-    void setPrimaryDatasetIds(const std::vector<row_label_type>& primaryDatasetIds)
-    {
-        df.setRowIds(primaryDatasetIds);
-    }
-
-
-    void setSecondaryDatasetIds(const std::vector<col_label_type>& secondaryDatasetIds)
-    {
-        df.setColIds(secondaryDatasetIds);
-    }
-
-
-
     // IO
 
-
-    void printDataFrame() const
+    void
+    printDataFrame() const
     {
         this->df.printDataFrame();
     }
 
-    void readTMX(const std::string &infile) {
+    void
+    readTMX(const std::string &infile) {
         df.readTMX(infile);
     }
 
 
-    void writeCSV(const std::string &outfile) const
+    void
+    writeCSV(const std::string &outfile) const
     {
         try {
             df.writeCSV(outfile);
@@ -453,7 +386,8 @@ public:
         }
     }
 
-    void writeTMX(const std::string &outfile) const
+    void
+    writeTMX(const std::string &outfile) const
     {
         try {
             df.writeTMX(outfile);

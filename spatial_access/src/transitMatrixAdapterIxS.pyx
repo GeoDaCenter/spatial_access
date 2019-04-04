@@ -1,4 +1,5 @@
 # distutils: language=c++
+# cython: language_level=3
 from libcpp.string cimport string
 from libcpp cimport bool
 from libcpp.vector cimport vector
@@ -54,11 +55,11 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
+    def __cinit__(self, bool isCompressible=False, unsigned int rows=0, unsigned int columns=0):
         if rows == 0 and columns == 0:
             self.thisptr = new transitMatrix()
         else:
-            self.thisptr = new transitMatrix(isSymmetric, rows, columns)
+            self.thisptr = new transitMatrix(isCompressible, rows, columns)
 
     def __dealloc__(self):
         del self.thisptr

@@ -14,8 +14,8 @@ void dataFrame<unsigned long int, unsigned long int>::writeTMX(const std::string
     MatrixType mode = IxI;
     s.writeShortInt(mode);
 
-    // isSymmetric
-    s.writeShortInt(isSymmetric);
+    // isCompressible
+    s.writeShortInt(isCompressible);
 
     // rows
     s.writeLongInt(rows);
@@ -45,8 +45,8 @@ void dataFrame<unsigned long int, unsigned long int>::readTMX(const std::string&
         throw std::runtime_error("Unexpected mode");
     }
 
-    // isSymmetric
-    isSymmetric = (bool) d.readShortInt();
+    // isCompressible
+    isCompressible = (bool) d.readShortInt();
 
     // rows
     rows = d.readLongInt();
@@ -70,7 +70,7 @@ void dataFrame<unsigned long int, unsigned long int>::readTMX(const std::string&
     for (unsigned long int i = 0; i < cols; i++) {
         colIdsToLoc.insert(std::make_pair(colIds.at(i), i));
     }
-    if (isSymmetric) {
+    if (isCompressible) {
         dataset_size = (rows * (rows + 1)) / 2;
     }
     else {
@@ -89,8 +89,8 @@ void dataFrame<std::string, std::string>::writeTMX(const std::string& filename) 
     MatrixType mode = SxS;
     s.writeShortInt(mode);
 
-    // isSymmetric
-    s.writeShortInt(isSymmetric);
+    // isCompressible
+    s.writeShortInt(isCompressible);
 
     // rows
     s.writeLongInt(rows);
@@ -120,8 +120,8 @@ void dataFrame<std::string, std::string>::readTMX(const std::string& filename)
         throw std::runtime_error("Unexpected mode");
     }
 
-    // isSymmetric
-    isSymmetric = (bool) d.readShortInt();
+    // isCompressible
+    isCompressible = (bool) d.readShortInt();
 
     // rows
     rows = d.readLongInt();
@@ -145,7 +145,7 @@ void dataFrame<std::string, std::string>::readTMX(const std::string& filename)
     for (unsigned long int i = 0; i < cols; i++) {
         colIdsToLoc.insert(std::make_pair(colIds.at(i), i));
     }
-    if (isSymmetric) {
+    if (isCompressible) {
         dataset_size = (rows * (rows + 1)) / 2;
     }
     else {
@@ -164,8 +164,8 @@ void dataFrame<std::string, unsigned long int>::writeTMX(const std::string& file
     MatrixType mode = SxI;
     s.writeShortInt(mode);
 
-    // isSymmetric
-    s.writeShortInt(isSymmetric);
+    // isCompressible
+    s.writeShortInt(isCompressible);
 
     // rows
     s.writeLongInt(rows);
@@ -195,8 +195,8 @@ void dataFrame<std::string, unsigned long int>::readTMX(const std::string& filen
         throw std::runtime_error("Unexpected mode");
     }
 
-    // isSymmetric
-    isSymmetric = (bool) d.readShortInt();
+    // isCompressible
+    isCompressible = (bool) d.readShortInt();
 
     // rows
     rows = d.readLongInt();
@@ -220,7 +220,7 @@ void dataFrame<std::string, unsigned long int>::readTMX(const std::string& filen
     for (unsigned long int i = 0; i < cols; i++) {
         colIdsToLoc.insert(std::make_pair(colIds.at(i), i));
     }
-    if (isSymmetric) {
+    if (isCompressible) {
         dataset_size = (rows * (rows + 1)) / 2;
     }
     else {
@@ -239,8 +239,8 @@ void dataFrame<unsigned long int, std::string>::writeTMX(const std::string& file
     MatrixType mode = IxS;
     s.writeShortInt(mode);
 
-    // isSymmetric
-    s.writeShortInt(isSymmetric);
+    // isCompressible
+    s.writeShortInt(isCompressible);
 
     // rows
     s.writeLongInt(rows);
@@ -270,8 +270,8 @@ void dataFrame<unsigned long int, std::string>::readTMX(const std::string& filen
         throw std::runtime_error("Unexpected mode");
     }
 
-    // isSymmetric
-    isSymmetric = (bool) d.readShortInt();
+    // isCompressible
+    isCompressible = (bool) d.readShortInt();
 
     // rows
     rows = d.readLongInt();
@@ -295,7 +295,7 @@ void dataFrame<unsigned long int, std::string>::readTMX(const std::string& filen
     for (unsigned long int i = 0; i < cols; i++) {
         colIdsToLoc.insert(std::make_pair(colIds.at(i), i));
     }
-    if (isSymmetric) {
+    if (isCompressible) {
         dataset_size = (rows * (rows + 1)) / 2;
     }
     else {
