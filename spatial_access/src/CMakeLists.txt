@@ -8,7 +8,6 @@ set(SOURCE_FILES
         Matrix.cpp
         userDataContainer.cpp
         Graph.cpp
-        threadUtilities.cpp
-        networkUtility.cpp)
+        threadUtilities.cpp)
 project(matrix)
 add_executable(matrix ${SOURCE_FILES})

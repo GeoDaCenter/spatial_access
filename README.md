@@ -43,6 +43,8 @@ If you are a Windows user, instructions for installing Ubuntu on a virtual machi
 
 Installation 
 ----
+0. A modern compiler such as gcc/clang
+
 1. Dependencies 
 
     - MacOS:
@@ -67,7 +69,7 @@ See the iPython notebooks in docs/ for example usage.
 
 ### Instructions for building locally (only for developers):
 
-- If updating Cython or C++ code (anything in spatial_access/adapters/ or spatial_access/src/)
+- If updating Cython or C++ code (anything in spatial_access/src/)
 you must install cython
 - To regenerate .pyx files, run: `bash cythonize.sh`
 - To install locally, run: `sudo python3 setup.py install `

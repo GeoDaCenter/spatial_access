@@ -270,6 +270,7 @@ class NetworkInterface:
         Remove all nodes and edges that are not
         a part of the largest strongly connected component.
         """
+        return
         trimmer_start_time = time.time()
         trimmer = networkAdapterUtility.NetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
 

@@ -22,7 +22,6 @@ from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataExc
 from spatial_access.SpatialAccessExceptions import UnknownModeException
 from spatial_access.SpatialAccessExceptions import InsufficientDataException
 from spatial_access.SpatialAccessExceptions import DuplicateInputException
-from spatial_access.SpatialAccessExceptions import WriteH5FailedException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 
@@ -394,23 +393,6 @@ class TransitMatrix:
         if '.csv' not in outfile:
             raise WriteCSVFailedException('given filename does not have the correct extension (.csv)')
         self.matrix_interface.write_csv(outfile)
-
-    def write_h5(self, outfile=None):
-        """
-        Write the transit matrix to h5.
-
-        Note: Use this method (as opposed to write_csv) to 
-        save the transit matrix unless exporting data for 
-        external use.
-
-        Arguments:
-            outfile-optional string
-        """
-        if not outfile:
-            outfile = self._get_output_filename(self.network_type, extension='h5')
-        if '.h5' not in outfile:
-            raise WriteH5FailedException('given filename does not have the correct extension (.h5)')
-        self.matrix_interface.write_h5(outfile)
 
     def write_tmx(self, outfile=None):
         """
