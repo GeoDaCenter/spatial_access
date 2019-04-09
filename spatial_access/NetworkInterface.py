@@ -12,8 +12,15 @@ from geopy import distance
 
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
 from spatial_access.SpatialAccessExceptions import UnableToConnectException
+from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 
+try:
+    import networkAdapterUtility
+except ImportError:
+    raise SourceNotBuiltException()
 #  TODO: move trimming to an extension
+
+
 class NetworkInterface:
     """
     Abstracts the connection for querying OSM
@@ -263,6 +270,12 @@ class NetworkInterface:
         Remove all nodes and edges that are not
         a part of the largest strongly connected component.
         """
+        trimmer_start_time = time.time()
+        trimmer = networkAdapterUtility.NetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
+
+        self.trimmer_edges = trimmer.getConnectedNetworkEdges()
+        self.trimmer_nodes = trimmer.getConnectedNetworkNodes()
+        self.logger.info("trimmer in {} seconds".format(time.time() - trimmer_start_time))
         len_edges_before = len(self.edges)
         len_nodes_before = len(self.nodes)
         start_time = time.time()

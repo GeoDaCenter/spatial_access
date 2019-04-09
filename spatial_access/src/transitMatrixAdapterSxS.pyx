@@ -13,7 +13,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
 
     cdef cppclass transitMatrix[string,string]:
 
-        transitMatrix(bool, unsigned int, unsigned int) except +
+        transitMatrix(bool, bool, unsigned int, unsigned int) except +
         transitMatrix() except +
 
         void prepareGraphWithVertices(int V) except +
@@ -32,19 +32,6 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
         unsigned short int timeToNearestDest(string) except +
         unsigned short int countDestsInRange(string, unsigned short int) except +
 
-
-        unsigned short int getValueById(string, string) except +
-        unsigned int getRows() except +
-        unsigned int getCols() except +
-        bool getIsSymmetric() except +
-        vector[vector[value]] getDataset() except +
-        vector[string] getPrimaryDatasetIds() except+
-        vector[string] getSecondaryDatasetIds() except+
-
-        void setDataset(vector[vector[matrix]]) except +
-        void setPrimaryDatasetIds(vector[string]) except +
-        void setSecondaryDatasetIds(vector[string]) except +
-
         void writeCSV(string) except +
         void writeTMX(string) except +
         void readTMX(string) except +
@@ -55,11 +42,12 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isCompressible=False, unsigned int rows=0, unsigned int columns=0):
+    def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
         if rows == 0 and columns == 0:
             self.thisptr = new transitMatrix()
         else:
-            self.thisptr = new transitMatrix(isCompressible, rows, columns)
+            self.thisptr = new transitMatrix(isCompressible, isSymmetric, rows, columns)
+
 
     def __dealloc__(self):
         if self.thisptr is not NULL:
@@ -121,11 +109,6 @@ cdef class pyTransitMatrix:
     def compute(self, numThreads):
         self.thisptr.compute(numThreads)
 
-    def getValueById(self, source, dest):
-        cdef string source_string = str.encode(source)
-        cdef string dest_string = str.encode(dest)
-        return self.thisptr.getValueById(source_string, dest_string)
-
     def writeCSV(self, outfile):
         cdef string outfile_string = str.encode(outfile)
         return self.thisptr.writeCSV(outfile_string)
@@ -163,39 +146,3 @@ cdef class pyTransitMatrix:
     def countDestsInRange(self, source_id, range):
         cdef string string_source_id = str.encode(source_id)
         return self.thisptr.countDestsInRange(string_source_id, range)
-
-    def setDataset(self, dataset):
-        cdef vector[vector[matrix]] cpp_input = dataset
-        self.thisptr.setDataset(cpp_input)
-
-    def setPrimaryDatasetIds(self, primaryDatasetIds):
-        cdef vector[string] cpp_input = []
-        for element in primaryDatasetIds:
-            cpp_input.push_back(element)
-        self.thisptr.setPrimaryDatasetIds(cpp_input)
-
-    def setSecondaryDatasetIds(self, secondaryDatasetIds):
-        cdef vector[string] cpp_input = []
-        for element in secondaryDatasetIds:
-            cpp_input.push_back(element)
-        self.thisptr.setSecondaryDatasetIds(cpp_input)
-
-    def getRows(self):
-        return self.thisptr.getRows()
-
-    def getCols(self):
-        return self.thisptr.getCols()
-
-    def getIsSymmetric(self):
-        return self.thisptr.getIsSymmetric()
-
-    def getDataset(self):
-        return self.thisptr.getDataset()
-
-    def getPrimaryDatasetIds(self):
-        cdef vector[string] py_result = self.thisptr.getPrimaryDatasetIds()
-        return py_result
-
-    def getSecondaryDatasetIds(self):
-        cdef vector[string] py_result = self.thisptr.getSecondaryDatasetIds()
-        return py_result

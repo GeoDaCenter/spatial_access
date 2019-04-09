@@ -69,7 +69,7 @@ public:
     }
 
     unsigned long int
-    symmetricEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc) const
+    compressedEquivalentLoc(unsigned long int row_loc, unsigned long int col_loc) const
     {
         unsigned long int row_delta = rows - row_loc;
         return dataset_size - row_delta * (row_delta + 1) / 2 + col_loc - row_loc;
@@ -85,10 +85,10 @@ public:
             unsigned long int index;
             if (isUnderDiagonal(row_loc, col_loc))
             {
-                index = symmetricEquivalentLoc(col_loc, row_loc);
+                index = compressedEquivalentLoc(col_loc, row_loc);
             } else
             {
-                index = symmetricEquivalentLoc(row_loc, col_loc);
+                index = compressedEquivalentLoc(row_loc, col_loc);
             }
             return dataset.at(0).at(index);
         }
@@ -203,10 +203,10 @@ public:
             unsigned long int index;
             if (isUnderDiagonal(row_loc, col_loc))
             {
-                index = symmetricEquivalentLoc(col_loc, row_loc);
+                index = compressedEquivalentLoc(col_loc, row_loc);
             } else
             {
-                index = symmetricEquivalentLoc(row_loc, col_loc);
+                index = compressedEquivalentLoc(row_loc, col_loc);
             }
             dataset.at(0).at(index) = value;
             return;
@@ -223,7 +223,7 @@ public:
         {
             throw std::runtime_error("row loc exceeds index of dataframe");
         }
-        if (isCompressible)
+        if (!isCompressible)
         {
 
             this->dataset.at(source_loc) = row_data; // TODO: fix bug. accessing here causes out of range error
@@ -231,8 +231,7 @@ public:
         }
         else
         {
-
-            unsigned long int left_index = this->symmetricEquivalentLoc(source_loc, source_loc);
+            unsigned long int left_index = this->compressedEquivalentLoc(source_loc, source_loc);
             std::copy(row_data.begin(), row_data.end(), this->dataset.at(0).begin() + left_index);
 
         }

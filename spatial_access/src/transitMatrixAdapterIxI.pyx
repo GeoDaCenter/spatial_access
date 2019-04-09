@@ -13,7 +13,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         ctypedef unsigned short int value
         ctypedef unsigned long int int_label
 
-        transitMatrix(bool, unsigned int, unsigned int) except +
+        transitMatrix(bool, bool, unsigned int, unsigned int) except +
         transitMatrix() except +
 
         void prepareGraphWithVertices(int V) except +
@@ -32,19 +32,6 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         unsigned short int timeToNearestDest(unsigned long) except +
         unsigned short int countDestsInRange(unsigned long, unsigned short int) except +
 
-
-        unsigned short int getValueById(unsigned long, unsigned long) except +
-        unsigned int getRows() except +
-        unsigned int getCols() except +
-        bool getIsSymmetric() except +
-        vector[vector[value]] getDataset() except +
-        vector[unsigned long int] getPrimaryDatasetIds() except+
-        vector[unsigned long int] getSecondaryDatasetIds() except+
-
-        void setDataset(vector[vector[matrix]]) except +
-        void setPrimaryDatasetIds(vector[unsigned long int]) except +
-        void setSecondaryDatasetIds(vector[unsigned long int]) except +
-
         void writeCSV(string) except +
         void writeTMX(string) except +
         void readTMX(string) except +
@@ -53,12 +40,11 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isCompressible=False, unsigned int rows=0, unsigned int columns=0):
+    def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
         if rows == 0 and columns == 0:
             self.thisptr = new transitMatrix()
         else:
-            self.thisptr = new transitMatrix(isCompressible, rows, columns)
-        return
+            self.thisptr = new transitMatrix(isCompressible, isSymmetric, rows, columns)
 
     def __dealloc__(self):
         del self.thisptr
@@ -66,17 +52,6 @@ cdef class pyTransitMatrix:
     def prepareGraphWithVertices(self, vertices):
         self.thisptr.prepareGraphWithVertices(vertices)
 
-    def getDestsInRange(self, range_, numThreads):
-        return self.thisptr.getDestsInRange(range_, numThreads)
-
-    def getSourcesInRange(self, range_, numThreads):
-        return self.thisptr.getSourcesInRange(range_, numThreads)
-
-    def getValuesBySource(self, source_id, sort):
-        return self.thisptr.getValuesBySource(source_id, sort)
-
-    def getValuesByDest(self, dest_id, sort):
-        return self.thisptr.getValuesByDest(dest_id, sort)
 
     def addToUserSourceDataContainer(self, networkNodeId, id_, lastMileDistance):
         self.thisptr.addToUserSourceDataContainer(networkNodeId, id_, lastMileDistance)
@@ -90,9 +65,6 @@ cdef class pyTransitMatrix:
 
     def compute(self, numThreads):
         self.thisptr.compute(numThreads)
-
-    def getValueById(self, source, dest):
-        return self.thisptr.getValueById(source, dest)
 
     def writeCSV(self, outfile):
         cdef string outfile_string = str.encode(outfile)
@@ -126,31 +98,3 @@ cdef class pyTransitMatrix:
 
     def countDestsInRange(self, source_id, range):
         return self.thisptr.countDestsInRange(source_id, range)
-
-    def setDataset(self, dataset):
-        cdef vector[vector[matrix]] cpp_input = dataset
-        self.thisptr.setDataset(cpp_input)
-
-    def setPrimaryDatasetIds(self, primaryDatasetIds):
-        self.thisptr.setPrimaryDatasetIds(primaryDatasetIds)
-
-    def setSecondaryDatasetIds(self, secondaryDatasetIds):
-        self.thisptr.setSecondaryDatasetIds(secondaryDatasetIds)
-
-    def getRows(self):
-        return self.thisptr.getRows()
-
-    def getCols(self):
-        return self.thisptr.getCols()
-
-    def getIsSymmetric(self):
-        return self.thisptr.getIsSymmetric()
-
-    def getDataset(self):
-        return self.thisptr.getDataset()
-
-    def getPrimaryDatasetIds(self):
-        return self.thisptr.getPrimaryDatasetIds()
-
-    def getSecondaryDatasetIds(self):
-        return self.thisptr.getSecondaryDatasetIds()

@@ -5,6 +5,7 @@
 #include <iostream>
 #include "include/transitMatrix.h"
 #include "include/TMXUtils.h"
+#include "networkUtility.h"
 #include <vector>
 #include <unordered_map>
 

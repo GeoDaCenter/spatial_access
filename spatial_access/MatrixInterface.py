@@ -5,17 +5,14 @@
 import multiprocessing
 import time
 import os
-import h5py
 
 from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
 from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
-from spatial_access.SpatialAccessExceptions import WriteH5FailedException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
-from spatial_access.SpatialAccessExceptions import ReadH5FailedException
 from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
-from spatial_access.SpatialAccessExceptions import PyTransitMatrixNotBuiltException
+from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
 from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
 from spatial_access.SpatialAccessExceptions import InvalidIdTypeException
@@ -27,7 +24,7 @@ try:
     import transitMatrixAdapterIxS
     import TMXUtils
 except ImportError:
-    raise PyTransitMatrixNotBuiltException()
+    raise SourceNotBuiltException()
 
 
 class MatrixInterface:
@@ -51,76 +48,11 @@ class MatrixInterface:
 
     def write_h5(self, filename):
         if self.logger:
-            self.logger.warning("write_h5 will be deprecated! Please use write_tmx instead.")
-        start = time.time()
-        if self.primary_ids_name == 'rows':
-            raise WriteH5FailedException("Illegal primary_ids_name: {}".format(self.primary_ids_name))
-        if self.secondary_ids_name == 'cols':
-            raise WriteH5FailedException("Illegal secondary_ids_name: {}".format(self.secondary_ids_name))
-
-        with h5py.File(filename, 'w') as file:
-
-            file.attrs['dataset_name'] = self.dataset_name.encode()
-            file.attrs['is_symmetric'] = self.transit_matrix.getIsSymmetric()
-            file.attrs['rows'] = self.transit_matrix.getRows()
-            file.attrs['columns'] = self.transit_matrix.getCols()
-            id_dataset = [self.primary_ids_name.encode()]
-            if self.secondary_ids_name is not None:
-                id_dataset.append(self.secondary_ids_name.encode())
-            file.attrs['id_dataset_name'] = id_dataset
-            primary_ids_dtype = "S10" if self.primary_ids_are_string else "i8"
-            file.create_dataset(self.primary_ids_name, data=self.transit_matrix.getPrimaryDatasetIds(),
-                                dtype=primary_ids_dtype)
-            if self.secondary_ids_name is not None:
-                secondary_ids_dtype = "S10" if self.secondary_ids_are_string else "i8"
-                file.create_dataset(self.secondary_ids_name, data=self.transit_matrix.getSecondaryDatasetIds(),
-                                    dtype=secondary_ids_dtype)
-            file.create_dataset(self.dataset_name, data=self.transit_matrix.getDataset(), dtype="i2")
-        if self.logger:
-            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
+            self.logger.error("this method is deprecated. use tmx instead.")
 
     def read_h5(self, filename):
-        start = time.time()
-        if not os.path.exists(filename):
-            raise FileNotFoundException(filename)
-        with h5py.File(filename, 'r') as file:
-            self.dataset_name = file.attrs.get('dataset_name').decode()
-            is_symmetric = file.attrs.get('is_symmetric')
-            rows = file.attrs.get('rows')
-            columns = file.attrs.get('columns')
-            id_dataset = file.attrs.get('id_dataset_name')
-
-            self.primary_ids_name = id_dataset[0]
-            if len(id_dataset) > 1:
-                self.secondary_ids_name = id_dataset[1]
-            if is_symmetric and self.secondary_ids_name is not None:
-                raise UnexpectedFileFormatException("Illogical to have a symmetric matrix with secondary ids")
-            if not is_symmetric and self.secondary_ids_name is None:
-                raise UnexpectedFileFormatException("Illogical to have an asymmetric matrix without secondary ids")
-            primary_ids = file.get(self.primary_ids_name)
-            self.primary_ids_are_string = primary_ids.dtype != int
-            if self.secondary_ids_name is None:
-                self.secondary_ids_name = self.primary_ids_name
-            secondary_ids = file.get(self.secondary_ids_name)
-            self.secondary_ids_are_string = secondary_ids.dtype != int
-
-            if self.primary_ids_are_string and self.secondary_ids_are_string:
-                self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
-            elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-                self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
-            elif not self.primary_ids_are_string and self.secondary_ids_are_string:
-                self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
-            elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
-                self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
-            else:
-                assert False, "Logic Error"
-
-            self.transit_matrix.setPrimaryDatasetIds(list(primary_ids[:]))
-            self.transit_matrix.setSecondaryDatasetIds(list(secondary_ids[:]))
-            self.transit_matrix.setDataset(list(file.get(self.dataset_name)[:]))
-
         if self.logger:
-            self.logger.info('Read from {} in {:,.2f} seconds'.format(filename, time.time() - start))
+            self.logger.error("this method is deprecated. use tmx instead.")
 
     def read_tmx(self, filename):
         """

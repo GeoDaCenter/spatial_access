@@ -250,7 +250,7 @@ public:
     {
         // Initialize maps
         std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
-        for (unsigned long int row_loc = 0; row_loc < df.getRows(); row_loc++)
+        for (unsigned long int row_loc = 0; row_loc < df.rows; row_loc++)
         {
             std::vector<col_label_type> valueData;
             for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++) {
@@ -274,7 +274,7 @@ public:
         for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
         {
             std::vector<row_label_type> valueData;
-            for (unsigned long int row_loc = 0; row_loc < df.getRows(); row_loc++) {
+            for (unsigned long int row_loc = 0; row_loc < df.rows; row_loc++) {
                 if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
                     valueData.push_back(df.getRowIdForLoc(row_loc));
                 }

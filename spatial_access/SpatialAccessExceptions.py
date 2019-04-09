@@ -62,19 +62,9 @@ class WriteCSVFailedException(MatrixInterfaceException):
         super().__init__("WriteCSVFailedException:" + errors)
 
 
-class WriteH5FailedException(MatrixInterfaceException):
-    def __init__(self, errors=''):
-        super().__init__("WriteH5FailedException:" + errors)
-
-
 class WriteTMXFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
         super().__init__("WriteTMXFailedException:" + errors)
-
-
-class ReadH5FailedException(MatrixInterfaceException):
-    def __init__(self, errors=''):
-        super().__init__("ReadH5FailedException:" + errors)
 
 
 class ReadTMXFailedException(MatrixInterfaceException):
@@ -97,9 +87,9 @@ class FileNotFoundException(MatrixInterfaceException):
         super().__init__("UnableToBuildMatrixException:" + errors)
 
 
-class PyTransitMatrixNotBuiltException(MatrixInterfaceException):
+class SourceNotBuiltException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__("PyTransitMatrixNotBuiltException:" + errors)
+        super().__init__("SourceNotBuiltException:" + errors)
 
 
 class PrimaryDataNotFoundException(P2PException):

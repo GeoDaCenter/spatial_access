@@ -3,7 +3,7 @@ from setuptools.extension import Extension
 from setuptools import setup
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    LONG_DESCRIPTION = fh.read()
 
 ouff_mac = []
 extra_dependency = []
@@ -13,51 +13,30 @@ if sys.platform == "darwin":
 
 SRC_PATH = "spatial_access/src/"
 
-SOURCES = ["dataFrame.cpp",
-           "Serializer.cpp",
-           "userDataContainer.cpp",
-           "Graph.cpp",
-           "threadUtilities.cpp"]
+MATRIX_INTERFACE_SOURCES = ["dataFrame.cpp",
+                            "Serializer.cpp",
+                            "userDataContainer.cpp",
+                            "Graph.cpp",
+                            "threadUtilities.cpp"]
 
-SOURCES = [SRC_PATH + source for source in SOURCES]
 
-EXTENSION = [Extension(
-    name = 'TMXUtils', language = 'c++',
-    sources = [SRC_PATH + 'TMXUtils.cpp', SRC_PATH + 'Serializer.cpp'],
-    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
-                          ] + ouff_mac,
-    undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
-    ),Extension(
-    name = 'transitMatrixAdapterSxS', language = 'c++',
-    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterSxS.cpp'],
-    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
-                          ] + ouff_mac,
-    undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
-    ),Extension(
-    name = 'transitMatrixAdapterIxI', language = 'c++',
-    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterIxI.cpp'],
-    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
-                          ] + ouff_mac,
-    undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
-    ),Extension(
-    name = 'transitMatrixAdapterSxI', language = 'c++',
-    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterSxI.cpp'],
-    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
-                          ] + ouff_mac,
-    undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
-    ),Extension(
-    name = 'transitMatrixAdapterIxS', language = 'c++',
-    sources = SOURCES + [SRC_PATH + 'transitMatrixAdapterIxS.cpp'],
-    extra_compile_args = ['--std=c++11', '-Wall', '-O3'
-                          ] + ouff_mac,
-    undef_macros       = ["NDEBUG"],
-    extra_link_args    = ouff_mac
-    )]
+def build_extension(extension_name, sources):
+    full_path_sources = [SRC_PATH + src for src in sources]
+    return Extension(name=extension_name, language='c++',
+                     sources=full_path_sources,
+                     extra_compile_args=['--std=c++11', '-Wall', '-O3'] + ouff_mac,
+                     undef_macros=["NDEBUG"],
+                     extra_link_args=ouff_mac)
 
+
+EXTENSION_SOURCES = [('TMXUtils', ['TMXUtils.cpp', 'Serializer.cpp']),
+                     ('networkAdapterUtility', ['networkAdapterUtility.cpp']),
+                     ('transitMatrixAdapterSxS', ['transitMatrixAdapterSxS.cpp'] + MATRIX_INTERFACE_SOURCES),
+                     ('transitMatrixAdapterIxS', ['transitMatrixAdapterIxS.cpp'] + MATRIX_INTERFACE_SOURCES),
+                     ('transitMatrixAdapterSxI', ['transitMatrixAdapterSxI.cpp'] + MATRIX_INTERFACE_SOURCES),
+                     ('transitMatrixAdapterIxI', ['transitMatrixAdapterIxI.cpp'] + MATRIX_INTERFACE_SOURCES)]
+
+EXTENSIONS = [build_extension(extension_name=extension_name, sources=sources) for extension_name, sources in EXTENSION_SOURCES]
 
 REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'cython>=0.28.2',
@@ -94,10 +73,10 @@ setup(
     url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
     version='0.1.6.13',
-    ext_modules=EXTENSION,
+    ext_modules=EXTENSIONS,
     py_modules=SUBMODULE_NAMES,
     install_requires=REQUIRED_DEPENDENCIES,
-    long_description=long_description,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     license="GPL"
     )
