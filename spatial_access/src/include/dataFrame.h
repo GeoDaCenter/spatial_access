@@ -96,16 +96,6 @@ public:
     }
 
 
-    void
-    setValueById(const row_label_type& row_id, const col_label_type& col_id,
-                                                                 unsigned short int value)
-    {
-        unsigned long int row_loc = rowIdsToLoc.at(row_id);
-        unsigned long int col_loc = colIdsToLoc.at(col_id);
-        setValueByLoc(row_loc, col_loc, value);
-    }
-
-
     unsigned short int
     getValueById(const row_label_type& row_id, const col_label_type& col_id) const
     {
@@ -274,8 +264,11 @@ public:
     addToColIndex(const col_label_type& col_id)
     {
         unsigned long int index = colIds.size();
-        colIds.push_back(col_id);
-        colIdsToLoc.emplace(std::make_pair(col_id, index));
+        if (!isSymmetric)
+        {
+            colIds.push_back(col_id);
+            colIdsToLoc.emplace(std::make_pair(col_id, index));
+        }
         return index;
     }
     

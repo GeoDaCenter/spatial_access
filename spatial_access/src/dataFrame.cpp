@@ -4,7 +4,6 @@
 
 #include "include/dataFrame.h"
 
-// TODO: encode isSymmetric to eliminate redundant labels
 template<>
 void dataFrame<unsigned long int, unsigned long int>::writeTMX(const std::string& filename) const
 {
@@ -18,6 +17,9 @@ void dataFrame<unsigned long int, unsigned long int>::writeTMX(const std::string
     // isCompressible
     s.writeShortInt(isCompressible);
 
+    // isSymmetric
+    s.writeShortInt(isSymmetric);
+
     // rows
     s.writeLongInt(rows);
 
@@ -27,8 +29,11 @@ void dataFrame<unsigned long int, unsigned long int>::writeTMX(const std::string
     // rowIds
     s.writeVectorLongInt(rowIds);
 
-    // colIds
-    s.writeVectorLongInt(colIds);
+    if (!isSymmetric)
+    {
+        // colIds
+        s.writeVectorLongInt(colIds);
+    }
 
     s.writeVectorVector(dataset);
 
@@ -49,6 +54,9 @@ void dataFrame<unsigned long int, unsigned long int>::readTMX(const std::string&
     // isCompressible
     isCompressible = (bool) d.readShortInt();
 
+    // isSymmetric
+    isSymmetric = (bool) d.readShortInt();
+
     // rows
     rows = d.readLongInt();
 
@@ -58,8 +66,13 @@ void dataFrame<unsigned long int, unsigned long int>::readTMX(const std::string&
     // rowIds
     d.readVectorLongInt(rowIds);
 
-    // colIds
-    d.readVectorLongInt(colIds);
+    if (!isSymmetric)
+    {
+        // colIds
+        d.readVectorLongInt(colIds);
+    } else{
+        colIds = rowIds;
+    }
 
     // data
     d.readVectorVector(dataset);
@@ -93,6 +106,9 @@ void dataFrame<std::string, std::string>::writeTMX(const std::string& filename) 
     // isCompressible
     s.writeShortInt(isCompressible);
 
+    // isSymmetric
+    s.writeShortInt(isSymmetric);
+
     // rows
     s.writeLongInt(rows);
 
@@ -102,8 +118,11 @@ void dataFrame<std::string, std::string>::writeTMX(const std::string& filename) 
     // rowIds
     s.writeVectorString(rowIds);
 
-    // colIds
-    s.writeVectorString(colIds);
+    if (!isSymmetric)
+    {
+        // colIds
+        s.writeVectorString(colIds);
+    }
 
     s.writeVectorVector(dataset);
 
@@ -133,8 +152,13 @@ void dataFrame<std::string, std::string>::readTMX(const std::string& filename)
     // rowIds
     d.readVectorString(rowIds);
 
-    // colIds
-    d.readVectorString(colIds);
+    if (!isSymmetric)
+    {
+        // colIds
+        d.readVectorString(colIds);
+    } else {
+        colIds = rowIds;
+    }
 
     // data
     d.readVectorVector(dataset);
@@ -168,6 +192,9 @@ void dataFrame<std::string, unsigned long int>::writeTMX(const std::string& file
     // isCompressible
     s.writeShortInt(isCompressible);
 
+    // isSymmetric
+    s.writeShortInt(isSymmetric);
+
     // rows
     s.writeLongInt(rows);
 
@@ -199,6 +226,14 @@ void dataFrame<std::string, unsigned long int>::readTMX(const std::string& filen
     // isCompressible
     isCompressible = (bool) d.readShortInt();
 
+    // isSymmetric
+    isSymmetric = (bool) d.readShortInt();
+
+    if (isSymmetric)
+    {
+        throw std::runtime_error("unexpectedly found symmetric matrix");
+    }
+
     // rows
     rows = d.readLongInt();
 
@@ -208,7 +243,7 @@ void dataFrame<std::string, unsigned long int>::readTMX(const std::string& filen
     // rowIds
     d.readVectorString(rowIds);
 
-    // colIds
+    // colIDs
     d.readVectorLongInt(colIds);
 
     // data
@@ -243,6 +278,9 @@ void dataFrame<unsigned long int, std::string>::writeTMX(const std::string& file
     // isCompressible
     s.writeShortInt(isCompressible);
 
+    // isSymmetric
+    s.writeShortInt(isSymmetric);
+
     // rows
     s.writeLongInt(rows);
 
@@ -273,6 +311,14 @@ void dataFrame<unsigned long int, std::string>::readTMX(const std::string& filen
 
     // isCompressible
     isCompressible = (bool) d.readShortInt();
+
+    // isSymmetric
+    isSymmetric = (bool) d.readShortInt();
+
+    if (isSymmetric)
+    {
+        throw std::runtime_error("unexpectedly found symmetric matrix");
+    }
 
     // rows
     rows = d.readLongInt();
