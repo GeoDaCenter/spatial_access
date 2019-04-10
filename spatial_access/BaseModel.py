@@ -77,12 +77,6 @@ class ModelData(object):
         """
         self._sp_matrix.write_csv(filename)
 
-    def write_shortest_path_matrix_to_h5(self, filename=None):
-        """
-        Write sp matrix to h5.
-        """
-        self._sp_matrix.write_h5(filename)
-
     def write_shortest_path_matrix_to_tmx(self, filename=None):
         """
         Write sp matrix to tmx.
@@ -174,23 +168,17 @@ class ModelData(object):
             return
         self.logger = logging.getLogger(__name__)
 
-    def load_sp_matrix(self, read_from_h5=None, read_from_tmx=None):
+    def load_sp_matrix(self, read_from_tmx=None):
         """
         Load the shortest path matrix; if a filename is supplied,
         ModelData will attempt to load from file.
         If filename is not supplied, ModelData will generate
         a shortest path matrix using p2p (must be installed).
         """
-
-        if read_from_h5:
-            self._sp_matrix = TransitMatrix(self.network_type,
-                                            read_from_h5=read_from_h5)
-        elif read_from_tmx:
+        if read_from_tmx:
             self._sp_matrix = TransitMatrix(self.network_type,
                                             read_from_tmx=read_from_tmx)
-
         else:
-
             self._sp_matrix = TransitMatrix(self.network_type,
                                             primary_input=self.sources_filename,
                                             secondary_input=self.destinations_filename,

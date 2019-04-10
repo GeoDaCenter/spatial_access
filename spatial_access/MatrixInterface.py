@@ -16,7 +16,7 @@ from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
 from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
 from spatial_access.SpatialAccessExceptions import InvalidIdTypeException
-
+# TODO: merge adapters into one
 try:
     import transitMatrixAdapterIxI
     import transitMatrixAdapterSxS

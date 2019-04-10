@@ -15,6 +15,7 @@ from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeExce
 
 import math
 
+# TODO: Don't prompt for variable for models which don't use them
 
 def linear_decay_function(time, upper):
     """

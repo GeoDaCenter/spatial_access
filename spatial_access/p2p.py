@@ -25,7 +25,8 @@ from spatial_access.SpatialAccessExceptions import DuplicateInputException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 
-
+# TODO: improve logging granularity
+# TODO: diable writing logs to disk
 class TransitMatrix:
 
     """
@@ -53,7 +54,6 @@ class TransitMatrix:
             epsilon=0.05,
             primary_input=None,
             secondary_input=None,
-            read_from_h5=None,
             read_from_tmx=None,
             primary_hints=None,
             secondary_hints=None,
@@ -103,11 +103,9 @@ class TransitMatrix:
             raise DuplicateInputException("Gave duplicate inputs: {}".format(self.primary_input))
 
         # need to supply either:
-        if primary_input is None and (read_from_h5 is None and read_from_tmx is None):
+        if primary_input is None and read_from_tmx is None:
             raise InsufficientDataException()
 
-        if read_from_h5:
-            self.matrix_interface.read_h5(read_from_h5)
         if read_from_tmx:
             self.matrix_interface.read_tmx(read_from_tmx)
 
@@ -203,8 +201,10 @@ class TransitMatrix:
         source_data.dropna(subset=[lon, lat], axis='index', inplace=True)
 
         dropped_lines = pre_drop - len(source_data)
+
+        keyword = "rows" if primary else "columns"
         self.logger.info(
-            'Total number of rows in the dataset: %d', pre_drop)
+            'Total number of {} in the dataset: {}'.format(keyword, pre_drop))
         if dropped_lines > 0:
             self.logger.warning(
                 "Rows dropped due to missing latitude or longitude values: %d", dropped_lines)
