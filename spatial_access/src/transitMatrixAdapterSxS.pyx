@@ -42,7 +42,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
+    def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
         if rows == 0 and columns == 0:
             self.thisptr = new transitMatrix()
         else:

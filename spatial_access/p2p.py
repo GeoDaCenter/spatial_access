@@ -68,7 +68,6 @@ class TransitMatrix:
         self.epsilon = epsilon
         self.primary_input = primary_input
         self.secondary_input = secondary_input
-        self.read_from_h5 = read_from_h5
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
         self.use_meters = use_meters

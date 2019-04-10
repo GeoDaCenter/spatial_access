@@ -46,14 +46,6 @@ class MatrixInterface:
             self.secondary_ids_name = None
             self.dataset_name = '{}_{}'.format(primary_input_name, primary_input_name)
 
-    def write_h5(self, filename):
-        if self.logger:
-            self.logger.error("this method is deprecated. use tmx instead.")
-
-    def read_h5(self, filename):
-        if self.logger:
-            self.logger.error("this method is deprecated. use tmx instead.")
-
     def read_tmx(self, filename):
         """
         Read tmx from file

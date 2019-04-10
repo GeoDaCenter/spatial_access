@@ -40,7 +40,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
 cdef class pyTransitMatrix:
     cdef transitMatrix *thisptr
 
-    def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
+    def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
         if rows == 0 and columns == 0:
             self.thisptr = new transitMatrix()
         else:
@@ -98,3 +98,9 @@ cdef class pyTransitMatrix:
 
     def countDestsInRange(self, source_id, range):
         return self.thisptr.countDestsInRange(source_id, range)
+
+    def getSourcesInRange(self, range_, numThreads):
+        return self.thisptr.getSourcesInRange(range_, numThreads)
+
+    def getDestsInRange(self, range_, numThreads):
+        return self.thisptr.getDestsInRange(range_, numThreads)

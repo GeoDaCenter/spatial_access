@@ -276,7 +276,7 @@ class ModelData(object):
         columns_to_keep = list(rename_cols.values())
         self.sources = self.sources[columns_to_keep]
 
-
+    # TODO: give better exception when provided hints are wrong
     def reload_dests(self, filename=None):
         """
         Load the destination points for the model (from csv).

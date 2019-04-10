@@ -931,10 +931,6 @@ static CYTHON_INLINE PyObject* __Pyx_PyObject_GetAttrStr(PyObject* obj, PyObject
 /* GetBuiltinName.proto */
 static PyObject *__Pyx_GetBuiltinName(PyObject *name);
 
-/* RaiseArgTupleInvalid.proto */
-static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
-    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
-
 /* RaiseDoubleKeywords.proto */
 static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_name);
 
@@ -942,6 +938,10 @@ static void __Pyx_RaiseDoubleKeywordsError(const char* func_name, PyObject* kw_n
 static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
     PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
     const char* function_name);
+
+/* RaiseArgTupleInvalid.proto */
+static void __Pyx_RaiseArgtupleInvalid(const char* func_name, int exact,
+    Py_ssize_t num_min, Py_ssize_t num_max, Py_ssize_t num_found);
 
 /* RaiseTooManyValuesToUnpack.proto */
 static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected);
@@ -1359,7 +1359,7 @@ static PyObject *__pyx_tuple__2;
 /* "transitMatrixAdapterSxS.pyx":45
  *     cdef transitMatrix *thisptr
  * 
- *     def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):             # <<<<<<<<<<<<<<
  *         if rows == 0 and columns == 0:
  *             self.thisptr = new transitMatrix()
  */
@@ -1395,13 +1395,15 @@ static int __pyx_pw_23transitMatrixAdapterSxS_15pyTransitMatrix_1__cinit__(PyObj
       kw_args = PyDict_Size(__pyx_kwds);
       switch (pos_args) {
         case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isCompressible)) != 0)) kw_args--;
-        else goto __pyx_L5_argtuple_error;
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isCompressible);
+          if (value) { values[0] = value; kw_args--; }
+        }
         CYTHON_FALLTHROUGH;
         case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isSymmetric)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 2, 4, 1); __PYX_ERR(1, 45, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_isSymmetric);
+          if (value) { values[1] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -1426,13 +1428,23 @@ static int __pyx_pw_23transitMatrixAdapterSxS_15pyTransitMatrix_1__cinit__(PyObj
         case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
         CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-        break;
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_isCompressible = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_isCompressible == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 45, __pyx_L3_error)
-    __pyx_v_isSymmetric = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_isSymmetric == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 45, __pyx_L3_error)
+    if (values[0]) {
+      __pyx_v_isCompressible = __Pyx_PyObject_IsTrue(values[0]); if (unlikely((__pyx_v_isCompressible == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 45, __pyx_L3_error)
+    } else {
+      __pyx_v_isCompressible = ((bool)0);
+    }
+    if (values[1]) {
+      __pyx_v_isSymmetric = __Pyx_PyObject_IsTrue(values[1]); if (unlikely((__pyx_v_isSymmetric == ((bool)-1)) && PyErr_Occurred())) __PYX_ERR(1, 45, __pyx_L3_error)
+    } else {
+      __pyx_v_isSymmetric = ((bool)0);
+    }
     if (values[2]) {
       __pyx_v_rows = __Pyx_PyInt_As_unsigned_int(values[2]); if (unlikely((__pyx_v_rows == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(1, 45, __pyx_L3_error)
     } else {
@@ -1446,7 +1458,7 @@ static int __pyx_pw_23transitMatrixAdapterSxS_15pyTransitMatrix_1__cinit__(PyObj
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 45, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 0, 0, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 45, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("transitMatrixAdapterSxS.pyTransitMatrix.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1469,7 +1481,7 @@ static int __pyx_pf_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(struct
 
   /* "transitMatrixAdapterSxS.pyx":46
  * 
- *     def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
+ *     def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
  *         if rows == 0 and columns == 0:             # <<<<<<<<<<<<<<
  *             self.thisptr = new transitMatrix()
  *         else:
@@ -1486,7 +1498,7 @@ static int __pyx_pf_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(struct
   if (__pyx_t_1) {
 
     /* "transitMatrixAdapterSxS.pyx":47
- *     def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
+ *     def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
  *         if rows == 0 and columns == 0:
  *             self.thisptr = new transitMatrix()             # <<<<<<<<<<<<<<
  *         else:
@@ -1502,7 +1514,7 @@ static int __pyx_pf_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(struct
 
     /* "transitMatrixAdapterSxS.pyx":46
  * 
- *     def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):
+ *     def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):
  *         if rows == 0 and columns == 0:             # <<<<<<<<<<<<<<
  *             self.thisptr = new transitMatrix()
  *         else:
@@ -1531,7 +1543,7 @@ static int __pyx_pf_23transitMatrixAdapterSxS_15pyTransitMatrix___cinit__(struct
   /* "transitMatrixAdapterSxS.pyx":45
  *     cdef transitMatrix *thisptr
  * 
- *     def __cinit__(self, bool isCompressible, bool isSymmetric, unsigned int rows=0, unsigned int columns=0):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):             # <<<<<<<<<<<<<<
  *         if rows == 0 and columns == 0:
  *             self.thisptr = new transitMatrix()
  */
@@ -5824,32 +5836,6 @@ static PyObject *__Pyx_GetBuiltinName(PyObject *name) {
     return result;
 }
 
-/* RaiseArgTupleInvalid */
-static void __Pyx_RaiseArgtupleInvalid(
-    const char* func_name,
-    int exact,
-    Py_ssize_t num_min,
-    Py_ssize_t num_max,
-    Py_ssize_t num_found)
-{
-    Py_ssize_t num_expected;
-    const char *more_or_less;
-    if (num_found < num_min) {
-        num_expected = num_min;
-        more_or_less = "at least";
-    } else {
-        num_expected = num_max;
-        more_or_less = "at most";
-    }
-    if (exact) {
-        more_or_less = "exactly";
-    }
-    PyErr_Format(PyExc_TypeError,
-                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
-                 func_name, more_or_less, num_expected,
-                 (num_expected == 1) ? "" : "s", num_found);
-}
-
 /* RaiseDoubleKeywords */
 static void __Pyx_RaiseDoubleKeywordsError(
     const char* func_name,
@@ -5964,6 +5950,32 @@ invalid_keyword:
     #endif
 bad:
     return -1;
+}
+
+/* RaiseArgTupleInvalid */
+static void __Pyx_RaiseArgtupleInvalid(
+    const char* func_name,
+    int exact,
+    Py_ssize_t num_min,
+    Py_ssize_t num_max,
+    Py_ssize_t num_found)
+{
+    Py_ssize_t num_expected;
+    const char *more_or_less;
+    if (num_found < num_min) {
+        num_expected = num_min;
+        more_or_less = "at least";
+    } else {
+        num_expected = num_max;
+        more_or_less = "at most";
+    }
+    if (exact) {
+        more_or_less = "exactly";
+    }
+    PyErr_Format(PyExc_TypeError,
+                 "%.200s() takes %.8s %" CYTHON_FORMAT_SSIZE_T "d positional argument%.1s (%" CYTHON_FORMAT_SSIZE_T "d given)",
+                 func_name, more_or_less, num_expected,
+                 (num_expected == 1) ? "" : "s", num_found);
 }
 
 /* RaiseTooManyValuesToUnpack */

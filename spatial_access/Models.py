@@ -16,7 +16,7 @@ from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeExce
 import math
 
 # TODO: Don't prompt for variable for models which don't use them
-
+# TODO: default to all categories if not specified, instead of "all_categories"
 def linear_decay_function(time, upper):
     """
     Linear decay function for distance
@@ -47,7 +47,7 @@ def logit_decay_function(time, upper):
     else:
         return 1-(1/(math.exp((upper/180)-(.48/60)*time)+1))
 
-
+# TODO: separate each category into its own column
 class Coverage:
     """
     Build Coverage which captures
@@ -78,6 +78,7 @@ class Coverage:
         else:
             self.categories = ['all_categories']
 
+    # TODO: optimize
     def calculate(self, upper_threshold):
         """
         Calculate the per-capita values and served population for each destination record.
@@ -188,7 +189,7 @@ class DestSum:
 
     def calculate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
         """
-        Calculate the capacity/capacity per capita of providers in spatial areas.
+        Calculate the target/capacity per capita of providers in spatial areas.
         """
 
         dests_copy = self.model_data.dests.copy(deep=True)
@@ -297,6 +298,8 @@ class TSFCA:
                 if population_in_range > 0:
                     contribution_to_spending = self.model_data.get_capacity(dest_id) / population_in_range
                     dests_capacity[dest_id] = contribution_to_spending
+                else:
+                    dests_capacity[dest_id] = 0
         all_categories_only = self.categories == ['all_categories']
         for source_id in self.model_data.get_all_source_ids():
             for dest_id in self.model_data.get_dests_in_range_of_source(source_id):

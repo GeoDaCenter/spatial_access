@@ -4,6 +4,7 @@
 
 #include "include/dataFrame.h"
 
+// TODO: encode isSymmetric to eliminate redundant labels
 template<>
 void dataFrame<unsigned long int, unsigned long int>::writeTMX(const std::string& filename) const
 {
