@@ -144,7 +144,7 @@ class MatrixInterface:
         """
         self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
-    def prepare_matrix(self, is_symmetric, rows, columns, network_vertices):
+    def prepare_matrix(self, is_symmetric, is_compressible, rows, columns, network_vertices):
         """
         Instantiate a pyTransitMatrix
         """
@@ -154,13 +154,13 @@ class MatrixInterface:
         if is_symmetric:
             self.secondary_ids_are_string = self.primary_ids_are_string
         if self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_symmetric, rows, columns)
+            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
         elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_symmetric, rows, columns)
+            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
         elif not self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_symmetric, rows, columns)
+            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
         elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_symmetric, rows, columns)
+            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
         else:
             assert False, "Logic Error"
         self.transit_matrix.prepareGraphWithVertices(network_vertices)

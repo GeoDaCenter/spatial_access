@@ -422,12 +422,26 @@ class TransitMatrix:
                                              self.secondary_data,
                                              self.secondary_input is not None,
                                              self.epsilon)
-
+    # TODO: make this a staticmethod
     def clear_cache(self):
         """
         Clear the network cache.
         """
         self._network_interface.clear_cache()
+
+    def _is_compressible(self):
+        """
+        Return true if the transit matrix can be compressed by
+        half without losing any data.
+        """
+        return self._is_symmetric() and self.network_type in {'walk', 'bike'}
+
+    def _is_symmetric(self):
+        """
+        Return true if the transit matrix is NxN, that is, has
+        the same origins and destinations.
+        """
+        return self.secondary_input is None
 
     def process(self):
         """
@@ -444,7 +458,6 @@ class TransitMatrix:
 
         self.prefetch_network()
 
-        is_symmetric = self.secondary_input is None and self.network_type is 'drive'
         rows = len(self.primary_data)
 
         if self.secondary_input is None:
@@ -452,7 +465,10 @@ class TransitMatrix:
             self.matrix_interface.secondary_ids_are_string = self.matrix_interface.primary_ids_are_string
         else:
             cols = len(self.secondary_data)
-        self.matrix_interface.prepare_matrix(is_symmetric=is_symmetric, rows=rows, columns=cols,
+        self.matrix_interface.prepare_matrix(is_symmetric=self._is_symmetric(),
+                                             is_compressible=self._is_compressible(),
+                                             rows=rows,
+                                             columns=cols,
                                              network_vertices=self._network_interface.number_of_nodes())
 
         if self.secondary_input:
