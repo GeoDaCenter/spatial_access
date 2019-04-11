@@ -22,6 +22,14 @@ Spatial access measures: provider-to-people ratio, avg. time to nearest provider
 </tr>
 
 <tr>
+  <td>Documentation</td>
+  <td>
+      <a href="https://readthedocs.org/projects/spatial-acccess">
+    <img src="https://readthedocs.org/projects/spatial-acccess/badge" alt="read the docs" />
+  </td>
+</tr>
+
+<tr>
   <td>Supported Operating Systems</td>
   <td>
        *nix, macOS

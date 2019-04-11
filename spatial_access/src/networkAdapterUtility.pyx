@@ -3,14 +3,15 @@
 
 from libcpp.vector cimport vector
 from libcpp.utility cimport pair
+from libcpp.unordered_set cimport unordered_set
 
-ctypedef unsigned long int ulong;
 
 cdef extern from "include/networkUtility.h":
-    cdef cppclass NetworkUtility:
-        NetworkUtility(vector[pair[ulong, ulong]], vector[ulong]) except +
-        vector[pair[ulong, ulong]] getConnectedNetworkEdges() except +
-        vector[unsigned long int] getConnectedNetworkNodes() except +
+    ctypedef unsigned long int unsigned_long;
+    cdef cppclass NetworkUtility[unsigned_long]:
+        ctypedef unsigned long int unsigned_long;
+        NetworkUtility(vector[pair[unsigned_long, unsigned_long]], vector[unsigned_long]) except +
+        unordered_set[unsigned long int] getConnectedNetworkNodes() except +
 
 cdef class pyNetworkUtility:
     cdef NetworkUtility *thisptr
@@ -20,9 +21,6 @@ cdef class pyNetworkUtility:
 
     def __dealloc__(self):
         del self.thisptr
-
-    def getConnectedNetworkEdges(self):
-        return self.thisptr.getConnectedNetworkEdges()
 
     def getConnectedNetworkNodes(self):
         return self.thisptr.getConnectedNetworkNodes()

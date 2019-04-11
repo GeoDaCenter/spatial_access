@@ -582,6 +582,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "typeinfo"
 #include <vector>
 #include <utility>
+#include <unordered_set>
 #include "include/networkUtility.h"
 #ifdef _OPENMP
 #include <omp.h>
@@ -790,20 +791,11 @@ static const char *__pyx_f[] = {
   "spatial_access/src/networkAdapterUtility.pyx",
 };
 
-/* "networkAdapterUtility.pyx":7
- * from libcpp.utility cimport pair
- * 
- * ctypedef unsigned long int ulong;             # <<<<<<<<<<<<<<
- * 
- * cdef extern from "include/networkUtility.h":
- */
-typedef unsigned long __pyx_t_21networkAdapterUtility_ulong;
-
 /*--- Type declarations ---*/
 struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility;
 
-/* "networkAdapterUtility.pyx":15
- *         vector[unsigned long int] getConnectedNetworkNodes() except +
+/* "networkAdapterUtility.pyx":16
+ *         unordered_set[unsigned long int] getConnectedNetworkNodes() except +
  * 
  * cdef class pyNetworkUtility:             # <<<<<<<<<<<<<<
  *     cdef NetworkUtility *thisptr
@@ -811,7 +803,7 @@ struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility;
  */
 struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility {
   PyObject_HEAD
-  NetworkUtility *thisptr;
+  NetworkUtility<unsigned_long>  *thisptr;
 };
 
 
@@ -959,23 +951,6 @@ static CYTHON_INLINE int __Pyx_IterFinish(void);
 /* UnpackItemEndCheck.proto */
 static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
 
-/* ListCompAppend.proto */
-#if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
-static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
-    PyListObject* L = (PyListObject*) list;
-    Py_ssize_t len = Py_SIZE(list);
-    if (likely(L->allocated > len)) {
-        Py_INCREF(x);
-        PyList_SET_ITEM(list, len, x);
-        Py_SIZE(list) = len+1;
-        return 0;
-    }
-    return PyList_Append(list, x);
-}
-#else
-#define __Pyx_ListComp_Append(L,x) PyList_Append(L,x)
-#endif
-
 /* PyObject_GenericGetAttrNoDict.proto */
 #if CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP && PY_VERSION_HEX < 0x03070000
 static CYTHON_INLINE PyObject* __Pyx_PyObject_GenericGetAttrNoDict(PyObject* obj, PyObject* attr_name);
@@ -1065,10 +1040,7 @@ static void __Pyx_CppExn2PyErr() {
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_long(unsigned long value);
 
 /* CIntFromPy.proto */
-static CYTHON_INLINE unsigned long __Pyx_PyInt_As_unsigned_long(PyObject *);
-
-/* CIntFromPy.proto */
-static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *);
+static CYTHON_INLINE NetworkUtility<unsigned_long> ::unsigned_long __Pyx_PyInt_As_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(PyObject *);
 
 /* CIntToPy.proto */
 static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
@@ -1103,27 +1075,25 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 /* Module declarations from 'libcpp.utility' */
 
+/* Module declarations from 'libcpp.unordered_set' */
+
 /* Module declarations from 'networkAdapterUtility' */
 static PyTypeObject *__pyx_ptype_21networkAdapterUtility_pyNetworkUtility = 0;
-static std::pair<unsigned long,unsigned long>  __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(PyObject *); /*proto*/
-static std::vector<std::pair<unsigned long,unsigned long> >  __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(PyObject *); /*proto*/
-static std::vector<unsigned long>  __pyx_convert_vector_from_py_unsigned_long(PyObject *); /*proto*/
-static PyObject *__pyx_convert_pair_to_py_unsigned_long____unsigned_long(std::pair<unsigned long,unsigned long>  const &); /*proto*/
-static PyObject *__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(const std::vector<std::pair<unsigned long,unsigned long> >  &); /*proto*/
-static PyObject *__pyx_convert_vector_to_py_unsigned_long(const std::vector<unsigned long>  &); /*proto*/
+static std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(PyObject *); /*proto*/
+static std::vector<std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> >  __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(PyObject *); /*proto*/
+static std::vector<NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(PyObject *); /*proto*/
+static PyObject *__pyx_convert_unordered_set_to_py_unsigned_long(std::unordered_set<unsigned long>  const &); /*proto*/
 #define __Pyx_MODULE_NAME "networkAdapterUtility"
 extern int __pyx_module_is_main_networkAdapterUtility;
 int __pyx_module_is_main_networkAdapterUtility = 0;
 
 /* Implementation of 'networkAdapterUtility' */
 static PyObject *__pyx_builtin_TypeError;
-static PyObject *__pyx_builtin_range;
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_edges[] = "edges";
 static const char __pyx_k_nodes[] = "nodes";
-static const char __pyx_k_range[] = "range";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_getstate[] = "__getstate__";
 static const char __pyx_k_setstate[] = "__setstate__";
@@ -1141,7 +1111,6 @@ static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_nodes;
-static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
@@ -1150,16 +1119,15 @@ static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_test;
 static int __pyx_pf_21networkAdapterUtility_16pyNetworkUtility___cinit__(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self, PyObject *__pyx_v_edges, PyObject *__pyx_v_nodes); /* proto */
 static void __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_2__dealloc__(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_4getConnectedNetworkEdges(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6getConnectedNetworkNodes(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_4getConnectedNetworkNodes(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self); /* proto */
+static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state); /* proto */
 static PyObject *__pyx_tp_new_21networkAdapterUtility_pyNetworkUtility(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 /* Late includes */
 
-/* "networkAdapterUtility.pyx":18
+/* "networkAdapterUtility.pyx":19
  *     cdef NetworkUtility *thisptr
  * 
  *     def __cinit__(self, edges, nodes):             # <<<<<<<<<<<<<<
@@ -1198,11 +1166,11 @@ static int __pyx_pw_21networkAdapterUtility_16pyNetworkUtility_1__cinit__(PyObje
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nodes)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(1, 18, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); __PYX_ERR(1, 19, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 18, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) __PYX_ERR(1, 19, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -1215,7 +1183,7 @@ static int __pyx_pw_21networkAdapterUtility_16pyNetworkUtility_1__cinit__(PyObje
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 18, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(1, 19, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("networkAdapterUtility.pyNetworkUtility.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -1231,29 +1199,29 @@ static int __pyx_pw_21networkAdapterUtility_16pyNetworkUtility_1__cinit__(PyObje
 static int __pyx_pf_21networkAdapterUtility_16pyNetworkUtility___cinit__(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self, PyObject *__pyx_v_edges, PyObject *__pyx_v_nodes) {
   int __pyx_r;
   __Pyx_RefNannyDeclarations
-  std::vector<std::pair<unsigned long,unsigned long> >  __pyx_t_1;
-  std::vector<unsigned long>  __pyx_t_2;
-  NetworkUtility *__pyx_t_3;
+  std::vector<std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> >  __pyx_t_1;
+  std::vector<NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_t_2;
+  NetworkUtility<unsigned_long>  *__pyx_t_3;
   __Pyx_RefNannySetupContext("__cinit__", 0);
 
-  /* "networkAdapterUtility.pyx":19
+  /* "networkAdapterUtility.pyx":20
  * 
  *     def __cinit__(self, edges, nodes):
  *         self.thisptr = new NetworkUtility(edges, nodes)             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(self):
  */
-  __pyx_t_1 = __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(__pyx_v_edges); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 19, __pyx_L1_error)
-  __pyx_t_2 = __pyx_convert_vector_from_py_unsigned_long(__pyx_v_nodes); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 19, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(__pyx_v_edges); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 20, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(__pyx_v_nodes); if (unlikely(PyErr_Occurred())) __PYX_ERR(1, 20, __pyx_L1_error)
   try {
-    __pyx_t_3 = new NetworkUtility(__pyx_t_1, __pyx_t_2);
+    __pyx_t_3 = new NetworkUtility<unsigned_long> (__pyx_t_1, __pyx_t_2);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 19, __pyx_L1_error)
+    __PYX_ERR(1, 20, __pyx_L1_error)
   }
   __pyx_v_self->thisptr = __pyx_t_3;
 
-  /* "networkAdapterUtility.pyx":18
+  /* "networkAdapterUtility.pyx":19
  *     cdef NetworkUtility *thisptr
  * 
  *     def __cinit__(self, edges, nodes):             # <<<<<<<<<<<<<<
@@ -1272,7 +1240,7 @@ static int __pyx_pf_21networkAdapterUtility_16pyNetworkUtility___cinit__(struct 
   return __pyx_r;
 }
 
-/* "networkAdapterUtility.pyx":21
+/* "networkAdapterUtility.pyx":22
  *         self.thisptr = new NetworkUtility(edges, nodes)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1295,16 +1263,16 @@ static void __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_2__dealloc__(str
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "networkAdapterUtility.pyx":22
+  /* "networkAdapterUtility.pyx":23
  * 
  *     def __dealloc__(self):
  *         del self.thisptr             # <<<<<<<<<<<<<<
  * 
- *     def getConnectedNetworkEdges(self):
+ *     def getConnectedNetworkNodes(self):
  */
   delete __pyx_v_self->thisptr;
 
-  /* "networkAdapterUtility.pyx":21
+  /* "networkAdapterUtility.pyx":22
  *         self.thisptr = new NetworkUtility(edges, nodes)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -1316,101 +1284,34 @@ static void __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_2__dealloc__(str
   __Pyx_RefNannyFinishContext();
 }
 
-/* "networkAdapterUtility.pyx":24
+/* "networkAdapterUtility.pyx":25
  *         del self.thisptr
- * 
- *     def getConnectedNetworkEdges(self):             # <<<<<<<<<<<<<<
- *         return self.thisptr.getConnectedNetworkEdges()
- * 
- */
-
-/* Python wrapper */
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_5getConnectedNetworkEdges(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_5getConnectedNetworkEdges(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
-  PyObject *__pyx_r = 0;
-  __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("getConnectedNetworkEdges (wrapper)", 0);
-  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_4getConnectedNetworkEdges(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self));
-
-  /* function exit code */
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_4getConnectedNetworkEdges(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self) {
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  std::vector<std::pair<unsigned long,unsigned long> >  __pyx_t_1;
-  PyObject *__pyx_t_2 = NULL;
-  __Pyx_RefNannySetupContext("getConnectedNetworkEdges", 0);
-
-  /* "networkAdapterUtility.pyx":25
- * 
- *     def getConnectedNetworkEdges(self):
- *         return self.thisptr.getConnectedNetworkEdges()             # <<<<<<<<<<<<<<
- * 
- *     def getConnectedNetworkNodes(self):
- */
-  __Pyx_XDECREF(__pyx_r);
-  try {
-    __pyx_t_1 = __pyx_v_self->thisptr->getConnectedNetworkEdges();
-  } catch(...) {
-    __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 25, __pyx_L1_error)
-  }
-  __pyx_t_2 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 25, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_r = __pyx_t_2;
-  __pyx_t_2 = 0;
-  goto __pyx_L0;
-
-  /* "networkAdapterUtility.pyx":24
- *         del self.thisptr
- * 
- *     def getConnectedNetworkEdges(self):             # <<<<<<<<<<<<<<
- *         return self.thisptr.getConnectedNetworkEdges()
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_AddTraceback("networkAdapterUtility.pyNetworkUtility.getConnectedNetworkEdges", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = NULL;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "networkAdapterUtility.pyx":27
- *         return self.thisptr.getConnectedNetworkEdges()
  * 
  *     def getConnectedNetworkNodes(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getConnectedNetworkNodes()
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_7getConnectedNetworkNodes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_7getConnectedNetworkNodes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_5getConnectedNetworkNodes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_5getConnectedNetworkNodes(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getConnectedNetworkNodes (wrapper)", 0);
-  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6getConnectedNetworkNodes(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self));
+  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_4getConnectedNetworkNodes(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6getConnectedNetworkNodes(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self) {
+static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_4getConnectedNetworkNodes(struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  std::vector<unsigned long>  __pyx_t_1;
+  std::unordered_set<unsigned long>  __pyx_t_1;
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("getConnectedNetworkNodes", 0);
 
-  /* "networkAdapterUtility.pyx":28
+  /* "networkAdapterUtility.pyx":26
  * 
  *     def getConnectedNetworkNodes(self):
  *         return self.thisptr.getConnectedNetworkNodes()             # <<<<<<<<<<<<<<
@@ -1420,16 +1321,16 @@ static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6getConnect
     __pyx_t_1 = __pyx_v_self->thisptr->getConnectedNetworkNodes();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(1, 28, __pyx_L1_error)
+    __PYX_ERR(1, 26, __pyx_L1_error)
   }
-  __pyx_t_2 = __pyx_convert_vector_to_py_unsigned_long(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 28, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_unordered_set_to_py_unsigned_long(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 26, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "networkAdapterUtility.pyx":27
- *         return self.thisptr.getConnectedNetworkEdges()
+  /* "networkAdapterUtility.pyx":25
+ *         del self.thisptr
  * 
  *     def getConnectedNetworkNodes(self):             # <<<<<<<<<<<<<<
  *         return self.thisptr.getConnectedNetworkNodes()
@@ -1453,19 +1354,19 @@ static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6getConnect
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_9__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_7__reduce_cython__(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__reduce_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__reduce_cython__(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self));
+  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6__reduce_cython__(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self) {
+static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_6__reduce_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1507,19 +1408,19 @@ static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__reduce_c
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
-static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_11__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state); /*proto*/
+static PyObject *__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_9__setstate_cython__(PyObject *__pyx_v_self, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__setstate_cython__ (wrapper)", 0);
-  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_10__setstate_cython__(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
+  __pyx_r = __pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__setstate_cython__(((struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *)__pyx_v_self), ((PyObject *)__pyx_v___pyx_state));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_10__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_8__setstate_cython__(CYTHON_UNUSED struct __pyx_obj_21networkAdapterUtility_pyNetworkUtility *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -1555,28 +1456,28 @@ static PyObject *__pyx_pf_21networkAdapterUtility_16pyNetworkUtility_10__setstat
 
 /* "pair.from_py":145
  * 
- * @cname("__pyx_convert_pair_from_py_unsigned_long__and_unsigned_long")
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(object o) except *:             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long")
+ * cdef pair[X,Y] __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:             # <<<<<<<<<<<<<<
  *     x, y = o
  *     return pair[X,Y](<X>x, <Y>y)
  */
 
-static std::pair<unsigned long,unsigned long>  __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(PyObject *__pyx_v_o) {
+static std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(PyObject *__pyx_v_o) {
   PyObject *__pyx_v_x = NULL;
   PyObject *__pyx_v_y = NULL;
-  std::pair<unsigned long,unsigned long>  __pyx_r;
+  std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *(*__pyx_t_4)(PyObject *);
-  unsigned long __pyx_t_5;
-  unsigned long __pyx_t_6;
-  __Pyx_RefNannySetupContext("__pyx_convert_pair_from_py_unsigned_long__and_unsigned_long", 0);
+  NetworkUtility<unsigned_long> ::unsigned_long __pyx_t_5;
+  NetworkUtility<unsigned_long> ::unsigned_long __pyx_t_6;
+  __Pyx_RefNannySetupContext("__pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long", 0);
 
   /* "pair.from_py":146
- * @cname("__pyx_convert_pair_from_py_unsigned_long__and_unsigned_long")
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(object o) except *:
+ * @cname("__pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long")
+ * cdef pair[X,Y] __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:
  *     x, y = o             # <<<<<<<<<<<<<<
  *     return pair[X,Y](<X>x, <Y>y)
  * 
@@ -1631,21 +1532,21 @@ static std::pair<unsigned long,unsigned long>  __pyx_convert_pair_from_py_unsign
   __pyx_t_2 = 0;
 
   /* "pair.from_py":147
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(object o) except *:
+ * cdef pair[X,Y] __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:
  *     x, y = o
  *     return pair[X,Y](<X>x, <Y>y)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_x); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyInt_As_unsigned_long(__pyx_v_y); if (unlikely((__pyx_t_6 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
-  __pyx_r = std::pair<unsigned long,unsigned long> (((unsigned long)__pyx_t_5), ((unsigned long)__pyx_t_6));
+  __pyx_t_5 = __Pyx_PyInt_As_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(__pyx_v_x); if (unlikely((__pyx_t_5 == ((NetworkUtility<unsigned_long> ::unsigned_long)-1)) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(__pyx_v_y); if (unlikely((__pyx_t_6 == ((NetworkUtility<unsigned_long> ::unsigned_long)-1)) && PyErr_Occurred())) __PYX_ERR(0, 147, __pyx_L1_error)
+  __pyx_r = std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> (((NetworkUtility<unsigned_long> ::unsigned_long)__pyx_t_5), ((NetworkUtility<unsigned_long> ::unsigned_long)__pyx_t_6));
   goto __pyx_L0;
 
   /* "pair.from_py":145
  * 
- * @cname("__pyx_convert_pair_from_py_unsigned_long__and_unsigned_long")
- * cdef pair[X,Y] __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(object o) except *:             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long")
+ * cdef pair[X,Y] __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:             # <<<<<<<<<<<<<<
  *     x, y = o
  *     return pair[X,Y](<X>x, <Y>y)
  */
@@ -1655,7 +1556,7 @@ static std::pair<unsigned long,unsigned long>  __pyx_convert_pair_from_py_unsign
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pair.from_py.__pyx_convert_pair_from_py_unsigned_long__and_unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("pair.from_py.__pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_pretend_to_initialize(&__pyx_r);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_x);
@@ -1666,26 +1567,26 @@ static std::pair<unsigned long,unsigned long>  __pyx_convert_pair_from_py_unsign
 
 /* "vector.from_py":45
  * 
- * @cname("__pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___")
- * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(object o) except *:             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___")
+ * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(object o) except *:             # <<<<<<<<<<<<<<
  *     cdef vector[X] v
  *     for item in o:
  */
 
-static std::vector<std::pair<unsigned long,unsigned long> >  __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(PyObject *__pyx_v_o) {
-  std::vector<std::pair<unsigned long,unsigned long> >  __pyx_v_v;
+static std::vector<std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> >  __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(PyObject *__pyx_v_o) {
+  std::vector<std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> >  __pyx_v_v;
   PyObject *__pyx_v_item = NULL;
-  std::vector<std::pair<unsigned long,unsigned long> >  __pyx_r;
+  std::vector<std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> >  __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
   PyObject *(*__pyx_t_3)(PyObject *);
   PyObject *__pyx_t_4 = NULL;
-  std::pair<unsigned long,unsigned long>  __pyx_t_5;
-  __Pyx_RefNannySetupContext("__pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___", 0);
+  std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_t_5;
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___", 0);
 
   /* "vector.from_py":47
- * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(object o) except *:
+ * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(object o) except *:
  *     cdef vector[X] v
  *     for item in o:             # <<<<<<<<<<<<<<
  *         v.push_back(<X>item)
@@ -1740,11 +1641,11 @@ static std::vector<std::pair<unsigned long,unsigned long> >  __pyx_convert_vecto
  *     return v
  * 
  */
-    __pyx_t_5 = __pyx_convert_pair_from_py_unsigned_long__and_unsigned_long(__pyx_v_item); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
-    __pyx_v_v.push_back(((std::pair<unsigned long,unsigned long> )__pyx_t_5));
+    __pyx_t_5 = __pyx_convert_pair_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long__and_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(__pyx_v_item); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_v_v.push_back(((std::pair<NetworkUtility<unsigned_long> ::unsigned_long,NetworkUtility<unsigned_long> ::unsigned_long> )__pyx_t_5));
 
     /* "vector.from_py":47
- * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(object o) except *:
+ * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(object o) except *:
  *     cdef vector[X] v
  *     for item in o:             # <<<<<<<<<<<<<<
  *         v.push_back(<X>item)
@@ -1765,8 +1666,8 @@ static std::vector<std::pair<unsigned long,unsigned long> >  __pyx_convert_vecto
 
   /* "vector.from_py":45
  * 
- * @cname("__pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___")
- * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(object o) except *:             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___")
+ * cdef vector[X] __pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___(object o) except *:             # <<<<<<<<<<<<<<
  *     cdef vector[X] v
  *     for item in o:
  */
@@ -1775,7 +1676,7 @@ static std::vector<std::pair<unsigned long,unsigned long> >  __pyx_convert_vecto
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("vector.from_py.__pyx_convert_vector_from_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("vector.from_py.__pyx_convert_vector_from_py_std_3a__3a_pair_3c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_2c_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long_3e___", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_pretend_to_initialize(&__pyx_r);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_item);
@@ -1783,20 +1684,20 @@ static std::vector<std::pair<unsigned long,unsigned long> >  __pyx_convert_vecto
   return __pyx_r;
 }
 
-static std::vector<unsigned long>  __pyx_convert_vector_from_py_unsigned_long(PyObject *__pyx_v_o) {
-  std::vector<unsigned long>  __pyx_v_v;
+static std::vector<NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(PyObject *__pyx_v_o) {
+  std::vector<NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_v_v;
   PyObject *__pyx_v_item = NULL;
-  std::vector<unsigned long>  __pyx_r;
+  std::vector<NetworkUtility<unsigned_long> ::unsigned_long>  __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
   PyObject *(*__pyx_t_3)(PyObject *);
   PyObject *__pyx_t_4 = NULL;
-  unsigned long __pyx_t_5;
-  __Pyx_RefNannySetupContext("__pyx_convert_vector_from_py_unsigned_long", 0);
+  NetworkUtility<unsigned_long> ::unsigned_long __pyx_t_5;
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long", 0);
 
   /* "vector.from_py":47
- * cdef vector[X] __pyx_convert_vector_from_py_unsigned_long(object o) except *:
+ * cdef vector[X] __pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:
  *     cdef vector[X] v
  *     for item in o:             # <<<<<<<<<<<<<<
  *         v.push_back(<X>item)
@@ -1851,11 +1752,11 @@ static std::vector<unsigned long>  __pyx_convert_vector_from_py_unsigned_long(Py
  *     return v
  * 
  */
-    __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_item); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
-    __pyx_v_v.push_back(((unsigned long)__pyx_t_5));
+    __pyx_t_5 = __Pyx_PyInt_As_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(__pyx_v_item); if (unlikely((__pyx_t_5 == ((NetworkUtility<unsigned_long> ::unsigned_long)-1)) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_v_v.push_back(((NetworkUtility<unsigned_long> ::unsigned_long)__pyx_t_5));
 
     /* "vector.from_py":47
- * cdef vector[X] __pyx_convert_vector_from_py_unsigned_long(object o) except *:
+ * cdef vector[X] __pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:
  *     cdef vector[X] v
  *     for item in o:             # <<<<<<<<<<<<<<
  *         v.push_back(<X>item)
@@ -1876,8 +1777,8 @@ static std::vector<unsigned long>  __pyx_convert_vector_from_py_unsigned_long(Py
 
   /* "vector.from_py":45
  * 
- * @cname("__pyx_convert_vector_from_py_unsigned_long")
- * cdef vector[X] __pyx_convert_vector_from_py_unsigned_long(object o) except *:             # <<<<<<<<<<<<<<
+ * @cname("__pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long")
+ * cdef vector[X] __pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(object o) except *:             # <<<<<<<<<<<<<<
  *     cdef vector[X] v
  *     for item in o:
  */
@@ -1886,7 +1787,7 @@ static std::vector<unsigned long>  __pyx_convert_vector_from_py_unsigned_long(Py
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("vector.from_py.__pyx_convert_vector_from_py_unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("vector.from_py.__pyx_convert_vector_from_py_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_pretend_to_initialize(&__pyx_r);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_item);
@@ -1894,178 +1795,104 @@ static std::vector<unsigned long>  __pyx_convert_vector_from_py_unsigned_long(Py
   return __pyx_r;
 }
 
-/* "pair.to_py":158
+/* "set.to_py":129
  * 
- * @cname("__pyx_convert_pair_to_py_unsigned_long____unsigned_long")
- * cdef object __pyx_convert_pair_to_py_unsigned_long____unsigned_long(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
- *     return p.first, p.second
- * 
+ * @cname("__pyx_convert_unordered_set_to_py_unsigned_long")
+ * cdef object __pyx_convert_unordered_set_to_py_unsigned_long(const cpp_set[X]& s):             # <<<<<<<<<<<<<<
+ *     o = set()
+ *     cdef cpp_set[X].const_iterator iter = s.begin()
  */
 
-static PyObject *__pyx_convert_pair_to_py_unsigned_long____unsigned_long(std::pair<unsigned long,unsigned long>  const &__pyx_v_p) {
+static PyObject *__pyx_convert_unordered_set_to_py_unsigned_long(std::unordered_set<unsigned long>  const &__pyx_v_s) {
+  PyObject *__pyx_v_o = NULL;
+  std::unordered_set<unsigned long> ::const_iterator __pyx_v_iter;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  PyObject *__pyx_t_2 = NULL;
-  PyObject *__pyx_t_3 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_pair_to_py_unsigned_long____unsigned_long", 0);
+  int __pyx_t_2;
+  int __pyx_t_3;
+  __Pyx_RefNannySetupContext("__pyx_convert_unordered_set_to_py_unsigned_long", 0);
 
-  /* "pair.to_py":159
- * @cname("__pyx_convert_pair_to_py_unsigned_long____unsigned_long")
- * cdef object __pyx_convert_pair_to_py_unsigned_long____unsigned_long(const pair[X,Y]& p):
- *     return p.first, p.second             # <<<<<<<<<<<<<<
- * 
- * 
+  /* "set.to_py":130
+ * @cname("__pyx_convert_unordered_set_to_py_unsigned_long")
+ * cdef object __pyx_convert_unordered_set_to_py_unsigned_long(const cpp_set[X]& s):
+ *     o = set()             # <<<<<<<<<<<<<<
+ *     cdef cpp_set[X].const_iterator iter = s.begin()
+ *     while iter != s.end():
  */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_long(__pyx_v_p.first); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_1 = PySet_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 130, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_unsigned_long(__pyx_v_p.second); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_1);
-  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
-  __Pyx_GIVEREF(__pyx_t_2);
-  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
+  __pyx_v_o = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_2 = 0;
-  __pyx_r = __pyx_t_3;
-  __pyx_t_3 = 0;
-  goto __pyx_L0;
 
-  /* "pair.to_py":158
- * 
- * @cname("__pyx_convert_pair_to_py_unsigned_long____unsigned_long")
- * cdef object __pyx_convert_pair_to_py_unsigned_long____unsigned_long(const pair[X,Y]& p):             # <<<<<<<<<<<<<<
- *     return p.first, p.second
+  /* "set.to_py":131
+ * cdef object __pyx_convert_unordered_set_to_py_unsigned_long(const cpp_set[X]& s):
+ *     o = set()
+ *     cdef cpp_set[X].const_iterator iter = s.begin()             # <<<<<<<<<<<<<<
+ *     while iter != s.end():
+ *         o.add(cython.operator.dereference(iter))
+ */
+  __pyx_v_iter = __pyx_v_s.begin();
+
+  /* "set.to_py":132
+ *     o = set()
+ *     cdef cpp_set[X].const_iterator iter = s.begin()
+ *     while iter != s.end():             # <<<<<<<<<<<<<<
+ *         o.add(cython.operator.dereference(iter))
+ *         cython.operator.preincrement(iter)
+ */
+  while (1) {
+    __pyx_t_2 = ((__pyx_v_iter != __pyx_v_s.end()) != 0);
+    if (!__pyx_t_2) break;
+
+    /* "set.to_py":133
+ *     cdef cpp_set[X].const_iterator iter = s.begin()
+ *     while iter != s.end():
+ *         o.add(cython.operator.dereference(iter))             # <<<<<<<<<<<<<<
+ *         cython.operator.preincrement(iter)
+ *     return o
+ */
+    __pyx_t_1 = __Pyx_PyInt_From_unsigned_long((*__pyx_v_iter)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_3 = PySet_Add(__pyx_v_o, __pyx_t_1); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(0, 133, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+    /* "set.to_py":134
+ *     while iter != s.end():
+ *         o.add(cython.operator.dereference(iter))
+ *         cython.operator.preincrement(iter)             # <<<<<<<<<<<<<<
+ *     return o
  * 
  */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
-  __Pyx_XDECREF(__pyx_t_3);
-  __Pyx_AddTraceback("pair.to_py.__pyx_convert_pair_to_py_unsigned_long____unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "vector.to_py":60
- * 
- * @cname("__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___")
- * cdef object __pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(vector[X]& v):             # <<<<<<<<<<<<<<
- *     return [v[i] for i in range(v.size())]
- * 
- */
-
-static PyObject *__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(const std::vector<std::pair<unsigned long,unsigned long> >  &__pyx_v_v) {
-  size_t __pyx_v_i;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  size_t __pyx_t_2;
-  size_t __pyx_t_3;
-  size_t __pyx_t_4;
-  PyObject *__pyx_t_5 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___", 0);
-
-  /* "vector.to_py":61
- * @cname("__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___")
- * cdef object __pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(vector[X]& v):
- *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_v_v.size();
-  __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
-    __pyx_v_i = __pyx_t_4;
-    __pyx_t_5 = __pyx_convert_pair_to_py_unsigned_long____unsigned_long((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 61, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(0, 61, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    (void)((++__pyx_v_iter));
   }
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
 
-  /* "vector.to_py":60
- * 
- * @cname("__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___")
- * cdef object __pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___(vector[X]& v):             # <<<<<<<<<<<<<<
- *     return [v[i] for i in range(v.size())]
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_std_3a__3a_pair_3c_unsigned_long_2c_unsigned_long_3e___", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-static PyObject *__pyx_convert_vector_to_py_unsigned_long(const std::vector<unsigned long>  &__pyx_v_v) {
-  size_t __pyx_v_i;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  size_t __pyx_t_2;
-  size_t __pyx_t_3;
-  size_t __pyx_t_4;
-  PyObject *__pyx_t_5 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_unsigned_long", 0);
-
-  /* "vector.to_py":61
- * @cname("__pyx_convert_vector_to_py_unsigned_long")
- * cdef object __pyx_convert_vector_to_py_unsigned_long(vector[X]& v):
- *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
- * 
+  /* "set.to_py":135
+ *         o.add(cython.operator.dereference(iter))
+ *         cython.operator.preincrement(iter)
+ *     return o             # <<<<<<<<<<<<<<
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_v_v.size();
-  __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
-    __pyx_v_i = __pyx_t_4;
-    __pyx_t_5 = __Pyx_PyInt_From_unsigned_long((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 61, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(0, 61, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  }
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
+  __Pyx_INCREF(__pyx_v_o);
+  __pyx_r = __pyx_v_o;
   goto __pyx_L0;
 
-  /* "vector.to_py":60
+  /* "set.to_py":129
  * 
- * @cname("__pyx_convert_vector_to_py_unsigned_long")
- * cdef object __pyx_convert_vector_to_py_unsigned_long(vector[X]& v):             # <<<<<<<<<<<<<<
- *     return [v[i] for i in range(v.size())]
- * 
+ * @cname("__pyx_convert_unordered_set_to_py_unsigned_long")
+ * cdef object __pyx_convert_unordered_set_to_py_unsigned_long(const cpp_set[X]& s):             # <<<<<<<<<<<<<<
+ *     o = set()
+ *     cdef cpp_set[X].const_iterator iter = s.begin()
  */
 
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("set.to_py.__pyx_convert_unordered_set_to_py_unsigned_long", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_o);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -2104,10 +1931,9 @@ static void __pyx_tp_dealloc_21networkAdapterUtility_pyNetworkUtility(PyObject *
 }
 
 static PyMethodDef __pyx_methods_21networkAdapterUtility_pyNetworkUtility[] = {
-  {"getConnectedNetworkEdges", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_5getConnectedNetworkEdges, METH_NOARGS, 0},
-  {"getConnectedNetworkNodes", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_7getConnectedNetworkNodes, METH_NOARGS, 0},
-  {"__reduce_cython__", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_9__reduce_cython__, METH_NOARGS, 0},
-  {"__setstate_cython__", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_11__setstate_cython__, METH_O, 0},
+  {"getConnectedNetworkNodes", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_5getConnectedNetworkNodes, METH_NOARGS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_7__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw_21networkAdapterUtility_16pyNetworkUtility_9__setstate_cython__, METH_O, 0},
   {0, 0, 0, 0}
 };
 
@@ -2214,7 +2040,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_nodes, __pyx_k_nodes, sizeof(__pyx_k_nodes), 0, 0, 1, 1},
-  {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
@@ -2225,7 +2050,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 static int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(0, 2, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 61, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -2303,13 +2127,13 @@ static int __Pyx_modinit_type_init_code(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_21networkAdapterUtility_pyNetworkUtility) < 0) __PYX_ERR(1, 15, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_21networkAdapterUtility_pyNetworkUtility) < 0) __PYX_ERR(1, 16, __pyx_L1_error)
   __pyx_type_21networkAdapterUtility_pyNetworkUtility.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_21networkAdapterUtility_pyNetworkUtility.tp_dictoffset && __pyx_type_21networkAdapterUtility_pyNetworkUtility.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_21networkAdapterUtility_pyNetworkUtility.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (PyObject_SetAttrString(__pyx_m, "pyNetworkUtility", (PyObject *)&__pyx_type_21networkAdapterUtility_pyNetworkUtility) < 0) __PYX_ERR(1, 15, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_21networkAdapterUtility_pyNetworkUtility) < 0) __PYX_ERR(1, 15, __pyx_L1_error)
+  if (PyObject_SetAttrString(__pyx_m, "pyNetworkUtility", (PyObject *)&__pyx_type_21networkAdapterUtility_pyNetworkUtility) < 0) __PYX_ERR(1, 16, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_21networkAdapterUtility_pyNetworkUtility) < 0) __PYX_ERR(1, 16, __pyx_L1_error)
   __pyx_ptype_21networkAdapterUtility_pyNetworkUtility = &__pyx_type_21networkAdapterUtility_pyNetworkUtility;
   __Pyx_RefNannyFinishContext();
   return 0;
@@ -2525,12 +2349,12 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_test, __pyx_t_1) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "vector.to_py":60
+  /* "set.to_py":129
  * 
- * @cname("__pyx_convert_vector_to_py_unsigned_long")
- * cdef object __pyx_convert_vector_to_py_unsigned_long(vector[X]& v):             # <<<<<<<<<<<<<<
- *     return [v[i] for i in range(v.size())]
- * 
+ * @cname("__pyx_convert_unordered_set_to_py_unsigned_long")
+ * cdef object __pyx_convert_unordered_set_to_py_unsigned_long(const cpp_set[X]& s):             # <<<<<<<<<<<<<<
+ *     o = set()
+ *     cdef cpp_set[X].const_iterator iter = s.begin()
  */
 
   /*--- Wrapped vars code ---*/
@@ -3393,19 +3217,19 @@ static CYTHON_INLINE PyObject* __Pyx_PyInt_From_unsigned_long(unsigned long valu
 }
 
 /* CIntFromPy */
-static CYTHON_INLINE unsigned long __Pyx_PyInt_As_unsigned_long(PyObject *x) {
-    const unsigned long neg_one = (unsigned long) -1, const_zero = (unsigned long) 0;
+static CYTHON_INLINE NetworkUtility<unsigned_long> ::unsigned_long __Pyx_PyInt_As_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(PyObject *x) {
+    const NetworkUtility<unsigned_long> ::unsigned_long neg_one = (NetworkUtility<unsigned_long> ::unsigned_long) -1, const_zero = (NetworkUtility<unsigned_long> ::unsigned_long) 0;
     const int is_unsigned = neg_one > const_zero;
 #if PY_MAJOR_VERSION < 3
     if (likely(PyInt_Check(x))) {
-        if (sizeof(unsigned long) < sizeof(long)) {
-            __PYX_VERIFY_RETURN_INT(unsigned long, long, PyInt_AS_LONG(x))
+        if (sizeof(NetworkUtility<unsigned_long> ::unsigned_long) < sizeof(long)) {
+            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, long, PyInt_AS_LONG(x))
         } else {
             long val = PyInt_AS_LONG(x);
             if (is_unsigned && unlikely(val < 0)) {
                 goto raise_neg_overflow;
             }
-            return (unsigned long) val;
+            return (NetworkUtility<unsigned_long> ::unsigned_long) val;
         }
     } else
 #endif
@@ -3414,32 +3238,32 @@ static CYTHON_INLINE unsigned long __Pyx_PyInt_As_unsigned_long(PyObject *x) {
 #if CYTHON_USE_PYLONG_INTERNALS
             const digit* digits = ((PyLongObject*)x)->ob_digit;
             switch (Py_SIZE(x)) {
-                case  0: return (unsigned long) 0;
-                case  1: __PYX_VERIFY_RETURN_INT(unsigned long, digit, digits[0])
+                case  0: return (NetworkUtility<unsigned_long> ::unsigned_long) 0;
+                case  1: __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, digit, digits[0])
                 case 2:
-                    if (8 * sizeof(unsigned long) > 1 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) > 1 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) >= 2 * PyLong_SHIFT) {
-                            return (unsigned long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) >= 2 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) (((((NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0]));
                         }
                     }
                     break;
                 case 3:
-                    if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) > 2 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) >= 3 * PyLong_SHIFT) {
-                            return (unsigned long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) >= 3 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) (((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[2]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0]));
                         }
                     }
                     break;
                 case 4:
-                    if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) > 3 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) >= 4 * PyLong_SHIFT) {
-                            return (unsigned long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0]));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) >= 4 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) (((((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[3]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[2]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0]));
                         }
                     }
                     break;
@@ -3453,86 +3277,86 @@ static CYTHON_INLINE unsigned long __Pyx_PyInt_As_unsigned_long(PyObject *x) {
             {
                 int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
                 if (unlikely(result < 0))
-                    return (unsigned long) -1;
+                    return (NetworkUtility<unsigned_long> ::unsigned_long) -1;
                 if (unlikely(result == 1))
                     goto raise_neg_overflow;
             }
 #endif
-            if (sizeof(unsigned long) <= sizeof(unsigned long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned long, unsigned long, PyLong_AsUnsignedLong(x))
+            if (sizeof(NetworkUtility<unsigned_long> ::unsigned_long) <= sizeof(unsigned long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, PyLong_AsUnsignedLong(x))
 #ifdef HAVE_LONG_LONG
-            } else if (sizeof(unsigned long) <= sizeof(unsigned PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned long, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
+            } else if (sizeof(NetworkUtility<unsigned_long> ::unsigned_long) <= sizeof(unsigned PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(NetworkUtility<unsigned_long> ::unsigned_long, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
 #endif
             }
         } else {
 #if CYTHON_USE_PYLONG_INTERNALS
             const digit* digits = ((PyLongObject*)x)->ob_digit;
             switch (Py_SIZE(x)) {
-                case  0: return (unsigned long) 0;
-                case -1: __PYX_VERIFY_RETURN_INT(unsigned long, sdigit, (sdigit) (-(sdigit)digits[0]))
-                case  1: __PYX_VERIFY_RETURN_INT(unsigned long,  digit, +digits[0])
+                case  0: return (NetworkUtility<unsigned_long> ::unsigned_long) 0;
+                case -1: __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, sdigit, (sdigit) (-(sdigit)digits[0]))
+                case  1: __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long,  digit, +digits[0])
                 case -2:
-                    if (8 * sizeof(unsigned long) - 1 > 1 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 1 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) - 1 > 2 * PyLong_SHIFT) {
-                            return (unsigned long) (((unsigned long)-1)*(((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 2 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) (((NetworkUtility<unsigned_long> ::unsigned_long)-1)*(((((NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0])));
                         }
                     }
                     break;
                 case 2:
-                    if (8 * sizeof(unsigned long) > 1 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) > 1 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) - 1 > 2 * PyLong_SHIFT) {
-                            return (unsigned long) ((((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 2 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) ((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0])));
                         }
                     }
                     break;
                 case -3:
-                    if (8 * sizeof(unsigned long) - 1 > 2 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 2 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) - 1 > 3 * PyLong_SHIFT) {
-                            return (unsigned long) (((unsigned long)-1)*(((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 3 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) (((NetworkUtility<unsigned_long> ::unsigned_long)-1)*(((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[2]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0])));
                         }
                     }
                     break;
                 case 3:
-                    if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) > 2 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) - 1 > 3 * PyLong_SHIFT) {
-                            return (unsigned long) ((((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 3 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) ((((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[2]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0])));
                         }
                     }
                     break;
                 case -4:
-                    if (8 * sizeof(unsigned long) - 1 > 3 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 3 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) - 1 > 4 * PyLong_SHIFT) {
-                            return (unsigned long) (((unsigned long)-1)*(((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 4 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) (((NetworkUtility<unsigned_long> ::unsigned_long)-1)*(((((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[3]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[2]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0])));
                         }
                     }
                     break;
                 case 4:
-                    if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
+                    if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) > 3 * PyLong_SHIFT) {
                         if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(unsigned long, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(unsigned long) - 1 > 4 * PyLong_SHIFT) {
-                            return (unsigned long) ((((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])));
+                            __PYX_VERIFY_RETURN_INT(NetworkUtility<unsigned_long> ::unsigned_long, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
+                        } else if (8 * sizeof(NetworkUtility<unsigned_long> ::unsigned_long) - 1 > 4 * PyLong_SHIFT) {
+                            return (NetworkUtility<unsigned_long> ::unsigned_long) ((((((((((NetworkUtility<unsigned_long> ::unsigned_long)digits[3]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[2]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[1]) << PyLong_SHIFT) | (NetworkUtility<unsigned_long> ::unsigned_long)digits[0])));
                         }
                     }
                     break;
             }
 #endif
-            if (sizeof(unsigned long) <= sizeof(long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned long, long, PyLong_AsLong(x))
+            if (sizeof(NetworkUtility<unsigned_long> ::unsigned_long) <= sizeof(long)) {
+                __PYX_VERIFY_RETURN_INT_EXC(NetworkUtility<unsigned_long> ::unsigned_long, long, PyLong_AsLong(x))
 #ifdef HAVE_LONG_LONG
-            } else if (sizeof(unsigned long) <= sizeof(PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(unsigned long, PY_LONG_LONG, PyLong_AsLongLong(x))
+            } else if (sizeof(NetworkUtility<unsigned_long> ::unsigned_long) <= sizeof(PY_LONG_LONG)) {
+                __PYX_VERIFY_RETURN_INT_EXC(NetworkUtility<unsigned_long> ::unsigned_long, PY_LONG_LONG, PyLong_AsLongLong(x))
 #endif
             }
         }
@@ -3541,7 +3365,7 @@ static CYTHON_INLINE unsigned long __Pyx_PyInt_As_unsigned_long(PyObject *x) {
             PyErr_SetString(PyExc_RuntimeError,
                             "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
 #else
-            unsigned long val;
+            NetworkUtility<unsigned_long> ::unsigned_long val;
             PyObject *v = __Pyx_PyNumber_IntOrLong(x);
  #if PY_MAJOR_VERSION < 3
             if (likely(v) && !PyLong_Check(v)) {
@@ -3561,213 +3385,24 @@ static CYTHON_INLINE unsigned long __Pyx_PyInt_As_unsigned_long(PyObject *x) {
                     return val;
             }
 #endif
-            return (unsigned long) -1;
+            return (NetworkUtility<unsigned_long> ::unsigned_long) -1;
         }
     } else {
-        unsigned long val;
+        NetworkUtility<unsigned_long> ::unsigned_long val;
         PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
-        if (!tmp) return (unsigned long) -1;
-        val = __Pyx_PyInt_As_unsigned_long(tmp);
+        if (!tmp) return (NetworkUtility<unsigned_long> ::unsigned_long) -1;
+        val = __Pyx_PyInt_As_NetworkUtility_3c_unsigned_long_3e____3a__3a_unsigned_long(tmp);
         Py_DECREF(tmp);
         return val;
     }
 raise_overflow:
     PyErr_SetString(PyExc_OverflowError,
-        "value too large to convert to unsigned long");
-    return (unsigned long) -1;
+        "value too large to convert to NetworkUtility<unsigned_long> ::unsigned_long");
+    return (NetworkUtility<unsigned_long> ::unsigned_long) -1;
 raise_neg_overflow:
     PyErr_SetString(PyExc_OverflowError,
-        "can't convert negative value to unsigned long");
-    return (unsigned long) -1;
-}
-
-/* CIntFromPy */
-static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *x) {
-    const size_t neg_one = (size_t) -1, const_zero = (size_t) 0;
-    const int is_unsigned = neg_one > const_zero;
-#if PY_MAJOR_VERSION < 3
-    if (likely(PyInt_Check(x))) {
-        if (sizeof(size_t) < sizeof(long)) {
-            __PYX_VERIFY_RETURN_INT(size_t, long, PyInt_AS_LONG(x))
-        } else {
-            long val = PyInt_AS_LONG(x);
-            if (is_unsigned && unlikely(val < 0)) {
-                goto raise_neg_overflow;
-            }
-            return (size_t) val;
-        }
-    } else
-#endif
-    if (likely(PyLong_Check(x))) {
-        if (is_unsigned) {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (size_t) 0;
-                case  1: __PYX_VERIFY_RETURN_INT(size_t, digit, digits[0])
-                case 2:
-                    if (8 * sizeof(size_t) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) >= 2 * PyLong_SHIFT) {
-                            return (size_t) (((((size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0]));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(size_t) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) >= 3 * PyLong_SHIFT) {
-                            return (size_t) (((((((size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0]));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(size_t) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) >= 4 * PyLong_SHIFT) {
-                            return (size_t) (((((((((size_t)digits[3]) << PyLong_SHIFT) | (size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0]));
-                        }
-                    }
-                    break;
-            }
-#endif
-#if CYTHON_COMPILING_IN_CPYTHON
-            if (unlikely(Py_SIZE(x) < 0)) {
-                goto raise_neg_overflow;
-            }
-#else
-            {
-                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
-                if (unlikely(result < 0))
-                    return (size_t) -1;
-                if (unlikely(result == 1))
-                    goto raise_neg_overflow;
-            }
-#endif
-            if (sizeof(size_t) <= sizeof(unsigned long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(size_t, unsigned long, PyLong_AsUnsignedLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(size_t) <= sizeof(unsigned PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(size_t, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
-#endif
-            }
-        } else {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (size_t) 0;
-                case -1: __PYX_VERIFY_RETURN_INT(size_t, sdigit, (sdigit) (-(sdigit)digits[0]))
-                case  1: __PYX_VERIFY_RETURN_INT(size_t,  digit, +digits[0])
-                case -2:
-                    if (8 * sizeof(size_t) - 1 > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) - 1 > 2 * PyLong_SHIFT) {
-                            return (size_t) (((size_t)-1)*(((((size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0])));
-                        }
-                    }
-                    break;
-                case 2:
-                    if (8 * sizeof(size_t) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) - 1 > 2 * PyLong_SHIFT) {
-                            return (size_t) ((((((size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0])));
-                        }
-                    }
-                    break;
-                case -3:
-                    if (8 * sizeof(size_t) - 1 > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) - 1 > 3 * PyLong_SHIFT) {
-                            return (size_t) (((size_t)-1)*(((((((size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0])));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(size_t) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) - 1 > 3 * PyLong_SHIFT) {
-                            return (size_t) ((((((((size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0])));
-                        }
-                    }
-                    break;
-                case -4:
-                    if (8 * sizeof(size_t) - 1 > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) - 1 > 4 * PyLong_SHIFT) {
-                            return (size_t) (((size_t)-1)*(((((((((size_t)digits[3]) << PyLong_SHIFT) | (size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0])));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(size_t) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(size_t, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(size_t) - 1 > 4 * PyLong_SHIFT) {
-                            return (size_t) ((((((((((size_t)digits[3]) << PyLong_SHIFT) | (size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0])));
-                        }
-                    }
-                    break;
-            }
-#endif
-            if (sizeof(size_t) <= sizeof(long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(size_t, long, PyLong_AsLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(size_t) <= sizeof(PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(size_t, PY_LONG_LONG, PyLong_AsLongLong(x))
-#endif
-            }
-        }
-        {
-#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
-            PyErr_SetString(PyExc_RuntimeError,
-                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
-#else
-            size_t val;
-            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
- #if PY_MAJOR_VERSION < 3
-            if (likely(v) && !PyLong_Check(v)) {
-                PyObject *tmp = v;
-                v = PyNumber_Long(tmp);
-                Py_DECREF(tmp);
-            }
- #endif
-            if (likely(v)) {
-                int one = 1; int is_little = (int)*(unsigned char *)&one;
-                unsigned char *bytes = (unsigned char *)&val;
-                int ret = _PyLong_AsByteArray((PyLongObject *)v,
-                                              bytes, sizeof(val),
-                                              is_little, !is_unsigned);
-                Py_DECREF(v);
-                if (likely(!ret))
-                    return val;
-            }
-#endif
-            return (size_t) -1;
-        }
-    } else {
-        size_t val;
-        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
-        if (!tmp) return (size_t) -1;
-        val = __Pyx_PyInt_As_size_t(tmp);
-        Py_DECREF(tmp);
-        return val;
-    }
-raise_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "value too large to convert to size_t");
-    return (size_t) -1;
-raise_neg_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "can't convert negative value to size_t");
-    return (size_t) -1;
+        "can't convert negative value to NetworkUtility<unsigned_long> ::unsigned_long");
+    return (NetworkUtility<unsigned_long> ::unsigned_long) -1;
 }
 
 /* CIntToPy */

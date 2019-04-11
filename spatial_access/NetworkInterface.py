@@ -2,8 +2,6 @@
 #
 # ©2017-2019, Center for Spatial Data Science
 
-# pylint: skip-file
-
 import os
 import time
 import pandas as pd
@@ -13,12 +11,15 @@ from geopy import distance
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
 from spatial_access.SpatialAccessExceptions import UnableToConnectException
 from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
+from spatial_access.SpatialAccessExceptions import ConnectedComponentTrimmingFailed
+
+import logging
+logging.getLogger('osmnet').disabled = True
 
 try:
     import networkAdapterUtility
 except ImportError:
     raise SourceNotBuiltException()
-#  TODO: move trimming to an extension
 
 
 class NetworkInterface:
@@ -40,10 +41,6 @@ class NetworkInterface:
         self.bbox = None
         self.nodes = None
         self.edges = None
-        self.user_node_friends = set()
-        self._already_merged = set()
-        self._nodes_to_merge = set()
-        self._rows_to_merge = {}
         self.area_threshold = None if disable_area_threshold else 2000  # km
         assert isinstance(network_type, str)
         self._try_create_cache()
@@ -125,12 +122,10 @@ class NetworkInterface:
                     self.logger.error('Supplied coordinates span too large an area')
                     self.logger.error('You can set disable_area_threshold to True if this is intentional')
                 raise BoundingBoxTooLargeException()
-        if self.logger:
-            self.logger.debug('set bbox: {}'.format(self.bbox))
 
     def _get_filename(self):
         """
-        Returns: filename formatted for this network.
+        Returns: cache filename formatted for this request.
         """
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
         return 'data/osm_query_cache/' + self.network_type + bbox_string + '.h5'
@@ -173,7 +168,7 @@ class NetworkInterface:
             self.nodes = pd.read_hdf(filename, 'nodes')
             self.edges = pd.read_hdf(filename, 'edges')
             if self.logger:
-                self.logger.info('Read network from %s', filename)
+                self.logger.debug('Read network from cache: %s', filename)
         else:
             self._request_network()
         self._remove_disconnected_components()
@@ -204,7 +199,7 @@ class NetworkInterface:
             self.nodes.to_hdf(filename, 'nodes', complevel=5)
             self.edges.to_hdf(filename, 'edges', complevel=5)
             if self.logger:
-                self.logger.info('Queried OSM...')
+                self.logger.info('Finished querying osm')
                 self.logger.debug('Cached network to %s', filename)
         except BaseException:
             request_error = """Error trying to download OSM network.
@@ -215,135 +210,43 @@ class NetworkInterface:
                 self.logger.error(request_error)
             raise UnableToConnectException()
 
-    def number_of_nodes(self):
-        """
-        Returns: the number of nodes in the network.
-        """
-
-        assert self.nodes is not None
-        return len(self.nodes)
-
-    def number_of_edges(self):
-        """
-        Returns: the number of edges in the network.
-        """
-        assert self.edges is not None
-        return len(self.edges)
-
-    def _get_adjacent_vertices(self, v):
-        """
-        Returns: a list of vertices with edges from v.
-        """
-        return list(self.edges.iloc[self.edges.index.get_level_values(0) == v].to)
-
     def _get_edges_as_list(self):
         """
-        Return a list of all edges as tuples (from, to).
+        Returns: a list of all edges as tuples (from, to).
         """
         return list(zip(self.edges['from'], self.edges['to']))
 
     def _get_vertices_as_list(self):
         """
-        Return a list of all node ids.
+        Returns: a list of all node ids.
         """
         return list(self.nodes['id'])
 
-    def _build_transpose_graph(self):
+    def _apply_connected_nodes(self, nodes_to_keep):
         """
-        Build a transpose graph.
+        Given a set nodes_to_keep, remove all other
+        nodes and edges.
         """
-        vertices = self._get_vertices_as_list()
-        graph = {vertex: [] for vertex in vertices}
-
-        # Recur for all the vertices adjacent to this vertex
-        for u, v in self._get_edges_as_list():
-            graph[v].append(u)
-
-        return graph
-
-    def _remove_disconnected_vertices(self, nodes_to_remove):
-        """
-        Given a set nodes_to_remove, remove them from self.nodes
-        and self.edges.
-        """
-        self.nodes = self.nodes[~self.nodes['id'].isin(nodes_to_remove)]
-        self.edges = self.edges[~self.edges['from'].isin(nodes_to_remove)]
-        self.edges = self.edges[~self.edges['to'].isin(nodes_to_remove)]
+        self.nodes = self.nodes[self.nodes['id'].isin(nodes_to_keep)]
+        self.edges = self.edges[self.edges['from'].isin(nodes_to_keep) & self.edges['to'].isin(nodes_to_keep)]
 
     def _remove_disconnected_components(self):
         """
         Remove all nodes and edges that are not
         a part of the largest strongly connected component.
+        Raises:
+            ConnectedComponentTrimmingFailed: caused by undefined behavior from extension.
         """
-        return
-        trimmer_start_time = time.time()
-        trimmer = networkAdapterUtility.NetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
-
-        self.trimmer_edges = trimmer.getConnectedNetworkEdges()
-        self.trimmer_nodes = trimmer.getConnectedNetworkNodes()
-        self.logger.info("trimmer in {} seconds".format(time.time() - trimmer_start_time))
         len_edges_before = len(self.edges)
         len_nodes_before = len(self.nodes)
         start_time = time.time()
+        try:
+            trimmer = networkAdapterUtility.pyNetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
+            nodes_of_main_connected_component = trimmer.getConnectedNetworkNodes()
+        except BaseException:
+            raise ConnectedComponentTrimmingFailed()
 
-        first_visit = {vertex: False for vertex in self._get_vertices_as_list()}
-
-        # dummy = {'a':['b'],
-        #          'b':['c','f', 'e'],
-        #          'c':['d', 'g'],
-        #          'd':['c', 'h'],
-        #          'e':['a', 'f'],
-        #          'f':['g'],
-        #          'g':['f'],
-        #          'h':['g','d']}
-        # Determine order of nodes to visit
-        nodes = self._get_vertices_as_list()
-        pre_stack = []
-        post_stack = []
-        while len(post_stack) < len_nodes_before:
-            v = nodes.pop()
-            if first_visit[v]:
-                continue
-            pre_stack.append((v, False))
-            while len(pre_stack) > 0:
-                u, flag = pre_stack.pop()
-                if flag:
-                    post_stack.append(u)
-                elif not first_visit[u]:
-                    first_visit[u] = True
-                    pre_stack.append((u, True))
-                    # pre_stack += [(v, False) for v in dummy[u]]
-                    pre_stack += [(v, False) for v in self._get_adjacent_vertices(u)]
-        # Create a transpose graph
-        transpose_graph = self._build_transpose_graph()
-
-        second_visit = {vertex: False for vertex in self._get_vertices_as_list()}
-        connected_components = []
-
-        while len(post_stack) > 0:
-            v = post_stack.pop()
-            if second_visit[v]:
-                continue
-            connected_components.append([])
-            secondary_stack = [v]
-            while len(secondary_stack) > 0:
-                u = secondary_stack.pop()
-                second_visit[u] = True
-                connected_components[-1].append(u)
-                for t in transpose_graph[u]:
-                    if not second_visit[t]:
-                        secondary_stack.append(t)
-
-
-
-
-        connected_components.sort(key=len, reverse=True)
-
-        assert len(connected_components) > 0, 'Did not find a single connected component. Stopping executing.'
-        main_component = connected_components[0]
-        nodes_to_remove = set(self._get_vertices_as_list()) - set(main_component)
-
-        self._remove_disconnected_vertices(nodes_to_remove)
+        self._apply_connected_nodes(nodes_of_main_connected_component)
 
         if self.logger:
             edges_diff = len_edges_before - len(self.edges)
@@ -351,7 +254,7 @@ class NetworkInterface:
             time_diff = time.time() - start_time
             edges_diff_percent = edges_diff / len_edges_before
             nodes_diff_percent = nodes_diff / len_edges_before
-            self.logger.info("Removed {}/{} ({:,.2f}%) edges and {}/{} ({:,.2f}%) nodes which were disconnected components in {:,.2f} seconds".format(edges_diff,
+            self.logger.debug("Removed {}/{} ({:,.2f}%) edges and {}/{} ({:,.2f}%) nodes which were disconnected components in {:,.2f} seconds".format(edges_diff,
                                                                                                                                             len_edges_before,
                                                                                                                                             edges_diff_percent,
                                                                                                                                             nodes_diff,

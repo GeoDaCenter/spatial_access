@@ -41,6 +41,10 @@ class BoundingBoxTooLargeException(NetworkInterfaceException):
     def __init__(self, errors=''):
         super().__init__("BoundingBoxTooLargeException:" + errors)
 
+class ConnectedComponentTrimmingFailed(NetworkInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("ConnectedComponentTrimmingFailed:" + errors)
+
 
 class UnexpectedFileFormatException(MatrixInterfaceException):
     def __init__(self, errors=''):

@@ -73,10 +73,13 @@ class MatrixInterface:
         """
         Write tmx to file
         """
+        start = time.time()
         try:
             self.transit_matrix.writeTMX(filename)
         except BaseException:
             raise WriteTMXFailedException("Unable to write tmx to {}".format(filename))
+        if self.logger:
+            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -179,7 +182,7 @@ class MatrixInterface:
         if thread_limit is None:
             thread_limit = self._get_thread_limit()
         if self.logger:
-            self.logger.info('Processing matrix with {} threads'.format(thread_limit))
+            self.logger.debug('Processing matrix with {} threads'.format(thread_limit))
         try:
             self.transit_matrix.compute(thread_limit)
         except BaseException:
@@ -187,9 +190,8 @@ class MatrixInterface:
 
         logger_vars = time.time() - start_time
         if self.logger:
-            self.logger.info('Shortest path matrix computed in {:,.2f} seconds using {} threads'
-                             .format(logger_vars, thread_limit))
-
+            self.logger.info('Shortest path matrix computed in {:,.2f} seconds'
+                             .format(logger_vars))
 
     def get_dests_in_range(self, threshold):
         """

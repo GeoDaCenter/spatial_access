@@ -25,13 +25,11 @@ from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 
 # TODO: improve logging granularity
-# TODO: diable writing logs to disk
-
+# TODO: disable logs writing to disk
 
 class TransitMatrix:
     """
     Compute transit matrices at scale.
-
     """
     def __init__(
             self,
@@ -226,7 +224,7 @@ class TransitMatrix:
         dropped_lines = pre_drop - len(source_data)
 
         keyword = "rows" if primary else "columns"
-        self.logger.info(
+        self.logger.debug(
             'Total number of {} in the dataset: {}'.format(keyword, pre_drop))
         if dropped_lines > 0:
             self.logger.warning(
@@ -329,7 +327,7 @@ class TransitMatrix:
                                                     simple_node_indeces[to_idx],
                                                     impedance, is_bidirectional)
         time_delta = time.time() - start_time
-        self.logger.info("Prepared raw network in {:,.2f} seconds".format(time_delta))
+        self.logger.debug("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
     def _match_to_nearest_neighbor(self, is_primary=True, is_also_secondary=False):
         """
