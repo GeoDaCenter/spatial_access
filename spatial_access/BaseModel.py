@@ -28,18 +28,26 @@ import os.path
 import logging
 
 
-class ModelData(object):
+class ModelData:
     """
-    A parent class to hold/process data for more advanced geospatial
-    models like HSSAModel and PCSpendModel. The 'upper' argument in
-    the __init__ is the time (in seconds), above which a source and dest
-    are considered to be out of range of each other.
+    Perform spatial operations needed for spatial_access.Models.
     """
-
     def __init__(self, network_type, sources_filename,
                  destinations_filename,
                  source_column_names=None, dest_column_names=None,
-                 debug=False, walk_speed=None, bike_speed=None):
+                 walk_speed=None, bike_speed=None, debug=False):
+        """
+
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'meters'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+        """
         self.network_type = network_type
         self._sp_matrix = None
         self.dests = None
