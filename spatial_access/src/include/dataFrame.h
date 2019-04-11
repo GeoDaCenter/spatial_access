@@ -264,11 +264,8 @@ public:
     addToColIndex(const col_label_type& col_id)
     {
         unsigned long int index = colIds.size();
-        if (!isSymmetric)
-        {
-            colIds.push_back(col_id);
-            colIdsToLoc.emplace(std::make_pair(col_id, index));
-        }
+        colIds.push_back(col_id);
+        colIdsToLoc.emplace(std::make_pair(col_id, index));
         return index;
     }
     

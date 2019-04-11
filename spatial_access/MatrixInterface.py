@@ -81,6 +81,17 @@ class MatrixInterface:
         if self.logger:
             self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
+    def add_edges_to_graph(self, from_column, to_column, edge_weight_column,
+                           is_bidirectional_column):
+        """
+        Args:
+            from_column:
+            to_column:
+            edge_weight_column:
+            is_bidirectional_column:
+        """
+        self.transit_matrix.addEdgesToGraph(from_column, to_column, edge_weight_column, is_bidirectional_column)
+
     def get_values_by_source(self, source_id, sort=False):
         """
         Get a list of (dest_id, value) pairs, with the option
@@ -132,12 +143,6 @@ class MatrixInterface:
         if not self.secondary_ids_are_string and not isinstance(user_id, int):
             raise InvalidIdTypeException("dest_id was declared to be int, but recieved {}".format(type(user_id)))
         self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
-
-    def add_edge_to_graph(self, source, dest, weight, is_bidirectional):
-        """
-        Add an edge to the graph.
-        """
-        self.transit_matrix.addEdgeToGraph(source, dest, weight, is_bidirectional)
 
     def prepare_matrix(self, is_symmetric, is_compressible, rows, columns, network_vertices):
         """

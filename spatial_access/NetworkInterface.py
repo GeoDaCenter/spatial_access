@@ -65,6 +65,18 @@ class NetworkInterface:
         if not os.path.exists('data/osm_query_cache'):
             os.makedirs('data/osm_query_cache')
 
+    def number_of_nodes(self):
+        """
+        Returns: number of nodes in graph.
+        """
+        return len(self.nodes)
+
+    def number_of_edges(self):
+        """
+        Returns: number of edges in graph.
+        """
+        return len(self.edges)
+
     def _approximate_bbox_area(self):
         """
         Calculate the approximate area of the 

@@ -8,6 +8,7 @@ from libcpp.utility cimport pair
 
 ctypedef unsigned short int matrix
 ctypedef unsigned short int value
+ctypedef unsigned long int ulong
 
 cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
 
@@ -19,7 +20,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel" :
         void prepareGraphWithVertices(int V) except +
         void addToUserSourceDataContainer(unsigned int, string, unsigned short int) except +
         void addToUserDestDataContainer(unsigned int, string, unsigned short int) except +
-        void addEdgeToGraph(int, int, int, bool) except +
+        void addEdgesToGraph(vector[ulong], vector[ulong], vector[value], vector[bool]) except +
         void addToCategoryMap(string, string) except +
 
         void compute(int) except +
@@ -102,9 +103,8 @@ cdef class pyTransitMatrix:
         cdef string dest_id_string = str.encode(dest_id)
         self.thisptr.addToUserDestDataContainer(networkNodeId, dest_id_string, lastMileDistance)
 
-
-    def addEdgeToGraph(self, src, dst, weight, isBidirectional):
-        self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
+    def addEdgesToGraph(self, from_column, to_column, edge_weight_column, is_bidirectional_column):
+        self.thisptr.addEdgesToGraph(from_column, to_column, edge_weight_column, is_bidirectional_column)
 
     def compute(self, numThreads):
         self.thisptr.compute(numThreads)

@@ -61,7 +61,7 @@ REQUIRED_DEPENDENCIES += extra_dependency
 SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.BaseModel',
                    'spatial_access.Models',
-                   'spatial_access.ConfigInterface',
+                   'spatial_access.Configs',
                    'spatial_access.NetworkInterface',
                    'spatial_access.MatrixInterface',
 'spatial_access.SpatialAccessExceptions']

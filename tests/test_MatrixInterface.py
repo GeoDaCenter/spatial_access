@@ -1,7 +1,6 @@
 # pylint: skip-file
 from spatial_access.MatrixInterface import MatrixInterface
 
-from spatial_access.SpatialAccessExceptions import WriteH5FailedException
 from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import FileNotFoundException

@@ -12,7 +12,7 @@ import pandas as pd
 
 from spatial_access.MatrixInterface import MatrixInterface
 from spatial_access.NetworkInterface import NetworkInterface
-from spatial_access.ConfigInterface import ConfigInterface
+from spatial_access.Configs import Configs
 
 from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
@@ -26,6 +26,8 @@ from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 
 # TODO: improve logging granularity
 # TODO: disable logs writing to disk
+# TODO: add OTP type
+# TODO: make utility modules pseudo private
 
 class TransitMatrix:
     """
@@ -88,7 +90,7 @@ class TransitMatrix:
         self.set_logging(debug)
 
         # instantiate interfaces
-        self._config_interface = ConfigInterface(network_type, logger=self.logger)
+        self.configs = Configs()
         self._network_interface = NetworkInterface(network_type, logger=self.logger,
                                                    disable_area_threshold=disable_area_threshold)
 
@@ -97,14 +99,12 @@ class TransitMatrix:
                                                 logger=self.logger)
 
         if walk_speed is not None:
-            self._config_interface.update_walking_speed(walk_speed=walk_speed)
+            self.configs.walk_speed = walk_speed
         if bike_speed is not None:
-            self._config_interface.update_biking_speed(bike_speed=bike_speed)
+            self.configs.bike_speed = bike_speed
 
         if network_type not in {'drive', 'walk', 'bike', 'meters'}:
             raise UnknownModeException()
-
-        self._use_meters = network_type == 'meters'
 
         if self.primary_input == self.secondary_input and self.primary_input is not None:
             raise DuplicateInputException("Gave duplicate inputs: {}".format(self.primary_input))
@@ -268,21 +268,6 @@ class TransitMatrix:
         if self.secondary_input:
             self._parse_csv(False)
 
-    def _cost_model(self, distance, speed_limit):
-        """
-        This method will be removed.
-        """
-        if self.network_type == 'walk':
-            return int((distance / self._config_interface.WALK_CONSTANT) +
-                       self._config_interface.WALK_NODE_PENALTY)
-        elif self.network_type == 'bike':
-            return int((distance / self._config_interface.BIKE_CONSTANT) +
-                       self._config_interface.BIKE_NODE_PENALTY)
-
-        drive_constant = (speed_limit / self._config_interface.ONE_HOUR)
-        drive_constant *= self._config_interface.ONE_KM
-        return int((distance / drive_constant) + self._config_interface.DRIVE_NODE_PENALTY)
-
     def _reduce_node_indeces(self):
         """
         Map the network indeces to location.
@@ -294,38 +279,41 @@ class TransitMatrix:
             simple_node_indeces[id_] = position
         return simple_node_indeces
 
-    # TODO: do this using data frame methods instead
     def _parse_network(self):
         """
         Cleans and generates the city network.
         """
 
         start_time = time.time()
+        edges = self._network_interface.edges
+        if self.network_type == 'walk':
+            edges['edge_weight'] = edges['distance'] * self.configs.get_walk_speed() \
+                                        + self.configs.walk_node_penalty
+            edges['is_bidirectional'] = True
+        elif self.network_type == 'bike':
+            edges['edge_weight'] = edges['distance'] * self.configs.get_bike_speed() \
+                                        + self.configs.bike_node_penalty
+            edges['is_bidirectional'] = True
+        elif self.network_type == 'drive':
+            driving_cost_matrix = self.configs.get_driving_cost_matrix()
+            edges = pd.merge(edges, driving_cost_matrix, how='left', left_on='highway', right_index=True)
+            edges['edge_weight'] = edges['distance'] / edges['unit_cost'] + self.configs.drive_node_penalty
+            edges['is_bidirectional'] = edges['oneway'] != "yes"
 
-        FROM_IDX = self._network_interface.edges.columns.get_loc('from') + 1
-        TO_IDX = self._network_interface.edges.columns.get_loc('to') + 1
-        
-        # map index name to position
         simple_node_indeces = self._reduce_node_indeces()
 
-        # create a mapping of each node to every other connected node
-        # transform them by cost model as well
-        for data in self._network_interface.edges.itertuples():
-            from_idx = data[FROM_IDX]
-            to_idx = data[TO_IDX]
-            if self._use_meters:
-                impedance = data.distance
-            else:
-                highway_tag = data.highway
-                if highway_tag is None or highway_tag not in self._config_interface.speed_limit_dict["urban"]:
-                    highway_tag = "unclassified"
-                impedance = self._cost_model(data.distance,
-                                             self._config_interface.speed_limit_dict["urban"][highway_tag])
+        edges['from_loc'] = edges['from'].map(simple_node_indeces)
+        edges['to_loc'] = edges['to'].map(simple_node_indeces)
+        edges['edge_weight'] = edges['edge_weight'].astype('int32')
 
-            is_bidirectional = data.oneway != 'yes' or self.network_type != 'drive'
-            self.matrix_interface.add_edge_to_graph(simple_node_indeces[from_idx],
-                                                    simple_node_indeces[to_idx],
-                                                    impedance, is_bidirectional)
+        from_column = list(edges['from_loc'])
+        to_column = list(edges['to_loc'])
+        edge_weight_column = edges['edge_weight']
+        is_bidirectional_column = edges['is_bidirectional']
+
+        self.matrix_interface.add_edges_to_graph(from_column, to_column, edge_weight_column,
+                                                 is_bidirectional_column)
+
         time_delta = time.time() - start_time
         self.logger.debug("Prepared raw network in {:,.2f} seconds".format(time_delta))
 
@@ -352,6 +340,16 @@ class TransitMatrix:
         node_array = nodes.values
         kd_tree = scipy.spatial.cKDTree(node_array)
 
+        unit_cost = 1
+        if self.network_type == 'drive':
+            unit_cost = self.configs.get_drive_speed()
+        elif self.network_type == 'walk':
+            unit_cost = self.configs.get_walk_speed()
+        elif self.network_type == 'bike':
+            unit_cost = self.configs.get_bike_speed()
+        elif self.network_type == 'meters':
+            unit_cost = 1
+
         # map each node in the source/dest data to the nearest
         # corresponding node in the OSM network
         # and write to file
@@ -364,10 +362,9 @@ class TransitMatrix:
                                                        nodes.loc[node_number].x)
 
             # keep track of nodes that are used to snap a user data point
-            self._network_interface.user_node_friends.add(node_number)
             edge_distance = distance.distance(origin_location, closest_node_location).m
 
-            edge_weight = int(edge_distance / self._config_interface.default_edge_cost)
+            edge_weight = int(edge_distance / unit_cost)
 
             if is_primary:
                 self.matrix_interface.add_user_source_data(network_id=node_loc,

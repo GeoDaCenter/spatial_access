@@ -20,10 +20,13 @@
 #include "Serializer.h"
 using namespace std;
 
+typedef unsigned long int network_node;
+typedef unsigned short int time_value;
+
 template<class row_label_type, class col_label_type>
-void calculateSingleRowOfDataFrame(const std::vector<unsigned short int> &dist,
-                                   graphWorkerArgs<row_label_type, col_label_type> *wa, unsigned long int src) {
-    unsigned short int src_imp, dst_imp, calc_imp, fin_imp;
+void calculateSingleRowOfDataFrame(const std::vector<time_value> &dist,
+                                   graphWorkerArgs<row_label_type, col_label_type> *wa, network_node src) {
+    time_value src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
     auto sourceTract = wa->userSourceData.retrieveTract(src);
     for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
@@ -32,7 +35,7 @@ void calculateSingleRowOfDataFrame(const std::vector<unsigned short int> &dist,
 
         auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
-        std::vector<unsigned short int> row_data;
+        std::vector<time_value> row_data;
         if (wa->df.isCompressible)
         {
             row_data.assign(wa->df.cols - sourceDataPoint.loc, USHRT_MAX);
@@ -41,7 +44,7 @@ void calculateSingleRowOfDataFrame(const std::vector<unsigned short int> &dist,
             row_data.assign(wa->df.cols, USHRT_MAX);
         }
 
-        for (unsigned long int destNodeId : destNodeIds)
+        for (network_node destNodeId : destNodeIds)
         {
             auto destTract = wa->userDestData.retrieveTract(destNodeId);
             auto destPoints = destTract.retrieveDataPoints();
@@ -91,21 +94,21 @@ void calculateSingleRowOfDataFrame(const std::vector<unsigned short int> &dist,
 }
 
 
-typedef std::pair<unsigned short int, unsigned long int> queue_pair;
+typedef std::pair<time_value, network_node> queue_pair;
 
 
 template<class row_label_type, class col_label_type>
-void doDijstraFromOneNetworkNode(unsigned long int src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
-    unsigned long int V = wa->graph.getV();// Get the number of vertices in graph
+void doDijstraFromOneNetworkNode(network_node src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
+    network_node V = wa->graph.getV();// Get the number of vertices in graph
 
-    std::vector<unsigned short int> dist(V, USHRT_MAX);
+    std::vector<time_value> dist(V, USHRT_MAX);
     dist.at(src) = 0;
     std::priority_queue<queue_pair, std::vector<queue_pair>, std::greater<queue_pair>> queue;
     queue.push(std::make_pair(0, src));
     std::vector<bool> visited(V, false);
     while (!queue.empty())
     {
-        unsigned long int u = queue.top().second;
+        network_node u = queue.top().second;
         queue.pop();
         visited.at(u) = true;
         for (auto neighbor : wa->graph.neighbors.at(u))
@@ -128,7 +131,7 @@ void doDijstraFromOneNetworkNode(unsigned long int src, graphWorkerArgs<row_labe
 template<class row_label_type, class col_label_type>
 void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
 {
-    unsigned long int src;
+    network_node src;
     bool endNow = false;
     while (!wa->jq.empty()) {
         src = wa->jq.pop(endNow);
@@ -167,33 +170,46 @@ public:
 
 
     void
-    addToUserSourceDataContainer(unsigned long int networkNodeId, const row_label_type& row_id, unsigned short int lastMileDistance)
+    addToUserSourceDataContainer(network_node networkNodeId, const row_label_type& row_id, time_value lastMileDistance)
     {
-        unsigned long int row_loc = df.addToRowIndex(row_id);
+        network_node row_loc = df.addToRowIndex(row_id);
         this->userSourceDataContainer.addPoint(networkNodeId, row_loc, lastMileDistance);
 
     }
 
 
     void
-    addToUserDestDataContainer(unsigned long int networkNodeId, const col_label_type& col_id, unsigned short int lastMileDistance)
+    addToUserDestDataContainer(network_node networkNodeId, const col_label_type& col_id, time_value lastMileDistance)
     {
-        unsigned long int col_loc = this->df.addToColIndex(col_id);
+        network_node col_loc = this->df.addToColIndex(col_id);
         this->userDestDataContainer.addPoint(networkNodeId, col_loc, lastMileDistance);
     }
 
-
-    void
-    addEdgeToGraph(unsigned long int src, unsigned long int dest, unsigned short int weight, bool isBidirectional)
+    void addEdgeToGraph(network_node from_loc, network_node to_loc,
+                        time_value edge_weight, bool is_bidirectional)
     {
-
-        graph.addEdge(src, dest, weight);
-        if (isBidirectional)
+        graph.addEdge(from_loc, to_loc, edge_weight);
+        if (is_bidirectional)
         {
-            graph.addEdge(dest, src, weight);
+            graph.addEdge(to_loc, from_loc, edge_weight);
         }
     }
 
+    void
+    addEdgesToGraph(const std::vector<network_node>& from_column,
+            const std::vector<network_node>& to_column,
+            const std::vector<time_value>& edge_weights_column,
+            const std::vector<bool>& is_bidirectional_column)
+    {
+        for (unsigned long int i = 0; i < from_column.size(); i++)
+        {
+            auto from_loc = from_column.at(i);
+            auto to_loc = to_column.at(i);
+            auto edge_weight = edge_weights_column.at(i);
+            auto is_bidirectional = is_bidirectional_column.at(i);
+            addEdgeToGraph(from_loc, to_loc, edge_weight, is_bidirectional);
+        }
+    }
 
     void
     addToCategoryMap(const col_label_type& dest_id, const std::string& category)
@@ -230,14 +246,14 @@ public:
     }
 
 
-    const std::vector<std::pair<col_label_type, unsigned short int>>
+    const std::vector<std::pair<col_label_type, time_value>>
     getValuesBySource(row_label_type source_id, bool sort) const
     {
         return this->df.getValuesByRowId(source_id, sort);
     }
 
 
-    const std::vector<std::pair<row_label_type, unsigned short int>>
+    const std::vector<std::pair<row_label_type, time_value>>
     getValuesByDest(col_label_type dest_id, bool sort) const
     {
         return this->df.getValuesByColId(dest_id, sort);
@@ -250,10 +266,10 @@ public:
     {
         // Initialize maps
         std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
-        for (unsigned long int row_loc = 0; row_loc < df.rows; row_loc++)
+        for (network_node row_loc = 0; row_loc < df.rows; row_loc++)
         {
             std::vector<col_label_type> valueData;
-            for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++) {
+            for (network_node col_loc = 0; col_loc < df.cols; col_loc++) {
                 if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
                     valueData.push_back(df.getColIdForLoc(col_loc));
                 }
@@ -271,10 +287,10 @@ public:
     {
         // Initialize maps
         std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
-        for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
+        for (network_node col_loc = 0; col_loc < df.cols; col_loc++)
         {
             std::vector<row_label_type> valueData;
-            for (unsigned long int row_loc = 0; row_loc < df.rows; row_loc++) {
+            for (network_node row_loc = 0; row_loc < df.rows; row_loc++) {
                 if (df.getValueByLoc(row_loc, col_loc) <= threshold) {
                     valueData.push_back(df.getRowIdForLoc(row_loc));
                 }
@@ -287,13 +303,13 @@ public:
     }
 
 
-    unsigned short int
+    time_value
     timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const
     {
-        unsigned short int minimum = USHRT_MAX;
+        time_value minimum = USHRT_MAX;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
         {
-            unsigned short int dest_time = this->df.getValueById(source_id, dest_id);
+            time_value dest_time = this->df.getValueById(source_id, dest_id);
             if (dest_time <= minimum)
             {
                 minimum = dest_time;
@@ -303,10 +319,10 @@ public:
     }
 
 
-    unsigned short int
-    countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, unsigned short int range) const
+    time_value
+    countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, time_value range) const
     {
-        unsigned short int count = 0;
+        time_value count = 0;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
         {
             if (this->df.getValueById(source_id, dest_id) <= range)
@@ -318,14 +334,14 @@ public:
     }
 
 
-    unsigned short int
+    time_value
     timeToNearestDest(const row_label_type& source_id) const
     {
-        unsigned short int minimum = USHRT_MAX;
-        unsigned long int row_loc = df.getRowLocForId(source_id);
-        for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
+        time_value minimum = USHRT_MAX;
+        network_node row_loc = df.getRowLocForId(source_id);
+        for (network_node col_loc = 0; col_loc < df.cols; col_loc++)
         {
-            unsigned short int dest_time = this->df.getValueByLoc(row_loc, col_loc);
+            time_value dest_time = this->df.getValueByLoc(row_loc, col_loc);
             if (dest_time <= minimum)
             {
                 minimum = dest_time;
@@ -335,13 +351,13 @@ public:
     }
 
 
-    unsigned short int
-    countDestsInRange(const row_label_type& source_id, unsigned short int range) const
+    time_value
+    countDestsInRange(const row_label_type& source_id, time_value range) const
     {
 
-        unsigned short int count = 0;
-        unsigned long int row_loc = df.getRowLocForId(source_id);
-        for (unsigned long int col_loc = 0; col_loc < df.cols; col_loc++)
+        time_value count = 0;
+        network_node row_loc = df.getRowLocForId(source_id);
+        for (network_node col_loc = 0; col_loc < df.cols; col_loc++)
         {
             if (this->df.getValueByLoc(row_loc, col_loc) <= range)
             {
@@ -354,7 +370,7 @@ public:
     // Getters
 
 
-    unsigned short int
+    time_value
     getValueById(const row_label_type& row_id, const col_label_type& col_id) const
     {
         return df.getValueById(row_id, col_id);

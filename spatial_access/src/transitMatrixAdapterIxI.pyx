@@ -6,11 +6,11 @@ from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map
 from libcpp.utility cimport pair
 
-ctypedef unsigned short int matrix
+ctypedef unsigned short int ushort
+ctypedef unsigned long int ulong
 
 cdef extern from "include/transitMatrix.h" namespace "lmnoel":
     cdef cppclass transitMatrix[int_label, int_label]:
-        ctypedef unsigned short int value
         ctypedef unsigned long int int_label
 
         transitMatrix(bool, bool, unsigned int, unsigned int) except +
@@ -19,14 +19,14 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         void prepareGraphWithVertices(int V) except +
         void addToUserSourceDataContainer(unsigned int, unsigned long, unsigned short int) except +
         void addToUserDestDataContainer(unsigned int, unsigned long, unsigned short int) except +
-        void addEdgeToGraph(int, int, int, bool) except +
+        void addEdgesToGraph(vector[ulong], vector[ulong], vector[ushort], vector[bool]) except +
         void addToCategoryMap(unsigned long, string) except +
 
         void compute(int) except +
-        vector[pair[int_label, value]] getValuesByDest(unsigned long, bool) except +
-        vector[pair[int_label, value]] getValuesBySource(unsigned long, bool) except +
-        unordered_map[int_label, vector[int_label]] getDestsInRange(unsigned int, int) except +
-        unordered_map[int_label, vector[int_label]] getSourcesInRange(unsigned int, int) except +
+        vector[pair[ulong, ushort]] getValuesByDest(unsigned long, bool) except +
+        vector[pair[ulong, ushort]] getValuesBySource(unsigned long, bool) except +
+        unordered_map[ulong, vector[ulong]] getDestsInRange(unsigned int, int) except +
+        unordered_map[ulong, vector[ulong]] getSourcesInRange(unsigned int, int) except +
         unsigned short int timeToNearestDestPerCategory(unsigned long, string) except +
         unsigned short int countDestsInRangePerCategory(unsigned long, string, unsigned short int) except +
         unsigned short int timeToNearestDest(unsigned long) except +
@@ -59,9 +59,8 @@ cdef class pyTransitMatrix:
     def addToUserDestDataContainer(self, networkNodeId, id_, lastMileDistance):
         self.thisptr.addToUserDestDataContainer(networkNodeId, id_, lastMileDistance)
 
-
-    def addEdgeToGraph(self, src, dst, weight, isBidirectional):
-        self.thisptr.addEdgeToGraph(src, dst, weight, isBidirectional)
+    def addEdgesToGraph(self, from_column, to_column, edge_weight_column, is_bidirectional_column):
+        self.thisptr.addEdgesToGraph(from_column, to_column, edge_weight_column, is_bidirectional_column)
 
     def compute(self, numThreads):
         self.thisptr.compute(numThreads)
