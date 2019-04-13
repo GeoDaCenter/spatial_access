@@ -144,8 +144,6 @@ void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
 }
 
 
-namespace lmnoel {
-
 template <class row_label_type, class col_label_type>
 class transitMatrix {
 public:
@@ -430,18 +428,9 @@ public:
 
     }
 
-    // Aliases (for cython bug)
-    typedef unsigned short int value;
-    typedef unsigned long int int_label;
-    typedef std::pair<unsigned long int, unsigned short int> value_pair;
-
 
 private:
     // Private Members
     std::unordered_map<std::string, std::vector<col_label_type>> categoryToDestMap;
 
 };
-
-
-} // namespace lnoel
-typedef unsigned long int int_label;

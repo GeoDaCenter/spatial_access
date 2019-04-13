@@ -17,11 +17,18 @@
 #include "otpCSV.h"
 
 #define UNDEFINED (USHRT_MAX)
-
+#define TMX_VERSION (1)
 
 /* a pandas-like dataFrame */
 template <class row_label_type, class col_label_type>
 class dataFrame {
+private:
+    enum Type {
+        IxI,
+        IxS,
+        SxI,
+        SxS
+    };
 
 public:
 
@@ -52,15 +59,14 @@ public:
         if (isCompressible)
         {
             this->cols = rows;
-            dataset_size = (rows * (rows + 1)) / 2;
+            initializeDatatsetSize();
             std::vector<unsigned short int> data(dataset_size, UNDEFINED);
             dataset.push_back(data);
         }
         else
         {
-
-            dataset_size = rows * cols;
             this->cols = cols;
+            initializeDatatsetSize();
             for (unsigned int row_loc = 0; row_loc < rows; row_loc++)
             {
                 std::vector<unsigned short int> data(cols, UNDEFINED);
@@ -290,16 +296,6 @@ public:
         colIdsToLoc.emplace(std::make_pair(col_id, index));
         return index;
     }
-    
-
-// Utilities
-
-
-    bool
-    isUnderDiagonal(unsigned long int row_loc, unsigned long int col_loc) const
-    {
-        return row_loc > col_loc;
-    }
 
 
 
@@ -318,7 +314,13 @@ public:
         return true;
     }
 
+    void
+    printDataFrame() const
+    {
+        writeToStream(std::cout);
+    }
 
+private:
     bool
     writeToStream(std::ostream& streamToWrite) const
     {
@@ -341,25 +343,73 @@ public:
             }
             streamToWrite << std::endl;
         }
-
-
-
         return true;
     }
 
-
-    void
-    printDataFrame() const
+    void writeTMXHeader(Serializer& s, Type mode) const
     {
-        writeToStream(std::cout);
+
+        s.writeShortInt(TMX_VERSION);
+
+        s.writeShortInt(mode);
+
+        s.writeShortInt(isCompressible);
+
+        s.writeShortInt(isSymmetric);
+
+        s.writeLongInt(rows);
+
+        s.writeLongInt(cols);
+    }
+
+    void readTMXHeader(Deserializer& d, Type expected_mode)
+    {
+        auto tmx_version = d.readShortInt();
+
+        if (tmx_version != TMX_VERSION)
+        {
+            auto error = std::string("file is an older version of tmx: ") + std::to_string(tmx_version);
+            error += std::string("expected: ") + std::to_string(TMX_VERSION);
+            throw std::runtime_error(error);
+        }
+
+        auto mode = (Type) d.readShortInt();
+
+        if (mode != expected_mode) {
+            throw std::runtime_error("Unexpected mode");
+        }
+
+        // isCompressible
+        isCompressible = (bool) d.readShortInt();
+
+        // isSymmetric
+        isSymmetric = (bool) d.readShortInt();
+
+        // rows
+        rows = d.readLongInt();
+
+        // cols
+        cols = d.readLongInt();
+    }
+
+    void initializeDatatsetSize()
+    {
+        if (isCompressible) {
+            dataset_size = (rows * (rows + 1)) / 2;
+        }
+        else {
+            dataset_size = rows * cols;
+        }
+    }
+
+public:
+// Utilities
+
+
+    bool
+    isUnderDiagonal(unsigned long int row_loc, unsigned long int col_loc) const
+    {
+        return row_loc > col_loc;
     }
 
 };
-
-enum MatrixType {
-    IxI,
-    IxS,
-    SxI,
-    SxS
-};
-

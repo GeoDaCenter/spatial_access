@@ -18,11 +18,7 @@ from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
 
 
 try:
-    import transitMatrixAdapterIxI
-    import transitMatrixAdapterSxS
-    import transitMatrixAdapterSxI
-    import transitMatrixAdapterIxS
-    import TMXUtils
+    import _p2pExtension
 except ImportError:
     raise SourceNotBuiltException()
 
@@ -42,24 +38,24 @@ class MatrixInterface:
         """
         Read tmx from file
         """
-        utils = TMXUtils.pyTMXUtils()
+        utils = _p2pExtension.pyTMXUtils()
         if not os.path.exists(filename):
             raise ReadTMXFailedException("{} does not exist".format(filename))
         tmxType = utils.getTypeOfTMX(filename)
         if tmxType == 0:
-            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix()
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
         elif tmxType == 1:
-            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix()
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS()
         elif tmxType == 2:
-            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix()
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI()
         elif tmxType == 3:
-            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix()
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
         else:
             raise ReadTMXFailedException("Unrecognized tmx type: {}".format(tmxType))
-        try:
-            self.transit_matrix.readTMX(filename)
-        except BaseException:
-            raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
+        # try:
+        self.transit_matrix.readTMX(filename)
+        # except BaseException:
+        #     raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
 
     def write_tmx(self, filename):
         """
@@ -89,7 +85,7 @@ class MatrixInterface:
         Args:
             filename: otp csv.
         """
-        self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix()
+        self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
         self.transit_matrix.readOTPCSV(filename)
 
     def get_values_by_source(self, source_id, sort=False):
@@ -146,13 +142,13 @@ class MatrixInterface:
         if is_symmetric:
             self.secondary_ids_are_string = self.primary_ids_are_string
         if self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS(is_compressible, is_symmetric, rows, columns)
         elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI(is_compressible, is_symmetric, rows, columns)
         elif not self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS(is_compressible, is_symmetric, rows, columns)
         elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(is_compressible, is_symmetric, rows, columns)
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI(is_compressible, is_symmetric, rows, columns)
         else:
             assert False, "Logic Error"
         self.transit_matrix.prepareGraphWithVertices(network_vertices)

@@ -9,7 +9,7 @@
 
 int main()
 {
-    lmnoel::transitMatrix<unsigned long int, unsigned long int> matrix;
+    transitMatrix<unsigned long int, unsigned long int> matrix;
     matrix.readOTPCSV("sample_otp.csv");
     matrix.printDataFrame();
 

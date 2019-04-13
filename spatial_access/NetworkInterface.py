@@ -17,7 +17,7 @@ import logging
 logging.getLogger('osmnet').disabled = True
 
 try:
-    import networkAdapterUtility
+    import _p2pExtension
 except ImportError:
     raise SourceNotBuiltException()
 
@@ -253,7 +253,7 @@ class NetworkInterface:
         len_nodes_before = len(self.nodes)
         start_time = time.time()
         try:
-            trimmer = networkAdapterUtility.pyNetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
+            trimmer = _p2pExtension.pyNetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
             nodes_of_main_connected_component = trimmer.getConnectedNetworkNodes()
         except BaseException:
             raise ConnectedComponentTrimmingFailed()

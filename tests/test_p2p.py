@@ -321,3 +321,8 @@ class TestClass:
         """
         transit_matrix = TransitMatrix('otp',
                                        primary_input='tests/test_data/sample_otp.csv')
+        try:
+            transit_matrix.process()
+            assert False
+        except AssertionError:
+            return

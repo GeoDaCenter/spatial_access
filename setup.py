@@ -28,13 +28,8 @@ def build_extension(extension_name, sources):
                      undef_macros=["NDEBUG"],
                      extra_link_args=ouff_mac)
 
+EXTENSION_SOURCES = [('_p2pExtension', ['_p2pExtension.cpp'] + MATRIX_INTERFACE_SOURCES)]
 
-EXTENSION_SOURCES = [('TMXUtils', ['TMXUtils.cpp', 'Serializer.cpp']),
-                     ('networkAdapterUtility', ['networkAdapterUtility.cpp']),
-                     ('transitMatrixAdapterSxS', ['transitMatrixAdapterSxS.cpp'] + MATRIX_INTERFACE_SOURCES),
-                     ('transitMatrixAdapterIxS', ['transitMatrixAdapterIxS.cpp'] + MATRIX_INTERFACE_SOURCES),
-                     ('transitMatrixAdapterSxI', ['transitMatrixAdapterSxI.cpp'] + MATRIX_INTERFACE_SOURCES),
-                     ('transitMatrixAdapterIxI', ['transitMatrixAdapterIxI.cpp'] + MATRIX_INTERFACE_SOURCES)]
 
 EXTENSIONS = [build_extension(extension_name=extension_name, sources=sources) for extension_name, sources in EXTENSION_SOURCES]
 
@@ -64,7 +59,7 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.Configs',
                    'spatial_access.NetworkInterface',
                    'spatial_access.MatrixInterface',
-'spatial_access.SpatialAccessExceptions']
+                   'spatial_access.SpatialAccessExceptions']
 
 setup(
     name = 'spatial_access',

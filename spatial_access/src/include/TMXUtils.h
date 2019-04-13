@@ -14,6 +14,10 @@ public:
     int getTypeOfTMX(const std::string& filename)
     {
         Deserializer d(filename);
+
+        // throw away version number
+        d.readShortInt();
+
         return d.readShortInt();
     }
 };
