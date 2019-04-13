@@ -13,13 +13,15 @@ from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeExce
 
 import json
 
+def almost_equal(a, b):
+    return abs(a - b) < 0.001
 
 class TestClass:
     """Suite of tests for the Community Analytics Package"""
 
     def setup_class(self):
         import os
-        self.datapath = 'tests/test_community_analytics_temp/'
+        self.datapath = 'test_community_analytics_temp/'
         if not os.path.exists(self.datapath):
             os.mkdir(self.datapath)
 
@@ -58,26 +60,8 @@ class TestClass:
         coverage_model.model_data._sp_matrix = self.mock_transit_matrix_values(coverage_model.model_data._sp_matrix)
         coverage_model.calculate(400)
 
-        assert coverage_model.model_results.loc['place_a']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_b']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_c']['service_pop'] == 469
-        assert coverage_model.model_results.loc['place_d']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_e']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_f']['service_pop'] == 469
-
-        assert coverage_model.model_results.loc['place_a']['percap_spending'] <= 0.066
-        assert coverage_model.model_results.loc['place_b']['percap_spending'] <= 0.606
-        assert coverage_model.model_results.loc['place_c']['percap_spending'] <= 0.738
-        assert coverage_model.model_results.loc['place_d']['percap_spending'] <= 3.053
-        assert coverage_model.model_results.loc['place_e']['percap_spending'] <= 5.264
-        assert coverage_model.model_results.loc['place_f']['percap_spending'] <= 1.210
-
-        assert coverage_model.model_results.loc['place_a']['percap_spending'] >= 0.065
-        assert coverage_model.model_results.loc['place_b']['percap_spending'] >= 0.605
-        assert coverage_model.model_results.loc['place_c']['percap_spending'] >= 0.737
-        assert coverage_model.model_results.loc['place_d']['percap_spending'] >= 3.052
-        assert coverage_model.model_results.loc['place_e']['percap_spending'] >= 5.263
-        assert coverage_model.model_results.loc['place_f']['percap_spending'] >= 1.208
+        for row in coverage_model.model_results.itertuples():
+            assert row[1] == 166
 
     def test_02(self):
         """
@@ -134,21 +118,14 @@ class TestClass:
                                                                              'population': 'pop'},
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'})
-        accesspop_model.calculate(100)
+        accesspop_model.model_data._sp_matrix = self.mock_transit_matrix_values(accesspop_model.model_data._sp_matrix)
+        accesspop_model.calculate(300)
 
-        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 10.933
-        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] >= 10.933
-        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 1.946
+        for i in range(3, 6):
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_all_categories'], 9.61446)
 
-        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] <= 10.934
-        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] <= 10.934
-        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] <= 1.947
-        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] <= 1.947
-        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] <= 1.947
-        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] <= 1.947
+        for i in range(6, 9):
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_all_categories'], 0)
 
     def test_5(self):
         """
@@ -186,36 +163,17 @@ class TestClass:
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
                                 categories=categories)
-        accesspop_model.calculate(100)
+        accesspop_model.model_data._sp_matrix = self.mock_transit_matrix_values(accesspop_model.model_data._sp_matrix)
+        accesspop_model.calculate(200)
 
-        assert len(accesspop_model.model_results.columns) == len(categories)
-        assert accesspop_model.model_results.loc[3, 'percap_spend_A'] <= 9.054
-        assert accesspop_model.model_results.loc[4, 'percap_spend_A'] <= 9.054
-        assert accesspop_model.model_results.loc[5, 'percap_spend_A'] <= 0.738
-        assert accesspop_model.model_results.loc[6, 'percap_spend_A'] <= 0.738
-        assert accesspop_model.model_results.loc[7, 'percap_spend_A'] <= 0.738
-        assert accesspop_model.model_results.loc[8, 'percap_spend_A'] <= 0.738
+        for i in range(3, 5):
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_A'], 12.8684)
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_C'], 7.5262)
 
-        assert accesspop_model.model_results.loc[3, 'percap_spend_C'] <= 1.275
-        assert accesspop_model.model_results.loc[4, 'percap_spend_C'] <= 1.275
-        assert accesspop_model.model_results.loc[5, 'percap_spend_C'] <= 1.209
-        assert accesspop_model.model_results.loc[6, 'percap_spend_C'] <= 1.209
-        assert accesspop_model.model_results.loc[7, 'percap_spend_C'] <= 1.209
-        assert accesspop_model.model_results.loc[8, 'percap_spend_C'] <= 1.209
+        for i in range(5, 9):
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_A'], 0.0)
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_C'], 0.0)
 
-        assert accesspop_model.model_results.loc[3, 'percap_spend_A'] >= 9.053
-        assert accesspop_model.model_results.loc[4, 'percap_spend_A'] >= 9.053
-        assert accesspop_model.model_results.loc[5, 'percap_spend_A'] >= 0.737
-        assert accesspop_model.model_results.loc[6, 'percap_spend_A'] >= 0.737
-        assert accesspop_model.model_results.loc[7, 'percap_spend_A'] >= 0.737
-        assert accesspop_model.model_results.loc[8, 'percap_spend_A'] >= 0.737
-
-        assert accesspop_model.model_results.loc[3, 'percap_spend_C'] >= 1.274
-        assert accesspop_model.model_results.loc[4, 'percap_spend_C'] >= 1.274
-        assert accesspop_model.model_results.loc[5, 'percap_spend_C'] >= 1.208
-        assert accesspop_model.model_results.loc[6, 'percap_spend_C'] >= 1.208
-        assert accesspop_model.model_results.loc[7, 'percap_spend_C'] >= 1.208
-        assert accesspop_model.model_results.loc[8, 'percap_spend_C'] >= 1.208
 
     def test_7(self):
         """
@@ -229,14 +187,15 @@ class TestClass:
                                                            'population': 'pop'},
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'})
+        accesstime_model.model_data._sp_matrix = self.mock_transit_matrix_values(accesstime_model.model_data._sp_matrix)
         accesstime_model.calculate()
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 42
-        assert accesstime_model.model_results.loc[4]['time_to_nearest_all_categories'] == 7
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_all_categories'] == 99
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_all_categories'] == 69
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_all_categories'] == 70
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_all_categories'] == 100
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_all_categories'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_all_categories'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_all_categories'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_all_categories'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_all_categories'] == 600
 
     def test_8(self):
         """
@@ -255,7 +214,6 @@ class TestClass:
                                           categories=['A', 'E'])
             accesstime_model.calculate()
         except UnrecognizedCategoriesException:
-            assert True
             return
         assert False
 
@@ -273,21 +231,22 @@ class TestClass:
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'},
                                       categories=categories)
+        accesstime_model.model_data._sp_matrix = self.mock_transit_matrix_values(accesstime_model.model_data._sp_matrix)
         accesstime_model.calculate()
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 42
-        assert accesstime_model.model_results.loc[4]['time_to_nearest_A'] == 7
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_A'] == 99
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_A'] == 69
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_A'] == 70
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_A'] == 100
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_A'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_A'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_A'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_A'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_A'] == 600
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_C'] == 42
-        assert accesstime_model.model_results.loc[4]['time_to_nearest_C'] == 44
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_C'] == 99
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_C'] == 69
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 70
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 100
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_C'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_C'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_C'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_C'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 600
 
     def test_10(self):
         """
@@ -301,14 +260,13 @@ class TestClass:
                                                              'population': 'pop'},
                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                            'capacity': 'capacity', 'category': 'cat'})
-        accesscount_model.calculate(100)
+        accesscount_model.model_data._sp_matrix = self.mock_transit_matrix_values(accesscount_model.model_data._sp_matrix)
+        accesscount_model.calculate(500)
 
-        assert accesscount_model.model_results.loc[3]['count_in_range_all_categories'] == 6
-        assert accesscount_model.model_results.loc[4]['count_in_range_all_categories'] == 6
-        assert accesscount_model.model_results.loc[5]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[6]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[7]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[8]['count_in_range_all_categories'] == 2
+        for i in range(3, 8):
+            assert accesscount_model.model_results.loc[i, 'count_in_range_all_categories'] == 6
+
+        assert accesscount_model.model_results.loc[8, 'count_in_range_all_categories'] == 0
 
     def test_11(self):
         """
@@ -327,7 +285,6 @@ class TestClass:
                                             categories=['A', 'E'])
             accesscount_model.calculate(200)
         except UnrecognizedCategoriesException:
-            assert True
             return
         assert False
 

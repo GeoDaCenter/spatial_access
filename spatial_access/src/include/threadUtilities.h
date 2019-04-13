@@ -31,18 +31,22 @@ void do_join(std::thread &t);
 
 template<class row_label_type, class col_label_type> class graphWorkerArgs;
 
-/* A pool of worker threads to execute a job (f_in), which takes arguments (wa)*/
+/* A pool of worker threads to execute a job (f_in), which takes arguments (worker_args)*/
 template<class row_label_type, class col_label_type>
 class workerQueue {
 private:
     std::vector<std::thread> threads;
 public:
-    workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa)
+    workerQueue(unsigned int numThreads,
+            void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>&),
+            graphWorkerArgs<row_label_type, col_label_type> &worker_args)
     {
+
         for (unsigned long int i = 0; i < numThreads; i++)
         {
-            this->threads.push_back(std::thread(f_in, wa));
+            this->threads.push_back(std::thread(f_in, std::ref(worker_args)));
         }
+
     }
     void startGraphWorker()
     {

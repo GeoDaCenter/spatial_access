@@ -52,10 +52,10 @@ class MatrixInterface:
             self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
         else:
             raise ReadTMXFailedException("Unrecognized tmx type: {}".format(tmxType))
-        # try:
-        self.transit_matrix.readTMX(filename)
-        # except BaseException:
-        #     raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
+        try:
+            self.transit_matrix.readTMX(filename)
+        except BaseException:
+            raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
 
     def write_tmx(self, filename):
         """
@@ -105,18 +105,10 @@ class MatrixInterface:
     @staticmethod
     def _get_thread_limit():
         """
-        Determine if the algorithm should be throttled
-        based on the available system memory and number of cores.
         Returns: int (num threads to use)
         """
 
-        no_cores = multiprocessing.cpu_count()
-        if no_cores > 2:
-            no_cores -= 1
-        else:
-            no_cores = 1
-
-        return no_cores
+        return multiprocessing.cpu_count()
 
     def add_user_source_data(self, network_id, user_id, weight, is_also_dest):
         """

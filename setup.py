@@ -24,7 +24,7 @@ def build_extension(extension_name, sources):
     full_path_sources = [SRC_PATH + src for src in sources]
     return Extension(name=extension_name, language='c++',
                      sources=full_path_sources,
-                     extra_compile_args=['--std=c++11', '-Wall', '-O3'] + ouff_mac,
+                     extra_compile_args=['--std=c++11', '-Ofast', '-fomit-frame-pointer', "-g0"] + ouff_mac,
                      undef_macros=["NDEBUG"],
                      extra_link_args=ouff_mac)
 

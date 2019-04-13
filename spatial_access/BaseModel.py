@@ -73,11 +73,9 @@ class ModelData:
         self.dests_in_range = {}
 
         # initialize logger
+        self.debug = debug
         self.logger = None
-        if debug:
-            self.set_logging('info')
-        else:
-            self.set_logging('debug')
+        self.set_logging(debug)
 
     def write_shortest_path_matrix_to_csv(self, filename=None):
         """
@@ -161,19 +159,15 @@ class ModelData:
             return list(self.dests.index)
         return list(self.dests[self.dests['category'] == category].index)
 
-    def set_logging(self, level=None):
+    def set_logging(self, debug):
         """
         Set the logging level to debug or info
         """
-        if not level:
-            return
 
-        if level == 'debug':
+        if debug:
             logging.basicConfig(level=logging.DEBUG)
-        elif level == 'info':
-            logging.basicConfig(level=logging.INFO)
         else:
-            return
+            logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
     def load_sp_matrix(self, read_from_tmx=None):
@@ -185,7 +179,8 @@ class ModelData:
         """
         if read_from_tmx:
             self._sp_matrix = TransitMatrix(self.network_type,
-                                            read_from_tmx=read_from_tmx)
+                                            read_from_tmx=read_from_tmx,
+                                            debug=self.debug)
         else:
             self._sp_matrix = TransitMatrix(self.network_type,
                                             primary_input=self.sources_filename,
@@ -193,7 +188,8 @@ class ModelData:
                                             primary_hints=self.source_column_names,
                                             secondary_hints=self.dest_column_names,
                                             walk_speed=self.walk_speed,
-                                            bike_speed=self.bike_speed)
+                                            bike_speed=self.bike_speed,
+                                            debug=self.debug)
             try:
                 self._sp_matrix.process()
             except PrimaryDataNotFoundException:

@@ -24,10 +24,6 @@ from spatial_access.SpatialAccessExceptions import DuplicateInputException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 
-# TODO: improve logging granularity
-# TODO: disable logs writing to disk
-# TODO: add OTP type
-# TODO: make utility modules pseudo private
 
 class TransitMatrix:
     """

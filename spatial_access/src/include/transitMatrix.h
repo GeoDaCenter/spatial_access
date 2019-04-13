@@ -25,40 +25,40 @@ typedef unsigned short int time_value;
 
 template<class row_label_type, class col_label_type>
 void calculateSingleRowOfDataFrame(const std::vector<time_value> &dist,
-                                   graphWorkerArgs<row_label_type, col_label_type> *wa, network_node src) {
+                                   graphWorkerArgs<row_label_type, col_label_type> &worker_args, network_node src) {
     time_value src_imp, dst_imp, calc_imp, fin_imp;
     //  iterate through each data point of the current source tract
-    auto sourceTract = wa->userSourceData.retrieveTract(src);
+    auto sourceTract = worker_args.userSourceData.retrieveTract(src);
     for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
     {
         src_imp = sourceDataPoint.lastMileDistance;
 
-        auto destNodeIds = wa->userDestData.retrieveUniqueNetworkNodeIds();
+        auto destNodeIds = worker_args.userDestData.retrieveUniqueNetworkNodeIds();
         // iterate through each dest tract
         std::vector<time_value> row_data;
-        if (wa->df.isCompressible)
+        if (worker_args.df.isCompressible)
         {
-            row_data.assign(wa->df.cols - sourceDataPoint.loc, USHRT_MAX);
+            row_data.assign(worker_args.df.cols - sourceDataPoint.loc, USHRT_MAX);
         } else
         {
-            row_data.assign(wa->df.cols, USHRT_MAX);
+            row_data.assign(worker_args.df.cols, USHRT_MAX);
         }
 
         for (network_node destNodeId : destNodeIds)
         {
-            auto destTract = wa->userDestData.retrieveTract(destNodeId);
+            auto destTract = worker_args.userDestData.retrieveTract(destNodeId);
             auto destPoints = destTract.retrieveDataPoints();
             for (auto destDataPoint : destPoints)
             {
-                if (wa->df.isCompressible)
+                if (worker_args.df.isCompressible)
                 {
-                    if (wa->df.isUnderDiagonal(sourceDataPoint.loc, destDataPoint.loc))
+                    if (worker_args.df.isUnderDiagonal(sourceDataPoint.loc, destDataPoint.loc))
                     {
                         continue;
                     }
                 }
                 calc_imp = dist.at(destNodeId);
-                if ((wa->df.isSymmetric) && (destDataPoint.loc == sourceDataPoint.loc))
+                if ((worker_args.df.isSymmetric) && (destDataPoint.loc == sourceDataPoint.loc))
                 {
                     fin_imp = 0;
                 }
@@ -75,7 +75,7 @@ void calculateSingleRowOfDataFrame(const std::vector<time_value> &dist,
                     }
 
                 }
-                if (wa->df.isCompressible)
+                if (worker_args.df.isCompressible)
                 {
                     row_data.at(destDataPoint.loc - sourceDataPoint.loc) = fin_imp;
                 } else {
@@ -86,7 +86,7 @@ void calculateSingleRowOfDataFrame(const std::vector<time_value> &dist,
             }
 
         }
-        wa->df.setRowByRowLoc(row_data, sourceDataPoint.loc);
+        worker_args.df.setRowByRowLoc(row_data, sourceDataPoint.loc);
 
 
     }
@@ -98,11 +98,13 @@ typedef std::pair<time_value, network_node> queue_pair;
 
 
 template<class row_label_type, class col_label_type>
-void doDijstraFromOneNetworkNode(network_node src, graphWorkerArgs<row_label_type, col_label_type> *wa) {
-    network_node V = wa->graph.getV();// Get the number of vertices in graph
+void doDijstraFromOneNetworkNode(network_node src, graphWorkerArgs<row_label_type, col_label_type> &worker_args,
+                                 std::vector<time_value>& dist_vector)
+{
+    network_node V = worker_args.graph.getV();
 
-    std::vector<time_value> dist(V, USHRT_MAX);
-    dist.at(src) = 0;
+    std::fill(dist_vector.begin(), dist_vector.end(), USHRT_MAX);
+    dist_vector.at(src) = 0;
     std::priority_queue<queue_pair, std::vector<queue_pair>, std::greater<queue_pair>> queue;
     queue.push(std::make_pair(0, src));
     std::vector<bool> visited(V, false);
@@ -111,35 +113,36 @@ void doDijstraFromOneNetworkNode(network_node src, graphWorkerArgs<row_label_typ
         network_node u = queue.top().second;
         queue.pop();
         visited.at(u) = true;
-        for (auto neighbor : wa->graph.neighbors.at(u))
+        for (auto neighbor : worker_args.graph.neighbors.at(u))
         {
             auto v = std::get<0>(neighbor);
             auto weight = std::get<1>(neighbor);
-            if ((!visited.at(v)) and (dist.at(v) > dist.at(u) + weight))
+            if ((!visited.at(v)) and (dist_vector.at(v) > dist_vector.at(u) + weight))
             {
-                dist.at(v) = dist.at(u) + weight;
-                queue.push(std::make_pair(dist.at(v), v));
+                dist_vector.at(v) = dist_vector.at(u) + weight;
+                queue.push(std::make_pair(dist_vector.at(v), v));
             }
         }
     }
 
     //calculate row and add to dataFrame
-    calculateSingleRowOfDataFrame(dist, wa, src);
+    calculateSingleRowOfDataFrame(dist_vector, worker_args, src);
 
 }
 
 template<class row_label_type, class col_label_type>
-void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type>* wa)
+void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type> &worker_args)
 {
     network_node src;
     bool endNow = false;
-    while (!wa->jq.empty()) {
-        src = wa->jq.pop(endNow);
-        //exit loop if job queue was empty
+    std::vector<unsigned short int> dist_vector(worker_args.graph.getV());
+    while (!worker_args.jq.empty()) {
+        src = worker_args.jq.pop(endNow);
+        //exit loop if job queue worker_argss empty
         if (endNow) {
             break;
         }
-        doDijstraFromOneNetworkNode(src, wa);
+        doDijstraFromOneNetworkNode(src, worker_args, dist_vector);
     }
 }
 
@@ -241,10 +244,10 @@ public:
     {
         try
         {
-            graphWorkerArgs<row_label_type, col_label_type> wa(graph, userSourceDataContainer, userDestDataContainer,
+            graphWorkerArgs<row_label_type, col_label_type> worker_args(graph, userSourceDataContainer, userDestDataContainer,
                                                                df);
-            wa.initialize();
-            workerQueue<row_label_type, col_label_type> wq(numThreads, graphWorkerHandler, &wa);
+            worker_args.initialize();
+            workerQueue<row_label_type, col_label_type> wq(numThreads, graphWorkerHandler, worker_args);
             wq.startGraphWorker();
         } catch (...)
         {

@@ -1,7 +1,4 @@
-import transitMatrixAdapterIxI
-import transitMatrixAdapterSxI
-import transitMatrixAdapterIxS
-import transitMatrixAdapterSxS
+import _p2pExtension
 
 
 class TestClass:
@@ -47,22 +44,22 @@ class TestClass:
 
         # prep transit matrix
         if source_is_string and dest_is_string:
-            transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(isCompressible=is_compressible,
+            transit_matrix = _p2pExtension.pyTransitMatrixSxS(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
         elif source_is_string and not dest_is_string:
-            transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(isCompressible=is_compressible,
+            transit_matrix = _p2pExtension.pyTransitMatrixSxI(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
         elif not source_is_string and dest_is_string:
-            transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(isCompressible=is_compressible,
+            transit_matrix = _p2pExtension.pyTransitMatrixIxS(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
         elif not source_is_string and not dest_is_string:
-            transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(isCompressible=is_compressible,
+            transit_matrix = _p2pExtension.pyTransitMatrixIxI(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
@@ -114,7 +111,7 @@ class TestClass:
         filename = self.datapath + 'test_1.tmx'
         matrix.writeTMX(filename)
 
-        matrix2 = transitMatrixAdapterIxI.pyTransitMatrix()
+        matrix2 = _p2pExtension.pyTransitMatrixIxI()
         matrix2.readTMX(filename)
 
         assert matrix2.getDestsInRange(5) == {10: [10, 11],
@@ -171,7 +168,7 @@ class TestClass:
         filename = self.datapath + 'test_2.tmx'
         matrix.writeTMX(filename)
 
-        matrix2 = transitMatrixAdapterIxI.pyTransitMatrix()
+        matrix2 = _p2pExtension.pyTransitMatrixIxI()
         matrix2.readTMX(filename)
 
         assert matrix2.getDestsInRange(12) == {10: [21],
@@ -229,7 +226,7 @@ class TestClass:
         filename = self.datapath + 'test_2.tmx'
         matrix.writeTMX(filename)
 
-        matrix2 = transitMatrixAdapterSxS.pyTransitMatrix()
+        matrix2 = _p2pExtension.pyTransitMatrixSxS()
         matrix2.readTMX(filename)
 
         assert matrix2.getDestsInRange(5) == {"a": ["a", "b"],
@@ -286,7 +283,7 @@ class TestClass:
         filename = self.datapath + 'test_4.tmx'
         matrix.writeTMX(filename)
 
-        matrix2 = transitMatrixAdapterSxS.pyTransitMatrix()
+        matrix2 = _p2pExtension.pyTransitMatrixSxS()
         matrix2.readTMX(filename)
 
         assert matrix2.getDestsInRange(12) == {"a": ["e"],
@@ -342,7 +339,7 @@ class TestClass:
         filename = self.datapath + 'test_5.tmx'
         matrix.writeTMX(filename)
 
-        matrix2 = transitMatrixAdapterIxS.pyTransitMatrix()
+        matrix2 = _p2pExtension.pyTransitMatrixIxS()
         matrix2.readTMX(filename)
 
         assert matrix2.getDestsInRange(12) == {10: ["e"],
@@ -398,7 +395,7 @@ class TestClass:
         filename = self.datapath + 'test_6.tmx'
         matrix.writeTMX(filename)
 
-        matrix2 = transitMatrixAdapterSxI.pyTransitMatrix()
+        matrix2 = _p2pExtension.pyTransitMatrixSxI()
         matrix2.readTMX(filename)
 
         assert matrix2.getDestsInRange(12) == {"a": [21],
