@@ -15,8 +15,8 @@ from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
 from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
-from spatial_access.SpatialAccessExceptions import InvalidIdTypeException
-# TODO: merge adapters into one
+
+
 try:
     import transitMatrixAdapterIxI
     import transitMatrixAdapterSxS
@@ -32,19 +32,11 @@ class MatrixInterface:
     A wrapper for C++ based transit matrix.
     """
 
-    def __init__(self, primary_input_name=None, secondary_input_name=None, logger=None):
+    def __init__(self, logger=None):
         self.logger = logger
         self.transit_matrix = None
         self.primary_ids_are_string = False
         self.secondary_ids_are_string = False
-        if primary_input_name is not None:
-            self.primary_ids_name = primary_input_name.split('.')[0]
-        if secondary_input_name is not None:
-            self.secondary_ids_name = secondary_input_name.split('.')[0]
-            self.dataset_name = '{}_{}'.format(primary_input_name, secondary_input_name)
-        else:
-            self.secondary_ids_name = None
-            self.dataset_name = '{}_{}'.format(primary_input_name, primary_input_name)
 
     def read_tmx(self, filename):
         """
@@ -85,12 +77,20 @@ class MatrixInterface:
                            is_bidirectional_column):
         """
         Args:
-            from_column:
-            to_column:
-            edge_weight_column:
-            is_bidirectional_column:
+            from_column: array of integers, network node ids.
+            to_column: array of integers, network node ids.
+            edge_weight_column: array of integers, edge weights.
+            is_bidirectional_column:, array of booleans, is the edge bidirectional.
         """
         self.transit_matrix.addEdgesToGraph(from_column, to_column, edge_weight_column, is_bidirectional_column)
+
+    def read_otp(self, filename):
+        """
+        Args:
+            filename: otp csv.
+        """
+        self.transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix()
+        self.transit_matrix.readOTPCSV(filename)
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -126,10 +126,6 @@ class MatrixInterface:
         """
         Add the user's source data point to the pyTransitMatrix.
         """
-        if self.primary_ids_are_string and not isinstance(user_id, str):
-            raise InvalidIdTypeException("source_id was declared to be string, but recieved {}".format(type(user_id)))
-        if not self.primary_ids_are_string and not isinstance(user_id, int):
-            raise InvalidIdTypeException("source_id was declared to be int, but recieved {}".format(type(user_id)))
         self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, weight)
         if is_also_dest:
             self.add_user_dest_data(network_id, user_id, weight)
@@ -138,10 +134,6 @@ class MatrixInterface:
         """
         Add the user's dest data point to the pyTransitMatrix.
         """
-        if self.secondary_ids_are_string and not isinstance(user_id, str):
-            raise InvalidIdTypeException("dest_id was declared to be string, but recieved {}".format(type(user_id)))
-        if not self.secondary_ids_are_string and not isinstance(user_id, int):
-            raise InvalidIdTypeException("dest_id was declared to be int, but recieved {}".format(type(user_id)))
         self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
 
     def prepare_matrix(self, is_symmetric, is_compressible, rows, columns, network_vertices):
@@ -204,9 +196,7 @@ class MatrixInterface:
         map for dests under threshold distance
         from source.
         """
-        num_threads = self._get_thread_limit()
-        return self.transit_matrix.getDestsInRange(threshold, num_threads)
-
+        return self.transit_matrix.getDestsInRange(threshold)
 
     def get_sources_in_range(self, threshold):
         """
@@ -214,8 +204,7 @@ class MatrixInterface:
         map for sources under threshold distance
         from dest.
         """
-        num_threads = self._get_thread_limit()
-        return self.transit_matrix.getSourcesInRange(threshold, num_threads)
+        return self.transit_matrix.getSourcesInRange(threshold)
 
     def get_value_by_id(self, source, dest):
         """

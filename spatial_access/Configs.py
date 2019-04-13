@@ -59,7 +59,7 @@ class Configs:
             walk_node_penalty:  numeric (seconds)
             bike_node_penalty:  numeric (seconds)
             drive_node_penalty:  numeric (seconds)
-            speed_limit_dict: dictionary {edge type : speed in km/hr}
+            speed_limit_dict: dictionary {edge type (string) : speed in km/hr}
         """
         self.ONE_HOUR = 3600  # seconds
         self.ONE_KM = 1000  # meters
@@ -79,7 +79,7 @@ class Configs:
 
     def get_driving_cost_matrix(self):
         """
-        Returns: DataFrame of
+        Returns: DataFrame of edge unit costs.
         """
         return pd.DataFrame.from_dict(self.speed_limit_dict,
                                       orient='index',

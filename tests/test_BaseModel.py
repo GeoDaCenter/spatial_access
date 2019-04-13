@@ -13,7 +13,7 @@ class TestClass:
     """
     def setup_class(self):
         import os
-        self.datapath = 'tests/test_score_model_temp/'
+        self.datapath = 'test_score_model_temp/'
         if not os.path.exists(self.datapath):
             os.mkdir(self.datapath)
 
@@ -23,12 +23,25 @@ class TestClass:
             import shutil
             shutil.rmtree(self.datapath)
 
+    def mock_transit_matrix_values(self, transit_matrix):
+        source_ids = [3, 4, 5, 6, 7, 8]
+        dest_ids = ['place_a', 'place_b', 'place_c', 'place_d', 'place_e', 'place_f']
+        dataset = [[100, 100, 100, 100, 100, 100],
+                   [200, 200, 200, 200, 200, 200],
+                   [300, 300, 300, 300, 300, 300],
+                   [400, 400, 400, 400, 400, 400],
+                   [500, 500, 500, 500, 500, 500],
+                   [600, 600, 600, 600, 600, 600]]
+
+        transit_matrix.matrix_interface.transit_matrix.setMockDataFrame(dataset, source_ids, dest_ids)
+
+        return transit_matrix
+
     def test_01(self):
         """
         Test instantiating ModelData
         instance and calling load_sp_matrix with
-        complete source_column_names and dest_column_names,
-        and no precomputed sp_matrix.
+        complete source_column_names and dest_column_names.
         """
         model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests.csv",
@@ -37,30 +50,20 @@ class TestClass:
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
+        filename = self.datapath + 'score_model_test_1.tmx'
+        model_data.write_shortest_path_matrix_to_tmx(filename)
 
-        model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_1.h5')
-        model_data.write_shortest_path_matrix_to_tmx(self.datapath + 'score_model_test_1.tmx')
-
-        assert True
-
-    def test_02(self):
-        """
-        Test instantiating ModelData
-        instance and calling load_sp_matrix with
-        complete source_column_names and dest_column_names,
-        but with a precomputed sp matrix.
-        """
-        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
+        model_data_2 = model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
+        model_data_2.load_sp_matrix(filename)
 
         assert True
 
-    def test_3(self):
+    def test_2(self):
         """
         Tests that SourceDataNotFoundException is thrown
         when source data does not exist
@@ -78,7 +81,7 @@ class TestClass:
             return
         assert False
 
-    def test_4(self):
+    def test_3(self):
         """
         Tests that DestDataNotFoundException is thrown
         when dest data does not exist
@@ -96,7 +99,7 @@ class TestClass:
             return
         assert False
 
-    def test_5(self):
+    def test_4(self):
         """
         Tests that SourceDataNotParsableException is thrown
         when source_column_names is not accurate
@@ -114,7 +117,7 @@ class TestClass:
             return
         assert False
 
-    def test_6(self):
+    def test_5(self):
         """
         Tests that DestDataNotParsableException is thrown
         when dest_column_names is not accurate
@@ -134,91 +137,56 @@ class TestClass:
 
     def test_7(self):
         """
-        Test instantiating and processing ModelData
-        instance.
+        Test sources/dests in range.
         """
-        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
-                               destinations_filename="tests/test_data/dests.csv",
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources_a.csv",
+                               destinations_filename="tests/test_data/dests_b.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
+        model_data._sp_matrix = self.mock_transit_matrix_values(model_data._sp_matrix)
+        model_data.calculate_dests_in_range(400)
+        model_data.calculate_sources_in_range(400)
 
-        model_data.calculate_dests_in_range(100)
-        model_data.calculate_sources_in_range(100)
+        assert model_data.dests_in_range == {3: ["place_a", "place_b", "place_c", "place_d", "place_e", "place_f"],
+                                             4: ["place_a", "place_b", "place_c", "place_d", "place_e", "place_f"],
+                                             5: ["place_a", "place_b", "place_c", "place_d", "place_e", "place_f"],
+                                             6: ["place_a", "place_b", "place_c", "place_d", "place_e", "place_f"],
+                                             7: [],
+                                             8:[]}
 
-        assert model_data.dests_in_range == {3: [0, 1, 2],
-                                             4: [0, 1, 2],
-                                             5: [2],
-                                             6: [2]}
-
-        assert model_data.sources_in_range == {0: [3, 4],
-                                               1: [3, 4],
-                                               2: [3, 4, 5, 6]
-
+        assert model_data.sources_in_range == {"place_a": [3, 4, 5 ,6],
+                                               "place_b": [3, 4, 5 ,6],
+                                               "place_c": [3, 4, 5, 6],
+                                               "place_d": [3, 4, 5, 6],
+                                               "place_e": [3, 4, 5, 6],
+                                               "place_f": [3, 4, 5, 6]
                                                }
-
-        assert model_data.get_values_by_source(3, True) == [(2, 42), (1, 79), (0, 89)]
-        assert model_data.get_values_by_dest(1, True) == [(4, 7), (3, 79), (6, 106), (5, 136)]
-
-    def test_8(self):
-        """
-        Test instantiating  ModelData
-        instance, destination data has string indeces.
-        Including reading a transit matrix from
-        file with string indeces.
-        """
-        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
-                               destinations_filename="tests/test_data/dests_a.csv",
-                               source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                    'population': 'pop'},
-                               dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                  'capacity': 'capacity', 'category': 'cat'})
-
-        model_data.load_sp_matrix()
-        model_data.write_shortest_path_matrix_to_h5(self.datapath + 'score_model_test_8.h5')
-        model_data.write_shortest_path_matrix_to_tmx(self.datapath + 'score_model_test_8.tmx')
-
-        model_data.calculate_dests_in_range(125)
-        model_data.calculate_sources_in_range(125)
-
-
-        assert model_data.get_sources_in_range_of_dest('place_b') == [3, 4, 6]
-        assert model_data.get_sources_in_range_of_dest('place_c') == [3, 4, 5, 6]
-
-        model_data2 = ModelData('drive', sources_filename="tests/test_data/sources.csv",
-                                destinations_filename="tests/test_data/dests_a.csv",
-                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                     'population': 'pop'},
-                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                   'capacity': 'capacity', 'category': 'cat'})
-
-
-        model_data2.load_sp_matrix(read_from_tmx=self.datapath + 'score_model_test_8.tmx')
-
-        model_data2.calculate_dests_in_range(125)
-        model_data2.calculate_sources_in_range(125)
-
-        assert model_data2.get_sources_in_range_of_dest('place_b') == [3, 4, 6]
-        assert model_data2.get_sources_in_range_of_dest('place_c') == [3, 4, 5, 6]
 
     def test_9(self):
         """
         Test get_population_in_range method
         """
-        model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
-                               destinations_filename="tests/test_data/dests_a.csv",
+        model_data = ModelData('drive', sources_filename="tests/test_data/sources_a.csv",
+                               destinations_filename="tests/test_data/dests_b.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_sp_matrix()
-        model_data.calculate_sources_in_range(50)
+        model_data._sp_matrix = self.mock_transit_matrix_values(model_data._sp_matrix)
+        model_data.calculate_sources_in_range(400)
 
-        assert model_data.get_population_in_range('place_a') == 0
-        assert model_data.get_population_in_range('place_b') == 31
-        assert model_data.get_population_in_range('place_c') == 76
+        assert model_data.get_population_in_range('place_a') == 166
+        assert model_data.get_population_in_range('place_b') == 166
+        assert model_data.get_population_in_range('place_c') == 166
+        assert model_data.get_population_in_range('place_d') == 166
+        assert model_data.get_population_in_range('place_e') == 166
+        assert model_data.get_population_in_range('place_f') == 166
 
     def test_10(self):
         """

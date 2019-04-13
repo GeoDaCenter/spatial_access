@@ -21,12 +21,13 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         void addToUserDestDataContainer(unsigned int, string, unsigned short int) except +
         void addEdgesToGraph(vector[ulong], vector[ulong], vector[value], vector[bool]) except +
         void addToCategoryMap(string, string) except +
+        void setMockDataFrame(vector[vector[value]], vector[ulong], vector[string]) except +
 
         void compute(int) except +
         vector[pair[ulong, value]] getValuesByDest(string, bool) except +
         vector[pair[string, value]] getValuesBySource(unsigned long, bool) except +
-        unordered_map[ulong, vector[string]] getDestsInRange(unsigned int, int) except +
-        unordered_map[string, vector[ulong]] getSourcesInRange(unsigned int, int) except +
+        unordered_map[ulong, vector[string]] getDestsInRange(unsigned int) except +
+        unordered_map[string, vector[ulong]] getSourcesInRange(unsigned int) except +
         unsigned short int timeToNearestDestPerCategory(unsigned long, string) except +
         unsigned short int countDestsInRangePerCategory(unsigned long, string, unsigned short int) except +
         unsigned short int timeToNearestDest(unsigned long) except +
@@ -54,16 +55,16 @@ cdef class pyTransitMatrix:
     def prepareGraphWithVertices(self, vertices):
         self.thisptr.prepareGraphWithVertices(vertices)
 
-    def getDestsInRange(self, range_, numThreads):
-        cdef unordered_map[ulong, vector[string]] py_res = self.thisptr.getDestsInRange(range_, numThreads)
+    def getDestsInRange(self, range_):
+        cdef unordered_map[ulong, vector[string]] py_res = self.thisptr.getDestsInRange(range_)
         rv = {}
         for key, value in py_res:
             rv[key] = [item.decode() for item in value]
         return rv
 
 
-    def getSourcesInRange(self, range_, numThreads):
-        cdef unordered_map[string, vector[ulong]] py_res = self.thisptr.getSourcesInRange(range_, numThreads)
+    def getSourcesInRange(self, range_):
+        cdef unordered_map[string, vector[ulong]] py_res = self.thisptr.getSourcesInRange(range_)
         rv = {}
         for key, value in py_res:
             rv[key.decode()] = value
@@ -89,6 +90,12 @@ cdef class pyTransitMatrix:
 
     def addEdgesToGraph(self, from_column, to_column, edge_weight_column, is_bidirectional_column):
         self.thisptr.addEdgesToGraph(from_column, to_column, edge_weight_column, is_bidirectional_column)
+
+    def setMockDataFrame(self, dataset, row_ids, col_ids):
+        cdef vector[string] col_ids_string = []
+        for col_id in col_ids:
+            col_ids_string.push_back(col_id.encode())
+        self.thisptr.setMockDataFrame(dataset, row_ids, col_ids_string)
 
     def compute(self, numThreads):
         self.thisptr.compute(numThreads)

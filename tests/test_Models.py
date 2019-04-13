@@ -29,6 +29,20 @@ class TestClass:
             import shutil
             shutil.rmtree(self.datapath)
 
+    def mock_transit_matrix_values(self, transit_matrix):
+        source_ids = [3, 4, 5, 6, 7, 8]
+        dest_ids = ['place_a', 'place_b', 'place_c', 'place_d', 'place_e', 'place_f']
+        dataset = [[100, 100, 100, 100, 100, 100],
+                   [200, 200, 200, 200, 200, 200],
+                   [300, 300, 300, 300, 300, 300],
+                   [400, 400, 400, 400, 400, 400],
+                   [500, 500, 500, 500, 500, 500],
+                   [600, 600, 600, 600, 600, 600]]
+
+        transit_matrix.matrix_interface.transit_matrix.setMockDataFrame(dataset, source_ids, dest_ids)
+
+        return transit_matrix
+
     def test_01(self):
         """
         Test the Coverage model through instantiation and
@@ -41,7 +55,8 @@ class TestClass:
                                                                         'population': 'pop'},
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'})
-        coverage_model.calculate(100)
+        coverage_model.model_data._sp_matrix = self.mock_transit_matrix_values(coverage_model.model_data._sp_matrix)
+        coverage_model.calculate(400)
 
         assert coverage_model.model_results.loc['place_a']['service_pop'] == 76
         assert coverage_model.model_results.loc['place_b']['service_pop'] == 76

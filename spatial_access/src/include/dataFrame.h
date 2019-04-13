@@ -5,15 +5,16 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include <algorithm>
-
 #include <climits>
 
 #include "Serializer.h"
+#include "otpCSV.h"
 
 #define UNDEFINED (USHRT_MAX)
 
@@ -39,6 +40,7 @@ public:
     // Specialized Methods
     void writeTMX(const std::string& filename) const;
     void readTMX(const std::string& filename);
+    void readOTPCSV(const std::string& filename);
 
     // Methods
     dataFrame() = default;
@@ -64,6 +66,19 @@ public:
                 std::vector<unsigned short int> data(cols, UNDEFINED);
                 dataset.push_back(data);
             }
+        }
+
+    }
+
+    void setMockDataFrame(const std::vector<std::vector<unsigned short int>>& dataset,
+                          const std::vector<row_label_type>& row_ids,
+                          const std::vector<col_label_type>& col_ids)
+    {
+        setRowIds(row_ids);
+        setColIds(col_ids);
+        for (unsigned long int i = 0; i < row_ids.size(); i++)
+        {
+            setRowByRowLoc(dataset.at(i), i);
         }
 
     }
@@ -102,6 +117,14 @@ public:
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
         unsigned long int col_loc = colIdsToLoc.at(col_id);
         return getValueByLoc(row_loc, col_loc);
+    }
+
+    void
+    setValueById(const row_label_type& row_id, const col_label_type& col_id, unsigned short int value)
+    {
+        unsigned long int row_loc = rowIdsToLoc.at(row_id);
+        unsigned long int col_loc = colIdsToLoc.at(col_id);
+        setValueByLoc(row_loc, col_loc, value);
     }
 
 
@@ -206,7 +229,6 @@ public:
 
 
     void
-
     setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned long int source_loc)
     {
         if (source_loc > rows)
@@ -216,7 +238,7 @@ public:
         if (!isCompressible)
         {
 
-            this->dataset.at(source_loc) = row_data; // TODO: fix bug. accessing here causes out of range error
+            this->dataset.at(source_loc) = row_data;
 
         }
         else

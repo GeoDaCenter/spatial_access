@@ -39,6 +39,7 @@ class TransitMatrix:
             primary_input=None,
             secondary_input=None,
             read_from_tmx=None,
+            use_meters=False,
             primary_hints=None,
             secondary_hints=None,
             disable_area_threshold=False,
@@ -48,10 +49,11 @@ class TransitMatrix:
             debug=False):
         """
         Args:
-            network_type: string, one of {'walk', 'bike', 'drive', 'meters'}.
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
             primary_input: string, csv filename.
             secondary_input: string, csv filename.
             read_from_tmx: string, tmx filename.
+            use_meters: output will be in meters, not seconds.
             primary_hints: dictionary, map column names to expected values.
             secondary_hints: dictionary, map column names to expected values.
             disable_area_threshold: boolean, enable if computation fails due to
@@ -80,6 +82,7 @@ class TransitMatrix:
         self.secondary_input = secondary_input
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
+        self.use_meters = use_meters
 
         # member variables
         self.primary_data = None
@@ -94,16 +97,14 @@ class TransitMatrix:
         self._network_interface = NetworkInterface(network_type, logger=self.logger,
                                                    disable_area_threshold=disable_area_threshold)
 
-        self.matrix_interface = MatrixInterface(primary_input_name=primary_input,
-                                                secondary_input_name=secondary_input,
-                                                logger=self.logger)
+        self.matrix_interface = MatrixInterface(logger=self.logger)
 
         if walk_speed is not None:
             self.configs.walk_speed = walk_speed
         if bike_speed is not None:
             self.configs.bike_speed = bike_speed
 
-        if network_type not in {'drive', 'walk', 'bike', 'meters'}:
+        if network_type not in {'drive', 'walk', 'bike', 'otp'}:
             raise UnknownModeException()
 
         if self.primary_input == self.secondary_input and self.primary_input is not None:
@@ -115,6 +116,8 @@ class TransitMatrix:
 
         if read_from_tmx:
             self.matrix_interface.read_tmx(read_from_tmx)
+        if network_type == 'otp':
+            self.matrix_interface.read_otp(primary_input)
 
     def set_logging(self, debug):
         """
@@ -185,27 +188,17 @@ class TransitMatrix:
         skip_user_input = False
         # use the column names if we already have them
 
-        try:
-            if primary and self.primary_hints:
-                lon = self.primary_hints['lon']
-                lat = self.primary_hints['lat']
-                idx = self.primary_hints['idx']
-                skip_user_input = True
-            elif not primary and self.secondary_hints:
-                lon = self.secondary_hints['lon']
-                lat = self.secondary_hints['lat']
-                idx = self.secondary_hints['idx']
-                skip_user_input = True
+        if primary and self.primary_hints:
+            lon = self.primary_hints['lon']
+            lat = self.primary_hints['lat']
+            idx = self.primary_hints['idx']
+            skip_user_input = True
+        elif not primary and self.secondary_hints:
+            lon = self.secondary_hints['lon']
+            lat = self.secondary_hints['lat']
+            idx = self.secondary_hints['idx']
+            skip_user_input = True
 
-        except KeyError:
-            # raise immediately to let the user know there is a problem
-            if primary:
-                self.logger.error('Unable to use primary_hints to read sources')
-                raise UnableToParsePrimaryDataException('Unable to use primary_hints to read sources')
-            else:
-                self.logger.error('Unable to use secondary_hints to read dests')
-                raise UnableToParseSecondaryDataException('Unable to use secondary_hints to read sources')
-    
         if not skip_user_input:
             print('The variables in your data set are:')
             for var in source_data_columns:
@@ -264,9 +257,16 @@ class TransitMatrix:
         else:
             self.matrix_interface.secondary_ids_are_string = self.matrix_interface.primary_ids_are_string
 
-        self._parse_csv(True)
+        try:
+            self._parse_csv(True)
+        except KeyError:
+            raise UnableToParsePrimaryDataException()
+
         if self.secondary_input:
-            self._parse_csv(False)
+            try:
+                self._parse_csv(False)
+            except KeyError:
+                raise UnableToParseSecondaryDataException()
 
     def _reduce_node_indeces(self):
         """
@@ -286,18 +286,22 @@ class TransitMatrix:
 
         start_time = time.time()
         edges = self._network_interface.edges
-        if self.network_type == 'walk':
+        if self.use_meters:
+            edges['edge_weight'] = edges['distance']
+        elif self.network_type == 'walk':
             edges['edge_weight'] = edges['distance'] * self.configs.get_walk_speed() \
                                         + self.configs.walk_node_penalty
-            edges['is_bidirectional'] = True
         elif self.network_type == 'bike':
             edges['edge_weight'] = edges['distance'] * self.configs.get_bike_speed() \
                                         + self.configs.bike_node_penalty
-            edges['is_bidirectional'] = True
         elif self.network_type == 'drive':
             driving_cost_matrix = self.configs.get_driving_cost_matrix()
             edges = pd.merge(edges, driving_cost_matrix, how='left', left_on='highway', right_index=True)
             edges['edge_weight'] = edges['distance'] / edges['unit_cost'] + self.configs.drive_node_penalty
+
+        if self.network_type == 'walk' or self.network_type == 'bike':
+            edges['is_bidirectional'] = True
+        elif self.network_type == 'drive':
             edges['is_bidirectional'] = edges['oneway'] != "yes"
 
         simple_node_indeces = self._reduce_node_indeces()
@@ -308,8 +312,8 @@ class TransitMatrix:
 
         from_column = list(edges['from_loc'])
         to_column = list(edges['to_loc'])
-        edge_weight_column = edges['edge_weight']
-        is_bidirectional_column = edges['is_bidirectional']
+        edge_weight_column = list(edges['edge_weight'])
+        is_bidirectional_column = list(edges['is_bidirectional'])
 
         self.matrix_interface.add_edges_to_graph(from_column, to_column, edge_weight_column,
                                                  is_bidirectional_column)
@@ -341,14 +345,14 @@ class TransitMatrix:
         kd_tree = scipy.spatial.cKDTree(node_array)
 
         unit_cost = 1
-        if self.network_type == 'drive':
+        if self.use_meters:
+            unit_cost = 1
+        elif self.network_type == 'drive':
             unit_cost = self.configs.get_drive_speed()
         elif self.network_type == 'walk':
             unit_cost = self.configs.get_walk_speed()
         elif self.network_type == 'bike':
             unit_cost = self.configs.get_bike_speed()
-        elif self.network_type == 'meters':
-            unit_cost = 1
 
         # map each node in the source/dest data to the nearest
         # corresponding node in the OSM network
@@ -455,6 +459,7 @@ class TransitMatrix:
         - Parse the network.
         - Calculate transit matrix.
         """
+        assert self.network_type != 'otp', 'no need to call process for an otp matrix'
         start_time = time.time()
 
         self.logger.debug("Processing network (%s) with epsilon: %f",

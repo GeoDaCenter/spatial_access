@@ -1,811 +1,421 @@
-# pylint: skip-file
 import transitMatrixAdapterIxI
 import transitMatrixAdapterSxI
 import transitMatrixAdapterIxS
 import transitMatrixAdapterSxS
 
-class TestClass():
+
+class TestClass:
 
     def setup_class(self):
-        pass
+        import os
+        self.datapath = 'tests/test_py_transit_matrix_temp/'
+        if not os.path.exists(self.datapath):
+            os.mkdir(self.datapath)
 
     def teardown_class(self):
-        pass
+        import os
+        if os.path.exists(self.datapath):
+            import shutil
+            shutil.rmtree(self.datapath)
+
+    asymmetric_edges = [[0, 1, 0, 3, 0],
+                        [1, 0, 3, 2, 2],
+                        [3, 4, 5, 7, 2],
+                        [False, False, False, False, True]]
+
+    symmetric_edges = [[0, 1, 2, 3, 2, 4],
+                       [1, 2, 3, 4, 4, 0],
+                       [2, 1, 3, 4, 1, 1],
+                       [True, True, True, True, True, True]]
+
+    source_data_int = [(1, 10, 1), (0, 11, 2), (3, 12, 3)]
+
+    dest_data_int = [(0, 21, 4), (3, 20, 6)]
+
+    int_to_string_map = {10:"a", 11:"b", 12:"c", 20:"d", 21:"e"}
+
+    def _prepare_transit_matrix(self, use_symmetric_edges, is_compressible, is_symmetric, source_is_string,
+                                dest_is_string):
+        # prep input data
+        edges = TestClass.symmetric_edges if use_symmetric_edges else TestClass.asymmetric_edges
+        source_data = TestClass.source_data_int
+        dest_data = TestClass.source_data_int if is_symmetric else TestClass.dest_data_int
+        if source_is_string:
+            source_data = [(i[0], TestClass.int_to_string_map[i[1]], i[2]) for i in source_data]
+        if dest_is_string:
+            dest_data = [(i[0], TestClass.int_to_string_map[i[1]], i[2]) for i in dest_data]
+
+        # prep transit matrix
+        if source_is_string and dest_is_string:
+            transit_matrix = transitMatrixAdapterSxS.pyTransitMatrix(isCompressible=is_compressible,
+                                                                     isSymmetric=is_symmetric,
+                                                                     rows=len(source_data),
+                                                                     columns=len(dest_data))
+        elif source_is_string and not dest_is_string:
+            transit_matrix = transitMatrixAdapterSxI.pyTransitMatrix(isCompressible=is_compressible,
+                                                                     isSymmetric=is_symmetric,
+                                                                     rows=len(source_data),
+                                                                     columns=len(dest_data))
+        elif not source_is_string and dest_is_string:
+            transit_matrix = transitMatrixAdapterIxS.pyTransitMatrix(isCompressible=is_compressible,
+                                                                     isSymmetric=is_symmetric,
+                                                                     rows=len(source_data),
+                                                                     columns=len(dest_data))
+        elif not source_is_string and not dest_is_string:
+            transit_matrix = transitMatrixAdapterIxI.pyTransitMatrix(isCompressible=is_compressible,
+                                                                     isSymmetric=is_symmetric,
+                                                                     rows=len(source_data),
+                                                                     columns=len(dest_data))
+        else:
+            assert False, "logical error"
+
+        transit_matrix.prepareGraphWithVertices(len(edges[0]))
+        transit_matrix.addEdgesToGraph(edges[0], edges[1], edges[2], edges[3])
+        for source in source_data:
+            transit_matrix.addToUserSourceDataContainer(source[0], source[1], source[2])
+        for dest in dest_data:
+            transit_matrix.addToUserDestDataContainer(dest[0], dest[1], dest[2])
+        return transit_matrix
 
     def test_1(self):
         """
-        Test symmetric int/int transitMatrix with computed values.
+        Test symmetric int/int transitMatrix.
         """
-        matrix = transitMatrixAdapterIxI.pyTransitMatrix(True, 3, 3)
-        matrix.prepareGraphWithVertices(5)
 
-        matrix.addEdgeToGraph(0, 1, 2, True)
-        matrix.addEdgeToGraph(1, 2, 1, True)
-        matrix.addEdgeToGraph(2, 3, 3, True)
-        matrix.addEdgeToGraph(3, 4, 4, True)
-        matrix.addEdgeToGraph(2, 4, 1, True)
-        matrix.addEdgeToGraph(4, 0, 1, True)
-
-        matrix.addToUserSourceDataContainer(1, 10, 1)
-        matrix.addToUserSourceDataContainer(4, 11, 2)
-        matrix.addToUserSourceDataContainer(3, 12, 3)
-
-        matrix.addToUserDestDataContainer(1, 10, 1)
-        matrix.addToUserDestDataContainer(4, 11, 2)
-        matrix.addToUserDestDataContainer(3, 12, 3)
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=True,
+                                              is_compressible=True,
+                                              is_symmetric=True,
+                                              source_is_string=False,
+                                              dest_is_string=False)
 
         matrix.compute(1)
 
-        dests_in_range = matrix.getDestsInRange(5, 1)
+        assert matrix.getDestsInRange(5) == {10:[10, 11],
+                                              11:[10, 11],
+                                              12:[12]}
 
-        assert dests_in_range == {10:[10, 11],
-                                  11:[10, 11],
-                                  12:[12]}
 
-        sources_in_range = matrix.getSourcesInRange(8, 1)
-
-        assert sources_in_range == {10:[10, 11, 12],
+        assert matrix.getSourcesInRange(8) == {10:[10, 11, 12],
                                     11:[10, 11],
                                     12:[10, 12]}
-        values_by_source_10 = matrix.getValuesBySource(10, True)
 
-        assert values_by_source_10 == [(10, 0), (11,5), (12, 8)]
+        assert matrix.getValuesBySource(10, True) == [(10, 0), (11,5), (12, 8)]
 
-        values_by_source_11 = matrix.getValuesBySource(11, False)
+        assert matrix.getValuesBySource(11, False) == [(10, 5), (11, 0), (12, 10)]
 
-        assert values_by_source_11 == [(10, 5), (11, 0), (12, 9)]
+        assert matrix.getValuesByDest(10, False) == [(10, 0), (11, 5), (12, 8)]
 
-        values_by_dest_10 = matrix.getValuesByDest(10, False)
+        assert matrix.getValuesByDest(11, True) == [(11, 0), (10, 5), (12, 10)]
 
-        assert values_by_dest_10 == [(10, 0), (11, 5), (12, 8)]
+        assert matrix.timeToNearestDest(12) == 0
 
-        values_by_dest_11 = matrix.getValuesByDest(11, True)
+        assert matrix.countDestsInRange(10, 7) == 2
 
-        assert values_by_dest_11 == [(11, 0), (10, 5), (12, 9)]
+        filename = self.datapath + 'test_1.tmx'
+        matrix.writeTMX(filename)
 
-        time_to_nearest = matrix.timeToNearestDest(12)
+        matrix2 = transitMatrixAdapterIxI.pyTransitMatrix()
+        matrix2.readTMX(filename)
 
-        assert time_to_nearest == 0
+        assert matrix2.getDestsInRange(5) == {10: [10, 11],
+                                             11: [10, 11],
+                                             12: [12]}
 
-        count_dests_in_range_10 = matrix.countDestsInRange(10, 7)
+        assert matrix2.getSourcesInRange(8) == {10: [10, 11, 12],
+                                               11: [10, 11],
+                                               12: [10, 12]}
 
-        assert count_dests_in_range_10 == 2
+        assert matrix2.getValuesBySource(10, True) == [(10, 0), (11, 5), (12, 8)]
 
-        matrix.addToCategoryMap(10, "a")
-        matrix.addToCategoryMap(11, "a")
-        matrix.addToCategoryMap(12, "b")
+        assert matrix2.getValuesBySource(11, False) == [(10, 5), (11, 0), (12, 10)]
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
+        assert matrix2.getValuesByDest(10, False) == [(10, 0), (11, 5), (12, 8)]
 
-        assert time_to_nearest_by_cat == 8
+        assert matrix2.getValuesByDest(11, True) == [(11, 0), (10, 5), (12, 10)]
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 7)
+        assert matrix2.timeToNearestDest(12) == 0
 
-        assert count_dests_in_range_by_cat == 2
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [10, 11, 12]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [10, 11, 12]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[0, 5, 8, 0, 9, 0]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 3
+        assert matrix2.countDestsInRange(10, 7) == 2
 
     def test_2(self):
         """
         Test asymmetric int/int transitMatrix with computed values.
         """
-        matrix = transitMatrixAdapterIxI.pyTransitMatrix(False, 3, 2)
-        matrix.prepareGraphWithVertices(4)
-        matrix.addEdgeToGraph(0, 1, 3, False)
-        matrix.addEdgeToGraph(1, 0, 4, False)
-        matrix.addEdgeToGraph(0, 3, 5, False)
-        matrix.addEdgeToGraph(3, 2, 7, False)
-        matrix.addEdgeToGraph(0, 2, 2, True)
 
-        matrix.addToUserSourceDataContainer(2, 10, 5)
-        matrix.addToUserSourceDataContainer(1, 11, 4)
-        matrix.addToUserSourceDataContainer(0, 12, 1)
-
-        matrix.addToUserDestDataContainer(0, 21, 4)
-        matrix.addToUserDestDataContainer(3, 20, 6)
-
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=False,
+                                              is_compressible=False,
+                                              is_symmetric=False,
+                                              source_is_string=False,
+                                              dest_is_string=False)
         matrix.compute(1)
 
-        dests_in_range = matrix.getDestsInRange(12, 1)
-
-        assert dests_in_range == {10: [21],
+        assert matrix.getDestsInRange(12) == {10: [21],
                                   11: [21],
-                                  12: [21, 20]}
+                                  12: [20]}
 
-        sources_in_range = matrix.getSourcesInRange(8, 1)
+        assert matrix.getSourcesInRange(8) == {20: [],
+                                    21: [11]}
 
-        assert sources_in_range == {20: [],
-                                    21: [12]}
+        assert matrix.getValuesBySource(10, True) == [(21, 9), (20, 16)]
 
-        values_by_source_10 = matrix.getValuesBySource(10, True)
+        assert matrix.getValuesBySource(11, False) == [(21, 6), (20, 13)]
 
-        assert values_by_source_10 == [(21, 11), (20, 18)]
+        assert matrix.getValuesByDest(21, False) == [(10, 9), (11, 6), (12, 16)]
 
-        values_by_source_11 = matrix.getValuesBySource(11, False)
+        assert matrix.getValuesByDest(20, True) == [(12, 9), (11, 13), (10, 16)]
 
-        assert values_by_source_11 == [(21, 12), (20, 19)]
+        assert matrix.timeToNearestDest(12) == 9
 
-        values_by_dest_21 = matrix.getValuesByDest(21, False)
+        assert matrix.countDestsInRange(10, 10) == 1
 
-        assert values_by_dest_21 == [(10, 11), (11, 12), (12, 5)]
+        filename = self.datapath + 'test_2.tmx'
+        matrix.writeTMX(filename)
 
-        values_by_dest_20 = matrix.getValuesByDest(20, True)
+        matrix2 = transitMatrixAdapterIxI.pyTransitMatrix()
+        matrix2.readTMX(filename)
 
-        assert values_by_dest_20 == [(12, 12), (10, 18), (11, 19)]
+        assert matrix2.getDestsInRange(12) == {10: [21],
+                                              11: [21],
+                                              12: [20]}
 
-        time_to_nearest = matrix.timeToNearestDest(12)
+        assert matrix2.getSourcesInRange(8) == {20: [],
+                                               21: [11]}
 
-        assert time_to_nearest == 5
+        assert matrix2.getValuesBySource(10, True) == [(21, 9), (20, 16)]
 
-        count_dests_in_range_10 = matrix.countDestsInRange(10, 7)
+        assert matrix2.getValuesBySource(11, False) == [(21, 6), (20, 13)]
 
-        assert count_dests_in_range_10 == 0
+        assert matrix2.getValuesByDest(21, False) == [(10, 9), (11, 6), (12, 16)]
 
-        matrix.addToCategoryMap(21, "a")
-        matrix.addToCategoryMap(20, "b")
+        assert matrix2.getValuesByDest(20, True) == [(12, 9), (11, 13), (10, 16)]
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
+        assert matrix2.timeToNearestDest(12) == 9
 
-        assert time_to_nearest_by_cat == 18
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [10, 11, 12]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [21, 20]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
-
-
+        assert matrix2.countDestsInRange(10, 10) == 1
 
     def test_3(self):
         """
-        Test symmetric int/int transitMatrix with set values.
+        Test symmetric string/string transitMatrix.
         """
-        matrix = transitMatrixAdapterIxI.pyTransitMatrix(True, 3, 3)
-        matrix.setPrimaryDatasetIds([10, 11, 12])
-        matrix.setSecondaryDatasetIds([10, 11, 12])
-        matrix.setDataset([[0, 5, 8, 0, 9, 0]])
 
-        dests_in_range = matrix.getDestsInRange(5, 1)
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=True,
+                                              is_compressible=True,
+                                              is_symmetric=True,
+                                              source_is_string=True,
+                                              dest_is_string=True)
 
-        assert dests_in_range == {10: [10, 11],
-                                  11: [10, 11],
-                                  12: [12]}
+        matrix.compute(1)
 
-        sources_in_range = matrix.getSourcesInRange(8, 1)
+        assert matrix.getDestsInRange(5) == {"a": ["a", "b"],
+                                             "b": ["a", "b"],
+                                             "c": ["c"]}
 
-        assert sources_in_range == {10: [10, 11, 12],
-                                    11: [10, 11],
-                                    12: [10, 12]}
-        values_by_source_10 = matrix.getValuesBySource(10, True)
+        assert matrix.getSourcesInRange(8) == {"a": ["a", "b", "c"],
+                                               "b": ["a", "b"],
+                                               "c": ["a", "c"]}
 
-        assert values_by_source_10 == [(10, 0), (11, 5), (12, 8)]
+        assert matrix.getValuesBySource("a", True) == [("a", 0), ("b", 5), ("c", 8)]
 
-        values_by_source_11 = matrix.getValuesBySource(11, False)
+        assert matrix.getValuesBySource("b", False) == [("a", 5), ("b", 0), ("c", 10)]
 
-        assert values_by_source_11 == [(10, 5), (11, 0), (12, 9)]
+        assert matrix.getValuesByDest("a", False) == [("a", 0), ("b", 5), ("c", 8)]
 
-        values_by_dest_10 = matrix.getValuesByDest(10, False)
+        assert matrix.getValuesByDest("b", True) == [("b", 0), ("a", 5), ("c", 10)]
 
-        assert values_by_dest_10 == [(10, 0), (11, 5), (12, 8)]
+        assert matrix.timeToNearestDest("c") == 0
 
-        values_by_dest_11 = matrix.getValuesByDest(11, True)
+        assert matrix.countDestsInRange("a", 7) == 2
 
-        assert values_by_dest_11 == [(11, 0), (10, 5), (12, 9)]
+        filename = self.datapath + 'test_2.tmx'
+        matrix.writeTMX(filename)
 
-        time_to_nearest = matrix.timeToNearestDest(12)
+        matrix2 = transitMatrixAdapterSxS.pyTransitMatrix()
+        matrix2.readTMX(filename)
 
-        assert time_to_nearest == 0
+        assert matrix2.getDestsInRange(5) == {"a": ["a", "b"],
+                                              "b": ["a", "b"],
+                                              "c": ["c"]}
 
-        count_dests_in_range_10 = matrix.countDestsInRange(10, 7)
+        assert matrix2.getSourcesInRange(8) == {"a": ["a", "b", "c"],
+                                                "b": ["a", "b"],
+                                                "c": ["a", "c"]}
 
-        assert count_dests_in_range_10 == 2
+        assert matrix2.getValuesBySource("a", True) == [("a", 0), ("b", 5), ("c", 8)]
 
-        matrix.addToCategoryMap(10, "a")
-        matrix.addToCategoryMap(11, "a")
-        matrix.addToCategoryMap(12, "b")
+        assert matrix2.getValuesBySource("b", False) == [("a", 5), ("b", 0), ("c", 10)]
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
+        assert matrix2.getValuesByDest("a", False) == [("a", 0), ("b", 5), ("c", 8)]
 
-        assert time_to_nearest_by_cat == 8
+        assert matrix2.getValuesByDest("b", True) == [("b", 0), ("a", 5), ("c", 10)]
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 7)
+        assert matrix2.timeToNearestDest("c") == 0
 
-        assert count_dests_in_range_by_cat == 2
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [10, 11, 12]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [10, 11, 12]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[0, 5, 8, 0, 9, 0]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 3
-
+        assert matrix2.countDestsInRange("a", 7) == 2
 
     def test_4(self):
         """
-        Test asymmetric int/int transitMatrix with set values.
+        Test asymmetric string/string transitMatrix with computed values.
         """
-        matrix = transitMatrixAdapterIxI.pyTransitMatrix(False, 3, 2)
-        matrix.setPrimaryDatasetIds([10, 11, 12])
-        matrix.setSecondaryDatasetIds([21, 20])
-        matrix.setDataset([[11, 18], [12, 19], [5, 12]])
-        dests_in_range = matrix.getDestsInRange(12, 1)
 
-        assert dests_in_range == {10: [21],
-                                  11: [21],
-                                  12: [21, 20]}
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=False,
+                                              is_compressible=False,
+                                              is_symmetric=False,
+                                              source_is_string=True,
+                                              dest_is_string=True)
+        matrix.compute(1)
 
-        sources_in_range = matrix.getSourcesInRange(8, 1)
+        assert matrix.getDestsInRange(12) == {"a": ["e"],
+                                              "b": ["e"],
+                                              "c": ["d"]}
 
-        assert sources_in_range == {20: [],
-                                    21: [12]}
+        assert matrix.getSourcesInRange(8) == {"d": [],
+                                               "e": ["b"]}
 
-        values_by_source_10 = matrix.getValuesBySource(10, True)
+        assert matrix.getValuesBySource("a", True) == [("e", 9), ("d", 16)]
 
-        assert values_by_source_10 == [(21, 11), (20, 18)]
+        assert matrix.getValuesBySource("b", False) == [("e", 6), ("d", 13)]
 
-        values_by_source_11 = matrix.getValuesBySource(11, False)
+        assert matrix.getValuesByDest("e", False) == [("a", 9), ("b", 6), ("c", 16)]
 
-        assert values_by_source_11 == [(21, 12), (20, 19)]
+        assert matrix.getValuesByDest("d", True) == [("c", 9), ("b", 13), ("a", 16)]
 
-        values_by_dest_21 = matrix.getValuesByDest(21, False)
+        assert matrix.timeToNearestDest("c") == 9
 
-        assert values_by_dest_21 == [(10, 11), (11, 12), (12, 5)]
+        assert matrix.countDestsInRange("a", 10) == 1
 
-        values_by_dest_20 = matrix.getValuesByDest(20, True)
+        filename = self.datapath + 'test_4.tmx'
+        matrix.writeTMX(filename)
 
-        assert values_by_dest_20 == [(12, 12), (10, 18), (11, 19)]
+        matrix2 = transitMatrixAdapterSxS.pyTransitMatrix()
+        matrix2.readTMX(filename)
 
-        time_to_nearest = matrix.timeToNearestDest(12)
+        assert matrix2.getDestsInRange(12) == {"a": ["e"],
+                                               "b": ["e"],
+                                               "c": ["d"]}
 
-        assert time_to_nearest == 5
+        assert matrix2.getSourcesInRange(8) == {"d": [],
+                                                "e": ["b"]}
 
-        count_dests_in_range_10 = matrix.countDestsInRange(10, 7)
+        assert matrix2.getValuesBySource("a", True) == [("e", 9), ("d", 16)]
 
-        assert count_dests_in_range_10 == 0
+        assert matrix2.getValuesBySource("b", False) == [("e", 6), ("d", 13)]
 
-        matrix.addToCategoryMap(21, "a")
-        matrix.addToCategoryMap(20, "b")
+        assert matrix2.getValuesByDest("e", False) == [("a", 9), ("b", 6), ("c", 16)]
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
+        assert matrix2.getValuesByDest("d", True) == [("c", 9), ("b", 13), ("a", 16)]
 
-        assert time_to_nearest_by_cat == 18
+        assert matrix2.timeToNearestDest("c") == 9
 
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [10, 11, 12]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [21, 20]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
+        assert matrix2.countDestsInRange("a", 10) == 1
 
     def test_5(self):
         """
-        Test asymmetric str/int transitMatrix with computed values.
+        Test asymmetric int/string transitMatrix with computed values.
         """
-        matrix = transitMatrixAdapterSxI.pyTransitMatrix(False, 3, 2)
-        matrix.prepareGraphWithVertices(4)
-        matrix.addEdgeToGraph(0, 1, 3, False)
-        matrix.addEdgeToGraph(1, 0, 4, False)
-        matrix.addEdgeToGraph(0, 3, 5, False)
-        matrix.addEdgeToGraph(3, 2, 7, False)
-        matrix.addEdgeToGraph(0, 2, 2, True)
 
-        matrix.addToUserSourceDataContainer(2, "A", 5)
-        matrix.addToUserSourceDataContainer(1, "B", 4)
-        matrix.addToUserSourceDataContainer(0, "C", 1)
-
-        matrix.addToUserDestDataContainer(0, 20, 4)
-        matrix.addToUserDestDataContainer(3, 21, 6)
-
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=False,
+                                              is_compressible=False,
+                                              is_symmetric=False,
+                                              source_is_string=False,
+                                              dest_is_string=True)
         matrix.compute(1)
 
-        dests_in_range = matrix.getDestsInRange(12, 1)
+        assert matrix.getDestsInRange(12) == {10: ["e"],
+                                              11: ["e"],
+                                              12: ["d"]}
 
-        assert dests_in_range == {"A": [20],
-                                  "B": [20],
-                                  "C": [20, 21]}
+        assert matrix.getSourcesInRange(8) == {"d": [],
+                                               "e": [11]}
 
-        sources_in_range = matrix.getSourcesInRange(8, 1)
+        assert matrix.getValuesBySource(10, True) == [("e", 9), ("d", 16)]
 
-        assert sources_in_range == {21: [],
-                                    20: ["C"]}
+        assert matrix.getValuesBySource(11, False) == [("e", 6), ("d", 13)]
 
-        values_by_source_A = matrix.getValuesBySource("A", True)
+        assert matrix.getValuesByDest("e", False) == [(10, 9), (11, 6), (12, 16)]
 
-        assert values_by_source_A == [(20, 11), (21, 18)]
+        assert matrix.getValuesByDest("d", True) == [(12, 9), (11, 13), (10, 16)]
 
-        values_by_source_B = matrix.getValuesBySource("B", False)
+        assert matrix.timeToNearestDest(12) == 9
 
-        assert values_by_source_B == [(20, 12), (21, 19)]
+        assert matrix.countDestsInRange(10, 10) == 1
 
-        values_by_dest_21 = matrix.getValuesByDest(21, False)
+        filename = self.datapath + 'test_5.tmx'
+        matrix.writeTMX(filename)
 
-        assert values_by_dest_21 == [("A", 18), ("B", 19), ("C", 12)]
+        matrix2 = transitMatrixAdapterIxS.pyTransitMatrix()
+        matrix2.readTMX(filename)
 
-        values_by_dest_20 = matrix.getValuesByDest(20, True)
+        assert matrix2.getDestsInRange(12) == {10: ["e"],
+                                               11: ["e"],
+                                               12: ["d"]}
 
-        assert values_by_dest_20 == [("C", 5), ("A", 11), ("B", 12)]
+        assert matrix2.getSourcesInRange(8) == {"d": [],
+                                                "e": [11]}
 
-        time_to_nearest = matrix.timeToNearestDest("C")
+        assert matrix2.getValuesBySource(10, True) == [("e", 9), ("d", 16)]
 
-        assert time_to_nearest == 5
+        assert matrix2.getValuesBySource(11, False) == [("e", 6), ("d", 13)]
 
-        count_dests_in_range_A = matrix.countDestsInRange("A", 7)
+        assert matrix2.getValuesByDest("e", False) == [(10, 9), (11, 6), (12, 16)]
 
-        assert count_dests_in_range_A == 0
+        assert matrix2.getValuesByDest("d", True) == [(12, 9), (11, 13), (10, 16)]
 
-        matrix.addToCategoryMap(21, "a")
-        matrix.addToCategoryMap(20, "b")
+        assert matrix2.timeToNearestDest(12) == 9
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory("A", "b")
-
-        assert time_to_nearest_by_cat == 11
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory("A", "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [b"A", b"B", b"C"]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [20, 21]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
+        assert matrix2.countDestsInRange(10, 10) == 1
 
     def test_6(self):
         """
-        Test asymmetric str/int transitMatrix with set values.
+        Test asymmetric string/int transitMatrix with computed values.
         """
-        matrix = transitMatrixAdapterSxI.pyTransitMatrix(False, 3, 2)
-        matrix.setPrimaryDatasetIds([b"A", b"B", b"C"])
-        matrix.setSecondaryDatasetIds([20, 21])
-        matrix.setDataset([[11, 18], [12, 19], [5, 12]])
 
-        dests_in_range = matrix.getDestsInRange(12, 1)
-
-        assert dests_in_range == {"A": [20],
-                                  "B": [20],
-                                  "C": [20, 21]}
-
-        sources_in_range = matrix.getSourcesInRange(8, 1)
-
-        assert sources_in_range == {21: [],
-                                    20: ["C"]}
-
-        values_by_source_A = matrix.getValuesBySource("A", True)
-
-        assert values_by_source_A == [(20, 11), (21, 18)]
-
-        values_by_source_B = matrix.getValuesBySource("B", False)
-
-        assert values_by_source_B == [(20, 12), (21, 19)]
-
-        values_by_dest_21 = matrix.getValuesByDest(21, False)
-
-        assert values_by_dest_21 == [("A", 18), ("B", 19), ("C", 12)]
-
-        values_by_dest_20 = matrix.getValuesByDest(20, True)
-
-        assert values_by_dest_20 == [("C", 5), ("A", 11), ("B", 12)]
-
-        time_to_nearest = matrix.timeToNearestDest("C")
-
-        assert time_to_nearest == 5
-
-        count_dests_in_range_A = matrix.countDestsInRange("A", 7)
-
-        assert count_dests_in_range_A == 0
-
-        matrix.addToCategoryMap(21, "a")
-        matrix.addToCategoryMap(20, "b")
-
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory("A", "b")
-
-        assert time_to_nearest_by_cat == 11
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory("A", "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [b"A", b"B", b"C"]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [20, 21]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
-
-
-    def test_7(self):
-        """
-        Test asymmetric int/str transitMatrix with computed values.
-        """
-        matrix = transitMatrixAdapterIxS.pyTransitMatrix(False, 3, 2)
-        matrix.prepareGraphWithVertices(4)
-        matrix.addEdgeToGraph(0, 1, 3, False)
-        matrix.addEdgeToGraph(1, 0, 4, False)
-        matrix.addEdgeToGraph(0, 3, 5, False)
-        matrix.addEdgeToGraph(3, 2, 7, False)
-        matrix.addEdgeToGraph(0, 2, 2, True)
-
-        matrix.addToUserSourceDataContainer(2, 10, 5)
-        matrix.addToUserSourceDataContainer(1, 11, 4)
-        matrix.addToUserSourceDataContainer(0, 12, 1)
-
-        matrix.addToUserDestDataContainer(0, "A", 4)
-        matrix.addToUserDestDataContainer(3, "B", 6)
-
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=False,
+                                              is_compressible=False,
+                                              is_symmetric=False,
+                                              source_is_string=True,
+                                              dest_is_string=False)
         matrix.compute(1)
 
-        dests_in_range = matrix.getDestsInRange(12, 1)
+        assert matrix.getDestsInRange(12) == {"a": [21],
+                                              "b": [21],
+                                              "c": [20]}
 
-        assert dests_in_range == {10: ["A"],
-                                  11: ["A"],
-                                  12: ["A", "B"]}
+        assert matrix.getSourcesInRange(8) == {20: [],
+                                               21: ["b"]}
 
-        sources_in_range = matrix.getSourcesInRange(8, 1)
+        assert matrix.getValuesBySource("a", True) == [(21, 9), (20, 16)]
 
-        assert sources_in_range == {"A": [12],
-                                    "B": []}
+        assert matrix.getValuesBySource("b", False) == [(21, 6), (20, 13)]
 
-        values_by_source_10 = matrix.getValuesBySource(10, True)
+        assert matrix.getValuesByDest(21, False) == [("a", 9), ("b", 6), ("c", 16)]
 
-        assert values_by_source_10 == [("A", 11), ("B", 18)]
+        assert matrix.getValuesByDest(20, True) == [("c", 9), ("b", 13), ("a", 16)]
 
-        values_by_source_11 = matrix.getValuesBySource(11, False)
+        assert matrix.timeToNearestDest("c") == 9
 
-        assert values_by_source_11 == [("A", 12), ("B", 19)]
+        assert matrix.countDestsInRange("a", 10) == 1
 
-        values_by_dest_A = matrix.getValuesByDest("A", False)
+        filename = self.datapath + 'test_6.tmx'
+        matrix.writeTMX(filename)
 
-        assert values_by_dest_A == [(10, 11), (11, 12), (12, 5)]
+        matrix2 = transitMatrixAdapterSxI.pyTransitMatrix()
+        matrix2.readTMX(filename)
 
-        values_by_dest_B = matrix.getValuesByDest("B", True)
+        assert matrix2.getDestsInRange(12) == {"a": [21],
+                                               "b": [21],
+                                               "c": [20]}
 
-        assert values_by_dest_B == [(12, 12), (10, 18), (11, 19)]
+        assert matrix2.getSourcesInRange(8) == {20: [],
+                                                21: ["b"]}
 
-        time_to_nearest = matrix.timeToNearestDest(12)
+        assert matrix2.getValuesBySource("a", True) == [(21, 9), (20, 16)]
 
-        assert time_to_nearest == 5
+        assert matrix2.getValuesBySource("b", False) == [(21, 6), (20, 13)]
 
-        count_dests_in_range_10 = matrix.countDestsInRange(10, 7)
+        assert matrix2.getValuesByDest(21, False) == [("a", 9), ("b", 6), ("c", 16)]
 
-        assert count_dests_in_range_10 == 0
+        assert matrix2.getValuesByDest(20, True) == [("c", 9), ("b", 13), ("a", 16)]
 
-        matrix.addToCategoryMap("A", "a")
-        matrix.addToCategoryMap("B", "b")
+        assert matrix2.timeToNearestDest("c") == 9
 
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
-
-        assert time_to_nearest_by_cat == 18
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [10, 11, 12]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [b"A", b"B"]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
-
-    def test_8(self):
-        """
-        Test asymmetric int/str transitMatrix with set values.
-        """
-        matrix = transitMatrixAdapterIxS.pyTransitMatrix(False, 3, 2)
-        matrix.setPrimaryDatasetIds([10, 11, 12])
-        matrix.setSecondaryDatasetIds([b"A", b"B"])
-        matrix.setDataset([[11, 18], [12, 19], [5, 12]])
-
-        dests_in_range = matrix.getDestsInRange(12, 1)
-
-        assert dests_in_range == {10: ["A"],
-                                  11: ["A"],
-                                  12: ["A", "B"]}
-
-        sources_in_range = matrix.getSourcesInRange(8, 1)
-
-        assert sources_in_range == {"A": [12],
-                                    "B": []}
-
-        values_by_source_10 = matrix.getValuesBySource(10, True)
-
-        assert values_by_source_10 == [("A", 11), ("B", 18)]
-
-        values_by_source_11 = matrix.getValuesBySource(11, False)
-
-        assert values_by_source_11 == [("A", 12), ("B", 19)]
-
-        values_by_dest_A = matrix.getValuesByDest("A", False)
-
-        assert values_by_dest_A == [(10, 11), (11, 12), (12, 5)]
-
-        values_by_dest_B = matrix.getValuesByDest("B", True)
-
-        assert values_by_dest_B == [(12, 12), (10, 18), (11, 19)]
-
-        time_to_nearest = matrix.timeToNearestDest(12)
-
-        assert time_to_nearest == 5
-
-        count_dests_in_range_10 = matrix.countDestsInRange(10, 7)
-
-        assert count_dests_in_range_10 == 0
-
-        matrix.addToCategoryMap("A", "a")
-        matrix.addToCategoryMap("B", "b")
-
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory(10, "b")
-
-        assert time_to_nearest_by_cat == 18
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory(10, "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [10, 11, 12]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [b"A", b"B"]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
-
-    def test_11(self):
-        """
-        Test asymmetric str/str transitMatrix with computed values.
-        """
-        matrix = transitMatrixAdapterSxS.pyTransitMatrix(False, 3, 2)
-        matrix.prepareGraphWithVertices(4)
-        matrix.addEdgeToGraph(0, 1, 3, False)
-        matrix.addEdgeToGraph(1, 0, 4, False)
-        matrix.addEdgeToGraph(0, 3, 5, False)
-        matrix.addEdgeToGraph(3, 2, 7, False)
-        matrix.addEdgeToGraph(0, 2, 2, True)
-
-        matrix.addToUserSourceDataContainer(2, "A", 5)
-        matrix.addToUserSourceDataContainer(1, "B", 4)
-        matrix.addToUserSourceDataContainer(0, "C", 1)
-
-        matrix.addToUserDestDataContainer(0, "dest_A", 4)
-        matrix.addToUserDestDataContainer(3, "dest_B", 6)
-
-        matrix.compute(1)
-
-        dests_in_range = matrix.getDestsInRange(12, 1)
-
-        assert dests_in_range == {"A": ["dest_A"],
-                                  "B": ["dest_A"],
-                                  "C": ["dest_A", "dest_B"]}
-
-        sources_in_range = matrix.getSourcesInRange(8, 1)
-
-        assert sources_in_range == {"dest_A": ["C"],
-                                    "dest_B": []}
-
-        values_by_source_A = matrix.getValuesBySource("A", True)
-
-        assert values_by_source_A == [("dest_A", 11), ("dest_B", 18)]
-
-        values_by_source_B = matrix.getValuesBySource("B", False)
-
-        assert values_by_source_B == [("dest_A", 12), ("dest_B", 19)]
-
-        values_by_dest_A = matrix.getValuesByDest("dest_A", False)
-
-        assert values_by_dest_A == [("A", 11), ("B", 12), ("C", 5)]
-
-        values_by_dest_B = matrix.getValuesByDest("dest_B", True)
-
-        assert values_by_dest_B == [("C", 12), ("A", 18), ("B", 19)]
-
-        time_to_nearest = matrix.timeToNearestDest("C")
-
-        assert time_to_nearest == 5
-
-        count_dests_in_range_A = matrix.countDestsInRange("A", 7)
-
-        assert count_dests_in_range_A == 0
-
-        matrix.addToCategoryMap("dest_A", "a")
-        matrix.addToCategoryMap("dest_B", "b")
-
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory("A", "b")
-
-        assert time_to_nearest_by_cat == 18
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory("A", "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [b"A", b"B", b"C"]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [b"dest_A", b"dest_B"]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
-
-    def test_12(self):
-        """
-        Test asymmetric str/str transitMatrix with set values.
-        """
-        matrix = transitMatrixAdapterSxS.pyTransitMatrix(False, 3, 2)
-        matrix.setPrimaryDatasetIds([b"A", b"B", b"C"])
-        matrix.setSecondaryDatasetIds([b"dest_A", b"dest_B"])
-        matrix.setDataset([[11, 18], [12, 19], [5, 12]])
-
-        dests_in_range = matrix.getDestsInRange(12, 1)
-
-        assert dests_in_range == {"A": ["dest_A"],
-                                  "B": ["dest_A"],
-                                  "C": ["dest_A", "dest_B"]}
-
-        sources_in_range = matrix.getSourcesInRange(8, 1)
-
-        assert sources_in_range == {"dest_A": ["C"],
-                                    "dest_B": []}
-
-        values_by_source_A = matrix.getValuesBySource("A", True)
-
-        assert values_by_source_A == [("dest_A", 11), ("dest_B", 18)]
-
-        values_by_source_B = matrix.getValuesBySource("B", False)
-
-        assert values_by_source_B == [("dest_A", 12), ("dest_B", 19)]
-
-        values_by_dest_A = matrix.getValuesByDest("dest_A", False)
-
-        assert values_by_dest_A == [("A", 11), ("B", 12), ("C", 5)]
-
-        values_by_dest_B = matrix.getValuesByDest("dest_B", True)
-
-        assert values_by_dest_B == [("C", 12), ("A", 18), ("B", 19)]
-
-        time_to_nearest = matrix.timeToNearestDest("C")
-
-        assert time_to_nearest == 5
-
-        count_dests_in_range_A = matrix.countDestsInRange("A", 7)
-
-        assert count_dests_in_range_A == 0
-
-        matrix.addToCategoryMap("dest_A", "a")
-        matrix.addToCategoryMap("dest_B", "b")
-
-        time_to_nearest_by_cat = matrix.timeToNearestDestPerCategory("A", "b")
-
-        assert time_to_nearest_by_cat == 18
-
-        count_dests_in_range_by_cat = matrix.countDestsInRangePerCategory("A", "a", 20)
-
-        assert count_dests_in_range_by_cat == 1
-
-        primary_dataset_ids = matrix.getPrimaryDatasetIds()
-
-        assert primary_dataset_ids == [b"A", b"B", b"C"]
-
-        secondary_dataset_ids = matrix.getSecondaryDatasetIds()
-
-        assert secondary_dataset_ids == [b"dest_A", b"dest_B"]
-        is_symmetric = matrix.getIsSymmetric()
-
-        assert not is_symmetric
-
-        dataset = matrix.getDataset()
-
-        assert dataset == [[11, 18], [12, 19], [5, 12]]
-
-        assert matrix.getRows() == 3
-        assert matrix.getCols() == 2
+        assert matrix2.countDestsInRange("a", 10) == 1

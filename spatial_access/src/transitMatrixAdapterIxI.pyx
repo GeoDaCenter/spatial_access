@@ -21,12 +21,13 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         void addToUserDestDataContainer(unsigned int, unsigned long, unsigned short int) except +
         void addEdgesToGraph(vector[ulong], vector[ulong], vector[ushort], vector[bool]) except +
         void addToCategoryMap(unsigned long, string) except +
+        void setMockDataFrame(vector[vector[ushort]], vector[ulong], vector[ulong]) except +
 
         void compute(int) except +
         vector[pair[ulong, ushort]] getValuesByDest(unsigned long, bool) except +
         vector[pair[ulong, ushort]] getValuesBySource(unsigned long, bool) except +
-        unordered_map[ulong, vector[ulong]] getDestsInRange(unsigned int, int) except +
-        unordered_map[ulong, vector[ulong]] getSourcesInRange(unsigned int, int) except +
+        unordered_map[ulong, vector[ulong]] getDestsInRange(unsigned int) except +
+        unordered_map[ulong, vector[ulong]] getSourcesInRange(unsigned int) except +
         unsigned short int timeToNearestDestPerCategory(unsigned long, string) except +
         unsigned short int countDestsInRangePerCategory(unsigned long, string, unsigned short int) except +
         unsigned short int timeToNearestDest(unsigned long) except +
@@ -35,6 +36,7 @@ cdef extern from "include/transitMatrix.h" namespace "lmnoel":
         void writeCSV(string) except +
         void writeTMX(string) except +
         void readTMX(string) except +
+        void readOTPCSV(string) except +
         void printDataFrame() except +
 
 cdef class pyTransitMatrix:
@@ -62,6 +64,9 @@ cdef class pyTransitMatrix:
     def addEdgesToGraph(self, from_column, to_column, edge_weight_column, is_bidirectional_column):
         self.thisptr.addEdgesToGraph(from_column, to_column, edge_weight_column, is_bidirectional_column)
 
+    def setMockDataFrame(self, dataset, row_ids, col_ids):
+        self.thisptr.setMockDataFrame(dataset, row_ids, col_ids)
+
     def compute(self, numThreads):
         self.thisptr.compute(numThreads)
 
@@ -77,8 +82,18 @@ cdef class pyTransitMatrix:
         cdef string infile_string = str.encode(infile)
         self.thisptr.readTMX(infile_string)
 
+    def readOTPCSV(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readOTPCSV(infile_string)
+
     def printDataFrame(self):
         self.thisptr.printDataFrame()
+
+    def getValuesBySource(self, source_id, sort):
+        return self.thisptr.getValuesBySource(source_id, sort)
+
+    def getValuesByDest(self, dest_id, sort):
+        return self.thisptr.getValuesByDest(dest_id, sort)
 
     def addToCategoryMap(self, dest_id, category):
         cdef string string_category = str.encode(category)
@@ -98,8 +113,8 @@ cdef class pyTransitMatrix:
     def countDestsInRange(self, source_id, range):
         return self.thisptr.countDestsInRange(source_id, range)
 
-    def getSourcesInRange(self, range_, numThreads):
-        return self.thisptr.getSourcesInRange(range_, numThreads)
+    def getSourcesInRange(self, range_):
+        return self.thisptr.getSourcesInRange(range_)
 
-    def getDestsInRange(self, range_, numThreads):
-        return self.thisptr.getDestsInRange(range_, numThreads)
+    def getDestsInRange(self, range_):
+        return self.thisptr.getDestsInRange(range_)

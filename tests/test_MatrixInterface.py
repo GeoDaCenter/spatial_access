@@ -1,18 +1,14 @@
-# pylint: skip-file
 from spatial_access.MatrixInterface import MatrixInterface
 
 from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
-from spatial_access.SpatialAccessExceptions import InvalidIdTypeException
-
 
 class TestClass:
-
     def setup_class(self):
         import os
-        self.datapath = 'tests/test_matrix_interface_temp/'
+        self.datapath = 'test_matrix_interface_temp/'
         if not os.path.exists(self.datapath):
             os.mkdir(self.datapath)
 
@@ -25,17 +21,23 @@ class TestClass:
     def test_01(self):
         """
         Tests asymmetric int x int matrix
-        writing to and reading from .h5.
+        writing to and reading from tmx.
         """
 
-        interface = MatrixInterface(primary_input_name="primary_input", secondary_input_name="secondary_input")
-        interface.prepare_matrix(is_symmetric=False, rows=3, columns=2, network_vertices=4)
-
-        interface.add_edge_to_graph(0, 1, 3, False)
-        interface.add_edge_to_graph(1, 0, 4, False)
-        interface.add_edge_to_graph(0, 3, 5, False)
-        interface.add_edge_to_graph(3, 2, 7, False)
-        interface.add_edge_to_graph(0, 2, 2, True)
+        interface = MatrixInterface()
+        interface.prepare_matrix(is_symmetric=False,
+                                 is_compressible=False,
+                                 rows=3,
+                                 columns=2,
+                                 network_vertices=4)
+        from_column = [0, 1, 0, 3, 0]
+        to_column = [1, 0, 3, 2, 2]
+        weight_column = [3, 4, 5, 7, 2]
+        is_bidirectional_column =[False, False, False, False, True]
+        interface.add_edges_to_graph(from_column=from_column,
+                                     to_column=to_column,
+                                     edge_weight_column=weight_column,
+                                     is_bidirectional_column=is_bidirectional_column)
 
         interface.add_user_source_data(2, 10, 5, False)
         interface.add_user_source_data(1, 11, 4, False)
@@ -49,146 +51,108 @@ class TestClass:
         interface.add_to_category_map(20, "a")
         interface.add_to_category_map(21, "b")
 
-        assert interface.get_value_by_id(10, 21) == 11
-        assert interface.get_value_by_id(12, 20) == 12
         assert interface.get_dests_in_range(100) == {10:[21, 20],
                                                        11:[21, 20],
                                                        12:[21, 20]}
 
-        interface.write_h5(self.datapath + "test_01.hdf5")
+        filename = self.datapath + "test_1.tmx"
+        interface.write_tmx(filename)
 
-        interface2 = MatrixInterface(primary_input_name="primary_input", secondary_input_name="secondary_input")
-        interface2.read_h5(self.datapath + "test_01.hdf5")
+        interface2 = MatrixInterface()
+        interface2.read_tmx(filename)
 
         interface2.add_to_category_map(20, "a")
         interface2.add_to_category_map(21, "b")
 
-        assert interface2.get_value_by_id(10, 21) == 11
-        assert interface2.get_value_by_id(12, 20) == 12
         assert interface.get_dests_in_range(100) == {10: [21, 20],
                                                        11: [21, 20],
                                                        12: [21, 20]}
-        assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
-        assert interface.transit_matrix.getPrimaryDatasetIds() == interface2.transit_matrix.getPrimaryDatasetIds()
-        assert interface.transit_matrix.getSecondaryDatasetIds() == interface2.transit_matrix.getSecondaryDatasetIds()
-
-        assert interface.time_to_nearest_dest(10, "a") == interface2.time_to_nearest_dest(10, "a")
-
-        assert True
+        interface2.write_csv(self.datapath + "test_1.csv")
 
     def test_2(self):
         """
-        Tests symmetric int x int matrix
-        writing to and reading from .h5/.tmx.
+        Tests asymmetric string x string matrix
+        writing to and reading from .tmx.
         """
 
-        interface = MatrixInterface(primary_input_name="primary_input")
-        interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
+        interface = MatrixInterface()
+        interface.primary_ids_are_string = True
+        interface.secondary_ids_are_string = True
+        interface.prepare_matrix(is_symmetric=False,
+                                 is_compressible=False,
+                                 rows=3,
+                                 columns=2,
+                                 network_vertices=4)
+        from_column = [0, 1, 0, 3, 0]
+        to_column = [1, 0, 3, 2, 2]
+        weight_column = [3, 4, 5, 7, 2]
+        is_bidirectional_column = [False, False, False, False, True]
+        interface.add_edges_to_graph(from_column=from_column,
+                                     to_column=to_column,
+                                     edge_weight_column=weight_column,
+                                     is_bidirectional_column=is_bidirectional_column)
 
-        interface.add_edge_to_graph(0, 1, 2, True)
-        interface.add_edge_to_graph(1, 2, 1, True)
-        interface.add_edge_to_graph(2, 3, 3, True)
-        interface.add_edge_to_graph(3, 4, 4, True)
-        interface.add_edge_to_graph(2, 4, 1, True)
-        interface.add_edge_to_graph(4, 0, 1, True)
+        interface.add_user_source_data(2, "a", 5, False)
+        interface.add_user_source_data(1, "b", 4, False)
+        interface.add_user_source_data(0, "c", 1, False)
 
-        interface.add_user_source_data(1, 10, 1, True)
-        interface.add_user_source_data(4, 11, 2, True)
-        interface.add_user_source_data(3, 12, 3, True)
+        interface.add_user_dest_data(0, "d", 4)
+        interface.add_user_dest_data(3, "e", 6)
 
         interface.build_matrix()
 
-        interface.write_h5(self.datapath + 'test_02.hdf5')
-        interface.write_tmx(self.datapath + 'test_02.tmx')
-        interface.write_csv(self.datapath + 'test_02.csv')
+        interface.add_to_category_map("d", "cat_a")
+        interface.add_to_category_map("e", "cat_b")
 
-        interface2 = MatrixInterface(primary_input_name="primary_input")
-        interface2.read_h5(self.datapath + "test_02.hdf5")
+        assert interface.get_dests_in_range(100) == {"a": ["d", "e"],
+                                                      "b": ["d", "e"],
+                                                      "c": ["d", "e"]}
 
-        interface3 = MatrixInterface()
-        interface3.read_tmx(self.datapath + 'test_02.tmx')
+        filename = self.datapath + "test_1.tmx"
+        interface.write_tmx(filename)
 
-        assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
-        assert interface.transit_matrix.getPrimaryDatasetIds() == interface2.transit_matrix.getPrimaryDatasetIds()
-        assert interface.transit_matrix.getSecondaryDatasetIds() == interface2.transit_matrix.getSecondaryDatasetIds()
+        interface2 = MatrixInterface()
+        interface2.read_tmx(filename)
 
-        assert interface.transit_matrix.getDataset() == interface3.transit_matrix.getDataset()
-        assert interface.transit_matrix.getPrimaryDatasetIds() == interface3.transit_matrix.getPrimaryDatasetIds()
-        assert interface.transit_matrix.getSecondaryDatasetIds() == interface3.transit_matrix.getSecondaryDatasetIds()
+        interface2.add_to_category_map("d", "cat_a")
+        interface2.add_to_category_map("e", "cat_b")
 
-        assert True
+        assert interface2.get_dests_in_range(100) == {"a": ["d", "e"],
+                                                     "b": ["d", "e"],
+                                                     "c": ["d", "e"]}
+        interface2.write_csv(self.datapath + "test_2.csv")
 
     def test_3(self):
         """
-        Tests symmetric str x str matrix
-        writing to and reading from .h5/.tmx.
+        Tests throws ReadTMXFailedException
         """
-
-        interface = MatrixInterface(primary_input_name="primary_input")
-        interface.primary_ids_are_string = True
-        interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
-
-        interface.add_edge_to_graph(0, 1, 2, True)
-        interface.add_edge_to_graph(1, 2, 1, True)
-        interface.add_edge_to_graph(2, 3, 3, True)
-        interface.add_edge_to_graph(3, 4, 4, True)
-        interface.add_edge_to_graph(2, 4, 1, True)
-        interface.add_edge_to_graph(4, 0, 1, True)
-
-        interface.add_user_source_data(1, "a", 1, True)
-        interface.add_user_source_data(4, "b", 2, True)
-        interface.add_user_source_data(3, "c", 3, True)
-
-        interface.build_matrix()
-
-        interface.write_h5(self.datapath + 'test_03.h5')
-        interface.write_csv(self.datapath + 'test_03.csv')
-        interface.write_tmx(self.datapath + 'test_03.tmx')
-
-        interface2 = MatrixInterface(primary_input_name="primary_input")
-        interface2.read_h5(self.datapath + "test_03.h5")
-
-        interface3 = MatrixInterface()
-        interface3.read_tmx(self.datapath + "test_03.tmx")
-
-        assert interface.transit_matrix.getDataset() == interface2.transit_matrix.getDataset()
-        assert interface.transit_matrix.getPrimaryDatasetIds() == interface2.transit_matrix.getPrimaryDatasetIds()
-        assert interface.transit_matrix.getSecondaryDatasetIds() == interface2.transit_matrix.getSecondaryDatasetIds()
-
-        assert interface.transit_matrix.getDataset() == interface3.transit_matrix.getDataset()
-        assert interface.transit_matrix.getPrimaryDatasetIds() == interface3.transit_matrix.getPrimaryDatasetIds()
-        assert interface.transit_matrix.getSecondaryDatasetIds() == interface3.transit_matrix.getSecondaryDatasetIds()
-
-        assert True
-
-    def test_4(self):
-        """
-        Tests throws FileNotFoundException
-        """
-        interface = MatrixInterface(primary_input_name="primary_input")
-        interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
+        interface = MatrixInterface()
         try:
-            interface.read_h5("nonexistant_filename.h5")
-        except FileNotFoundException:
-            assert True
+            interface.read_tmx(self.datapath + "nonexistant_filename.tmx")
+        except ReadTMXFailedException:
             return
         assert False
 
 
-    def test_5(self):
+    def test_4(self):
         """
         Tests throws IndecesNotFoundException. 
         """
-        interface = MatrixInterface(primary_input_name="primary_input")
+        interface = MatrixInterface()
         interface.primary_ids_are_string = True
-        interface.prepare_matrix(is_symmetric=True, rows=3, columns=3, network_vertices=5)
+        interface.prepare_matrix(is_symmetric=True,
+                                 is_compressible=True,
+                                 rows=3,
+                                 columns=3, network_vertices=5)
 
-        interface.add_edge_to_graph(0, 1, 2, True)
-        interface.add_edge_to_graph(1, 2, 1, True)
-        interface.add_edge_to_graph(2, 3, 3, True)
-        interface.add_edge_to_graph(3, 4, 4, True)
-        interface.add_edge_to_graph(2, 4, 1, True)
-        interface.add_edge_to_graph(4, 0, 1, True)
+        from_column = [0, 1, 0, 3, 0]
+        to_column = [1, 0, 3, 2, 2]
+        weight_column = [3, 4, 5, 7, 2]
+        is_bidirectional_column = [False, False, False, False, True]
+        interface.add_edges_to_graph(from_column=from_column,
+                                     to_column=to_column,
+                                     edge_weight_column=weight_column,
+                                     is_bidirectional_column=is_bidirectional_column)
 
         interface.add_user_source_data(1, "a", 1, True)
         interface.add_user_source_data(4, "b", 2, True)
@@ -197,79 +161,25 @@ class TestClass:
         try:
             interface.get_value_by_id(43643, 2353209)
         except IndecesNotFoundException:
-            assert True
+            return
+        assert False
+
+    def test_5(self):
+        """
+        Tests throws UnexpectedShapeException.
+        """
+        interface = MatrixInterface()
+        try:
+            interface.prepare_matrix(is_symmetric=True, is_compressible=True,
+                                     rows=3, columns=2,
+                                     network_vertices=4)
+        except UnexpectedShapeException:
             return
         assert False
 
     def test_6(self):
         """
-        Tests throws WriteH5FailedException.
+        Test read otp csv
         """
-        interface = MatrixInterface(primary_input_name="rows", secondary_input_name="secondary_input")
-        interface.primary_ids_are_string = True
-
-        interface.prepare_matrix(is_symmetric=False, rows=3, columns=2, network_vertices=4)
-
-        interface.add_edge_to_graph(0, 1, 3, False)
-        interface.add_edge_to_graph(1, 0, 4, False)
-        interface.add_edge_to_graph(0, 3, 5, False)
-        interface.add_edge_to_graph(3, 2, 7, False)
-        interface.add_edge_to_graph(0, 2, 2, True)
-
-        interface.add_user_source_data(2, "a", 5, False)
-        interface.add_user_source_data(1, "b", 4, False)
-        interface.add_user_source_data(0, "c", 1, False)
-
-        interface.add_user_dest_data(0, 21, 4)
-        interface.add_user_dest_data(3, 20, 6)
-
-        try:
-            interface.write_h5(self.datapath + "test_5.h5")
-        except WriteH5FailedException:
-            assert True
-            return
-        assert False
-
-    def test_7(self):
-        """
-        Tests throws UnexpectedShapeException.
-        """
-        interface = MatrixInterface(primary_input_name="primary_input")
-        try:
-            interface.prepare_matrix(is_symmetric=True, rows=3, columns=2,
-                                     network_vertices=4)
-        except UnexpectedShapeException:
-            assert True
-            return
-        assert False
-
-    def test_8(self):
-        """
-        Tests throws InvalidIdTypeException.
-        """
-        interface = MatrixInterface(primary_input_name="primary_input", secondary_input_name="secondary_input")
-        interface.primary_ids_are_string = True
-        interface.prepare_matrix(is_symmetric=False, rows=3, columns=2, network_vertices=4)
-
-        interface.add_edge_to_graph(0, 1, 3, False)
-        interface.add_edge_to_graph(1, 0, 4, False)
-        interface.add_edge_to_graph(0, 3, 5, False)
-        interface.add_edge_to_graph(3, 2, 7, False)
-        interface.add_edge_to_graph(0, 2, 2, True)
-        try:
-            interface.add_user_source_data(2, 1, 5, False)
-        except InvalidIdTypeException:
-            assert True
-            return False
-        assert False
-
-    def test_9(self):
-        """
-        Test throws ReadTMXFailedException.
-        """
-        try:
-            interface = MatrixInterface()
-            interface.read_tmx("nonexistantfile")
-            assert False
-        except ReadTMXFailedException:
-            assert True
+        interface = MatrixInterface()
+        interface.read_otp("tests/test_data/sample_otp.csv")

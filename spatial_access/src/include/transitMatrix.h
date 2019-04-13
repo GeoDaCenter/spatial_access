@@ -168,6 +168,13 @@ public:
 
     }
 
+    void setMockDataFrame(const std::vector<std::vector<unsigned short int>> dataset,
+                          const std::vector<row_label_type>& row_ids,
+                          const std::vector<col_label_type>& col_ids)
+    {
+        df.setMockDataFrame(dataset, row_ids, col_ids);
+    }
+
 
     void
     addToUserSourceDataContainer(network_node networkNodeId, const row_label_type& row_id, time_value lastMileDistance)
@@ -185,7 +192,7 @@ public:
         this->userDestDataContainer.addPoint(networkNodeId, col_loc, lastMileDistance);
     }
 
-    void addEdgeToGraph(network_node from_loc, network_node to_loc,
+    void addSingleEdgeToGraph(network_node from_loc, network_node to_loc,
                         time_value edge_weight, bool is_bidirectional)
     {
         graph.addEdge(from_loc, to_loc, edge_weight);
@@ -207,7 +214,11 @@ public:
             auto to_loc = to_column.at(i);
             auto edge_weight = edge_weights_column.at(i);
             auto is_bidirectional = is_bidirectional_column.at(i);
-            addEdgeToGraph(from_loc, to_loc, edge_weight, is_bidirectional);
+            graph.addEdge(from_loc, to_loc, edge_weight);
+            if (is_bidirectional)
+            {
+                graph.addEdge(to_loc, from_loc, edge_weight);
+            }
         }
     }
 
@@ -226,8 +237,6 @@ public:
     }
 
     // Calculations
-
-
 
     void
     compute(unsigned int numThreads)
@@ -262,7 +271,7 @@ public:
 
 
     const std::unordered_map<row_label_type, std::vector<col_label_type>>
-    getDestsInRange(unsigned int threshold, unsigned int numThreads) const
+    getDestsInRange(unsigned int threshold) const
     {
         // Initialize maps
         std::unordered_map<row_label_type, std::vector<col_label_type>> destsInRange;
@@ -283,7 +292,7 @@ public:
 
 
     const std::unordered_map<col_label_type, std::vector<row_label_type>>
-    getSourcesInRange(unsigned int threshold, unsigned int numThreads) const
+    getSourcesInRange(unsigned int threshold) const
     {
         // Initialize maps
         std::unordered_map<col_label_type, std::vector<row_label_type>> sourcesInRange;
@@ -387,6 +396,12 @@ public:
     void
     readTMX(const std::string &infile) {
         df.readTMX(infile);
+    }
+
+    void
+    readOTPCSV(const std::string &infile)
+    {
+        df.readOTPCSV(infile);
     }
 
 
