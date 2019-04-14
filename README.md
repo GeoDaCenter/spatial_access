@@ -30,9 +30,9 @@ Spatial access measures: provider-to-people ratio, avg. time to nearest provider
 </tr>
 
 <tr>
-  <td>Supported Operating Systems</td>
+  <td>Tested Operating Systems</td>
   <td>
-       *nix, macOS
+       Ubuntu, macOS
   </td>
 </tr>
 </table>
@@ -72,14 +72,14 @@ Installation
 
 Usage
 ---
-See the iPython notebooks in docs/ for example usage.
+See the iPython notebooks in `docs/` for example usage, or https://readthedocs.org/projects/spatial-acccess/ for technical documentation.
 
 
 ### Instructions for building locally (only for developers):
 
 - If updating Cython or C++ code (anything in spatial_access/src/)
 you must install cython
-- To regenerate .pyx files, run: `bash cythonize.sh`
+- To regenerate .pyx files, run: `bash cythonize_extension.sh`
 - To install locally, run: `sudo python3 setup.py install `
 
 ### PyPi Maintenance
