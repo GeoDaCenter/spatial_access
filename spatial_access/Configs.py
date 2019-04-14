@@ -4,6 +4,7 @@
 
 import pandas as pd
 
+
 class Configs:
     """
     A utility class to abstract the network parameter
@@ -44,6 +45,7 @@ class Configs:
                             "grade4": 16,
                             "grade5": 16,
                             "roundabout": 40}
+
     def __init__(self, walk_speed=5,
                  bike_speed=15.5,
                  default_drive_speed=40,

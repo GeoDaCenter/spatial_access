@@ -47,7 +47,8 @@ class TransitMatrix:
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
             primary_input: string, csv filename.
-            secondary_input: string, csv filename.
+            secondary_input: string, csv filename (omit to calculate an NxN matrix on
+                the primary_input).
             read_from_tmx: string, tmx filename.
             use_meters: output will be in meters, not seconds.
             primary_hints: dictionary, map column names to expected values.
@@ -101,7 +102,7 @@ class TransitMatrix:
             self.configs.bike_speed = bike_speed
 
         if network_type not in {'drive', 'walk', 'bike', 'otp'}:
-            raise UnknownModeException()
+            raise UnknownModeException(network_type)
 
         if self.primary_input == self.secondary_input and self.primary_input is not None:
             raise DuplicateInputException("Gave duplicate inputs: {}".format(self.primary_input))
@@ -427,6 +428,7 @@ class TransitMatrix:
                                              self.secondary_data,
                                              self.secondary_input is not None,
                                              self.epsilon)
+
     @staticmethod
     def clear_cache():
         """
@@ -454,6 +456,9 @@ class TransitMatrix:
         - Fetch the osm network.
         - Parse the network.
         - Calculate transit matrix.
+
+        Raises:
+            AssertionError: if this method is called on an OTP-matrix.
         """
         assert self.network_type != 'otp', 'no need to call process for an otp matrix'
         start_time = time.time()

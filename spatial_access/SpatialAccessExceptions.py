@@ -22,14 +22,14 @@ class P2PException(SpatialAccessException):
         super().__init__("P2PException:" + errors)
 
 
-class ScoreModelException(SpatialAccessException):
+class BaseModelException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__("ScoreModelException:" + errors)
+        super().__init__("BaseModelException:" + errors)
 
 
-class CommunityAnalyticsException(SpatialAccessException):
+class ModelException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__("CommunityAnalyticsException:" + errors)
+        super().__init__("ModelException:" + errors)
 
 
 class UnableToConnectException(NetworkInterfaceException):
@@ -88,7 +88,7 @@ class UnableToBuildMatrixException(MatrixInterfaceException):
 
 class FileNotFoundException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__("UnableToBuildMatrixException:" + errors)
+        super().__init__("FileNotFoundException:" + errors)
 
 
 class SourceNotBuiltException(MatrixInterfaceException):
@@ -131,97 +131,102 @@ class DuplicateInputException(P2PException):
         super().__init__("DuplicateInputException:" + errors)
 
 
-class TransitMatrixNotLoadedException(ScoreModelException):
+class TransitMatrixNotLoadedException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("TransitMatrixNotLoadedException:" + errors)
 
 
-class SourceDataNotFoundException(ScoreModelException):
+class SourceDataNotFoundException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("SourceDataNotFoundException:" + errors)
 
 
-class DestDataNotFoundException(ScoreModelException):
+class DestDataNotFoundException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("DestDataNotFoundException:" + errors)
 
 
-class SourceDataNotParsableException(ScoreModelException):
+class SourceDataNotParsableException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("SourceDataNotParsableException:" + errors)
 
 
-class DestDataNotParsableException(ScoreModelException):
+class DestDataNotParsableException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("DestDataNotParsableException:" + errors)
 
 
-class ShapefileNotFoundException(ScoreModelException):
+class ShapefileNotFoundException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("ShapefileNotFoundException:" + errors)
 
 
-class TooManyCategoriesToPlotException(ScoreModelException):
+class TooManyCategoriesToPlotException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("TooManyCategoriesToPlotException:" + errors)
 
 
-class SpatialIndexNotMatchedException(ScoreModelException):
+class SpatialIndexNotMatchedException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("SpatialIndexNotMatchedException:" + errors)
 
 
-class UnexpectedPlotColumnException(ScoreModelException):
+class UnexpectedPlotColumnException(BaseModelException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedPlotColumnException:" + errors)
 
 
-class UnrecognizedCategoriesException(CommunityAnalyticsException):
+class UnrecognizedCategoriesException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnrecognizedCategoriesException:" + errors)
 
 
-class UnrecognizedDecayFunctionException(CommunityAnalyticsException):
+class UnrecognizedDecayFunctionException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnrecognizedDecayFunctionException:" + errors)
 
 
-class IncompleteCategoryDictException(CommunityAnalyticsException):
+class IncompleteCategoryDictException(ModelException):
     def __init__(self, errors=''):
         super().__init__("IncompleteCategoryDictException:" + errors)
 
 
-class ModelNotAggregatedException(CommunityAnalyticsException):
+class ModelNotAggregatedException(ModelException):
     def __init__(self, errors=''):
         super().__init__("ModelNotAggregatedException:" + errors)
+        
+
+class ModelNotAggregatableException(ModelException):
+    def __init__(self, errors=''):
+        super().__init__("ModelNotAggregatableException:" + errors)
 
 
-class ModelNotCalculatedException(CommunityAnalyticsException):
+class ModelNotCalculatedException(ModelException):
     def __init__(self, errors=''):
         super().__init__("ModelNotCalculatedException:" + errors)
 
 
-class UnexpectedNormalizeTypeException(CommunityAnalyticsException):
+class UnexpectedNormalizeTypeException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedNormalizeTypeException:" + errors)
 
 
-class UnexpectedNormalizeColumnsException(CommunityAnalyticsException):
+class UnexpectedNormalizeColumnsException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedNormalizeColumnsException:" + errors)
 
 
-class UnexpectedEmptyColumnException(CommunityAnalyticsException):
+class UnexpectedEmptyColumnException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedEmptyColumnException:" + errors)
 
 
-class UnexpectedAggregationTypeException(CommunityAnalyticsException):
+class UnexpectedAggregationTypeException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedAggregationTypeException:" + errors)
 
 
-class AggregateOutputTypeNotExpectedException(CommunityAnalyticsException):
+class AggregateOutputTypeNotExpectedException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedAggregationTypeException:" + errors)
 

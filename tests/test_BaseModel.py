@@ -51,9 +51,11 @@ class TestClass:
                                                   'capacity': 'capacity', 'category': 'cat'})
         model_data.load_transit_matrix()
         filename = self.datapath + 'score_model_test_1.tmx'
-        model_data.write_shortest_path_matrix_to_tmx(filename)
+        filename2 = self.datapath + 'score_model_test_1.csv'
+        model_data.write_transit_matrix_to_tmx(filename)
+        model_data.write_transit_matrix_to_csv(filename2)
 
-        model_data_2 = model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
+        model_data_2 = ModelData('drive', sources_filename="tests/test_data/sources.csv",
                                destinations_filename="tests/test_data/dests.csv",
                                source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                     'population': 'pop'},

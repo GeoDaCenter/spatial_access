@@ -6,8 +6,6 @@ import multiprocessing
 import time
 import os
 
-from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
-from spatial_access.SpatialAccessExceptions import FileNotFoundException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
@@ -29,6 +27,10 @@ class MatrixInterface:
     """
 
     def __init__(self, logger=None):
+        """
+        Args:
+            logger: optional
+        """
         self.logger = logger
         self.transit_matrix = None
         self.primary_ids_are_string = False
@@ -36,7 +38,13 @@ class MatrixInterface:
 
     def read_tmx(self, filename):
         """
-        Read tmx from file
+        Read the transit matrix from binary format.
+        (suitable for quickly saving/reloading for
+        extended computations).
+        Args:
+            filename: the .tmx file.
+        Raises:
+            ReadTMXFailedException: file does not exist or is corrupted.
         """
         utils = _p2pExtension.pyTMXUtils()
         if not os.path.exists(filename):
@@ -59,7 +67,13 @@ class MatrixInterface:
 
     def write_tmx(self, filename):
         """
-        Write tmx to file
+        Write the transit matrix to binary format.
+        (suitable for quickly saving/reloading for
+        extended computations).
+        Args:
+            filename: tmx filename.
+        Raises:
+            WriteTMXFailedException: unable to write tmx.
         """
         start = time.time()
         try:
@@ -90,15 +104,23 @@ class MatrixInterface:
 
     def get_values_by_source(self, source_id, sort=False):
         """
-        Get a list of (dest_id, value) pairs, with the option
-        to sort in increasing order by value.
+        Args:
+            source_id: int or string.
+            sort: boolean, the resulting array will be sorted in
+                increasing order if true.
+        Returns:
+            Array of (dest_id, value_ pairs)
         """
         return self.transit_matrix.getValuesBySource(source_id, sort)
 
     def get_values_by_dest(self, dest_id, sort=False):
         """
-        Get a list of (source_id, value) pairs, with the option
-        to sort in increasing order by value.
+        Args:
+            dest_id: int or string.
+            sort: boolean, the resulting array will be sorted in
+                increasing order if true.
+        Returns:
+            Array of (source_id, value_ pairs)
         """
         return self.transit_matrix.getValuesByDest(dest_id, sort)
 
@@ -107,30 +129,51 @@ class MatrixInterface:
         """
         Returns: int (num threads to use)
         """
-
         return multiprocessing.cpu_count()
 
     def add_user_source_data(self, network_id, user_id, weight, is_also_dest):
         """
         Add the user's source data point to the pyTransitMatrix.
+        Args:
+            network_id: int, osm node loc
+            user_id: string or int
+            weight: int, edge weight
+            is_also_dest: boolean, true for symmetric matrices
         """
         self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, weight)
         if is_also_dest:
-            self.add_user_dest_data(network_id, user_id, weight)
+            self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
 
     def add_user_dest_data(self, network_id, user_id, weight):
         """
         Add the user's dest data point to the pyTransitMatrix.
+        Args:
+            network_id: int, osm node loc
+            user_id: string or int
+            weight: int, edge weight
         """
         self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
 
     def prepare_matrix(self, is_symmetric, is_compressible, rows, columns, network_vertices):
         """
-        Instantiate a pyTransitMatrix
-        """
+        Instantiate a pyTransitMatrix.
+        Args:
+            is_symmetric: boolean, true if matrix is NxN.
+            is_compressible: boolean, true if matrix[i][j] == matrix[j][i]
+                for all (i, j) in matrix. Enables more efficient storage
+                representation.
+            rows: number of user rows.
+            columns: number of user columns.
+            network_vertices: number of vertices in osm network.
 
+        Raises:
+            UnexpectedShapeException: if a matrix is symmetric but has mismatched rows and
+                columns, or if matrix is marked is_compressible but not is_symmetric.
+        """
         if is_symmetric and rows != columns:
             raise UnexpectedShapeException("Symmetric matrices should be nxn, not {}x{}".format(rows, columns))
+        if is_compressible and not is_symmetric:
+            raise UnexpectedShapeException("If matrix is compressible, it is also symmetric")
         if is_symmetric:
             self.secondary_ids_are_string = self.primary_ids_are_string
         if self.primary_ids_are_string and self.secondary_ids_are_string:
@@ -145,27 +188,32 @@ class MatrixInterface:
             assert False, "Logic Error"
         self.transit_matrix.prepareGraphWithVertices(network_vertices)
 
-    def write_csv(self, outfile):
+    def write_csv(self, filename):
         """
-        Write the data frame to csv
+        Args:
+            filename: file to write the transit matrix to.
+        Raises:
+            WriteCSVFailedException: transit matrix encountered an
+                internal error.
         """
         start = time.time()
         try:
-            self.transit_matrix.writeCSV(outfile)
+            self.transit_matrix.writeCSV(filename)
         except BaseException:
             raise WriteCSVFailedException()
         if self.logger:
-            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(outfile, time.time() - start))
+            self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
-    def build_matrix(self, thread_limit=None):
+    def build_matrix(self):
         """
-        Outsources the work of computing the shortest path matrix
-        to a C++ module.
+        Raises:
+            UnableToBuildMatrixException: transit matrix encountered
+                an internal error.
         """
 
         start_time = time.time()
-        if thread_limit is None:
-            thread_limit = self._get_thread_limit()
+
+        thread_limit = self._get_thread_limit()
         if self.logger:
             self.logger.debug('Processing matrix with {} threads'.format(thread_limit))
         try:
@@ -180,24 +228,29 @@ class MatrixInterface:
 
     def get_dests_in_range(self, threshold):
         """
-        Return a source_id->[array of dest_id]
-        map for dests under threshold distance
-        from source.
+        Args:
+            threshold: integer, max value for dests "in range".
+        Returns:
+             a source_id->[array of dest_id]
+                map for dests under threshold distance
+                from source.
         """
         return self.transit_matrix.getDestsInRange(threshold)
 
     def get_sources_in_range(self, threshold):
         """
-        Return a dest_id->[array of source_id]
-        map for sources under threshold distance
-        from dest.
+        Args:
+            threshold: integer, max value for dests "in range".
+        Returns:
+             a dest_id->[array of source_id]
+                map for sources under threshold distance
+                from dest.
         """
         return self.transit_matrix.getSourcesInRange(threshold)
 
-    def get_value_by_id(self, source, dest):
+    def _get_value_by_id(self, source, dest):
         """
-        Fetch the time value associated with the source, dest pair.
-        Warning! This method expects int arguments only!
+        Should not be used in production.
         """
         try:
             return self.transit_matrix.getValueById(source, dest)
@@ -212,6 +265,9 @@ class MatrixInterface:
 
     def add_to_category_map(self, dest_id, category):
         """
+        Args:
+            dest_id: int or string
+            category: string
         Map the dest_id to the category in the
         transit matrix.
         """
@@ -219,8 +275,9 @@ class MatrixInterface:
 
     def time_to_nearest_dest(self, source_id, category=None):
         """
-        Return the time to the nearest destination of a given
-        category, or of all destinations if category is none.
+        Returns:
+             Time to the nearest destination of a given
+                category, or of all destinations if category is none.
         """
         if category is None:
             return self.transit_matrix.timeToNearestDest(source_id)
@@ -229,8 +286,9 @@ class MatrixInterface:
 
     def count_dests_in_range(self, source_id, threshold, category=None):
         """
-        Return the count of destinations in range for a given
-        category, or of all destinations if category is none.
+        Returns:
+            Count of destinations in range for a given
+                category, or of all destinations if category is none.
         """
         if category is None:
             return self.transit_matrix.countDestsInRange(source_id, threshold)

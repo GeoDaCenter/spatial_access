@@ -159,7 +159,7 @@ class TestClass:
         interface.add_user_source_data(3, "c", 3, True)
 
         try:
-            interface.get_value_by_id(43643, 2353209)
+            interface._get_value_by_id(43643, 2353209)
         except IndecesNotFoundException:
             return
         assert False

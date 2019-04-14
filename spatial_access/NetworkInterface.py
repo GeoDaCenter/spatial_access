@@ -24,7 +24,7 @@ except ImportError:
 
 class NetworkInterface:
     """
-    Manages OSM network retrieval for TransitMatrix.
+    Manages OSM network retrieval for p2p.TransitMatrix.
     """
 
     def __init__(self, network_type, logger=None, disable_area_threshold=False):
@@ -238,6 +238,8 @@ class NetworkInterface:
         """
         Given a set nodes_to_keep, remove all other
         nodes and edges.
+        Args:
+            nodes_to_keep: array of node indeces.
         """
         self.nodes = self.nodes[self.nodes['id'].isin(nodes_to_keep)]
         self.edges = self.edges[self.edges['from'].isin(nodes_to_keep) & self.edges['to'].isin(nodes_to_keep)]
