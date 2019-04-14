@@ -1,4 +1,4 @@
-import networkAdapterUtility
+import _p2pExtension
 
 
 class TestClass:
@@ -22,7 +22,7 @@ class TestClass:
                  (7, 3)]
 
         nodes = [0, 1, 2, 3, 4, 5, 6, 7, 8]
-        utility = networkAdapterUtility.pyNetworkUtility(edges, nodes)
+        utility = _p2pExtension.pyNetworkUtility(edges, nodes)
         nodes_in_connected_component = utility.getConnectedNetworkNodes()
         assert nodes_in_connected_component == {0, 1, 4, 8}
 
@@ -31,7 +31,7 @@ class TestClass:
 
         nodes = [0, 1, 2]
         try:
-            utility = networkAdapterUtility.pyNetworkUtility(edges, nodes)
+            utility = _p2pExtension.pyNetworkUtility(edges, nodes)
             nodes_in_connected_component = utility.getConnectedNetworkNodes()
             assert False
         except BaseException:
