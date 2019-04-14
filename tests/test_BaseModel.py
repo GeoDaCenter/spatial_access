@@ -40,7 +40,7 @@ class TestClass:
     def test_01(self):
         """
         Test instantiating ModelData
-        instance and calling load_sp_matrix with
+        instance and calling load_transit_matrix with
         complete source_column_names and dest_column_names.
         """
         model_data = ModelData('drive', sources_filename="tests/test_data/sources.csv",
@@ -49,7 +49,7 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix()
+        model_data.load_transit_matrix()
         filename = self.datapath + 'score_model_test_1.tmx'
         model_data.write_shortest_path_matrix_to_tmx(filename)
 
@@ -59,7 +59,7 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data_2.load_sp_matrix(filename)
+        model_data_2.load_transit_matrix(filename)
 
         assert True
 
@@ -75,7 +75,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix()
+            model_data.load_transit_matrix()
         except SourceDataNotFoundException:
             assert True
             return
@@ -93,7 +93,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix()
+            model_data.load_transit_matrix()
         except DestDataNotFoundException:
             assert True
             return
@@ -111,7 +111,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
+            model_data.load_transit_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
         except SourceDataNotParsableException:
             assert True
             return
@@ -129,7 +129,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'wrong_key': 'capacity', 'category': 'cat'})
-            model_data.load_sp_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
+            model_data.load_transit_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
         except DestDataNotParsableException:
             assert True
             return
@@ -146,8 +146,8 @@ class TestClass:
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
 
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix()
-        model_data._sp_matrix = self.mock_transit_matrix_values(model_data._sp_matrix)
+        model_data.load_transit_matrix()
+        model_data.transit_matrix = self.mock_transit_matrix_values(model_data.transit_matrix)
         model_data.calculate_dests_in_range(400)
         model_data.calculate_sources_in_range(400)
 
@@ -177,8 +177,8 @@ class TestClass:
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
 
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix()
-        model_data._sp_matrix = self.mock_transit_matrix_values(model_data._sp_matrix)
+        model_data.load_transit_matrix()
+        model_data.transit_matrix = self.mock_transit_matrix_values(model_data.transit_matrix)
         model_data.calculate_sources_in_range(400)
 
         assert model_data.get_population_in_range('place_a') == 166
@@ -198,7 +198,7 @@ class TestClass:
                                                     'population': 'pop'},
                                dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                   'capacity': 'capacity', 'category': 'cat'})
-        model_data.load_sp_matrix()
+        model_data.load_transit_matrix()
 
         spatial_joined_sources = model_data._spatial_join_community_index(model_data.sources)
         assert spatial_joined_sources is not None

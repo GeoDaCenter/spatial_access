@@ -53,7 +53,7 @@ class TransitMatrix:
             primary_hints: dictionary, map column names to expected values.
             secondary_hints: dictionary, map column names to expected values.
             disable_area_threshold: boolean, enable if computation fails due to
-            exceeding bounding box area constraint.
+                exceeding bounding box area constraint.
             walk_speed: numeric, override default walking speed (km/hr).
             bike_speed: numeric, override default walking speed (km/hr).
             epsilon: numeric, factor by which to increase the requested bounding box.

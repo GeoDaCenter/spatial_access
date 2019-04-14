@@ -196,6 +196,11 @@ class ModelNotAggregatedException(CommunityAnalyticsException):
         super().__init__("ModelNotAggregatedException:" + errors)
 
 
+class ModelNotCalculatedException(CommunityAnalyticsException):
+    def __init__(self, errors=''):
+        super().__init__("ModelNotCalculatedException:" + errors)
+
+
 class UnexpectedNormalizeTypeException(CommunityAnalyticsException):
     def __init__(self, errors=''):
         super().__init__("UnexpectedNormalizeTypeException:" + errors)

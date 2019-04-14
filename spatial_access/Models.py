@@ -16,7 +16,6 @@ from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeExce
 import math
 
 # TODO: Don't prompt for variable for models which don't use them
-# TODO: default to all categories if not specified, instead of "all_categories"
 def linear_decay_function(time, upper):
     """
     Linear decay function for distance
@@ -48,7 +47,7 @@ def logit_decay_function(time, upper):
         return 1-(1/(math.exp((upper/180)-(.48/60)*time)+1))
 
 # TODO: separate each category into its own column
-class Coverage:
+class Coverage(ModelData):
     """
     Build Coverage which captures
     the level of spending for low income residents in
@@ -56,40 +55,35 @@ class Coverage:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
                  categories=None, bike_speed=None, walk_speed=None):
-
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names,
-                                    walk_speed=walk_speed,
-                                    bike_speed=bike_speed)
-
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.model_results = None
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
+        super().__init__(network_type, sources_filename=sources_filename, source_column_names=source_column_names,
+                 destinations_filename=destinations_filename, dest_column_names=dest_column_names,
+                transit_matrix_filename=transit_matrix_filename,
+                 bike_speed=bike_speed, walk_speed=walk_speed)
+        self._is_source = False
+        self.load_transit_matrix(transit_matrix_filename)
+        self.focus_categories = self.all_categories if categories is None else categories
+        if categories is not None:
+            unrecognized_categories = set(categories) - self.all_categories
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-        else:
-            self.categories = ['all_categories']
+
 
     # TODO: optimize
     def calculate(self, upper_threshold):
         """
         Calculate the per-capita values and served population for each destination record.
+
+        Returns: DataFrame
         """
-        self.model_data.calculate_sources_in_range(upper_threshold)
+        self.calculate_sources_in_range(upper_threshold)
         results = {}
-        for category in self.categories:
-            for dest_id in self.model_data.get_ids_for_category(category):
-                population_in_range = self.model_data.get_population_in_range(dest_id)
+        for category in self.focus_categories:
+            for dest_id in self.get_ids_for_category(category):
+                population_in_range = self.get_population_in_range(dest_id)
                 if population_in_range > 0:
-                    percapita_spending = self.model_data.get_capacity(dest_id) / population_in_range
+                    percapita_spending = self.get_capacity(dest_id) / population_in_range
                 else:
                     percapita_spending = 0
                 results[dest_id] = [population_in_range, percapita_spending, category]
@@ -98,63 +92,13 @@ class Coverage:
                                                     columns=['service_pop',
                                                              'percap_spending',
                                                              'category'])
-        return self.model_results
-
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
         for column in self.model_results.columns:
             if 'service_pop' in column:
-                aggregation_args[column] = 'sum'
+                self._aggregation_args[column] = 'sum'
             elif 'percap_spending' in column:
-                aggregation_args[column] = 'mean'
+                self._aggregation_args[column] = 'mean'
 
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=False,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel', filename=None):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=plot_type,
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=False,
-                                 filename=filename)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community', filename=None):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index,
-                                        filename=None)
+        return self.model_results
 
 
 class DestSum:
@@ -185,7 +129,7 @@ class DestSum:
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
         else:
-            self.categories = ['all_categories']
+            self.categories = self.model_data.get_all_categories()
 
     def calculate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
         """
@@ -238,7 +182,7 @@ class DestSum:
                                         categories=categories,
                                         shapefile=shapefile,
                                         spatial_index=spatial_index,
-                                        filename=None)
+                                        filename=filename)
 
 
 class TSFCA:
@@ -248,7 +192,7 @@ class TSFCA:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
                  categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
@@ -259,7 +203,7 @@ class TSFCA:
                                     walk_speed=walk_speed,
                                     bike_speed=bike_speed)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
+        self.model_data.load_transit_matrix(transit_matrix_filename)
         self.model_results = None
         self.aggregated_results = None
         self.categories = categories
@@ -268,7 +212,7 @@ class TSFCA:
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
         else:
-            self.categories = ['all_categories']
+            self.categories = self.model_data.get_all_categories()
 
     def calculate(self, upper_threshold):
         """
@@ -379,7 +323,7 @@ class AccessTime:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
                  categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
@@ -390,7 +334,7 @@ class AccessTime:
                                     walk_speed=walk_speed,
                                     bike_speed=bike_speed)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
+        self.model_data.load_transit_matrix(transit_matrix_filename)
         self.model_results = None
         self.aggregated_results = None
         self.categories = categories
@@ -398,11 +342,10 @@ class AccessTime:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-            # Add category->dest_id map to sp matrix
-            self.model_data.map_categories_to_sp_matrix()
-
         else:
-            self.categories = ['all_categories']
+            self.categories = self.model_data.get_all_categories()
+        # Add category->dest_id map to sp matrix
+        self.model_data.map_categories_to_sp_matrix()
 
     def calculate(self):
         """
@@ -486,7 +429,7 @@ class AccessCount:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
                  categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
@@ -497,7 +440,7 @@ class AccessCount:
                                     walk_speed=walk_speed,
                                     bike_speed=bike_speed)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
+        self.model_data.load_transit_matrix(transit_matrix_filename)
         self.model_results = None
         self.aggregated_results = None
         self.categories = categories
@@ -505,10 +448,10 @@ class AccessCount:
             unrecognized_categories = set(categories) - self.model_data.get_all_categories()
             if len(unrecognized_categories) > 0:
                 raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-            # Add category->dest_id map to sp matrix
-            self.model_data.map_categories_to_sp_matrix()
         else:
-            self.categories = ['all_categories']
+            self.categories = self.model_data.get_all_categories()
+        # Add category->dest_id map to sp matrix
+        self.model_data.map_categories_to_sp_matrix()
 
     def calculate(self, upper_threshold):
         results = {}
@@ -588,7 +531,7 @@ class AccessSum:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
                  categories=None, bike_speed=None, walk_speed=None):
 
         self.model_data = ModelData(network_type=network_type,
@@ -599,7 +542,7 @@ class AccessSum:
                                     walk_speed=walk_speed,
                                     bike_speed=bike_speed)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
+        self.model_data.load_transit_matrix(transit_matrix_filename)
         self.model_results = None
         self.aggregated_results = None
         self.categories = categories
@@ -610,7 +553,7 @@ class AccessSum:
             # Add category->dest_id map to sp matrix
             self.model_data.map_categories_to_sp_matrix()
         else:
-            self.categories = ['all_categories']
+            self.categories = self.model_data.get_all_categories()
 
     def calculate(self, upper_threshold):
 
@@ -679,7 +622,7 @@ class AccessSum:
                                         color_map=color_map,
                                         categories=categories,
                                         shapefile=shapefile,
-                                        spatial_index=spatial_index, filename=None)
+                                        spatial_index=spatial_index, filename=filename)
 
 
 class AccessModel:
@@ -689,7 +632,7 @@ class AccessModel:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
                  decay_function='linear'):
         self.decay_function = None
         self.set_decay_function(decay_function)
@@ -698,7 +641,7 @@ class AccessModel:
                                     destinations_filename=destinations_filename,
                                     source_column_names=source_column_names,
                                     dest_column_names=dest_column_names)
-        self.model_data.load_sp_matrix(sp_matrix_filename)
+        self.model_data.load_transit_matrix(transit_matrix_filename)
         self.categories = self.model_data.get_all_categories()
         self.model_results = None
         self.aggregated_results = None
