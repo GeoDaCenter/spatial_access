@@ -51,7 +51,7 @@ If you are a Windows user, instructions for installing Ubuntu on a virtual machi
 
 Installation 
 ----
-0. A modern compiler such as gcc/clang
+0. A modern compiler like `gcc` or `clang`.
 
 1. Dependencies 
 
@@ -81,6 +81,7 @@ See the iPython notebooks in `docs/` for example usage, or https://readthedocs.o
 you must install cython
 - To regenerate .pyx files, run: `bash cythonize_extension.sh`
 - To install locally, run: `sudo python3 setup.py install `
+- Unit tests require the `pytest` package. From package root directory, run `python3 -m pytest tests/` to run all unit tests.
 
 ### PyPi Maintenance
 The package lives at: `https://pypi.org/project/spatial-access/`
