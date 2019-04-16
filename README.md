@@ -22,9 +22,17 @@ Spatial access measures: provider-to-people ratio, avg. time to nearest provider
 </tr>
 
 <tr>
-  <td>Supported Operating Systems</td>
+  <td>Documentation</td>
   <td>
-       *nix, macOS
+      <a href="https://readthedocs.org/projects/spatial-acccess">
+    <img src="https://readthedocs.org/projects/spatial-acccess/badge" alt="read the docs" />
+  </td>
+</tr>
+
+<tr>
+  <td>Tested Operating Systems</td>
+  <td>
+       Ubuntu, macOS
   </td>
 </tr>
 </table>
@@ -43,6 +51,8 @@ If you are a Windows user, instructions for installing Ubuntu on a virtual machi
 
 Installation 
 ----
+0. A modern compiler like `gcc` or `clang`.
+
 1. Dependencies 
 
     - MacOS:
@@ -62,15 +72,16 @@ Installation
 
 Usage
 ---
-See the iPython notebooks in docs/ for example usage.
+See the iPython notebooks in `docs/` for example usage, or https://readthedocs.org/projects/spatial-acccess/ for technical documentation.
 
 
 ### Instructions for building locally (only for developers):
 
-- If updating Cython or C++ code (anything in spatial_access/adapters/ or spatial_access/src/)
+- If updating Cython or C++ code (anything in spatial_access/src/)
 you must install cython
-- To regenerate .pyx files, from repository root run: `cython --cplus spatial_access/*.pyx`
-- To install locally, from repository root run: `sudo python3 setup.py install `
+- To regenerate .pyx files, run: `bash cythonize_extension.sh`
+- To install locally, run: `sudo python3 setup.py install `
+- Unit tests require the `pytest` package. From package root directory, run `python3 -m pytest tests/` to run all unit tests.
 
 ### PyPi Maintenance
 The package lives at: `https://pypi.org/project/spatial-access/`

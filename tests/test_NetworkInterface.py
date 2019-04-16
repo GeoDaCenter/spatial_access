@@ -1,4 +1,3 @@
-# pylint: skip-file
 from spatial_access.NetworkInterface import NetworkInterface
 import pandas as pd
 import pytest
@@ -6,7 +5,7 @@ import pytest
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
 
 
-class TestClass(object):
+class TestClass:
     """
     Test suite for the Network Interface.
     """

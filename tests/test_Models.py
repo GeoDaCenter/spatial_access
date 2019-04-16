@@ -10,16 +10,19 @@ from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesExcepti
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
 from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
+from spatial_access.SpatialAccessExceptions import UnexpectedPlotColumnException
 
 import json
 
+def almost_equal(a, b):
+    return abs(a - b) < 0.001
 
 class TestClass:
     """Suite of tests for the Community Analytics Package"""
 
     def setup_class(self):
         import os
-        self.datapath = 'tests/test_community_analytics_temp/'
+        self.datapath = 'test_community_analytics_temp/'
         if not os.path.exists(self.datapath):
             os.mkdir(self.datapath)
 
@@ -28,6 +31,20 @@ class TestClass:
         if os.path.exists(self.datapath):
             import shutil
             shutil.rmtree(self.datapath)
+
+    def mock_transit_matrix_values(self, transit_matrix):
+        source_ids = [3, 4, 5, 6, 7, 8]
+        dest_ids = ['place_a', 'place_b', 'place_c', 'place_d', 'place_e', 'place_f']
+        dataset = [[100, 100, 100, 100, 100, 100],
+                   [200, 200, 200, 200, 200, 200],
+                   [300, 300, 300, 300, 300, 300],
+                   [400, 400, 400, 400, 400, 400],
+                   [500, 500, 500, 500, 500, 500],
+                   [600, 600, 600, 600, 600, 600]]
+
+        transit_matrix.matrix_interface.transit_matrix.setMockDataFrame(dataset, source_ids, dest_ids)
+
+        return transit_matrix
 
     def test_01(self):
         """
@@ -41,28 +58,11 @@ class TestClass:
                                                                         'population': 'pop'},
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'})
-        coverage_model.calculate(100)
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
+        coverage_model.calculate(400)
 
-        assert coverage_model.model_results.loc['place_a']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_b']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_c']['service_pop'] == 469
-        assert coverage_model.model_results.loc['place_d']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_e']['service_pop'] == 76
-        assert coverage_model.model_results.loc['place_f']['service_pop'] == 469
-
-        assert coverage_model.model_results.loc['place_a']['percap_spending'] <= 0.066
-        assert coverage_model.model_results.loc['place_b']['percap_spending'] <= 0.606
-        assert coverage_model.model_results.loc['place_c']['percap_spending'] <= 0.738
-        assert coverage_model.model_results.loc['place_d']['percap_spending'] <= 3.053
-        assert coverage_model.model_results.loc['place_e']['percap_spending'] <= 5.264
-        assert coverage_model.model_results.loc['place_f']['percap_spending'] <= 1.210
-
-        assert coverage_model.model_results.loc['place_a']['percap_spending'] >= 0.065
-        assert coverage_model.model_results.loc['place_b']['percap_spending'] >= 0.605
-        assert coverage_model.model_results.loc['place_c']['percap_spending'] >= 0.737
-        assert coverage_model.model_results.loc['place_d']['percap_spending'] >= 3.052
-        assert coverage_model.model_results.loc['place_e']['percap_spending'] >= 5.263
-        assert coverage_model.model_results.loc['place_f']['percap_spending'] >= 1.208
+        for row in coverage_model.model_results.itertuples():
+            assert row[1] == 166
 
     def test_02(self):
         """
@@ -119,21 +119,18 @@ class TestClass:
                                                                              'population': 'pop'},
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'})
-        accesspop_model.calculate(100)
+        accesspop_model.transit_matrix = self.mock_transit_matrix_values(accesspop_model.transit_matrix)
+        accesspop_model.calculate(300)
 
-        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] >= 10.933
-        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] >= 10.933
-        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] >= 1.946
-        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] >= 1.946
+        for i in range(3, 6):
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_D'], 0.2771)
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_C'], 3.4457)
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_A'], 5.8915)
 
-        assert accesspop_model.model_results.loc[3]['percap_spend_all_categories'] <= 10.934
-        assert accesspop_model.model_results.loc[4]['percap_spend_all_categories'] <= 10.934
-        assert accesspop_model.model_results.loc[5]['percap_spend_all_categories'] <= 1.947
-        assert accesspop_model.model_results.loc[6]['percap_spend_all_categories'] <= 1.947
-        assert accesspop_model.model_results.loc[7]['percap_spend_all_categories'] <= 1.947
-        assert accesspop_model.model_results.loc[8]['percap_spend_all_categories'] <= 1.947
+        for i in range(6, 9):
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_D'], 0)
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_C'], 0)
+            assert almost_equal(accesspop_model.model_results.loc[i]['percap_spend_A'], 0)
 
     def test_5(self):
         """
@@ -171,36 +168,17 @@ class TestClass:
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
                                 categories=categories)
-        accesspop_model.calculate(100)
+        accesspop_model.transit_matrix = self.mock_transit_matrix_values(accesspop_model.transit_matrix)
+        accesspop_model.calculate(200)
 
-        assert len(accesspop_model.model_results.columns) == len(categories)
-        assert accesspop_model.model_results.loc[3, 'percap_spend_A'] <= 9.054
-        assert accesspop_model.model_results.loc[4, 'percap_spend_A'] <= 9.054
-        assert accesspop_model.model_results.loc[5, 'percap_spend_A'] <= 0.738
-        assert accesspop_model.model_results.loc[6, 'percap_spend_A'] <= 0.738
-        assert accesspop_model.model_results.loc[7, 'percap_spend_A'] <= 0.738
-        assert accesspop_model.model_results.loc[8, 'percap_spend_A'] <= 0.738
+        for i in range(3, 5):
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_A'], 12.8684)
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_C'], 7.5262)
 
-        assert accesspop_model.model_results.loc[3, 'percap_spend_C'] <= 1.275
-        assert accesspop_model.model_results.loc[4, 'percap_spend_C'] <= 1.275
-        assert accesspop_model.model_results.loc[5, 'percap_spend_C'] <= 1.209
-        assert accesspop_model.model_results.loc[6, 'percap_spend_C'] <= 1.209
-        assert accesspop_model.model_results.loc[7, 'percap_spend_C'] <= 1.209
-        assert accesspop_model.model_results.loc[8, 'percap_spend_C'] <= 1.209
+        for i in range(5, 9):
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_A'], 0.0)
+            assert almost_equal(accesspop_model.model_results.loc[i, 'percap_spend_C'], 0.0)
 
-        assert accesspop_model.model_results.loc[3, 'percap_spend_A'] >= 9.053
-        assert accesspop_model.model_results.loc[4, 'percap_spend_A'] >= 9.053
-        assert accesspop_model.model_results.loc[5, 'percap_spend_A'] >= 0.737
-        assert accesspop_model.model_results.loc[6, 'percap_spend_A'] >= 0.737
-        assert accesspop_model.model_results.loc[7, 'percap_spend_A'] >= 0.737
-        assert accesspop_model.model_results.loc[8, 'percap_spend_A'] >= 0.737
-
-        assert accesspop_model.model_results.loc[3, 'percap_spend_C'] >= 1.274
-        assert accesspop_model.model_results.loc[4, 'percap_spend_C'] >= 1.274
-        assert accesspop_model.model_results.loc[5, 'percap_spend_C'] >= 1.208
-        assert accesspop_model.model_results.loc[6, 'percap_spend_C'] >= 1.208
-        assert accesspop_model.model_results.loc[7, 'percap_spend_C'] >= 1.208
-        assert accesspop_model.model_results.loc[8, 'percap_spend_C'] >= 1.208
 
     def test_7(self):
         """
@@ -214,14 +192,30 @@ class TestClass:
                                                            'population': 'pop'},
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'})
+        accesstime_model.transit_matrix = self.mock_transit_matrix_values(accesstime_model.transit_matrix)
         accesstime_model.calculate()
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_all_categories'] == 42
-        assert accesstime_model.model_results.loc[4]['time_to_nearest_all_categories'] == 7
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_all_categories'] == 99
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_all_categories'] == 69
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_all_categories'] == 70
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_all_categories'] == 100
+
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_A'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_A'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_A'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_A'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_A'] == 600
+
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_D'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_D'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_D'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_D'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_D'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_D'] == 600
+
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_C'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_C'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_C'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_C'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 600
 
     def test_8(self):
         """
@@ -240,7 +234,6 @@ class TestClass:
                                           categories=['A', 'E'])
             accesstime_model.calculate()
         except UnrecognizedCategoriesException:
-            assert True
             return
         assert False
 
@@ -258,42 +251,22 @@ class TestClass:
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'},
                                       categories=categories)
+        accesstime_model.transit_matrix = self.mock_transit_matrix_values(accesstime_model.transit_matrix)
         accesstime_model.calculate()
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 42
-        assert accesstime_model.model_results.loc[4]['time_to_nearest_A'] == 7
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_A'] == 99
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_A'] == 69
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_A'] == 70
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_A'] == 100
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_A'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_A'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_A'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_A'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_A'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_A'] == 600
 
-        assert accesstime_model.model_results.loc[3]['time_to_nearest_C'] == 42
-        assert accesstime_model.model_results.loc[4]['time_to_nearest_C'] == 44
-        assert accesstime_model.model_results.loc[5]['time_to_nearest_C'] == 99
-        assert accesstime_model.model_results.loc[6]['time_to_nearest_C'] == 69
-        assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 70
-        assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 100
-
-    def test_10(self):
-        """
-        Test AccessCount through instantiation and
-        calculate.
-        """
-        accesscount_model = AccessCount('drive',
-                                        sources_filename='tests/test_data/sources_a.csv',
-                                        destinations_filename='tests/test_data/dests_b.csv',
-                                        source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                             'population': 'pop'},
-                                        dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
-                                                           'capacity': 'capacity', 'category': 'cat'})
-        accesscount_model.calculate(100)
-
-        assert accesscount_model.model_results.loc[3]['count_in_range_all_categories'] == 6
-        assert accesscount_model.model_results.loc[4]['count_in_range_all_categories'] == 6
-        assert accesscount_model.model_results.loc[5]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[6]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[7]['count_in_range_all_categories'] == 2
-        assert accesscount_model.model_results.loc[8]['count_in_range_all_categories'] == 2
+        assert accesstime_model.model_results.loc[3]['time_to_nearest_C'] == 100
+        assert accesstime_model.model_results.loc[4]['time_to_nearest_C'] == 200
+        assert accesstime_model.model_results.loc[5]['time_to_nearest_C'] == 300
+        assert accesstime_model.model_results.loc[6]['time_to_nearest_C'] == 400
+        assert accesstime_model.model_results.loc[7]['time_to_nearest_C'] == 500
+        assert accesstime_model.model_results.loc[8]['time_to_nearest_C'] == 600
 
     def test_11(self):
         """
@@ -312,7 +285,6 @@ class TestClass:
                                             categories=['A', 'E'])
             accesscount_model.calculate(200)
         except UnrecognizedCategoriesException:
-            assert True
             return
         assert False
 
@@ -321,7 +293,7 @@ class TestClass:
         Test AccessCount through instantiation and
         calculate, with categories specified.
         """
-        categories = ['A', 'C', 'D']
+        categories = ['A']
         accesscount_model = AccessCount('drive',
                                         sources_filename='tests/test_data/sources_a.csv',
                                         destinations_filename='tests/test_data/dests_b.csv',
@@ -330,28 +302,18 @@ class TestClass:
                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                            'capacity': 'capacity', 'category': 'cat'},
                                         categories=categories)
-        accesscount_model.calculate(100)
+        accesscount_model.transit_matrix = self.mock_transit_matrix_values(
+            accesscount_model.transit_matrix)
+        accesscount_model.calculate(400)
 
         assert accesscount_model.model_results.loc[3]['count_in_range_A'] == 3
         assert accesscount_model.model_results.loc[4]['count_in_range_A'] == 3
-        assert accesscount_model.model_results.loc[5]['count_in_range_A'] == 1
-        assert accesscount_model.model_results.loc[6]['count_in_range_A'] == 1
-        assert accesscount_model.model_results.loc[7]['count_in_range_A'] == 1
-        assert accesscount_model.model_results.loc[8]['count_in_range_A'] == 1
+        assert accesscount_model.model_results.loc[5]['count_in_range_A'] == 3
+        assert accesscount_model.model_results.loc[6]['count_in_range_A'] == 3
+        assert accesscount_model.model_results.loc[7]['count_in_range_A'] == 0
+        assert accesscount_model.model_results.loc[8]['count_in_range_A'] == 0
 
-        assert accesscount_model.model_results.loc[3]['count_in_range_C'] == 2
-        assert accesscount_model.model_results.loc[4]['count_in_range_C'] == 2
-        assert accesscount_model.model_results.loc[5]['count_in_range_C'] == 1
-        assert accesscount_model.model_results.loc[6]['count_in_range_C'] == 1
-        assert accesscount_model.model_results.loc[7]['count_in_range_C'] == 1
-        assert accesscount_model.model_results.loc[8]['count_in_range_C'] == 1
-
-        assert accesscount_model.model_results.loc[3]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[4]['count_in_range_D'] == 1
-        assert accesscount_model.model_results.loc[5]['count_in_range_D'] == 0
-        assert accesscount_model.model_results.loc[6]['count_in_range_D'] == 0
-        assert accesscount_model.model_results.loc[7]['count_in_range_D'] == 0
-        assert accesscount_model.model_results.loc[8]['count_in_range_D'] == 0
+        assert set(accesscount_model.model_results.columns) == {'count_in_range_A'}
 
     def test_13(self):
         """
@@ -437,6 +399,7 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1],
                                 'C': [1]}
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
 
         assert coverage_model.model_results['all_categories_score'].max() == 100
@@ -458,6 +421,7 @@ class TestClass:
 
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=False)
 
     def test_18(self):
@@ -476,6 +440,7 @@ class TestClass:
 
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=['A'])
 
         assert coverage_model.model_results['A_score'].max() == 100
@@ -493,16 +458,19 @@ class TestClass:
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'},
                                   categories=['A','C'])
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(
+            coverage_model.transit_matrix)
         coverage_model.calculate(600)
 
-        aggregate_df = coverage_model.aggregate(output_filename=self.datapath + 'test_19.json')
+        aggregate_df = coverage_model.aggregate()
+        coverage_model.write_aggregated_results(self.datapath + 'test_19.json')
         with open(self.datapath + 'test_19.json', 'r') as file:
             aggregate_data = json.load(file)
 
         assert(aggregate_df.loc['HYDE PARK', 'percap_spending'] == aggregate_data['HYDE PARK']['percap_spending'])
 
-        coverage_model.plot_cdf('percap_spending')
-        coverage_model.plot_choropleth(column='percap_spending')
+        coverage_model.plot_cdf('percap_spending', filename=self.datapath + "test_19_a.png")
+        coverage_model.plot_choropleth(column='percap_spending', filename=self.datapath + "test_19_b.png")
 
     def test_20(self):
         """
@@ -517,10 +485,13 @@ class TestClass:
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
                                 categories=categories)
+        accesspop_model.transit_matrix = self.mock_transit_matrix_values(
+            accesspop_model.transit_matrix)
         accesspop_model.calculate(600)
         accesspop_model.aggregate()
-        accesspop_model.plot_cdf('percap_spend')
-        accesspop_model.plot_choropleth(column='percap_spend_A', include_destinations=False)
+        accesspop_model.plot_cdf('percap_spend', filename=self.datapath + 'test_20_a.png')
+        accesspop_model.plot_choropleth(column='percap_spend_A', include_destinations=False,
+                                        filename=self.datapath + 'test_20_b.png')
 
     def test_21(self):
         """
@@ -535,12 +506,15 @@ class TestClass:
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'},
                                       categories=categories)
+        accesstime_model.transit_matrix = self.mock_transit_matrix_values(
+            accesstime_model.transit_matrix)
         accesstime_model.calculate()
-        accesstime_model.aggregate('mean')
-        accesstime_model.aggregate('min')
-        accesstime_model.aggregate('max')
-        accesstime_model.plot_cdf()
-        accesstime_model.plot_choropleth(column='time_to_nearest_C', include_destinations=True)
+        accesstime_model.aggregate(aggregation_type='mean')
+        accesstime_model.aggregate(aggregation_type='min')
+        accesstime_model.aggregate(aggregation_type='max')
+        accesstime_model.plot_cdf(plot_type='time_to_nearest',filename=self.datapath + 'test_21_a.png')
+        accesstime_model.plot_choropleth(column='time_to_nearest_C', include_destinations=True,
+                                         filename=self.datapath + 'test_21_b.png')
         try:
             accesstime_model.aggregate('blah')
         except UnexpectedAggregationTypeException:
@@ -560,10 +534,12 @@ class TestClass:
                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                            'capacity': 'capacity', 'category': 'cat'},
                                         categories=categories)
+        accesscount_model.transit_matrix = self.mock_transit_matrix_values(
+            accesscount_model.transit_matrix)
         accesscount_model.calculate(200)
         accesscount_model.aggregate()
-        accesscount_model.plot_cdf()
-        accesscount_model.plot_choropleth('count_in_range_C')
+        accesscount_model.plot_cdf( filename=self.datapath + 'test_22_a.png')
+        accesscount_model.plot_choropleth('count_in_range_C', filename=self.datapath + 'test_22_b.png')
 
     def test_23(self):
         """
@@ -581,12 +557,13 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1],
                                 'C': [1]}
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(
+            coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
         coverage_model.aggregate()
-        coverage_model.plot_cdf('score')
-        coverage_model.plot_cdf('good_access')
-        coverage_model.plot_choropleth('A_good_access')
-        coverage_model.plot_choropleth('C_score')
+        coverage_model.plot_cdf(plot_type='score', filename=self.datapath + 'test_23_a.png')
+        coverage_model.plot_choropleth('A_good_access', filename=self.datapath + 'test_23_c.png')
+        coverage_model.plot_choropleth('C_score', filename=self.datapath + 'test_23_d.png')
 
     def test_24(self):
         """
@@ -599,6 +576,8 @@ class TestClass:
                                                                         'population': 'pop'},
                                   dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                       'capacity': 'capacity', 'category': 'cat'})
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(
+            coverage_model.transit_matrix)
         results = coverage_model.calculate(100)
 
 
@@ -622,6 +601,8 @@ class TestClass:
                                 dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                                            'capacity': 'capacity', 'category': 'cat'},
                                 categories=categories)
+        accesspop_model.transit_matrix = self.mock_transit_matrix_values(
+            accesspop_model.transit_matrix)
         results = accesspop_model.calculate(200)
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
@@ -642,6 +623,8 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1],
                                 'C': [1]}
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(
+            coverage_model.transit_matrix)
         results = coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
@@ -659,6 +642,8 @@ class TestClass:
                                       dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                          'capacity': 'capacity', 'category': 'cat'},
                                       categories=categories)
+        accesstime_model.transit_matrix = self.mock_transit_matrix_values(
+            accesstime_model.transit_matrix)
         results = accesstime_model.calculate()
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
@@ -676,6 +661,7 @@ class TestClass:
                                         dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                            'capacity': 'capacity', 'category': 'cat'},
                                         categories=categories)
+        accesscount_model.transit_matrix = self.mock_transit_matrix_values(accesscount_model.transit_matrix)
         results = accesscount_model.calculate(200)
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
@@ -694,28 +680,32 @@ class TestClass:
                                      dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                         'capacity': 'capacity', 'category': 'cat'},
                                      categories=categories)
+        access_sum_model.transit_matrix = self.mock_transit_matrix_values(access_sum_model.transit_matrix)
         access_sum_model.calculate(100)
 
         access_sum_model.aggregate()
 
-        access_sum_model.plot_cdf()
+        access_sum_model.plot_cdf(filename=self.datapath + 'test_29_a.png')
 
-        access_sum_model.plot_choropleth(column='sum_in_range_A')
+        access_sum_model.plot_choropleth(column='sum_in_range_A', filename=self.datapath + 'test_29_b.png')
 
-        assert list(access_sum_model.aggregated_results.columns.values) == ['sum_in_range_A', 'sum_in_range_D']
+        try:
+            access_sum_model.plot_choropleth(column='not_a_column', filename=self.datapath + 'test_29_b.png')
+            assert False
+        except UnexpectedPlotColumnException:
+            pass
+
+        assert set(access_sum_model.aggregated_results.columns.values) == {'sum_in_range_A', 'sum_in_range_D'}
+        assert almost_equal(access_sum_model.aggregated_results.loc["HYDE PARK", "sum_in_range_A"], 163)
+        assert almost_equal(access_sum_model.aggregated_results.loc["HYDE PARK", "sum_in_range_D"], 7.666)
+
         assert access_sum_model.model_results.loc[3]['sum_in_range_A'] == 978
-        assert access_sum_model.model_results.loc[4]['sum_in_range_A'] == 978
-        assert access_sum_model.model_results.loc[5]['sum_in_range_A'] == 346
-        assert access_sum_model.model_results.loc[6]['sum_in_range_A'] == 346
-        assert access_sum_model.model_results.loc[7]['sum_in_range_A'] == 346
-        assert access_sum_model.model_results.loc[8]['sum_in_range_A'] == 346
-
         assert access_sum_model.model_results.loc[3]['sum_in_range_D'] == 46
-        assert access_sum_model.model_results.loc[4]['sum_in_range_D'] == 46
-        assert access_sum_model.model_results.loc[5]['sum_in_range_D'] == 0
-        assert access_sum_model.model_results.loc[6]['sum_in_range_D'] == 0
-        assert access_sum_model.model_results.loc[7]['sum_in_range_D'] == 0
-        assert access_sum_model.model_results.loc[8]['sum_in_range_D'] == 0
+
+        for i in range(4, 9):
+            assert access_sum_model.model_results.loc[i]['sum_in_range_A'] == 0
+            assert access_sum_model.model_results.loc[i]['sum_in_range_D'] == 0
+
 
     def test_30(self):
         """
@@ -730,17 +720,13 @@ class TestClass:
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
         model_results = dest_sum_model.calculate()
-        dest_sum_model.plot_choropleth(column='A_per_capita')
-        assert model_results.loc["HYDE PARK", 'A'] == 978.0
-        assert model_results.loc["HYDE PARK", 'D'] == 46.0
-        assert model_results.loc["HYDE PARK", 'C'] == 572.0
-        assert model_results.loc["HYDE PARK", 'all_categories'] == 1596.0
-        assert model_results.loc["HYDE PARK", 'A_per_capita'] <=2.0853
-        assert model_results.loc["HYDE PARK", 'A_per_capita'] >= 2.0852
-        assert model_results.loc["HYDE PARK", 'D_per_capita'] <= 0.099
-        assert model_results.loc["HYDE PARK", 'D_per_capita'] >= 0.098
-        assert model_results.loc["HYDE PARK", 'C_per_capita'] <= 1.2197
-        assert model_results.loc["HYDE PARK", 'C_per_capita'] >= 1.2196
-        assert model_results.loc["HYDE PARK", 'all_categories_per_capita'] <= 3.403
-        assert model_results.loc["HYDE PARK", 'all_categories_per_capita'] >= 3.402
+        dest_sum_model.plot_choropleth(column='A_per_capita', filename=self.datapath + 'test_30_a.png')
+        assert almost_equal(model_results.loc["HYDE PARK", 'A'], 978.0)
+        assert almost_equal(model_results.loc["HYDE PARK", 'D'] , 46.0)
+        assert almost_equal(model_results.loc["HYDE PARK", 'C'], 572.0)
+        assert almost_equal(model_results.loc["HYDE PARK", 'all_categories'], 1596.0)
+        assert almost_equal(model_results.loc["HYDE PARK", 'A_per_capita'], 2.0853)
+        assert almost_equal(model_results.loc["HYDE PARK", 'D_per_capita'], 0.099)
+        assert almost_equal(model_results.loc["HYDE PARK", 'C_per_capita'], 1.2197)
+        assert almost_equal(model_results.loc["HYDE PARK", 'all_categories_per_capita'], 3.403)
 
