@@ -2,64 +2,57 @@
 #
 # ©2017-2019, Center for Spatial Data Science
 
-# pylint: skip-file
-
 import os
+import time
 import pandas as pd
 from osmnet.load import network_from_bbox
 from geopy import distance
 
 from spatial_access.SpatialAccessExceptions import BoundingBoxTooLargeException
 from spatial_access.SpatialAccessExceptions import UnableToConnectException
+from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
+from spatial_access.SpatialAccessExceptions import ConnectedComponentTrimmingFailed
+
+import logging
+logging.getLogger('osmnet').disabled = True
+
+try:
+    import _p2pExtension
+except ImportError:
+    raise SourceNotBuiltException()
 
 
 class NetworkInterface:
     """
-    Abstracts the connection for querying OSM
-    servers for city walking, driving and biking
-    networks.
+    Manages OSM network retrieval for p2p.TransitMatrix.
     """
 
     def __init__(self, network_type, logger=None, disable_area_threshold=False):
+        """
+
+        Args:
+            network_type: string, network type
+            logger: optional, logger.
+            disable_area_threshold: boolean, enable if computation fails due to
+            exceeding bounding box area constraint.
+        """
         self.logger = logger
         self.network_type = network_type
         self.bbox = None
         self.nodes = None
         self.edges = None
-        self.user_node_friends = set()
-        self._already_merged = set()
-        self._nodes_to_merge = set()
-        self._rows_to_merge = {}
         self.area_threshold = None if disable_area_threshold else 2000  # km
         assert isinstance(network_type, str)
-        self.cache_filename = 'data/osm_query_cache'
         self._try_create_cache()
 
-    def clear_cache(self):
+    @staticmethod
+    def clear_cache():
         """
         Remove the contents of the NetworkInterface cache.
         """
-        try:
-            import shutil
-            shutil.rmtree(self.cache_filename)
-        except BaseException:
-            if self.logger:
-                self.logger.error('Unable to remove cache')
-
-    def _approximate_bbox_area(self):
-        """
-        Calculate the approximate area of the 
-        bounding box in square kilometers.
-        """
-        lower_left_point = (self.bbox[1], self.bbox[0])
-        lower_right_point = (self.bbox[3], self.bbox[0])
-        upper_left_point = (self.bbox[1], self.bbox[2])
-        lower_edge = distance.distance(lower_left_point, lower_right_point).km
-        left_edge = distance.distance(lower_left_point, upper_left_point).km
-        area = lower_edge * left_edge
-        if self.logger:
-            self.logger.info('Approx area of bounding box: {:,.2f} sq. km'.format(area))
-        return area
+        import shutil
+        if os.path.exists('data/osm_query_cache'):
+            shutil.rmtree('data/osm_query_cache')
 
     @staticmethod
     def _try_create_cache():
@@ -72,14 +65,51 @@ class NetworkInterface:
         if not os.path.exists('data/osm_query_cache'):
             os.makedirs('data/osm_query_cache')
 
+    def number_of_nodes(self):
+        """
+        Returns: number of nodes in graph.
+        """
+        return len(self.nodes)
+
+    def number_of_edges(self):
+        """
+        Returns: number of edges in graph.
+        """
+        return len(self.edges)
+
+    def _approximate_bbox_area(self):
+        """
+        Calculate the approximate area of the 
+        bounding box in square kilometers.
+        Returns: numeric area of the bounding box
+            in km squared.
+        """
+        lower_left_point = (self.bbox[1], self.bbox[0])
+        lower_right_point = (self.bbox[3], self.bbox[0])
+        upper_left_point = (self.bbox[1], self.bbox[2])
+        lower_edge = distance.distance(lower_left_point, lower_right_point).km
+        left_edge = distance.distance(lower_left_point, upper_left_point).km
+        area = lower_edge * left_edge
+        if self.logger:
+            self.logger.info('Approx area of bounding box: {:,.2f} sq. km'.format(area))
+        return area
+
     def _get_bbox(self, primary_data, secondary_data,
                   secondary_input, epsilon):
         """
-        Figure out how to set the upper left and lower right corners
-        of the bounding box which
-        is used to request a streed/road/path network from OSM,
-        including a small correction to account for nodes that might
-        lay just beyond the most distant data points.
+        Determine bounding box for given data.
+
+        Args:
+            primary_data: DataFrame of primary points.
+            secondary_data: DataFrame of secondary points.
+            secondary_input: boolean, true if secondary_data
+                was provided.
+            epsilon: Safety margin around bounding box.
+
+        Raises:
+            BoundingBoxTooLargeException: if area is larger than
+                self.area_threshold.
+
         """
         if secondary_input:
             composite_lon = list(primary_data['lon']) + \
@@ -104,41 +134,20 @@ class NetworkInterface:
                     self.logger.error('Supplied coordinates span too large an area')
                     self.logger.error('You can set disable_area_threshold to True if this is intentional')
                 raise BoundingBoxTooLargeException()
-        if self.logger:
-            self.logger.debug('set bbox: {}'.format(self.bbox))
 
-    def get_filename(self):
+    def _get_filename(self):
         """
-        Return the filename of the node table for the current
-        query.
+        Returns: cache filename formatted for this request.
         """
         bbox_string = '_'.join([str(coord) for coord in self.bbox])
         return 'data/osm_query_cache/' + self.network_type + bbox_string + '.h5'
 
     def _network_exists(self):
         """
-        Return True if both the nodes and edges
-        filename for the current query exist
-        locally, else False.
+        Returns: true if a filename matching these
+            network parameters is in the cache.
         """
-        return os.path.exists(self.get_filename())
-
-    def _merge_node(self, node_id):
-        """
-        Merge the given node_id and all nodes
-        contiguous that need to be merged.
-        """
-        pass
-
-    def trim_edges(self):
-        """
-        Find nodes that are the source of an edge exactly once,
-        and the destination of an edge exactly once. Remove
-        the nodes and connect the edges if and only if
-        said node is not the snapping node of a user
-        data point.
-        """
-        pass
+        return os.path.exists(self._get_filename())
 
     def load_network(self, primary_data, secondary_data,
                      secondary_input, epsilon):
@@ -146,7 +155,17 @@ class NetworkInterface:
         Attempt to load the nodes and edges tables for
         the current query from the local cache; query OSM
         servers if not.
-        Returns: nodes, edges (pandas df's)
+
+        Args:
+            primary_data: DataFrame of primary points.
+            secondary_data: DataFrame of secondary points.
+            secondary_input: boolean, true if secondary_data
+                was provided.
+            epsilon: Safety margin around bounding box.
+
+        Raises:
+            AssertionError: argument is not of expected type
+
         """
         assert isinstance(primary_data, pd.DataFrame)
         assert isinstance(secondary_data, pd.DataFrame) or secondary_data is None
@@ -157,18 +176,21 @@ class NetworkInterface:
         self._get_bbox(primary_data, secondary_data,
                        secondary_input, epsilon)
         if self._network_exists():
-            filename = self.get_filename()
+            filename = self._get_filename()
             self.nodes = pd.read_hdf(filename, 'nodes')
             self.edges = pd.read_hdf(filename, 'edges')
             if self.logger:
-                self.logger.info('Read network from %s', filename)
+                self.logger.debug('Read network from cache: %s', filename)
         else:
             self._request_network()
+        self._remove_disconnected_components()
 
     def _request_network(self):
         """
         Fetch a street network from OSM for the
-        current query
+        current query.
+        Raises:
+            UnableToConnectException: network connection is unavailable.
         """
         try:
             if self.network_type == 'bike':
@@ -185,11 +207,11 @@ class NetworkInterface:
                     self.edges.drop(['access', 'hgv', 'lanes', 'maxspeed', 'tunnel'], inplace=True, axis=1)
                 else:
                     self.edges.drop(['access', 'bridge', 'lanes', 'service', 'tunnel'], inplace=True, axis=1)
-            filename = self.get_filename()
+            filename = self._get_filename()
             self.nodes.to_hdf(filename, 'nodes', complevel=5)
             self.edges.to_hdf(filename, 'edges', complevel=5)
             if self.logger:
-                self.logger.info('Queried OSM...')
+                self.logger.info('Finished querying osm')
                 self.logger.debug('Cached network to %s', filename)
         except BaseException:
             request_error = """Error trying to download OSM network.
@@ -200,17 +222,57 @@ class NetworkInterface:
                 self.logger.error(request_error)
             raise UnableToConnectException()
 
-    def number_of_nodes(self):
+    def _get_edges_as_list(self):
         """
-        Return the number of nodes in the network.
+        Returns: a list of all edges as tuples (from, to).
         """
+        return list(zip(self.edges['from'], self.edges['to']))
 
-        assert self.nodes is not None
-        return len(self.nodes)
+    def _get_vertices_as_list(self):
+        """
+        Returns: a list of all node ids.
+        """
+        return list(self.nodes['id'])
 
-    def number_of_edges(self):
+    def _apply_connected_nodes(self, nodes_to_keep):
         """
-        Return the number of edges in the network.
+        Given a set nodes_to_keep, remove all other
+        nodes and edges.
+        Args:
+            nodes_to_keep: array of node indeces.
         """
-        assert self.edges is not None
-        return len(self.edges)
+        self.nodes = self.nodes[self.nodes['id'].isin(nodes_to_keep)]
+        self.edges = self.edges[self.edges['from'].isin(nodes_to_keep) & self.edges['to'].isin(nodes_to_keep)]
+
+    def _remove_disconnected_components(self):
+        """
+        Remove all nodes and edges that are not
+        a part of the largest strongly connected component.
+        Raises:
+            ConnectedComponentTrimmingFailed: caused by undefined behavior from extension.
+        """
+        len_edges_before = len(self.edges)
+        len_nodes_before = len(self.nodes)
+        start_time = time.time()
+        try:
+            trimmer = _p2pExtension.pyNetworkUtility(self._get_edges_as_list(), self._get_vertices_as_list())
+            nodes_of_main_connected_component = trimmer.getConnectedNetworkNodes()
+        except BaseException:
+            raise ConnectedComponentTrimmingFailed()
+
+        self._apply_connected_nodes(nodes_of_main_connected_component)
+
+        if self.logger:
+            edges_diff = len_edges_before - len(self.edges)
+            nodes_diff = len_nodes_before - len(self.nodes)
+            time_diff = time.time() - start_time
+            edges_diff_percent = edges_diff / len_edges_before
+            nodes_diff_percent = nodes_diff / len_edges_before
+            self.logger.debug("Removed {}/{} ({:,.2f}%) edges and {}/{} ({:,.2f}%) nodes which were disconnected components in {:,.2f} seconds".format(edges_diff,
+                                                                                                                                            len_edges_before,
+                                                                                                                                            edges_diff_percent,
+                                                                                                                                            nodes_diff,
+                                                                                                                                            len_nodes_before,
+                                                                                                                                            nodes_diff_percent,
+                                                                                                                                            time_diff))
+

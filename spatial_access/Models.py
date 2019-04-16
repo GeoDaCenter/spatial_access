@@ -5,17 +5,14 @@
 import pandas as pd
 from spatial_access.BaseModel import ModelData
 from spatial_access.SpatialAccessExceptions import UnrecognizedDecayFunctionException
-from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import IncompleteCategoryDictException
-from spatial_access.SpatialAccessExceptions import ModelNotAggregatedException
 from spatial_access.SpatialAccessExceptions import UnexpectedNormalizeTypeException
 from spatial_access.SpatialAccessExceptions import UnexpectedNormalizeColumnsException
 from spatial_access.SpatialAccessExceptions import UnexpectedEmptyColumnException
-from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
 import math
 
-
+# TODO: Don't prompt for variable for models which don't use them
 def linear_decay_function(time, upper):
     """
     Linear decay function for distance
@@ -46,8 +43,8 @@ def logit_decay_function(time, upper):
     else:
         return 1-(1/(math.exp((upper/180)-(.48/60)*time)+1))
 
-
-class Coverage:
+# TODO: separate each category into its own column
+class Coverage(ModelData):
     """
     Build Coverage which captures
     the level of spending for low income residents in
@@ -55,37 +52,49 @@ class Coverage:
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
+                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+            transit_matrix_filename: string, optional
+        """
+        super().__init__(network_type,
+                         sources_filename=sources_filename,
+                         source_column_names=source_column_names,
+                         destinations_filename=destinations_filename,
+                         dest_column_names=dest_column_names,
+                         bike_speed=bike_speed,
+                         walk_speed=walk_speed,
+                         debug=debug)
+        self.load_transit_matrix(transit_matrix_filename)
+        self.set_focus_categories(categories=categories)
+        self._is_source = False
+        self._result_column_names = {'service_pop', 'percap_spending'}
 
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
-
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.model_results = None
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-        else:
-            self.categories = ['all_categories']
-
+    # TODO: optimize
     def calculate(self, upper_threshold):
         """
+        Args:
+            upper_threshold: numeric, time in seconds.
         Calculate the per-capita values and served population for each destination record.
+
+        Returns: DataFrame
         """
-        self.model_data.calculate_sources_in_range(upper_threshold)
+        self.calculate_sources_in_range(upper_threshold)
         results = {}
-        for category in self.categories:
-            for dest_id in self.model_data.get_ids_for_category(category):
-                population_in_range = self.model_data.get_population_in_range(dest_id)
+        for category in self.focus_categories:
+            for dest_id in self.get_ids_for_category(category):
+                population_in_range = self.get_population_in_range(dest_id)
                 if population_in_range > 0:
-                    percapita_spending = self.model_data.get_capacity(dest_id) / population_in_range
+                    percapita_spending = self.get_capacity(dest_id) / population_in_range
                 else:
                     percapita_spending = 0
                 results[dest_id] = [population_in_range, percapita_spending, category]
@@ -94,64 +103,16 @@ class Coverage:
                                                     columns=['service_pop',
                                                              'percap_spending',
                                                              'category'])
-        return self.model_results
-
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
         for column in self.model_results.columns:
             if 'service_pop' in column:
-                aggregation_args[column] = 'sum'
+                self._aggregation_args[column] = 'sum'
             elif 'percap_spending' in column:
-                aggregation_args[column] = 'mean'
+                self._aggregation_args[column] = 'mean'
 
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=False,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=plot_type,
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=False)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
+        return self.model_results
 
 
-class DestSum:
+class DestSum(ModelData):
     """
     Build DestSum which captures the capacity
     and capacity per capita of providers in a
@@ -160,31 +121,42 @@ class DestSum:
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None,
-                 categories=None):
-
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
-        self.model_data.reload_sources(sources_filename)
-        self.model_data.reload_dests(destinations_filename)
-
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-        else:
-            self.categories = ['all_categories']
-
-    def calculate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
+                 categories=None, bike_speed=None, walk_speed=None, debug=False):
         """
-        Calculate the capacity/capacity per capita of providers in spatial areas.
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
         """
 
-        dests_copy = self.model_data.dests.copy(deep=True)
+        super().__init__(network_type, sources_filename=sources_filename, source_column_names=source_column_names,
+                         destinations_filename=destinations_filename, dest_column_names=dest_column_names,
+                         bike_speed=bike_speed, walk_speed=walk_speed, debug=debug)
+
+        self.reload_sources(sources_filename)
+        self.reload_dests(destinations_filename)
+        self.set_focus_categories(categories=categories)
+        self._is_aggregatable = False
+        self._is_source = False
+
+    def calculate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                  spatial_index='community',  projection='epsg:4326'):
+        """
+        Calculate the target/capacity per capita of providers in spatial areas.
+        Args:
+            shapefile: filename of shapefile
+            spatial_index: index of geospatial area in shapefile
+            projection: defaults to 'epsg:4326'
+
+        Returns: data frame.
+        """
+
+        dests_copy = self.dests.copy(deep=True)
 
         capacity_col = dests_copy.columns.get_loc('capacity') + 1
         category_col = dests_copy.columns.get_loc('category') + 1
@@ -194,309 +166,217 @@ class DestSum:
         dest_aggregation_args = {key:'sum' for key in set(dests_copy['category'])}
         dest_aggregation_args['all_categories'] = 'sum'
         dests_copy.fillna(value=0, inplace=True)
-        aggregated_dests = self.model_data.build_aggregate(dests_copy,
-                                                           shapefile=shapefile,
-                                                           rejoin_coordinates=False,
-                                                           aggregation_args=dest_aggregation_args,
-                                                           is_source=False)
 
-        aggregated_sources = self.model_data.build_aggregate(self.model_data.sources,
-                                                           shapefile=shapefile,
-                                                           rejoin_coordinates=False,
-                                                           aggregation_args={'population': 'sum'},
-                                                           is_source=True)
+        self._rejoin_results_with_coordinates(dests_copy, is_source=False)
+        self._rejoin_results_with_coordinates(self.sources, is_source=True)
+        aggregated_dests = self._build_aggregate(data_frame=dests_copy,
+                                                 shapefile=shapefile,
+                                                 spatial_index=spatial_index,
+                                                 projection=projection,
+                                                 aggregation_args=dest_aggregation_args)
+
+        aggregated_sources = self._build_aggregate(data_frame=self.sources,
+                                                   shapefile=shapefile,
+                                                   spatial_index=spatial_index,
+                                                   projection=projection,
+                                                   aggregation_args={'population': 'sum'})
 
         for column in aggregated_dests.columns:
             aggregated_dests[column + '_per_capita'] = aggregated_dests[column] / aggregated_sources['population']
         self.aggregated_results = aggregated_dests
         return self.aggregated_results
 
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Greens',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
 
-
-class TSFCA:
+class TSFCA(ModelData):
     """
     Build the TSFCA which quantifies
     the per-resident spending for given categories.
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
+                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+            transit_matrix_filename: string, optional.
+        """
 
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+        super().__init__(network_type=network_type,
+                         sources_filename=sources_filename,
+                         destinations_filename=destinations_filename,
+                         source_column_names=source_column_names,
+                         dest_column_names=dest_column_names,
+                         walk_speed=walk_speed,
+                         bike_speed=bike_speed,
+                         debug=debug)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.model_results = None
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-        else:
-            self.categories = ['all_categories']
+        self.load_transit_matrix(transit_matrix_filename)
+        self.set_focus_categories(categories=categories)
+        self._result_column_names = {'percap_spend', 'total_spend'}
 
     def calculate(self, upper_threshold):
         """
-        Calculate the per-capita spending for each source record.
+        Args:
+            upper_threshold: numeric, time in seconds.
+
+        Returns: DataFrame
         """
-        self.model_data.calculate_sources_in_range(upper_threshold)
-        self.model_data.calculate_dests_in_range(upper_threshold)
+        self.calculate_sources_in_range(upper_threshold)
+        self.calculate_dests_in_range(upper_threshold)
 
         # initialize results as {source_id: []}
         results = {}
-        num_categories = len(self.categories)
-        for source_id in self.model_data.get_all_source_ids():
+        num_categories = len(self.focus_categories)
+        for source_id in self.get_all_source_ids():
             results[source_id] = [0] * num_categories
 
         # map category to index in results and generate column names
         column_name_to_index = {}
         column_names = []
 
-        for index, category in enumerate(self.categories):
+        for index, category in enumerate(self.focus_categories):
             column_names.append('percap_spend_' + category)
             column_name_to_index[category] = index
 
         dests_capacity = {}
-        for category in self.categories:
-            for dest_id in self.model_data.get_ids_for_category(category):
-                population_in_range = self.model_data.get_population_in_range(dest_id)
+        for category in self.focus_categories:
+            for dest_id in self.get_ids_for_category(category):
+                population_in_range = self.get_population_in_range(dest_id)
                 if population_in_range > 0:
-                    contribution_to_spending = self.model_data.get_capacity(dest_id) / population_in_range
+                    contribution_to_spending = self.get_capacity(dest_id) / population_in_range
                     dests_capacity[dest_id] = contribution_to_spending
-        all_categories_only = self.categories == ['all_categories']
-        for source_id in self.model_data.get_all_source_ids():
-            for dest_id in self.model_data.get_dests_in_range_of_source(source_id):
-                if all_categories_only:
-                    category = 'all_categories'
                 else:
-                    category = self.model_data.get_category(dest_id)
-                if category in self.categories:
+                    dests_capacity[dest_id] = 0
+        for source_id in self.get_all_source_ids():
+            for dest_id in self.get_dests_in_range_of_source(source_id):
+                category = self.get_category(dest_id)
+                if category in self.focus_categories:
                     results[source_id][column_name_to_index[category]] += dests_capacity[dest_id]
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
-        return self.model_results
 
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
         for column in self.model_results.columns:
             if 'percap_spend' in column:
-                aggregation_args[column] = 'mean'
+                self._aggregation_args[column] = 'mean'
             elif 'total_spend' in column:
-                aggregation_args[column] = 'sum'
+                self._aggregation_args[column] = 'sum'
 
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=True,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=plot_type,
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=True)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Purples',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
+        return self.model_results
 
 
-
-
-class AccessTime:
+class AccessTime(ModelData):
     """
     Measures the closest destination for each source per category.
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
+                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+            transit_matrix_filename: string, optional.
+        """
 
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
-
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.model_results = None
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-            # Add category->dest_id map to sp matrix
-            self.model_data.map_categories_to_sp_matrix()
-
-        else:
-            self.categories = ['all_categories']
+        super().__init__(network_type=network_type,
+                         sources_filename=sources_filename,
+                         destinations_filename=destinations_filename,
+                         source_column_names=source_column_names,
+                         dest_column_names=dest_column_names,
+                         walk_speed=walk_speed,
+                         bike_speed=bike_speed,
+                         debug=debug)
+        self.load_transit_matrix(transit_matrix_filename)
+        self.set_focus_categories(categories=categories)
+        self._requires_user_aggregation_type = True
+        self._map_categories_to_sp_matrix()
 
     def calculate(self):
         """
-        Calculate the closest destination for each source per category.
+        Returns: DataFrame
         """
 
         results = {}
-        column_names = ['time_to_nearest_' + category for category in self.categories]
-        for source_id in self.model_data.get_all_source_ids():
+        focus_categories_list = list(self.focus_categories)
+        column_names = ['time_to_nearest_' + category for category in focus_categories_list]
+        for source_id in self.get_all_source_ids():
             results[source_id] = []
-            for category in self.categories:
-                time_to_nearest_neighbor = self.model_data.time_to_nearest_dest(source_id, category)
+            for category in focus_categories_list:
+                time_to_nearest_neighbor = self.time_to_nearest_dest(source_id, category)
                 results[source_id].append(time_to_nearest_neighbor)
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
         return self.model_results
 
-    def aggregate(self, aggregation_type, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
-        if aggregation_type not in ['min', 'max', 'mean']:
-            raise UnexpectedAggregationTypeException(aggregation_type)
 
-        for column in self.model_results.columns:
-            aggregation_args[column] = aggregation_type
-
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=True,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type='time_to_nearest',
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=True)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Blues',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
-
-
-
-class AccessCount:
+class AccessCount(ModelData):
     """
     Measures the number of destinations in range
     for each source per category.
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
+                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+            transit_matrix_filename: string, optional.
+        """
 
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+        super().__init__(network_type=network_type,
+                         sources_filename=sources_filename,
+                         destinations_filename=destinations_filename,
+                         source_column_names=source_column_names,
+                         dest_column_names=dest_column_names,
+                         walk_speed=walk_speed,
+                         bike_speed=bike_speed,
+                         debug=debug)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.model_results = None
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-            # Add category->dest_id map to sp matrix
-            self.model_data.map_categories_to_sp_matrix()
-        else:
-            self.categories = ['all_categories']
+        self.load_transit_matrix(transit_matrix_filename)
+        self.set_focus_categories(categories=categories)
+        self._map_categories_to_sp_matrix()
+        self._result_column_names = 'count_in_range'
 
     def calculate(self, upper_threshold):
+        """
+        Args:
+            upper_threshold: numeric, time in seconds.
+
+        Returns: DataFrame
+        """
         results = {}
-        column_names = ['count_in_range_' + category for category in self.categories]
-        self.model_data.calculate_dests_in_range(upper_threshold)
-        for source_id in self.model_data.get_all_source_ids():
+        focus_categories_list = list(self.focus_categories)
+        column_names = ['count_in_range_' + category for category in focus_categories_list]
+        self.calculate_dests_in_range(upper_threshold)
+        for source_id in self.get_all_source_ids():
             results[source_id] = []
-            for category in self.categories:
-                count_in_range = self.model_data.count_dests_in_range_by_categories(source_id=source_id,
+            for category in focus_categories_list:
+                count_in_range = self.count_dests_in_range_by_categories(source_id=source_id,
                                                                                 category=category,
                                                                                     upper_threshold=upper_threshold)
                 results[source_id].append(count_in_range)
@@ -504,186 +384,119 @@ class AccessCount:
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
+        for column in self.model_results.columns:
+            self._aggregation_args[column] = 'mean'
+
         return self.model_results
 
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
-        for column in self.model_results.columns:
-            aggregation_args[column] = 'mean'
 
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=True,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type='count_in_range',
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=True)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
-
-
-class AccessSum:
+class AccessSum(ModelData):
     """
     Measures the capacity of providers in range
     for each source per category.
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 categories=None):
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
+                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+            transit_matrix_filename: string, optional.
+        """
 
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
+        super().__init__(network_type=network_type,
+                         sources_filename=sources_filename,
+                         destinations_filename=destinations_filename,
+                         source_column_names=source_column_names,
+                         dest_column_names=dest_column_names,
+                         walk_speed=walk_speed,
+                         bike_speed=bike_speed,
+                         debug=debug)
 
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.model_results = None
-        self.aggregated_results = None
-        self.categories = categories
-        if self.categories is not None:
-            unrecognized_categories = set(categories) - self.model_data.get_all_categories()
-            if len(unrecognized_categories) > 0:
-                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
-            # Add category->dest_id map to sp matrix
-            self.model_data.map_categories_to_sp_matrix()
-        else:
-            self.categories = ['all_categories']
+        self.load_transit_matrix(transit_matrix_filename)
+        self.set_focus_categories(categories=categories)
+        self._map_categories_to_sp_matrix()
+        self._result_column_names = 'sum_in_range'
 
     def calculate(self, upper_threshold):
+        """
+        Args:
+            upper_threshold: numeric, time in seconds.
+
+        Returns: DataFrame
+        """
 
         results = {}
-        column_names = ['sum_in_range_' + category for category in self.categories]
-        self.model_data.calculate_dests_in_range(upper_threshold)
-        for source_id in self.model_data.get_all_source_ids():
+        focus_categories_list = list(self.focus_categories)
+        column_names = ['sum_in_range_' + category for category in focus_categories_list]
+        self.calculate_dests_in_range(upper_threshold)
+        for source_id in self.get_all_source_ids():
             results[source_id] = []
-            for category in self.categories:
-                sum_in_range = self.model_data.count_sum_in_range_by_categories(source_id,
+            for category in focus_categories_list:
+                sum_in_range = self.count_sum_in_range_by_categories(source_id,
                                                                                     category)
                 results[source_id].append(sum_in_range)
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        for column in self.model_results.columns:
+            self._aggregation_args[column] = 'mean'
 
         return self.model_results
 
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
-        for column in self.model_results.columns:
-            aggregation_args[column] = 'mean'
 
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=True,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, title='title', xlabel='xlabel', ylabel='ylabel'):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type='sum_in_range',
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=True)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Oranges',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
-
-
-class AccessModel:
+class AccessModel(ModelData):
     """
     Build the Access model which captures the accessibility of 
     nonprofit services in urban environments.
     """
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, sp_matrix_filename=None,
-                 decay_function='linear'):
+                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
+                 decay_function='linear', walk_speed=None, bike_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+            decay_function: lambda or string
+            transit_matrix_filename: string, optional
+        """
         self.decay_function = None
         self.set_decay_function(decay_function)
-        self.model_data = ModelData(network_type=network_type,
-                                    sources_filename=sources_filename,
-                                    destinations_filename=destinations_filename,
-                                    source_column_names=source_column_names,
-                                    dest_column_names=dest_column_names)
-        self.model_data.load_sp_matrix(sp_matrix_filename)
-        self.categories = self.model_data.get_all_categories()
-        self.model_results = None
-        self.aggregated_results = None
+        super().__init__(network_type=network_type,
+                         sources_filename=sources_filename,
+                         destinations_filename=destinations_filename,
+                         source_column_names=source_column_names,
+                         dest_column_names=dest_column_names,
+                         walk_speed=walk_speed,
+                         bike_speed=bike_speed,
+                         debug=debug)
+        self.load_transit_matrix(transit_matrix_filename)
+        self._result_column_names = {'good_access', 'score'}
 
     def set_decay_function(self, decay_function):
         """
-        Set the decay function. Should be a string:
-        'linear', 'root', 'logit', or a lambda of
-        the form f(x, y) -> z.
+        Args:
+            decay_function: 'linear', 'root', 'logit', or a lambda of
+            the form f(x, y) -> z. Range should be the nonnegative
+            integer space.
 
-        Range should be the nonnegative integer space.
+        Raises:
+            UnrecognizedDecayFunctionException: Illegal decay function.
         """
         if isinstance(decay_function, str):
             if decay_function == 'linear':
@@ -708,7 +521,13 @@ class AccessModel:
     @staticmethod
     def _test_category_weight_dict(category_weight_dict):
         """
-        Ensure category_weight_dict has the expected form
+        Ensure category_weight_dict has the expected form.
+        Args:
+            category_weight_dict: dictionary of {category : [numeric weights]}
+
+        Raises:
+            IncompleteCategoryDictException: category_weight_dict does
+                not have all expected weights.
         """
         if not isinstance(category_weight_dict, dict):
             raise IncompleteCategoryDictException('category_weight_dict should be a dictionary')
@@ -723,7 +542,20 @@ class AccessModel:
     def calculate(self, category_weight_dict, upper_threshold, good_access_threshold=40,
                   normalize=True, normalize_type='linear'):
         """
-        Calculate the model.
+
+        Args:
+            category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]}
+            upper_threshold: time in seconds.
+            good_access_threshold: time in seconds. The model will use this value
+                to determine which regions have 'good access'
+            normalize: boolean. If true, results will be normalized
+                from 0 to 100.
+            normalize_type: 'linear' or 'z_score'.
+
+        Returns: DataFrame.
+
+        Raises:
+            UnexpectedNormalizeColumnsException
         """
         self._test_category_weight_dict(category_weight_dict)
 
@@ -736,16 +568,16 @@ class AccessModel:
                                 for category, weights in category_weight_dict.items()}
 
         # warn the user if the data has more categories than their category_weight_dict
-        key_diffs = set(self.model_data.get_all_categories()) - set(max_category_occurances.keys())
+        key_diffs = self.all_categories - set(max_category_occurances.keys())
         for key in key_diffs:
             max_category_occurances[key] = 0
         if len(key_diffs) > 0:
-            self.model_data.logger.warning('Found these keys in data but not in category_weight_dict: {}'
+            self.logger.warning('Found these keys in data but not in category_weight_dict: {}'
                                            .format(key_diffs))
 
         # reserve results dict for each column
         num_columns = len(category_weight_dict.keys()) + 1
-        results = {source_id: [0] * num_columns for source_id in self.model_data.get_all_source_ids()}
+        results = {source_id: [0] * num_columns for source_id in self.get_all_source_ids()}
 
         # map of column names
         category_to_index_map = {}
@@ -757,11 +589,11 @@ class AccessModel:
             index += 1
 
         # calculate score for each source_id
-        for source_id in self.model_data.get_all_source_ids():
-            category_encounters = {category: 0 for category in self.model_data.get_all_categories()}
-            for dest_id, time in self.model_data.get_values_by_source(source_id, sort=True):
+        for source_id in self.get_all_source_ids():
+            category_encounters = {category: 0 for category in self.all_categories}
+            for dest_id, time in self.get_values_by_source(source_id, sort=True):
                 decayed_time = self.decay_function(time, upper_threshold)
-                category = self.model_data.get_category(dest_id)
+                category = self.get_category(dest_id)
                 category_occurances = category_encounters[category]
                 if category_occurances < max_category_occurances[category]:
                     decayed_category_weight = category_weight_dict[category][category_occurances]
@@ -785,16 +617,30 @@ class AccessModel:
         else:
             raise UnexpectedNormalizeColumnsException('Argument ({}) is not of expected type: boolean, list'
                                                       .format(normalize))
-
-        # set good_access booleans for each column
         if good_access_threshold is not None:
             for column in self.model_results.columns:
                 new_key = column.replace('_score', '_good_access')
                 self.model_results[new_key] = self.model_results[column] > good_access_threshold
 
+        for column in self.model_results.columns:
+            if 'score' in column:
+                self._aggregation_args[column] = 'mean'
+            elif 'good_access' in column:
+                self._aggregation_args[column] = 'count'
+
         return self.model_results
 
     def _normalize(self, column, normalize_type):
+        """
+        Normalize results.
+        Args:
+            column: which column to normalize.
+            normalize_type: 'linear' or 'z-score'
+
+        Raises:
+            UnexpectedEmptyColumnException
+            UnexpectedNormalizeTypeException
+        """
         if normalize_type == 'linear':
             max_score = self.model_results[column].max()
             self.model_results[column] = (self.model_results[column] / max_score) * 100.0
@@ -806,58 +652,4 @@ class AccessModel:
                 raise UnexpectedEmptyColumnException(column)
         else:
             raise UnexpectedNormalizeTypeException(normalize_type)
-
-    def aggregate(self, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                  spatial_index='community', projection='epsg:4326', output_filename=None):
-        """
-        Aggregate results by community area
-        """
-        aggregation_args = {}
-        for column in self.model_results.columns:
-            if 'score' in column:
-                aggregation_args[column] = 'mean'
-            elif 'good_access' in column:
-                aggregation_args[column] = 'count'
-
-        self.aggregated_results = self.model_data.build_aggregate(model_results=self.model_results,
-                                                                  is_source=True,
-                                                                  aggregation_args=aggregation_args,
-                                                                  shapefile=shapefile,
-                                                                  spatial_index=spatial_index,
-                                                                  projection=projection)
-        if output_filename:
-            self.model_data.write_aggregated_results(self.aggregated_results,
-                                                     output_filename=output_filename)
-        return self.aggregated_results
-
-    def plot_cdf(self, plot_type, title='title', xlabel='xlabel', ylabel='ylabel'):
-        """
-        Plot cdf of results
-        """
-        self.model_data.plot_cdf(model_results=self.model_results,
-                                 plot_type=plot_type,
-                                 xlabel=xlabel,
-                                 ylabel=ylabel,
-                                 title=title,
-                                 is_source=True)
-
-    def plot_choropleth(self, column, include_destinations=True, title='title', color_map='Reds',
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community'):
-        """
-        Plot choropleth of results
-        """
-        if self.aggregated_results is None:
-            raise ModelNotAggregatedException()
-        if include_destinations:
-            categories = self.categories
-        else:
-            categories = None
-        self.model_data.plot_choropleth(aggregate_results=self.aggregated_results,
-                                        column=column,
-                                        title=title,
-                                        color_map=color_map,
-                                        categories=categories,
-                                        shapefile=shapefile,
-                                        spatial_index=spatial_index)
 

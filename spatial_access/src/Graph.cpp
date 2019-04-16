@@ -2,11 +2,7 @@
 //
 // ©2017-2019, Center for Spatial Data Science
 
-#include <vector>
-#include <tuple>
-#include <stdexcept>
-
-#include "Graph.h"
+#include "include/Graph.h"
 
 void Graph::initializeGraph(unsigned long int vertices)
 {

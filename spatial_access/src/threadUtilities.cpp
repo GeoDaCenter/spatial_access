@@ -2,13 +2,8 @@
 //
 // ©2017-2019, Center for Spatial Data Science
 
-#include <iostream>
-#include <algorithm>
+#include "include/threadUtilities.h"
 
-#include "threadUtilities.h"
-#include "Graph.h"
-#include "userDataContainer.h"
-#include "dataFrame.h"
 
 /* initialize jobQueue, reserving size for known inputs*/
 
@@ -43,34 +38,7 @@ bool jobQueue::empty() const
     return res;
 }
 
-/*initialize workerQueue */
-template<class row_label_type, class col_label_type>
-workerQueue<row_label_type, col_label_type>::workerQueue(unsigned int numThreads, void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>*), graphWorkerArgs<row_label_type, col_label_type> *wa)
-{
-    for (unsigned long int i = 0; i < numThreads; i++)
-    {
-        this->threads.push_back(std::thread(f_in, wa));
-    }
-}
-
 void do_join(std::thread &t)
 {
     t.join();
-}
-
-/* start the workerQueue */
-template<class row_label_type, class col_label_type>
-void workerQueue<row_label_type, col_label_type>::startGraphWorker()
-{
-   std::for_each(this->threads.begin(), this->threads.end(), do_join);
-}
-
-
-template <class row_label_type, class col_label_type>
-void graphWorkerArgs<row_label_type, col_label_type>::initialize()
-{
-    //initialize job queue
-    for (auto i : userSourceData.retrieveUniqueNetworkNodeIds()) {
-        jq.insert(i);
-    }
 }

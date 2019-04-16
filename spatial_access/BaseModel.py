@@ -11,6 +11,7 @@ import matplotlib.pyplot
 import json
 from spatial_access.p2p import TransitMatrix
 
+from spatial_access.SpatialAccessExceptions import UnrecognizedCategoriesException
 from spatial_access.SpatialAccessExceptions import SourceDataNotFoundException
 from spatial_access.SpatialAccessExceptions import DestDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceDataNotParsableException
@@ -18,32 +19,56 @@ from spatial_access.SpatialAccessExceptions import DestDataNotParsableException
 from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import ShapefileNotFoundException
+from spatial_access.SpatialAccessExceptions import ModelNotAggregatedException
+from spatial_access.SpatialAccessExceptions import ModelNotCalculatedException
+from spatial_access.SpatialAccessExceptions import ModelNotAggregatableException
 from spatial_access.SpatialAccessExceptions import SpatialIndexNotMatchedException
 from spatial_access.SpatialAccessExceptions import TooManyCategoriesToPlotException
 from spatial_access.SpatialAccessExceptions import UnexpectedPlotColumnException
 from spatial_access.SpatialAccessExceptions import AggregateOutputTypeNotExpectedException
+from spatial_access.SpatialAccessExceptions import UnexpectedAggregationTypeException
 
 
 import os.path
 import logging
 
 
-class ModelData(object):
+class ModelData:
     """
-    A parent class to hold/process data for more advanced geospatial
-    models like HSSAModel and PCSpendModel. The 'upper' argument in
-    the __init__ is the time (in seconds), above which a source and dest
-    are considered to be out of range of each other.
+    Common resources for spatial_access.Models.
     """
-
     def __init__(self, network_type, sources_filename,
                  destinations_filename,
                  source_column_names=None, dest_column_names=None,
-                 debug=False):
+                 walk_speed=None, bike_speed=None, debug=False):
+        """
+        Args:
+            network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
+            sources_filename: string, csv filename.
+            destinations_filename: string, csv filename.
+            source_column_names: dictionary, map column names to expected values.
+            dest_column_names: dictionary, map column names to expected values.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            debug: boolean, enable to see more detailed logging output.
+        """
         self.network_type = network_type
-        self._sp_matrix = None
+        self.transit_matrix = None
         self.dests = None
         self.sources = None
+        self.model_results = None
+        self.aggregated_results = None
+        self.all_categories = {}
+        self.focus_categories = {}
+
+        self.walk_speed = walk_speed
+        self.bike_speed = bike_speed
+
+        self._aggregation_args = {}
+        self._is_source = True
+        self._is_aggregatable = True
+        self._requires_user_aggregation_type = False
+        self._result_column_names = None
 
         self.sources_filename = sources_filename
         self.destinations_filename = destinations_filename
@@ -62,28 +87,37 @@ class ModelData(object):
         self.dests_in_range = {}
 
         # initialize logger
+        self.debug = debug
         self.logger = None
-        if debug:
-            self.set_logging('info')
-        else:
-            self.set_logging('debug')
+        self.set_logging(debug)
 
-    def write_shortest_path_matrix_to_csv(self, filename=None):
+    def write_transit_matrix_to_csv(self, filename=None):
         """
-        Write sp matrix to csv.
+        Args:
+            filename: string (or none, in which case a filename will
+            be automatically generated).
+        Write transit matrix to csv.
         """
-        self._sp_matrix.write_csv(filename)
+        self.transit_matrix.write_csv(filename)
 
-    def write_shortest_path_matrix_to_h5(self, filename=None):
+    def write_transit_matrix_to_tmx(self, filename=None):
         """
-        Write sp matrix to h5.
+        Args:
+            filename: string (or none, in which case a filename will
+            be automatically generated)
+        Write transit matrix to tmx.
         """
-        self._sp_matrix.write_h5(filename)
+        self.transit_matrix.write_tmx(filename)
 
     @staticmethod
-    def get_output_filename(keyword, extension='csv', file_path='data/'):
+    def _get_output_filename(keyword, extension='csv', file_path='data/'):
         """
-        Given a keyword, find an unused filename.
+        Args:
+            keyword: string such as "model_results" or "aggregated_results"
+                to build the filename.
+            extension: file type extension (no ".")
+            file_path: subdirectory.
+        Returns: string of unused filename.
         """
         if file_path is None:
             file_path = "data/"
@@ -97,95 +131,90 @@ class ModelData(object):
 
         return filename
 
-    def get_time(self, source, dest):
-        """
-        Return the time, in seconds, from source to dest.
-        """
-        time = self._sp_matrix.get(source, dest)
-
-        return time
-
     def get_population(self, source_id):
         """
-        Return the population at a source point.
+        Args:
+            source_id: string/int
+        Returns: the population at a source point.
         """
         return self.sources.loc[source_id, 'population']
 
     def get_capacity(self, dest_id):
         """
-        Return the capacity value at a dest point.
+        Args:
+            dest_id: string/int
+        Returns: the capacity value at a dest point.
         """
         return self.dests.loc[dest_id, 'capacity']
 
     def get_category(self, dest_id):
         """
-        Return the category value at a dest point.
+        Args:
+            dest_id: string/int
+        Returns: the category value at a dest point.
         """
         return self.dests.loc[dest_id, 'category']
 
-    def get_all_categories(self):
-        """
-        Return a list of all categories in the dest dataset.
-        """
-        return set(self.dests['category'])
-
     def get_all_dest_ids(self):
         """
-        Return all ids of destination data frame.
+        Returns: all ids of destination data frame.
         """
         return list(self.dests.index)
 
     def get_all_source_ids(self):
         """
-        Return all ids of source data frame.
+        Returns: all ids of source data frame.
         """
         return list(self.sources.index)
 
-    def get_ids_for_category(self, category='all_categories'):
+    def get_ids_for_category(self, category):
         """
         Given category, return an array of all indeces
         which match. If category is all_categories, return all indeces.
         """
-        if category == 'all_categories':
-            return list(self.dests.index)
         return list(self.dests[self.dests['category'] == category].index)
 
-    def set_logging(self, level=None):
+    def set_logging(self, debug):
         """
-        Set the logging level to debug or info
+        Args:
+            debug: set to true for more detailed logging
+                output.
         """
-        if not level:
-            return
 
-        if level == 'debug':
+        if debug:
             logging.basicConfig(level=logging.DEBUG)
-        elif level == 'info':
-            logging.basicConfig(level=logging.INFO)
         else:
-            return
+            logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def load_sp_matrix(self, filename=None):
+    def load_transit_matrix(self, read_from_tmx=None):
         """
-        Load the shortest path matrix; if a filename is supplied,
-        ModelData will attempt to load from file.
-        If filename is not supplied, ModelData will generate
-        a shortest path matrix using p2p (must be installed).
+        Load the transit matrix (and sources/dests).
+        Args:
+            read_from_tmx: filename of a tmx file to load.
+                This allows the user to bypass computing the
+                transit matrix from scratch. If read_from_tmx is
+                None, the user will be directed to compute the
+                transit matrix from given source/dest data.
+        Raises:
+            SourceDataNotFoundException: Cannot find source data.
+            DestDataNotFoundException: Cannot find dest data.
         """
-
-        if filename:
-            self._sp_matrix = TransitMatrix(self.network_type,
-                                            read_from_h5=filename)
-
+        if read_from_tmx:
+            self.transit_matrix = TransitMatrix(self.network_type,
+                                                read_from_tmx=read_from_tmx,
+                                                debug=self.debug)
         else:
-
-            self._sp_matrix = TransitMatrix(self.network_type,
-                                            primary_input=self.sources_filename,
-                                            secondary_input=self.destinations_filename,
-                                            primary_hints=self.source_column_names,
-                                            secondary_hints=self.dest_column_names)
+            self.transit_matrix = TransitMatrix(self.network_type,
+                                                primary_input=self.sources_filename,
+                                                secondary_input=self.destinations_filename,
+                                                primary_hints=self.source_column_names,
+                                                secondary_hints=self.dest_column_names,
+                                                walk_speed=self.walk_speed,
+                                                bike_speed=self.bike_speed,
+                                                debug=self.debug)
             try:
-                self._sp_matrix.process()
+                self.transit_matrix.process()
             except PrimaryDataNotFoundException:
                 raise SourceDataNotFoundException()
             except SecondaryDataNotFoundException:
@@ -193,9 +222,9 @@ class ModelData(object):
 
             # borrow hints for use in load_sources() and load_dests() if not user supplied
             if self._source_file_hints is None:
-                self._source_file_hints = self._sp_matrix.primary_hints
+                self._source_file_hints = self.transit_matrix.primary_hints
             if self._dest_file_hints is None:
-                self._dest_file_hints = self._sp_matrix.secondary_hints
+                self._dest_file_hints = self.transit_matrix.secondary_hints
 
         self.reload_sources()
         self.reload_dests()
@@ -204,11 +233,17 @@ class ModelData(object):
         """
         Load the source points for the model (from csv).
         For each point, the table should contain:
-            -unique identifier (integer or string)
-            -population (integer)
-        The field_mapping argument will be present if code is being called by the web app.
-        Otherwise the field_mapping default value of None will be passed in, and command
-        line prompts for user input will be executed.
+        -unique identifier (integer or string)
+        -latitude & longitude
+        -population (integer) [only for some models]
+
+        Args:
+            filename: string
+        Raises:
+            SourceDataNotFoundException: Cannot find source
+                data.
+            SourceDataNotParsableException: Provided source_column_names
+                do not correspond to column names.
         """
 
         if filename:
@@ -274,17 +309,22 @@ class ModelData(object):
         columns_to_keep = list(rename_cols.values())
         self.sources = self.sources[columns_to_keep]
 
-
     def reload_dests(self, filename=None):
         """
-        Load the destination points for the model (from csv).
+        Load the dest points for the model (from csv).
         For each point, the table should contain:
-            -unique identifier (integer or string)
-            -capacity value (integer or float)
-            -category (string)
-        The field_mapping argument will be present if code is being called by the web app.
-        Otherwise the field_mapping default value of None will be passed in, and command
-        line prompts for user input will be executed.
+        -unique identifier (integer or string)
+        -latitude & longitude
+        -category (string/int) [only for some models]
+        -capacity (numeric) [only for some models]
+
+        Args:
+            filename: string
+        Raises:
+            DestDataNotFoundException: Cannot find dest
+                data.
+            DestDataNotParsableException: Provided dest_column_names
+                do not correspond to column names.
         """
 
         if filename:
@@ -363,50 +403,68 @@ class ModelData(object):
         # drop unused columns
         columns_to_keep = list(rename_cols.values())
         self.dests = self.dests[columns_to_keep]
-
+        self.all_categories = set(self.dests['category'])
 
     def get_dests_in_range_of_source(self, source_id):
         """
-        Return a list of dest ids in range of the source
+        Args:
+            source_id: string/int
+        Returns: a list of dest ids in range of the source.
         """
         return self.dests_in_range[source_id]
 
     def get_sources_in_range_of_dest(self, dest_id):
         """
-        Return a list of source ids in range of the dest
+        Args:
+            dest_id: string/int
+        Returns: a list of source ids in range of the dest.
         """
         return self.sources_in_range[dest_id]
 
     def calculate_dests_in_range(self, upper_threshold):
         """
-        Return a dictionary of lists
+        Args:
+            upper_threshold: numeric, upper threshold of what
+                points are considered to be in range.
         """
-        self.dests_in_range = self._sp_matrix.matrix_interface.get_dests_in_range(upper_threshold)
+        self.dests_in_range = self.transit_matrix.matrix_interface.get_dests_in_range(upper_threshold)
 
     def calculate_sources_in_range(self, upper_threshold):
         """
-        Return a dictionary of lists
+        Args:
+            upper_threshold: numeric, upper threshold of what
+                points are considered to be in range.
         """
-        self.sources_in_range = self._sp_matrix.matrix_interface.get_sources_in_range(upper_threshold)
+        self.sources_in_range = self.transit_matrix.matrix_interface.get_sources_in_range(upper_threshold)
 
     def get_values_by_source(self, source_id, sort=False):
         """
-        Get a list of (dest_id, value) pairs, with the option
-        to sort in increasing order by value.
+        Args:
+            source_id: string/int
+            sort: boolean, set to true for return value
+                to be sorted in nondecreasing order.
+        Returns: list of (dest_id, value) pairs, with the option
+            to sort in increasing order by value.
         """
-        return self._sp_matrix.matrix_interface.get_values_by_source(source_id, sort)
+        return self.transit_matrix.matrix_interface.get_values_by_source(source_id, sort)
 
     def get_values_by_dest(self, dest_id, sort=False):
         """
-        Get a list of (source_id, value) pairs, with the option
-        to sort in increasing order by value.
+        Args:
+            dest_id: string/int
+            sort: boolean, set to true for return value
+                to be sorted in nondecreasing order.
+        Returns: a list of (source_id, value) pairs, with the option
+            to sort in increasing order by value.
         """
-        return self._sp_matrix.matrix_interface.get_values_by_dest(dest_id, sort)
+        return self.transit_matrix.matrix_interface.get_values_by_dest(dest_id, sort)
 
     def get_population_in_range(self, dest_id):
         """
-         Return the population within the capacity range for the given
-         destination id.
+        Args:
+            dest_id: string/int
+        Returns: the population within the capacity range for the given
+            destination id.
         """
         cumulative_population = 0
         for source_id in self.get_sources_in_range_of_dest(dest_id):
@@ -416,9 +474,9 @@ class ModelData(object):
 
         return cumulative_population
 
-    def map_categories_to_sp_matrix(self):
+    def _map_categories_to_sp_matrix(self):
         """
-        Map all categories-> associated dest_ids
+        Map all categories-> associated dest_ids.
         """
         for dest_id in self.get_all_dest_ids():
             associated_category = self.get_category(dest_id)
@@ -426,41 +484,55 @@ class ModelData(object):
 
     def _add_to_category_map(self, dest_id, category):
         """
+        Args:
+            dest_id: string/int
+            category: string
         Map the dest_id to the category in the
-        transit matrix.
+            transit matrix.
         """
-        self._sp_matrix.matrix_interface.add_to_category_map(dest_id, category)
+        self.transit_matrix.matrix_interface.add_to_category_map(dest_id, category)
 
     def time_to_nearest_dest(self, source_id, category):
         """
-        Return the time to nearest destination for source_id
-        of type category. If category is 'all_categories', return
-        the time to nearest destination of any type.
+        Args:
+            source_id: string/int
+            category: string
+        Returns: the time to nearest destination for source_id
+            of type category. If category is 'all_categories', return
+            the time to nearest destination of any type.
         """
         if category == 'all_categories':
-            return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, None)
+            return self.transit_matrix.matrix_interface.time_to_nearest_dest(source_id, None)
         else:
-            return self._sp_matrix.matrix_interface.time_to_nearest_dest(source_id, category)
+            return self.transit_matrix.matrix_interface.time_to_nearest_dest(source_id, category)
 
     def count_dests_in_range_by_categories(self, source_id, category, upper_threshold):
         """
-        Return the count of destinations in range
-        of the source id per category
+        Args:
+            source_id: int/string
+            category: string
+            upper_threshold: numeric, upper limit of what is
+                considered to be 'in range'.
+        Returns: the count of destinations in range
+            of the source id per category
         """
         if category == 'all_categories':
-            return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
-                                                                         upper_threshold,
-                                                                         None)
+            return self.transit_matrix.matrix_interface.count_dests_in_range(source_id,
+                                                                             upper_threshold,
+                                                                             None)
         else:
-            return self._sp_matrix.matrix_interface.count_dests_in_range(source_id,
-                                                                         upper_threshold,
-                                                                         category)
+            return self.transit_matrix.matrix_interface.count_dests_in_range(source_id,
+                                                                             upper_threshold,
+                                                                             category)
 
         # TODO: optimize this method
     def count_sum_in_range_by_categories(self, source_id, category):
         """
-        Return the count of destinations in range
-        of the source id per category
+        Args:
+            source_id: int/string
+            category: string
+        Returns: the count of destinations in range
+            of the source id per category
         """
         running_sum = 0
         for dest_id in self.get_dests_in_range_of_source(source_id):
@@ -471,15 +543,24 @@ class ModelData(object):
     def _print_data_frame(self):
         """
         Print the transit matrix.
+        Don't call this for anything other
+        than trivially small matrices.
         """
-        self._sp_matrix.matrix_interface.print_data_frame()
-
-
+        self.transit_matrix.matrix_interface.print_data_frame()
 
     def _spatial_join_community_index(self, dataframe, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
                                       spatial_index='community',  projection='epsg:4326'):
         """
-        Return a dataframe with community area data
+        Join the dataframe with location data from shapefile.
+        Args:
+            dataframe: pandas dataframe with unique id.
+            shapefile: shapefile containing geometry.
+            spatial_index: column names of aggregation area in shapefile.
+            projection: defaults to 'epsg:4326'
+        Returns: dataframe.
+        Raises:
+            ShapefileNotFoundException: Shapefile not found.
+            SpatialIndexNotMatchedException: spatial_index not found in shapefile.
         """
         geometry = [Point(xy) for xy in zip(dataframe['lon'], dataframe['lat'])]
         crs = {'init': projection}
@@ -506,62 +587,176 @@ class ModelData(object):
                                 .format(len(geo_result), len(dataframe)))
         return geo_result
 
-    def rejoin_results_with_coordinates(self, model_results, is_source):
+    def _rejoin_results_with_coordinates(self, model_results, is_source):
         """
-        Rejoin model results with coordinates.
+        Args:
+            model_results: dataframe
+            is_source: boolean (tells where to draw lat/long data from)
+        Returns: deep copty of dataframe with lat/long data.
         """
-        model_results_copy = model_results.copy(deep=True)
+        model_results = model_results.copy(deep=True)
         if is_source:
-            model_results_copy['lat'] = self.sources['lat']
-            model_results_copy['lon'] = self.sources['lon']
+            model_results['lat'] = self.sources['lat']
+            model_results['lon'] = self.sources['lon']
         else:
-            model_results_copy['lat'] = self.dests['lat']
-            model_results_copy['lon'] = self.dests['lon']
-        return model_results_copy
+            model_results['lat'] = self.dests['lat']
+            model_results['lon'] = self.dests['lon']
+        return model_results
 
-    def build_aggregate(self, model_results, is_source, aggregation_args,
-                        shapefile='data/chicago_boundaries/chicago_boundaries.shp',
-                        spatial_index='community',  projection='epsg:4326',
-                        rejoin_coordinates=True):
+    def _build_aggregate(self, data_frame, aggregation_args, shapefile, spatial_index, projection):
         """
-        Aggregate model results.
-        """
-        if rejoin_coordinates:
-            model_results = self.rejoin_results_with_coordinates(model_results, is_source)
+        Private method invoked to aggregate dataframe on spatial area.
+        Args:
+            data_frame: dataframe
+            aggregation_args: dictionary mapping each column name to the method by which that
+                column should be aggregated, e.g. mean, sum, etc...
+            shapefile: filename of shapefile
+            spatial_index: index of geospatial area in shapefile
+            projection: defaults to 'epsg:4326'
 
-        spatial_joined_results = self._spatial_join_community_index(dataframe=model_results,
+        Returns: aggregated data frame.
+
+        """
+        if 'lat' not in data_frame.columns or 'lon' not in data_frame.columns or 'spatial_index' not in data_frame.columns:
+            data_frame = self._spatial_join_community_index(dataframe=data_frame,
                                                                     shapefile=shapefile,
                                                                     spatial_index=spatial_index,
                                                                     projection=projection)
+        aggregated_data_frame = data_frame.groupby('spatial_index').agg(aggregation_args)
+        return aggregated_data_frame
 
-        aggregated_results = spatial_joined_results.groupby('spatial_index').agg(aggregation_args)
-        return aggregated_results
-
-    def write_aggregated_results(self, aggregated_results, output_type='csv', output_filename=None):
-        if output_filename is not None:
-            output_type = output_filename.split('.')[1]
+    def set_focus_categories(self, categories):
+        """
+        Set the categories that the model should perform computations for.
+        Args:
+            categories: list of categories.
+        Raises:
+            UnrecognizedCategoriesException: User passes categories not
+                found in the dest data.
+        """
+        if categories is None:
+            self.focus_categories = self.all_categories
         else:
-            output_filename = self.get_output_filename(keyword='aggregate',
+            self.focus_categories = categories
+            unrecognized_categories = set(categories) - self.all_categories
+            if len(unrecognized_categories) > 0:
+                raise UnrecognizedCategoriesException(','.join([category for category in unrecognized_categories]))
+
+
+    def aggregate(self, aggregation_type=None, shapefile='data/chicago_boundaries/chicago_boundaries.shp',
+                        spatial_index='community',  projection='epsg:4326'):
+        """
+
+        Args:
+            aggregation_type: string, required for models with multiple possiblities
+                for aggregating.
+            shapefile: filename of shapefile
+            spatial_index: index of geospatial area in shapefile
+            projection: defaults to 'epsg:4326'
+
+        Returns: aggregated data frame.
+
+        Raises:
+            ModelNotCalculatedException: If the model has not yet been
+                calculated.
+            UnexpectedAggregationTypeException: If the user passes an
+                unexpected aggregation type, or no aggregation type
+                when one is expected, or an aggregation type when none
+                is expected.
+        """
+        if self.model_results is None:
+            raise ModelNotCalculatedException()
+        if not self._is_aggregatable:
+            raise ModelNotAggregatableException()
+        if self._requires_user_aggregation_type:
+            if aggregation_type is None:
+                raise UnexpectedAggregationTypeException(aggregation_type)
+            else:
+                if aggregation_type not in {'min', 'max', 'mean'}:
+                    raise UnexpectedAggregationTypeException(aggregation_type)
+                else:
+                    self._aggregation_args = {}
+                    for column in self.model_results.columns:
+                        self._aggregation_args[column] = aggregation_type
+
+        else:
+            if aggregation_type is not None:
+                raise UnexpectedAggregationTypeException(aggregation_type)
+
+        results_with_coordinates = self._rejoin_results_with_coordinates(self.model_results, self._is_source)
+
+        self.aggregated_results = self._build_aggregate(data_frame=results_with_coordinates,
+                                                        aggregation_args=self._aggregation_args,
+                                                        shapefile=shapefile,
+                                                        spatial_index=spatial_index,
+                                                        projection=projection)
+        return self.aggregated_results
+
+    def write_aggregated_results(self, filename=None, output_type='csv'):
+        """
+        Args:
+            filename: file to write results. If none is given, a valid
+                filename will be automatically generated.
+            output_type: 'csv' or 'json'.
+
+        Raises:
+            AggregateOutputTypeNotExpectedException:
+
+        """
+        if filename is not None:
+            output_type = filename.split('.')[1]
+        else:
+            filename = self._get_output_filename(keyword='aggregate',
                                                        extension=output_type,
                                                        file_path='data/')
+
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+
         if output_type == 'csv':
-            aggregated_results.to_csv(output_filename)
+            self.aggregated_results.to_csv(filename)
         elif output_type == 'json':
             output = {}
-            for row in aggregated_results.itertuples():
+            for row in self.aggregated_results.itertuples():
                 output[row[0]] = {}
-                for i, column in enumerate(aggregated_results.columns):
+                for i, column in enumerate(self.aggregated_results.columns):
                     output[row[0]][column] = row[i + 1]
-            with open(output_filename, 'w') as file:
+            with open(filename, 'w') as file:
                 json.dump(output, file)
         else:
             raise AggregateOutputTypeNotExpectedException(output_type)
+
+    def write_results(self, filename=None):
+        """
+        Write results to csv.
+        Args:
+            filename: file to write results. If none is given, a valid
+            filename will be automatically generated.
+        Raises:
+            ModelNotCalculatedException: if model has not been calculated.
+        """ 
+        if self.model_results is None:
+            raise ModelNotCalculatedException()
+        if filename is None:
+            filename = self._get_output_filename(keyword='model',
+                                                extension='csv',
+                                                file_path='data/')
+        self.model_results.to_csv(filename)
+
 
     @staticmethod
     def _join_aggregated_data_with_boundaries(aggregated_results, spatial_index,
                                               shapefile='data/chicago_boundaries/chicago_boundaries.shp'):
         """
-        Join aggregated results with boundary geometry.
+        Args:
+            aggregated_results: dataframe
+            shapefile: filename of shapefile
+            spatial_index: index of geospatial area in shapefile
+
+        Returns: dataframe.
+
+        Raises:
+            ShapefileNotFoundException: shapefile not found.
         """
         try:
             boundaries_gdf = gpd.read_file(shapefile)
@@ -572,19 +767,43 @@ class ModelData(object):
         columns_to_keep.append(spatial_index)
 
         results = boundaries_gdf.merge(aggregated_results, left_on=spatial_index,
-                                       right_on='spatial_index', how='outer')
+                                       right_index=True, how='outer')
         results.fillna(value=0, inplace=True)
         return results[columns_to_keep]
 
-    def plot_cdf(self, model_results, plot_type, xlabel, ylabel, title,
-                 is_source, bins=100, is_density=False):
+    def plot_cdf(self, plot_type=None, xlabel="xlabel", ylabel="ylabel", title="title",
+                 bins=100, is_density=False, filename=None):
         """
-        Plot a cdf of the model results
+        Args:
+            plot_type: If the model has multiple possibilities to plot, specify which
+                one.
+            xlabel: xlabel for figure.
+            ylabel: ylabel for figure.
+            title: title for figure.
+            bins: integer, number of bins.
+            is_density: boolean, true for density plot.
+            filename: filename to write to.
+
+        Raises:
+            ModelNotAggregatedException: Model is not aggregated.
+            UnexpectedPlotColumnException: User passes unexpected plot type.
+            TooManyCategoriesToPlotException: Too many categories to plot.
         """
-        if is_source:
-            cdf_eligible = model_results[self.sources['population'] > 0]
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+
+        if self._is_source:
+            cdf_eligible = self.model_results[self.sources['population'] > 0]
         else:
-            cdf_eligible = model_results
+            cdf_eligible = self.model_results
+
+        if isinstance(self._result_column_names, str):
+            if plot_type is not None:
+                raise UnexpectedPlotColumnException(plot_type)
+            plot_type = self._result_column_names
+        else:
+            if plot_type is None:
+                raise UnexpectedPlotColumnException(plot_type)
 
         # initialize block parameters
         mpl.pyplot.close()
@@ -611,19 +830,36 @@ class ModelData(object):
         ax.set_title(title)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
-        fig_name = self.get_output_filename(keyword='figure', extension='png',
-                                            file_path='figures/')
-        mpl.pyplot.savefig(fig_name, dpi=400)
-        self.logger.info('Plot was saved to: {}'.format(fig_name))
+        if filename is None:
+            filename = self._get_output_filename(keyword='figure', extension='png',
+                                                file_path='figures/')
+        mpl.pyplot.savefig(filename, dpi=400)
+        self.logger.info('Plot was saved to: {}'.format(filename))
 
-    def plot_choropleth(self, aggregate_results, column, title, color_map,
-                        shapefile, spatial_index,
-                        categories=None):
+    def plot_choropleth(self, column, include_destinations=True, title='Title', color_map='Greens',
+                        shapefile='data/chicago_boundaries/chicago_boundaries.shp', spatial_index='community',
+                        filename=None):
         """
-        Plot a chloropleth of the aggregated results.
-        """
+        Args:
+            column: Which column to plot.
+            include_destinations: boolean, will plot circles for destinations if true.
+            title: Figure title.
+            color_map: See https://matplotlib.org/tutorials/colors/colormaps.html
+            shapefile: filename of shapefile
+            spatial_index: index of geospatial area in shapefile
+            filename: file to write figure to.
 
-        results_with_geometry = self._join_aggregated_data_with_boundaries(aggregated_results=aggregate_results,
+        Raises:
+            ModelNotAggregatedException: Model is not aggregated.
+            UnexpectedPlotColumnException: User passes unexpected column.
+        """
+        if self.aggregated_results is None:
+            raise ModelNotAggregatedException()
+        if include_destinations:
+            categories = self.focus_categories
+        else:
+            categories = None
+        results_with_geometry = self._join_aggregated_data_with_boundaries(aggregated_results=self.aggregated_results,
                                                                            spatial_index=spatial_index,
                                                                            shapefile=shapefile)
         if column not in results_with_geometry.columns:
@@ -659,9 +895,10 @@ class ModelData(object):
                     mpl.pyplot.legend(loc='best', handles=color_keys)
 
         mpl.pyplot.title(title)
-        fig_name = self.get_output_filename(keyword='figure', extension='png',
+        if filename is None:
+            filename = self._get_output_filename(keyword='figure', extension='png',
                                             file_path='figures/')
-        mpl.pyplot.savefig(fig_name, dpi=400)
+        mpl.pyplot.savefig(filename, dpi=400)
 
-        self.logger.info('Figure was saved to: {}'.format(fig_name))
-        return
+        self.logger.info('Figure was saved to: {}'.format(filename))
+
