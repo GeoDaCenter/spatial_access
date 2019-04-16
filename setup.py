@@ -61,6 +61,10 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.MatrixInterface',
                    'spatial_access.SpatialAccessExceptions']
 
+
+if 'RTD_BUILD' in os.environ and os.environ['RTD_BUILD'] == "TRUE":
+    REQUIRED_DEPENDENCIES = []
+
 setup(
     name = 'spatial_access',
     author = 'Logan Noel (lmnoel)',
