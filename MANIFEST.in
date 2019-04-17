@@ -1,5 +1,6 @@
 include setup.py
 include README.md
 include spatial_access/*
-include spatial_access/*.cpp
 include spatial_access/src/*
+include spatial_access/src/include/*
+include spatial_access/tests/*
