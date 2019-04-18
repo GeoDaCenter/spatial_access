@@ -282,6 +282,7 @@ class TransitMatrix:
         """
 
         start_time = time.time()
+
         edges = self._network_interface.edges
         if self.use_meters:
             edges['edge_weight'] = edges['distance']
@@ -294,6 +295,7 @@ class TransitMatrix:
         elif self.network_type == 'drive':
             driving_cost_matrix = self.configs.get_driving_cost_matrix()
             edges = pd.merge(edges, driving_cost_matrix, how='left', left_on='highway', right_index=True)
+            edges['unit_cost'].fillna(self.configs.default_drive_speed, inplace=True)
             edges['edge_weight'] = edges['distance'] / edges['unit_cost'] + self.configs.drive_node_penalty
 
         if self.network_type == 'walk' or self.network_type == 'bike':
@@ -305,7 +307,8 @@ class TransitMatrix:
 
         edges['from_loc'] = edges['from'].map(simple_node_indeces)
         edges['to_loc'] = edges['to'].map(simple_node_indeces)
-        edges['edge_weight'] = edges['edge_weight'].astype('int32')
+        import pdb; pdb.set_trace()
+        edges['edge_weight'] = edges['edge_weight'].astype('int16')
 
         from_column = list(edges['from_loc'])
         to_column = list(edges['to_loc'])
