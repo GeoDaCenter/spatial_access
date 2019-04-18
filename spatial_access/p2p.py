@@ -307,7 +307,6 @@ class TransitMatrix:
 
         edges['from_loc'] = edges['from'].map(simple_node_indeces)
         edges['to_loc'] = edges['to'].map(simple_node_indeces)
-        import pdb; pdb.set_trace()
         edges['edge_weight'] = edges['edge_weight'].astype('int16')
 
         from_column = list(edges['from_loc'])
