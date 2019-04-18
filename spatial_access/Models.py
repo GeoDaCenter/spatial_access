@@ -53,7 +53,7 @@ class Coverage(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+                 categories=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -61,8 +61,6 @@ class Coverage(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
             debug: boolean, enable to see more detailed logging output.
             transit_matrix_filename: string, optional
         """
@@ -71,8 +69,6 @@ class Coverage(ModelData):
                          source_column_names=source_column_names,
                          destinations_filename=destinations_filename,
                          dest_column_names=dest_column_names,
-                         bike_speed=bike_speed,
-                         walk_speed=walk_speed,
                          debug=debug)
         self.load_transit_matrix(transit_matrix_filename)
         self.set_focus_categories(categories=categories)

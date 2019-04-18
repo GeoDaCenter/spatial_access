@@ -284,13 +284,15 @@ class TransitMatrix:
         start_time = time.time()
 
         edges = self._network_interface.edges
+        print('input_walk_speed:', self.configs.walk_speed)
+        print('get walk speed:', self.configs.get_walk_speed())
         if self.use_meters:
             edges['edge_weight'] = edges['distance']
         elif self.network_type == 'walk':
-            edges['edge_weight'] = edges['distance'] * self.configs.get_walk_speed() \
+            edges['edge_weight'] = edges['distance'] / self.configs.get_walk_speed() \
                                         + self.configs.walk_node_penalty
         elif self.network_type == 'bike':
-            edges['edge_weight'] = edges['distance'] * self.configs.get_bike_speed() \
+            edges['edge_weight'] = edges['distance'] / self.configs.get_bike_speed() \
                                         + self.configs.bike_node_penalty
         elif self.network_type == 'drive':
             driving_cost_matrix = self.configs.get_driving_cost_matrix()
