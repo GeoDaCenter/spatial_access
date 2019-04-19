@@ -531,6 +531,16 @@ class AccessModel(ModelData):
             if not isinstance(value, list):
                 raise IncompleteCategoryDictException('category_weight_dict values should be arrays')
 
+    def _log_category_weight_dict(self, category_weight_dict):
+        """
+        Log the category_weight_dict in a useful format.
+        Args:
+            category_weight_dict: dictionary of arrays.
+        """
+        presented_weight_dict = {key : "No decay" for key in self.all_categories}
+        presented_weight_dict = {**presented_weight_dict, **category_weight_dict}
+        self.logger.info("Using weights: {}".format(presented_weight_dict))
+
     def calculate(self, category_weight_dict, upper_threshold,
                   normalize=True, normalize_type='linear'):
         """
@@ -553,6 +563,8 @@ class AccessModel(ModelData):
         # first, for the closest dest of that category
         category_weight_dict = {category: sorted(weights, reverse=True)
                                 for category, weights in category_weight_dict.items()}
+
+        self._log_category_weight_dict(category_weight_dict)
 
         # reserve results dict for each column
         num_columns = len(self.all_categories) + 1
