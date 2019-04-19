@@ -482,7 +482,7 @@ class AccessModel(ModelData):
                          bike_speed=bike_speed,
                          debug=debug)
         self.load_transit_matrix(transit_matrix_filename)
-        self._result_column_names = {'good_access', 'score'}
+        self._result_column_names = 'score'
 
     def set_decay_function(self, decay_function):
         """
@@ -520,29 +520,33 @@ class AccessModel(ModelData):
         Ensure category_weight_dict has the expected form.
         Args:
             category_weight_dict: dictionary of {category : [numeric weights]}
-
         Raises:
             IncompleteCategoryDictException: category_weight_dict does
-                not have all expected weights.
+                not have the expected format.
         """
         if not isinstance(category_weight_dict, dict):
             raise IncompleteCategoryDictException('category_weight_dict should be a dictionary')
 
-        if len(category_weight_dict) == 0:
-            raise IncompleteCategoryDictException('category_weight_dict cannot be empty')
-
         for value in category_weight_dict.values():
-            if not (isinstance(value, list) or isinstance(value, tuple)):
-                raise IncompleteCategoryDictException('category_weight_dict values should be arrays or tuples')
+            if not isinstance(value, list):
+                raise IncompleteCategoryDictException('category_weight_dict values should be arrays')
 
-    def calculate(self, category_weight_dict, upper_threshold, good_access_threshold=40,
+    def _log_category_weight_dict(self, category_weight_dict):
+        """
+        Log the category_weight_dict in a useful format.
+        Args:
+            category_weight_dict: dictionary of arrays.
+        """
+        presented_weight_dict = {key : "No decay" for key in self.all_categories}
+        presented_weight_dict = {**presented_weight_dict, **category_weight_dict}
+        self.logger.info("Using weights: {}".format(presented_weight_dict))
+
+    def calculate(self, category_weight_dict, upper_threshold,
                   normalize=True, normalize_type='linear'):
         """
         Args:
             category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]}
             upper_threshold: time in seconds.
-            good_access_threshold: time in seconds. The model will use this value
-                to determine which regions have 'good access'
             normalize: boolean. If true, results will be normalized
                 from 0 to 100.
             normalize_type: 'linear' or 'z_score'.
@@ -560,23 +564,17 @@ class AccessModel(ModelData):
         category_weight_dict = {category: sorted(weights, reverse=True)
                                 for category, weights in category_weight_dict.items()}
 
-        # warn the user if the data has more categories than their category_weight_dict
-        key_diffs = self.all_categories - set(max_category_occurances.keys())
-        for key in key_diffs:
-            max_category_occurances[key] = 0
-        if len(key_diffs) > 0:
-            self.logger.warning('Found these keys in data but not in category_weight_dict: {}'
-                                           .format(key_diffs))
+        self._log_category_weight_dict(category_weight_dict)
 
         # reserve results dict for each column
-        num_columns = len(category_weight_dict.keys()) + 1
+        num_columns = len(self.all_categories) + 1
         results = {source_id: [0] * num_columns for source_id in self.get_all_source_ids()}
 
         # map of column names
         category_to_index_map = {}
         column_names = ['all_categories_score']
         index = 1
-        for category in category_weight_dict.keys():
+        for category in self.all_categories:
             column_names.append(category + '_score')
             category_to_index_map[category] = index
             index += 1
@@ -588,12 +586,20 @@ class AccessModel(ModelData):
                 decayed_time = self.decay_function(time, upper_threshold)
                 category = self.get_category(dest_id)
                 category_occurances = category_encounters[category]
-                if category_occurances < max_category_occurances[category]:
+                # no weights supplied for this category; so don't decay
+                if category not in category_weight_dict:
+                    results[source_id][0] += decayed_time
+                    results[source_id][category_to_index_map[category]] += decayed_time
+                # weights supplied for this category, still haven't been used up
+                elif category_occurances < max_category_occurances[category]:
                     decayed_category_weight = category_weight_dict[category][category_occurances]
                     category_encounters[category] += 1
                     score_contribution = decayed_time * decayed_category_weight
                     results[source_id][0] += score_contribution
                     results[source_id][category_to_index_map[category]] += score_contribution
+                # weights for this category have been used up
+                else:
+                    continue
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
@@ -610,16 +616,9 @@ class AccessModel(ModelData):
         else:
             raise UnexpectedNormalizeColumnsException('Argument ({}) is not of expected type: boolean, list'
                                                       .format(normalize))
-        if good_access_threshold is not None:
-            for column in self.model_results.columns:
-                new_key = column.replace('_score', '_good_access')
-                self.model_results[new_key] = self.model_results[column] > good_access_threshold
 
         for column in self.model_results.columns:
-            if 'score' in column:
-                self._aggregation_args[column] = 'mean'
-            elif 'good_access' in column:
-                self._aggregation_args[column] = 'count'
+            self._aggregation_args[column] = 'mean'
 
         return self.model_results
 

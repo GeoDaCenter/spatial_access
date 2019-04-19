@@ -561,11 +561,34 @@ class TestClass:
             coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
         coverage_model.aggregate()
-        coverage_model.plot_cdf(plot_type='score', filename=self.datapath + 'test_23_a.png')
-        coverage_model.plot_choropleth('A_good_access', filename=self.datapath + 'test_23_c.png')
+        coverage_model.plot_cdf(filename=self.datapath + 'test_23_a.png')
         coverage_model.plot_choropleth('C_score', filename=self.datapath + 'test_23_d.png')
 
+
     def test_24(self):
+        """
+        Test AccessModel with aggregation and only some
+        category weights specified.
+        """
+        coverage_model = AccessModel('drive',
+                                     sources_filename='tests/test_data/sources_a.csv',
+                                     destinations_filename='tests/test_data/dests_b.csv',
+                                     source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'population': 'pop'},
+                                     dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'capacity': 'capacity', 'category': 'cat'},
+                                     decay_function='linear')
+
+        category_weight_dict = {'A': [5, 4, 3, 2, 1],
+                                'C': [1]}
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(
+            coverage_model.transit_matrix)
+        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        coverage_model.aggregate()
+        coverage_model.plot_cdf(filename=self.datapath + 'test_23_a.png')
+        coverage_model.plot_choropleth('C_score', filename=self.datapath + 'test_23_d.png')
+
+    def test_25(self):
         """
         Test get_results method
         """
@@ -588,7 +611,7 @@ class TestClass:
                                        'place_e',
                                        'place_f'}
 
-    def test_25(self):
+    def test_26(self):
         """
         Test get_results
         """
@@ -607,7 +630,7 @@ class TestClass:
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
-    def test_26(self):
+    def test_27(self):
         """
         Test AccessModel get_results.
         """
@@ -629,7 +652,7 @@ class TestClass:
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
-    def test_27(self):
+    def test_28(self):
         """
         Test AccessTime get_results
         """
@@ -648,7 +671,7 @@ class TestClass:
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
-    def test_28(self):
+    def test_29(self):
         """
         Test AccessCount get_results
         """
@@ -666,7 +689,7 @@ class TestClass:
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
-    def test_29(self):
+    def test_30(self):
         """
         Test AccessSum calculate and aggregate
         """
@@ -707,7 +730,7 @@ class TestClass:
             assert access_sum_model.model_results.loc[i]['sum_in_range_D'] == 0
 
 
-    def test_30(self):
+    def test_31(self):
         """
         Test DestSum calculation and aggregation.
         """
