@@ -12,8 +12,31 @@
 #
 import os
 import sys
+import unittest.mock
 sys.path.insert(0, os.path.abspath('../'))
 
+# mock modules
+
+MOCK_MODULES = ['fiona',
+                 'cython',
+                 'matplotlib',
+                 'jellyfish',
+                 'geopandas',
+                 'psutil',
+                 'pandas',
+                 'numpy',
+                 'osmnet',
+                 'scipy',
+                 'geopy',
+                 'shapely',
+                 'tables',
+                 'scikit_learn',
+                 'atlas',
+                 'descartes',
+                 'rtree',
+                 '_p2pExtension']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = unittest.mock.MagicMock()
 
 # -- Project information -----------------------------------------------------
 

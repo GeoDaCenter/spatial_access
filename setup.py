@@ -62,7 +62,7 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.SpatialAccessExceptions']
 
 
-if 'RTD_BUILD' in os.environ and os.environ['RTD_BUILD'] == "TRUE":
+if 'READTHEDOCS' in os.environ:
     REQUIRED_DEPENDENCIES = []
     EXTENSIONS = []
 
