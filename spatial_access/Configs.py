@@ -46,12 +46,14 @@ class Configs:
                             "grade5": 16,
                             "roundabout": 40}
 
+    DEFAULT_SPEED_LIMITS = {key : value * 0.4 for key, value in DEFAULT_SPEED_LIMITS.items()}
+
     def __init__(self, walk_speed=5,
                  bike_speed=15.5,
                  default_drive_speed=40,
                  walk_node_penalty=0,
                  bike_node_penalty=0,
-                 drive_node_penalty=0,
+                 drive_node_penalty=4,
                  speed_limit_dict=None):
         """
         Args:
@@ -99,7 +101,7 @@ class Configs:
         """
         return (self.bike_speed / self.ONE_HOUR) * self.ONE_KM
 
-    def get_drive_speed(self):
+    def get_default_drive_speed(self):
         """
         Returns: default drive speed in meters/second.
         """

@@ -284,18 +284,19 @@ class TransitMatrix:
         start_time = time.time()
 
         edges = self._network_interface.edges
+
         if self.use_meters:
             edges['edge_weight'] = edges['distance']
         elif self.network_type == 'walk':
-            edges['edge_weight'] = edges['distance'] * self.configs.get_walk_speed() \
+            edges['edge_weight'] = edges['distance'] / self.configs.get_walk_speed() \
                                         + self.configs.walk_node_penalty
         elif self.network_type == 'bike':
-            edges['edge_weight'] = edges['distance'] * self.configs.get_bike_speed() \
+            edges['edge_weight'] = edges['distance'] / self.configs.get_bike_speed() \
                                         + self.configs.bike_node_penalty
         elif self.network_type == 'drive':
             driving_cost_matrix = self.configs.get_driving_cost_matrix()
             edges = pd.merge(edges, driving_cost_matrix, how='left', left_on='highway', right_index=True)
-            edges['unit_cost'].fillna(self.configs.default_drive_speed, inplace=True)
+            edges['unit_cost'].fillna(self.configs.get_default_drive_speed(), inplace=True)
             edges['edge_weight'] = edges['distance'] / edges['unit_cost'] + self.configs.drive_node_penalty
 
         if self.network_type == 'walk' or self.network_type == 'bike':
@@ -347,7 +348,7 @@ class TransitMatrix:
         if self.use_meters:
             unit_cost = 1
         elif self.network_type == 'drive':
-            unit_cost = self.configs.get_drive_speed()
+            unit_cost = self.configs.get_default_drive_speed()
         elif self.network_type == 'walk':
             unit_cost = self.configs.get_walk_speed()
         elif self.network_type == 'bike':
