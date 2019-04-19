@@ -538,7 +538,6 @@ class AccessModel(ModelData):
     def calculate(self, category_weight_dict, upper_threshold, good_access_threshold=40,
                   normalize=True, normalize_type='linear'):
         """
-
         Args:
             category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]}
             upper_threshold: time in seconds.
@@ -547,9 +546,7 @@ class AccessModel(ModelData):
             normalize: boolean. If true, results will be normalized
                 from 0 to 100.
             normalize_type: 'linear' or 'z_score'.
-
         Returns: DataFrame.
-
         Raises:
             UnexpectedNormalizeColumnsException
         """
