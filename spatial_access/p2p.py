@@ -34,7 +34,7 @@ class TransitMatrix:
             network_type,
             primary_input=None,
             secondary_input=None,
-            read_from_tmx=None,
+            read_from_file=None,
             use_meters=False,
             primary_hints=None,
             secondary_hints=None,
@@ -49,7 +49,7 @@ class TransitMatrix:
             primary_input: string, csv filename.
             secondary_input: string, csv filename (omit to calculate an NxN matrix on
                 the primary_input).
-            read_from_tmx: string, tmx filename.
+            read_from_file: string, tmx or csv filename.
             use_meters: output will be in meters, not seconds.
             primary_hints: dictionary, map column names to expected values.
             secondary_hints: dictionary, map column names to expected values.
@@ -108,11 +108,11 @@ class TransitMatrix:
             raise DuplicateInputException("Gave duplicate inputs: {}".format(self.primary_input))
 
         # need to supply either:
-        if primary_input is None and read_from_tmx is None:
+        if primary_input is None and read_from_file is None:
             raise InsufficientDataException()
 
-        if read_from_tmx:
-            self.matrix_interface.read_tmx(read_from_tmx)
+        if read_from_file:
+            self.matrix_interface.read_file(read_from_file)
         if network_type == 'otp':
             self.matrix_interface.read_otp(primary_input)
 
