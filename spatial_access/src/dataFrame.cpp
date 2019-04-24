@@ -203,3 +203,8 @@ void dataFrame<unsigned long int, std::string>::readTMX(const std::string& filen
     initializeDatatsetSize();
 
 }
+
+template<> void dataFrame<unsigned long int, unsigned long int>::readCSV(const std::string &infile)
+{
+
+}
