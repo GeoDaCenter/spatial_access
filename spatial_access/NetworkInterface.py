@@ -84,9 +84,10 @@ class NetworkInterface:
         Returns: numeric area of the bounding box
             in km squared.
         """
-        lower_left_point = (self.bbox[1], self.bbox[0])
-        lower_right_point = (self.bbox[3], self.bbox[0])
-        upper_left_point = (self.bbox[1], self.bbox[2])
+        lat_min, lon_min, lat_max, lon_max = self.bbox
+        lower_right_point = (lat_min, lon_max)
+        lower_left_point = (lat_min, lon_min)
+        upper_left_point = (lat_max, lon_min)
         lower_edge = distance.distance(lower_left_point, lower_right_point).km
         left_edge = distance.distance(lower_left_point, upper_left_point).km
         area = lower_edge * left_edge
@@ -133,7 +134,7 @@ class NetworkInterface:
                 if self.logger:
                     self.logger.error('Supplied coordinates span too large an area')
                     self.logger.error('You can set disable_area_threshold to True if this is intentional')
-                raise BoundingBoxTooLargeException()
+                raise BoundingBoxTooLargeException(str(approx_area) + "km square")
 
     def _get_filename(self):
         """
