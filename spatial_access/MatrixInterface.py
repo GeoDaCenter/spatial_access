@@ -5,10 +5,14 @@
 import multiprocessing
 import time
 import os
+import csv
 
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
+from spatial_access.SpatialAccessExceptions import ReadCSVFailedException
+from spatial_access.SpatialAccessExceptions import ReadOTPCSVFailedException
+from spatial_access.SpatialAccessExceptions import UnrecognizedFileTypeException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
@@ -36,16 +40,17 @@ class MatrixInterface:
         self.primary_ids_are_string = False
         self.secondary_ids_are_string = False
 
-    def read_tmx(self, filename):
+    def _read_tmx(self, filename):
         """
         Read the transit matrix from binary format.
         (suitable for quickly saving/reloading for
         extended computations).
         Args:
-            filename: the .tmx file.
+            filename: filename with .tmx extension
         Raises:
             ReadTMXFailedException: file does not exist or is corrupted.
         """
+
         utils = _p2pExtension.pyTMXUtils()
         if not os.path.exists(filename):
             raise ReadTMXFailedException("{} does not exist".format(filename))
@@ -64,6 +69,70 @@ class MatrixInterface:
             self.transit_matrix.readTMX(filename)
         except BaseException:
             raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
+
+    def _read_csv(self, filename):
+        """
+        Read the transit matrix from MxN csv. Warning:
+        you shouldn't use this method! It can be up to 1000x slower
+        than the tmx format.
+        Args:
+            filename: filename with .csv extension
+        Raises:
+            ReadCSVFailedException: file does not exist or is corrupted.
+        """
+        if self.logger:
+            self.logger.warning("You should use tmx instead of csv for significantly better performance")
+        with open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            header = next(reader)
+            first_line = next(reader)
+
+        col_ids_are_int = True
+        row_ids_are_int = True
+        try:
+            int(header[0])
+        except ValueError:
+            col_ids_are_int = False
+        try:
+            int(first_line[0])
+        except ValueError:
+            row_ids_are_int = False
+        if row_ids_are_int and col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
+        elif row_ids_are_int and not col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS()
+        elif not row_ids_are_int and col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI()
+        elif not row_ids_are_int and not col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
+        else:
+            assert False, "Logic Error"
+
+        try:
+            self.transit_matrix.read_csv(filename)
+        except BaseException:
+            raise ReadCSVFailedException()
+
+    def read_file(self, filename):
+        """
+        Read the transit matrix from binary format.
+        (suitable for quickly saving/reloading for
+        extended computations).
+        Args:
+            filename: filename with .tmx or .csv extension
+        Raises:
+            UnrecognizedFileTypeException: filename without .tmx or .csv
+                extension.
+        """
+        if not os.path.exists(filename):
+            raise FileNotFoundError(filename)
+        extension = filename.split('.')[-1]
+        if extension == 'tmx':
+            self._read_tmx(filename)
+        elif extension == 'csv':
+            self._read_csv(filename)
+        else:
+            raise UnrecognizedFileTypeException(extension)
 
     def write_tmx(self, filename):
         """
@@ -98,9 +167,14 @@ class MatrixInterface:
         """
         Args:
             filename: otp csv.
+        Raises:
+            ReadOTPCSVFailedException
         """
-        self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
-        self.transit_matrix.readOTPCSV(filename)
+        try:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
+            self.transit_matrix.readOTPCSV(filename)
+        except BaseException:
+            raise ReadOTPCSVFailedException()
 
     def get_values_by_source(self, source_id, sort=False):
         """

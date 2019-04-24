@@ -59,7 +59,7 @@ class TestClass:
         interface.write_tmx(filename)
 
         interface2 = MatrixInterface()
-        interface2.read_tmx(filename)
+        interface2.read_file(filename)
 
         interface2.add_to_category_map(20, "a")
         interface2.add_to_category_map(21, "b")
@@ -112,7 +112,7 @@ class TestClass:
         interface.write_tmx(filename)
 
         interface2 = MatrixInterface()
-        interface2.read_tmx(filename)
+        interface2.read_file(filename)
 
         interface2.add_to_category_map("d", "cat_a")
         interface2.add_to_category_map("e", "cat_b")
@@ -128,8 +128,8 @@ class TestClass:
         """
         interface = MatrixInterface()
         try:
-            interface.read_tmx(self.datapath + "nonexistant_filename.tmx")
-        except ReadTMXFailedException:
+            interface.read_file(self.datapath + "nonexistant_filename.tmx")
+        except FileNotFoundError:
             return
         assert False
 

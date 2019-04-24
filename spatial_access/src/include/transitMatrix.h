@@ -400,6 +400,11 @@ public:
     }
 
     void
+    readCSV(const std::string &infile) {
+        df.readCSV(infile);
+    }
+
+    void
     readOTPCSV(const std::string &infile)
     {
         df.readOTPCSV(infile);
@@ -430,7 +435,6 @@ public:
         }
 
     }
-
 
 private:
     // Private Members

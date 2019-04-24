@@ -113,7 +113,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'capacity': 'capacity', 'category': 'cat'})
-            model_data.load_transit_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
+            model_data.load_transit_matrix(read_from_file=self.datapath + "score_model_test_1.tmx")
         except SourceDataNotParsableException:
             assert True
             return
@@ -131,7 +131,7 @@ class TestClass:
                                                         'population': 'pop'},
                                    dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
                                                       'wrong_key': 'capacity', 'category': 'cat'})
-            model_data.load_transit_matrix(read_from_tmx=self.datapath + "score_model_test_1.tmx")
+            model_data.load_transit_matrix(read_from_file=self.datapath + "score_model_test_1.tmx")
         except DestDataNotParsableException:
             assert True
             return

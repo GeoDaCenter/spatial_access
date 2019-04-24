@@ -7,6 +7,7 @@ from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataExc
 from spatial_access.SpatialAccessExceptions import UnknownModeException
 from spatial_access.SpatialAccessExceptions import InsufficientDataException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
+from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
 
 
 class TestClass:
@@ -112,7 +113,7 @@ class TestClass:
         filename = self.datapath + "test_7.tmx"
         transit_matrix_1.write_tmx(filename)
         transit_matrix_2 = TransitMatrix('walk',
-                                         read_from_tmx=filename)
+                                         read_from_file=filename)
 
         assert True
 
@@ -276,7 +277,7 @@ class TestClass:
         filename = self.datapath + 'test_23_file.tmx'
         transit_matrix_1.write_tmx(filename)
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_tmx=filename)
+        transit_matrix_2 = TransitMatrix('bike', read_from_file=filename)
 
         assert True
 
@@ -293,7 +294,7 @@ class TestClass:
         filename = self.datapath + 'test_24_file.tmx'
         transit_matrix_1.write_tmx(filename)
 
-        transit_matrix_2 = TransitMatrix('bike', read_from_tmx=filename)
+        transit_matrix_2 = TransitMatrix('bike', read_from_file=filename)
 
         assert True
 
@@ -326,3 +327,4 @@ class TestClass:
             assert False
         except AssertionError:
             return
+

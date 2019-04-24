@@ -320,7 +320,43 @@ public:
         writeToStream(std::cout);
     }
 
+    void readCSV(const std::string& infile)
+    {
+        std::ifstream fileIN;
+        fileIN.open(infile);
+        if (fileIN.fail())
+        {
+            throw std::runtime_error("unable to read file");
+        }
+
+        std::string line;
+        std::string row_label;
+        std::string column_id_line;
+
+        std::string value;
+        getline(fileIN, column_id_line);
+        this->colIds = readCSVColIds(column_id_line);
+        while (getline(fileIN, line))
+        {
+            this->dataset.emplace_back(std::vector<unsigned short int>());
+            std::istringstream stream(line);
+
+            getline(stream, row_label,',');
+            this->rowIds.push_back(readCSVRowId(row_label));
+            while(getline(stream, value, ','))
+            {
+                this->dataset.at(this->dataset.size() - 1).push_back(std::stol(value));
+            }
+        }
+        fileIN.close();
+        // TODO: initialize indeces, dataset size, and test
+    }
+
 private:
+
+    const std::vector<col_label_type> readCSVColIds(const std::string& line);
+    const row_label_type readCSVRowId(const std::string& line);
+
     bool
     writeToStream(std::ostream& streamToWrite) const
     {
