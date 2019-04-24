@@ -120,13 +120,13 @@ class NetworkInterface:
             composite_lon = list(primary_data['lon'])
             composite_lat = list(primary_data['lat'])
 
-        lat_max = max(composite_lon) + epsilon
-        lat_min = min(composite_lon) - epsilon
+        lat_max = max(composite_lat) + epsilon
+        lat_min = min(composite_lat) - epsilon
 
-        lon_max = max(composite_lat) + epsilon
-        lon_min = min(composite_lat) - epsilon
+        lon_max = max(composite_lon) + epsilon
+        lon_min = min(composite_lon) - epsilon
 
-        self.bbox = [lon_min, lat_min, lon_max, lat_max]
+        self.bbox = [lat_min, lon_min, lat_max, lon_max]
         if self.area_threshold:
             approx_area = self._approximate_bbox_area()
             if approx_area > self.area_threshold:
