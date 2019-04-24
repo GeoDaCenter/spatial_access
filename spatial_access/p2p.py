@@ -42,7 +42,8 @@ class TransitMatrix:
             walk_speed=None,
             bike_speed=None,
             epsilon=0.05,
-            debug=False):
+            debug=False,
+            configs=None):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -61,6 +62,8 @@ class TransitMatrix:
                 Increasing epsilon may result in increased accuracy for points
                 at the edge of the bounding box, but will increase computation times.
             debug: boolean, enable to see more detailed logging output.
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values.
 
         Raises:
             UnknownModeException: If the network type is unknown.
@@ -90,7 +93,12 @@ class TransitMatrix:
         self.set_logging(debug)
 
         # instantiate interfaces
-        self.configs = Configs()
+        if isinstance(configs, Configs):
+            self.logger.debug("set custom config")
+            self.configs = configs
+        else:
+            self.configs = Configs()
+
         self._network_interface = NetworkInterface(network_type, logger=self.logger,
                                                    disable_area_threshold=disable_area_threshold)
 
@@ -288,15 +296,15 @@ class TransitMatrix:
         if self.use_meters:
             edges['edge_weight'] = edges['distance']
         elif self.network_type == 'walk':
-            edges['edge_weight'] = edges['distance'] / self.configs.get_walk_speed() \
+            edges['edge_weight'] = edges['distance'] / self.configs._get_walk_speed() \
                                         + self.configs.walk_node_penalty
         elif self.network_type == 'bike':
-            edges['edge_weight'] = edges['distance'] / self.configs.get_bike_speed() \
+            edges['edge_weight'] = edges['distance'] / self.configs._get_bike_speed() \
                                         + self.configs.bike_node_penalty
         elif self.network_type == 'drive':
-            driving_cost_matrix = self.configs.get_driving_cost_matrix()
+            driving_cost_matrix = self.configs._get_driving_cost_matrix()
             edges = pd.merge(edges, driving_cost_matrix, how='left', left_on='highway', right_index=True)
-            edges['unit_cost'].fillna(self.configs.get_default_drive_speed(), inplace=True)
+            edges['unit_cost'].fillna(self.configs._get_default_drive_speed(), inplace=True)
             edges['edge_weight'] = edges['distance'] / edges['unit_cost'] + self.configs.drive_node_penalty
 
         if self.network_type == 'walk' or self.network_type == 'bike':
@@ -348,11 +356,13 @@ class TransitMatrix:
         if self.use_meters:
             unit_cost = 1
         elif self.network_type == 'drive':
-            unit_cost = self.configs.get_default_drive_speed()
+            unit_cost = self.configs._get_default_drive_speed()
         elif self.network_type == 'walk':
-            unit_cost = self.configs.get_walk_speed()
+            unit_cost = self.configs._get_walk_speed()
         elif self.network_type == 'bike':
-            unit_cost = self.configs.get_bike_speed()
+            unit_cost = self.configs._get_bike_speed()
+        else:
+            assert False, "Unknown type"
 
         # map each node in the source/dest data to the nearest
         # corresponding node in the OSM network

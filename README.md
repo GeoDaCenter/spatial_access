@@ -95,6 +95,19 @@ version on PyPi, or it will be rejected.
 To update PyPi access credentials, see .travis.yml and follow the instructions at https://docs.travis-ci.com/user/deployment/pypi/
 to generate a new encrypted password.
 
+### Overwriting default configuration values
+p2p provides default configuration values for edge weights and node impedence (see spatial_access/configs.py).
+You can overwrite these as follows:
+```
+from spatial_access.p2p import TransitMatrix
+from spatial_access.Configs import Configs
+custom_config = Configs()
+# set fields of custom_cofig
+tm = TransitMatrix(..., configs=custom_config)
+# continue with computation 
+```
+
+
 ### Installing Ubuntu 18 LTS with dependencies from scratch (recommended for Windows users)
 
 1. Follow the instructions at this link: https://linus.nci.nih.gov/bdge/installUbuntu.html to set up a virtual machine

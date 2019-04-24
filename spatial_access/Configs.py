@@ -81,7 +81,7 @@ class Configs:
         else:
             self.speed_limit_dict = speed_limit_dict
 
-    def get_driving_cost_matrix(self):
+    def _get_driving_cost_matrix(self):
         """
         Returns: DataFrame of edge unit costs.
         """
@@ -89,19 +89,19 @@ class Configs:
                                       orient='index',
                                       columns=['unit_cost'])
 
-    def get_walk_speed(self):
+    def _get_walk_speed(self):
         """
         Returns: walk speed in meters/second.
         """
         return (self.walk_speed / self.ONE_HOUR) * self.ONE_KM
 
-    def get_bike_speed(self):
+    def _get_bike_speed(self):
         """
         Returns: bike speed in meters/second.
         """
         return (self.bike_speed / self.ONE_HOUR) * self.ONE_KM
 
-    def get_default_drive_speed(self):
+    def _get_default_drive_speed(self):
         """
         Returns: default drive speed in meters/second.
         """
