@@ -525,7 +525,7 @@ class AccessModel(ModelData):
                 not have the expected format.
         """
         if not isinstance(category_weight_dict, dict):
-            raise IncompleteCategoryDictException('category_weight_dict should be a dictionary')
+            raise IncompleteCategoryDictException('category_weight_dict should be a dictionary or None')
 
         for value in category_weight_dict.values():
             if not isinstance(value, list):
@@ -541,11 +541,11 @@ class AccessModel(ModelData):
         presented_weight_dict = {**presented_weight_dict, **category_weight_dict}
         self.logger.info("Using weights: {}".format(presented_weight_dict))
 
-    def calculate(self, category_weight_dict, upper_threshold,
+    def calculate(self, upper_threshold, category_weight_dict=None,
                   normalize=True, normalize_type='linear'):
         """
         Args:
-            category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]}
+            category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]} or None
             upper_threshold: time in seconds.
             normalize: boolean. If true, results will be normalized
                 from 0 to 100.
@@ -554,7 +554,10 @@ class AccessModel(ModelData):
         Raises:
             UnexpectedNormalizeColumnsException
         """
-        self._test_category_weight_dict(category_weight_dict)
+        if category_weight_dict is None:
+            category_weight_dict = {}
+        else:
+            self._test_category_weight_dict(category_weight_dict)
 
         # create a quick reference for the number of times to include a dest in each category
         max_category_occurances = {category: len(weights) for category, weights in category_weight_dict.items()}

@@ -371,14 +371,14 @@ class TestClass:
                                    decay_function='linear')
         try:
             category_weight_dict = [1, 2, 4, 5]
-            access_model.calculate(category_weight_dict, upper_threshold=200)
+            access_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200)
             assert False
         except IncompleteCategoryDictException:
             assert True
 
         try:
             category_weight_dict = {'A': [1, 2, 3, 4], 'D': 4, 'C': [5, 6, 8, 5, 3]}
-            access_model.calculate(category_weight_dict, upper_threshold=200)
+            access_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200)
             assert False
         except IncompleteCategoryDictException:
             assert True
@@ -400,7 +400,7 @@ class TestClass:
                                 'D': [4, 3, 1],
                                 'C': [1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True)
 
         assert coverage_model.model_results['all_categories_score'].max() == 100
         assert coverage_model.model_results['all_categories_score'].min() >= 0
@@ -422,7 +422,7 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=False)
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200, normalize=False)
 
     def test_18(self):
         """
@@ -441,7 +441,7 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict, upper_threshold=200, normalize=['A'])
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200, normalize=['A'])
 
         assert coverage_model.model_results['A_score'].max() == 100
         assert coverage_model.model_results['A_score'].min() >= 0
@@ -559,7 +559,7 @@ class TestClass:
                                 'C': [1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(
             coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True)
         coverage_model.aggregate()
         coverage_model.plot_cdf(filename=self.datapath + 'test_23_a.png')
         coverage_model.plot_choropleth('C_score', filename=self.datapath + 'test_23_d.png')
@@ -583,7 +583,7 @@ class TestClass:
                                 'C': [1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(
             coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True)
         coverage_model.aggregate()
         coverage_model.plot_cdf(filename=self.datapath + 'test_23_a.png')
         coverage_model.plot_choropleth('C_score', filename=self.datapath + 'test_23_d.png')
@@ -648,7 +648,7 @@ class TestClass:
                                 'C': [1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(
             coverage_model.transit_matrix)
-        results = coverage_model.calculate(category_weight_dict, upper_threshold=700, normalize=True)
+        results = coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True)
 
         assert list(results.index) == [3, 4, 5, 6, 7, 8]
 
@@ -753,3 +753,19 @@ class TestClass:
         assert almost_equal(model_results.loc["HYDE PARK", 'C_per_capita'], 1.2197)
         assert almost_equal(model_results.loc["HYDE PARK", 'all_categories_per_capita'], 3.403)
 
+    def test_32(self):
+        coverage_model = AccessModel('drive',
+                                     sources_filename='tests/test_data/sources_a.csv',
+                                     destinations_filename='tests/test_data/dests_b.csv',
+                                     source_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                          'population': 'pop'},
+                                     dest_column_names={'idx': 'name', 'lat': 'y', 'lon': 'x',
+                                                        'capacity': 'capacity', 'category': 'cat'},
+                                     decay_function='linear')
+
+
+        coverage_model.transit_matrix = self.mock_transit_matrix_values(
+            coverage_model.transit_matrix)
+        results = coverage_model.calculate(upper_threshold=700, normalize=True)
+
+        assert list(results.index) == [3, 4, 5, 6, 7, 8]
