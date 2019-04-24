@@ -204,7 +204,51 @@ void dataFrame<unsigned long int, std::string>::readTMX(const std::string& filen
 
 }
 
-template<> void dataFrame<unsigned long int, unsigned long int>::readCSV(const std::string &infile)
+// TODO fill this in for each permutation
+template<>
+const std::vector<unsigned long int> dataFrame<unsigned long int, unsigned long int>::readCSVColIds(const std::string& line)
+{
+
+}
+
+template <>
+const unsigned long int dataFrame<unsigned long int, unsigned long int>::readCSVRowId(const std::string& line)
+{
+
+}
+
+template<>
+const std::vector<std::string> dataFrame<unsigned long int, std::string>::readCSVColIds(const std::string& line)
+{
+
+}
+
+template <>
+const unsigned long int dataFrame<unsigned long int, std::string>::readCSVRowId(const std::string& line)
+{
+
+}
+
+template<>
+const std::vector<unsigned long int> dataFrame<std::string, unsigned long int>::readCSVColIds(const std::string& line)
+{
+
+}
+
+template <>
+const std::string dataFrame<std::string, unsigned long int>::readCSVRowId(const std::string& line)
+{
+
+}
+
+template<>
+const std::vector<std::string> dataFrame<std::string, std::string>::readCSVColIds(const std::string& line)
+{
+
+}
+
+template <>
+const std::string dataFrame<std::string, std::string>::readCSVRowId(const std::string& line)
 {
 
 }

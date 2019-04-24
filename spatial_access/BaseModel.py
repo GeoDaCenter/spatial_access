@@ -187,22 +187,22 @@ class ModelData:
             logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
-    def load_transit_matrix(self, read_from_tmx=None):
+    def load_transit_matrix(self, read_from_file=None):
         """
         Load the transit matrix (and sources/dests).
         Args:
-            read_from_tmx: filename of a tmx file to load.
+            read_from_file: filename of a tmx or csv file to load.
                 This allows the user to bypass computing the
-                transit matrix from scratch. If read_from_tmx is
+                transit matrix from scratch. If read_from_file is
                 None, the user will be directed to compute the
                 transit matrix from given source/dest data.
         Raises:
             SourceDataNotFoundException: Cannot find source data.
             DestDataNotFoundException: Cannot find dest data.
         """
-        if read_from_tmx:
+        if read_from_file:
             self.transit_matrix = TransitMatrix(self.network_type,
-                                                read_from_tmx=read_from_tmx,
+                                                read_from_file=read_from_file,
                                                 debug=self.debug)
         else:
             self.transit_matrix = TransitMatrix(self.network_type,
