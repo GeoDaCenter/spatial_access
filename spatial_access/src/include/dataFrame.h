@@ -320,6 +320,8 @@ public:
         writeToStream(std::cout);
     }
 
+    void readCSV(const std::string& infile);
+
 private:
     bool
     writeToStream(std::ostream& streamToWrite) const

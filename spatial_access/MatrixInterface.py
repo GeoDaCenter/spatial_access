@@ -5,10 +5,14 @@
 import multiprocessing
 import time
 import os
+import csv
 
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import ReadTMXFailedException
+from spatial_access.SpatialAccessExceptions import ReadCSVFailedException
+from spatial_access.SpatialAccessExceptions import ReadOTPCSVFailedException
+from spatial_access.SpatialAccessExceptions import UnrecognizedFileTypeException
 from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
@@ -76,7 +80,38 @@ class MatrixInterface:
         Raises:
             ReadCSVFailedException: file does not exist or is corrupted.
         """
-        pass
+        if self.logger:
+            self.logger.warning("You should use tmx instead of csv for significantly better performance")
+        with open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            header = next(reader)
+            first_line = next(reader)
+
+        col_ids_are_int = True
+        row_ids_are_int = True
+        try:
+            int(header[0])
+        except ValueError:
+            col_ids_are_int = False
+        try:
+            int(first_line[0])
+        except ValueError:
+            row_ids_are_int = False
+        if row_ids_are_int and col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
+        elif row_ids_are_int and not col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS()
+        elif not row_ids_are_int and col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI()
+        elif not row_ids_are_int and not col_ids_are_int:
+            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
+        else:
+            assert False, "Logic Error"
+
+        try:
+            self.transit_matrix.read_csv(filename)
+        except BaseException:
+            raise ReadCSVFailedException()
 
     def read_file(self, filename):
         """
@@ -89,6 +124,8 @@ class MatrixInterface:
             UnrecognizedFileTypeException: filename without .tmx or .csv
                 extension.
         """
+        if not os.path.exists(filename):
+            raise FileNotFoundError(filename)
         extension = filename.split('.')[-1]
         if extension == 'tmx':
             self._read_tmx(filename)
