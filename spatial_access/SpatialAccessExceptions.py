@@ -76,6 +76,16 @@ class ReadTMXFailedException(MatrixInterfaceException):
         super().__init__("ReadTMXFailedException:" + errors)
 
 
+class ReadCSVFailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("ReadCSVFailedException:" + errors)
+
+
+class ReadOTPCSVFailedException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("ReadOTPCSVFailedException:" + errors)
+
+
 class IndecesNotFoundException(MatrixInterfaceException):
     def __init__(self, errors=''):
         super().__init__("IndecesNotFoundException:" + errors)
@@ -184,6 +194,11 @@ class UnrecognizedCategoriesException(ModelException):
 class UnrecognizedDecayFunctionException(ModelException):
     def __init__(self, errors=''):
         super().__init__("UnrecognizedDecayFunctionException:" + errors)
+
+
+class UnrecognizedFileTypeException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnrecognizedFileTypeException:" + errors)
 
 
 class IncompleteCategoryDictException(ModelException):
