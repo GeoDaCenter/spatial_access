@@ -38,6 +38,7 @@ cdef extern from "include/transitMatrix.h":
         void writeCSV(string) except +
         void writeTMX(string) except +
         void readTMX(string) except +
+        void readCSV(string) except +
         void readOTPCSV(string) except +
         void printDataFrame() except +
 
@@ -66,6 +67,7 @@ cdef extern from "include/transitMatrix.h":
 
         void writeCSV(string) except +
         void writeTMX(string) except +
+        void readCSV(string) except +
         void readTMX(string) except +
         void printDataFrame() except +
 
@@ -95,6 +97,7 @@ cdef extern from "include/transitMatrix.h":
 
         void writeCSV(string) except +
         void writeTMX(string) except +
+        void readCSV(string) except +
         void readTMX(string) except +
         void printDataFrame() except +
 
@@ -124,6 +127,7 @@ cdef extern from "include/transitMatrix.h":
 
         void writeCSV(string) except +
         void writeTMX(string) except +
+        void readCSV(string) except +
         void readTMX(string) except +
         void printDataFrame() except +
 
@@ -208,6 +212,10 @@ cdef class pyTransitMatrixIxI:
     def readTMX(self, infile):
         cdef string infile_string = str.encode(infile)
         self.thisptr.readTMX(infile_string)
+
+    def readCSV(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readCSV(infile_string)
 
     def readOTPCSV(self, infile):
         cdef string infile_string = str.encode(infile)
@@ -318,6 +326,10 @@ cdef class pyTransitMatrixIxS:
         cdef string infile_string = str.encode(infile)
         self.thisptr.readTMX(infile_string)
 
+    def readCSV(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readCSV(infile_string)
+
     def printDataFrame(self):
         self.thisptr.printDataFrame()
 
@@ -413,6 +425,10 @@ cdef class pyTransitMatrixSxI:
     def readTMX(self, infile):
         cdef string infile_string = str.encode(infile)
         self.thisptr.readTMX(infile_string)
+
+    def readCSV(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readCSV(infile_string)
 
     def printDataFrame(self):
         self.thisptr.printDataFrame()
@@ -530,6 +546,10 @@ cdef class pyTransitMatrixSxS:
     def readTMX(self, infile):
         cdef string infile_string = str.encode(infile)
         self.thisptr.readTMX(infile_string)
+
+    def readCSV(self, infile):
+        cdef string infile_string = str.encode(infile)
+        self.thisptr.readCSV(infile_string)
 
     def printDataFrame(self):
         self.thisptr.printDataFrame()

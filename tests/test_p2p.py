@@ -300,7 +300,7 @@ class TestClass:
 
     def test_25(self):
         """
-        Tests write tmx with bad filename (symmetric).
+        Tests write file with bad filename (symmetric).
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('walk',
@@ -328,3 +328,19 @@ class TestClass:
         except AssertionError:
             return
 
+    def test_27(self):
+        """
+        Test write_csv/read_file
+        """
+        hints = {'idx': 'name', 'lat': 'y', 'lon': 'x'}
+        transit_matrix_1 = TransitMatrix('walk',
+                                         primary_input='tests/test_data/sources.csv',
+                                         primary_hints=hints)
+
+        transit_matrix_1.process()
+        transit_matrix_1.matrix_interface.print_data_frame()
+        filename = self.datapath + 'test_27_file.csv'
+        transit_matrix_1.write_csv(filename)
+
+        transit_matrix_2 = TransitMatrix('walk', read_from_file=filename)
+        transit_matrix_2.matrix_interface.print_data_frame()
