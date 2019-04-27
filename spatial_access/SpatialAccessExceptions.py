@@ -116,6 +116,11 @@ class SecondaryDataNotFoundException(P2PException):
         super().__init__("SecondaryDataNotFoundException:" + errors)
 
 
+class ImproperIndecesTypeException(P2PException):
+    def __init__(self, errors=''):
+        super().__init__("ImproperIndecesTypeException:" + errors)
+
+
 class UnableToParsePrimaryDataException(P2PException):
     def __init__(self, errors=''):
         super().__init__("UnableToParsePrimaryDataException:" + errors)
