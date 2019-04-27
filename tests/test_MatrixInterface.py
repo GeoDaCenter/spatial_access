@@ -183,3 +183,38 @@ class TestClass:
         """
         interface = MatrixInterface()
         interface.read_otp("tests/test_data/sample_otp.csv")
+
+    def test_7(self):
+        """
+        Test write/read csv
+        """
+        interface = MatrixInterface()
+        interface.prepare_matrix(is_symmetric=False,
+                                 is_compressible=False,
+                                 rows=3,
+                                 columns=2,
+                                 network_vertices=4)
+        from_column = [0, 1, 0, 3, 0]
+        to_column = [1, 0, 3, 2, 2]
+        weight_column = [3, 4, 5, 7, 2]
+        is_bidirectional_column = [False, False, False, False, True]
+        interface.add_edges_to_graph(from_column=from_column,
+                                     to_column=to_column,
+                                     edge_weight_column=weight_column,
+                                     is_bidirectional_column=is_bidirectional_column)
+
+        interface.add_user_source_data(2, 10, 5, False)
+        interface.add_user_source_data(1, 11, 4, False)
+        interface.add_user_source_data(0, 12, 1, False)
+
+        interface.add_user_dest_data(0, 21, 4)
+        interface.add_user_dest_data(3, 20, 6)
+
+        interface.build_matrix()
+        filename = self.datapath + "test_7.csv"
+        interface.write_csv(filename)
+        interface.print_data_frame()
+        interface2 = MatrixInterface()
+        interface2.read_file(filename)
+        interface2.print_data_frame()
+

@@ -9,6 +9,7 @@ spatial_access/src/matrix.dSYM/Contents
 logs/
 *.DS_Store 
 *.pyc
+spatial_access/src/_p2pExtension.cpp
 spatial_access/logs/
 build/
 data/matrices

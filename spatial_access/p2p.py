@@ -9,6 +9,7 @@ import os
 import scipy.spatial
 from geopy import distance
 import pandas as pd
+from numpy import issubdtype, integer, signedinteger
 
 from spatial_access.MatrixInterface import MatrixInterface
 from spatial_access.NetworkInterface import NetworkInterface
@@ -23,6 +24,7 @@ from spatial_access.SpatialAccessExceptions import InsufficientDataException
 from spatial_access.SpatialAccessExceptions import DuplicateInputException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
 from spatial_access.SpatialAccessExceptions import WriteCSVFailedException
+from spatial_access.SpatialAccessExceptions import ImproperIndecesTypeException
 
 
 class TransitMatrix:
@@ -166,6 +168,21 @@ class TransitMatrix:
 
         return filename
 
+    def _get_type_of_series(self, series):
+        """
+        Returns: type of the series (int16, int32, int64, int128 or str)
+
+        Raises:
+            ImproperIndecesTypeException: If the series
+            is not one of the expected types.
+        """
+
+        if type(series[0]) == str:
+            return str
+        elif issubdtype(series.dtype, integer) or issubdtype(series.dtype, signedinteger):
+            return integer
+        raise ImproperIndecesTypeException(str(series.dtype))
+
     def _parse_csv(self, primary):
         """
         Load source data from .csv. Identify lon, lon and id columns.
@@ -230,9 +247,9 @@ class TransitMatrix:
 
         # set index and clean
         if primary:
-            self.matrix_interface.primary_ids_are_string = source_data[idx].dtype != int
+            self.matrix_interface.primary_ids_are_string = self._get_type_of_series(source_data[idx]) == str
         else:
-            self.matrix_interface.secondary_ids_are_string = source_data[idx].dtype != int
+            self.matrix_interface.secondary_ids_are_string = self._get_type_of_series(source_data[idx]) == str
         source_data.set_index(idx, inplace=True)
 
         source_data.rename(columns={lon: 'lon', lat: 'lat'}, inplace=True)

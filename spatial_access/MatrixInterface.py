@@ -109,7 +109,7 @@ class MatrixInterface:
             assert False, "Logic Error"
 
         try:
-            self.transit_matrix.read_csv(filename)
+            self.transit_matrix.readCSV(filename)
         except BaseException:
             raise ReadCSVFailedException()
 
@@ -297,7 +297,7 @@ class MatrixInterface:
 
         logger_vars = time.time() - start_time
         if self.logger:
-            self.logger.info('Shortest path matrix computed in {:,.2f} seconds'
+            self.logger.debug('Shortest path matrix computed in {:,.2f} seconds'
                              .format(logger_vars))
 
     def get_dests_in_range(self, threshold):
