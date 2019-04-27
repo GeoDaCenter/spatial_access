@@ -10,6 +10,7 @@ install:
 - sudo apt-get install libspatialindex-dev
 - pip3 install cython
 - pip3 install osmnet
+- pip3 install bumpversion
 - bash cythonize_extension.sh
 - python3 setup.py sdist build_ext
 - python3 setup.py install
