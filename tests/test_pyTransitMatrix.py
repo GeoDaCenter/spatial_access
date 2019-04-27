@@ -29,7 +29,7 @@ class TestClass:
 
     dest_data_int = [(0, 21, 4), (3, 20, 6)]
 
-    int_to_string_map = {10:"a", 11:"b", 12:"c", 20:"d", 21:"e"}
+    int_to_string_map = {10:b"a", 11:b"b", 12:b"c", 20:b"d", 21:b"e"}
 
     def _prepare_transit_matrix(self, use_symmetric_edges, is_compressible, is_symmetric, source_is_string,
                                 dest_is_string):
@@ -109,10 +109,10 @@ class TestClass:
         assert matrix.countDestsInRange(10, 7) == 2
 
         filename = self.datapath + 'test_1.tmx'
-        matrix.writeTMX(filename)
+        matrix.writeTMX(filename.encode('utf-8'))
 
         matrix2 = _p2pExtension.pyTransitMatrixIxI()
-        matrix2.readTMX(filename)
+        matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(5) == {10: [10, 11],
                                              11: [10, 11],
@@ -166,10 +166,10 @@ class TestClass:
         assert matrix.countDestsInRange(10, 10) == 1
 
         filename = self.datapath + 'test_2.tmx'
-        matrix.writeTMX(filename)
+        matrix.writeTMX(filename.encode('utf-8'))
 
         matrix2 = _p2pExtension.pyTransitMatrixIxI()
-        matrix2.readTMX(filename)
+        matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(12) == {10: [21],
                                               11: [21],
@@ -203,51 +203,51 @@ class TestClass:
 
         matrix.compute(1)
 
-        assert matrix.getDestsInRange(5) == {"a": ["a", "b"],
-                                             "b": ["a", "b"],
-                                             "c": ["c"]}
+        assert matrix.getDestsInRange(5) == {b"a": [b"a", b"b"],
+                                             b"b": [b"a", b"b"],
+                                             b"c": [b"c"]}
 
-        assert matrix.getSourcesInRange(8) == {"a": ["a", "b", "c"],
-                                               "b": ["a", "b"],
-                                               "c": ["a", "c"]}
+        assert matrix.getSourcesInRange(8) == {b"a": [b"a", b"b", b"c"],
+                                               b"b": [b"a", b"b"],
+                                               b"c": [b"a", b"c"]}
 
-        assert matrix.getValuesBySource("a", True) == [("a", 0), ("b", 5), ("c", 8)]
+        assert matrix.getValuesBySource(b"a", True) == [(b"a", 0), (b"b", 5), (b"c", 8)]
 
-        assert matrix.getValuesBySource("b", False) == [("a", 5), ("b", 0), ("c", 10)]
+        assert matrix.getValuesBySource(b"b", False) == [(b"a", 5), (b"b", 0), (b"c", 10)]
 
-        assert matrix.getValuesByDest("a", False) == [("a", 0), ("b", 5), ("c", 8)]
+        assert matrix.getValuesByDest(b"a", False) == [(b"a", 0), (b"b", 5), (b"c", 8)]
 
-        assert matrix.getValuesByDest("b", True) == [("b", 0), ("a", 5), ("c", 10)]
+        assert matrix.getValuesByDest(b"b", True) == [(b"b", 0), (b"a", 5), (b"c", 10)]
 
-        assert matrix.timeToNearestDest("c") == 0
+        assert matrix.timeToNearestDest(b"c") == 0
 
-        assert matrix.countDestsInRange("a", 7) == 2
+        assert matrix.countDestsInRange(b"a", 7) == 2
 
         filename = self.datapath + 'test_2.tmx'
-        matrix.writeTMX(filename)
+        matrix.writeTMX(filename.encode('utf-8'))
 
         matrix2 = _p2pExtension.pyTransitMatrixSxS()
-        matrix2.readTMX(filename)
+        matrix2.readTMX(filename.encode('utf-8'))
 
-        assert matrix2.getDestsInRange(5) == {"a": ["a", "b"],
-                                              "b": ["a", "b"],
-                                              "c": ["c"]}
+        assert matrix2.getDestsInRange(5) == {b"a": [b"a", b"b"],
+                                              b"b": [b"a", b"b"],
+                                              b"c": [b"c"]}
 
-        assert matrix2.getSourcesInRange(8) == {"a": ["a", "b", "c"],
-                                                "b": ["a", "b"],
-                                                "c": ["a", "c"]}
+        assert matrix2.getSourcesInRange(8) == {b"a": [b"a", b"b", b"c"],
+                                                b"b": [b"a", b"b"],
+                                                b"c": [b"a", b"c"]}
 
-        assert matrix2.getValuesBySource("a", True) == [("a", 0), ("b", 5), ("c", 8)]
+        assert matrix2.getValuesBySource(b"a", True) == [(b"a", 0), (b"b", 5), (b"c", 8)]
 
-        assert matrix2.getValuesBySource("b", False) == [("a", 5), ("b", 0), ("c", 10)]
+        assert matrix2.getValuesBySource(b"b", False) == [(b"a", 5), (b"b", 0), (b"c", 10)]
 
-        assert matrix2.getValuesByDest("a", False) == [("a", 0), ("b", 5), ("c", 8)]
+        assert matrix2.getValuesByDest(b"a", False) == [(b"a", 0), (b"b", 5), (b"c", 8)]
 
-        assert matrix2.getValuesByDest("b", True) == [("b", 0), ("a", 5), ("c", 10)]
+        assert matrix2.getValuesByDest(b"b", True) == [(b"b", 0), (b"a", 5), (b"c", 10)]
 
-        assert matrix2.timeToNearestDest("c") == 0
+        assert matrix2.timeToNearestDest(b"c") == 0
 
-        assert matrix2.countDestsInRange("a", 7) == 2
+        assert matrix2.countDestsInRange(b"a", 7) == 2
 
     def test_4(self):
         """
@@ -261,49 +261,49 @@ class TestClass:
                                               dest_is_string=True)
         matrix.compute(1)
 
-        assert matrix.getDestsInRange(12) == {"a": ["e"],
-                                              "b": ["e"],
-                                              "c": ["d"]}
+        assert matrix.getDestsInRange(12) == {b"a": [b"e"],
+                                              b"b": [b"e"],
+                                              b"c": [b"d"]}
 
-        assert matrix.getSourcesInRange(8) == {"d": [],
-                                               "e": ["b"]}
+        assert matrix.getSourcesInRange(8) == {b"d": [],
+                                               b"e": [b"b"]}
 
-        assert matrix.getValuesBySource("a", True) == [("e", 9), ("d", 16)]
+        assert matrix.getValuesBySource(b"a", True) == [(b"e", 9), (b"d", 16)]
 
-        assert matrix.getValuesBySource("b", False) == [("e", 6), ("d", 13)]
+        assert matrix.getValuesBySource(b"b", False) == [(b"e", 6), (b"d", 13)]
 
-        assert matrix.getValuesByDest("e", False) == [("a", 9), ("b", 6), ("c", 16)]
+        assert matrix.getValuesByDest(b"e", False) == [(b"a", 9), (b"b", 6), (b"c", 16)]
 
-        assert matrix.getValuesByDest("d", True) == [("c", 9), ("b", 13), ("a", 16)]
+        assert matrix.getValuesByDest(b"d", True) == [(b"c", 9), (b"b", 13), (b"a", 16)]
 
-        assert matrix.timeToNearestDest("c") == 9
+        assert matrix.timeToNearestDest(b"c") == 9
 
-        assert matrix.countDestsInRange("a", 10) == 1
+        assert matrix.countDestsInRange(b"a", 10) == 1
 
         filename = self.datapath + 'test_4.tmx'
-        matrix.writeTMX(filename)
+        matrix.writeTMX(filename.encode('utf-8'))
 
         matrix2 = _p2pExtension.pyTransitMatrixSxS()
-        matrix2.readTMX(filename)
+        matrix2.readTMX(filename.encode('utf-8'))
 
-        assert matrix2.getDestsInRange(12) == {"a": ["e"],
-                                               "b": ["e"],
-                                               "c": ["d"]}
+        assert matrix2.getDestsInRange(12) == {b"a": [b"e"],
+                                               b"b": [b"e"],
+                                               b"c": [b"d"]}
 
-        assert matrix2.getSourcesInRange(8) == {"d": [],
-                                                "e": ["b"]}
+        assert matrix2.getSourcesInRange(8) == {b"d": [],
+                                                b"e": [b"b"]}
 
-        assert matrix2.getValuesBySource("a", True) == [("e", 9), ("d", 16)]
+        assert matrix2.getValuesBySource(b"a", True) == [(b"e", 9), (b"d", 16)]
 
-        assert matrix2.getValuesBySource("b", False) == [("e", 6), ("d", 13)]
+        assert matrix2.getValuesBySource(b"b", False) == [(b"e", 6), (b"d", 13)]
 
-        assert matrix2.getValuesByDest("e", False) == [("a", 9), ("b", 6), ("c", 16)]
+        assert matrix2.getValuesByDest(b"e", False) == [(b"a", 9), (b"b", 6), (b"c", 16)]
 
-        assert matrix2.getValuesByDest("d", True) == [("c", 9), ("b", 13), ("a", 16)]
+        assert matrix2.getValuesByDest(b"d", True) == [(b"c", 9), (b"b", 13), (b"a", 16)]
 
-        assert matrix2.timeToNearestDest("c") == 9
+        assert matrix2.timeToNearestDest(b"c") == 9
 
-        assert matrix2.countDestsInRange("a", 10) == 1
+        assert matrix2.countDestsInRange(b"a", 10) == 1
 
     def test_5(self):
         """
@@ -317,45 +317,45 @@ class TestClass:
                                               dest_is_string=True)
         matrix.compute(1)
 
-        assert matrix.getDestsInRange(12) == {10: ["e"],
-                                              11: ["e"],
-                                              12: ["d"]}
+        assert matrix.getDestsInRange(12) == {10: [b"e"],
+                                              11: [b"e"],
+                                              12: [b"d"]}
 
-        assert matrix.getSourcesInRange(8) == {"d": [],
-                                               "e": [11]}
+        assert matrix.getSourcesInRange(8) == {b"d": [],
+                                               b"e": [11]}
 
-        assert matrix.getValuesBySource(10, True) == [("e", 9), ("d", 16)]
+        assert matrix.getValuesBySource(10, True) == [(b"e", 9), (b"d", 16)]
 
-        assert matrix.getValuesBySource(11, False) == [("e", 6), ("d", 13)]
+        assert matrix.getValuesBySource(11, False) == [(b"e", 6), (b"d", 13)]
 
-        assert matrix.getValuesByDest("e", False) == [(10, 9), (11, 6), (12, 16)]
+        assert matrix.getValuesByDest(b"e", False) == [(10, 9), (11, 6), (12, 16)]
 
-        assert matrix.getValuesByDest("d", True) == [(12, 9), (11, 13), (10, 16)]
+        assert matrix.getValuesByDest(b"d", True) == [(12, 9), (11, 13), (10, 16)]
 
         assert matrix.timeToNearestDest(12) == 9
 
         assert matrix.countDestsInRange(10, 10) == 1
 
         filename = self.datapath + 'test_5.tmx'
-        matrix.writeTMX(filename)
+        matrix.writeTMX(filename.encode('utf-8'))
 
         matrix2 = _p2pExtension.pyTransitMatrixIxS()
-        matrix2.readTMX(filename)
+        matrix2.readTMX(filename.encode('utf-8'))
 
-        assert matrix2.getDestsInRange(12) == {10: ["e"],
-                                               11: ["e"],
-                                               12: ["d"]}
+        assert matrix2.getDestsInRange(12) == {10: [b"e"],
+                                               11: [b"e"],
+                                               12: [b"d"]}
 
-        assert matrix2.getSourcesInRange(8) == {"d": [],
-                                                "e": [11]}
+        assert matrix2.getSourcesInRange(8) == {b"d": [],
+                                                b"e": [11]}
 
-        assert matrix2.getValuesBySource(10, True) == [("e", 9), ("d", 16)]
+        assert matrix2.getValuesBySource(10, True) == [(b"e", 9), (b"d", 16)]
 
-        assert matrix2.getValuesBySource(11, False) == [("e", 6), ("d", 13)]
+        assert matrix2.getValuesBySource(11, False) == [(b"e", 6), (b"d", 13)]
 
-        assert matrix2.getValuesByDest("e", False) == [(10, 9), (11, 6), (12, 16)]
+        assert matrix2.getValuesByDest(b"e", False) == [(10, 9), (11, 6), (12, 16)]
 
-        assert matrix2.getValuesByDest("d", True) == [(12, 9), (11, 13), (10, 16)]
+        assert matrix2.getValuesByDest(b"d", True) == [(12, 9), (11, 13), (10, 16)]
 
         assert matrix2.timeToNearestDest(12) == 9
 
@@ -373,46 +373,46 @@ class TestClass:
                                               dest_is_string=False)
         matrix.compute(1)
 
-        assert matrix.getDestsInRange(12) == {"a": [21],
-                                              "b": [21],
-                                              "c": [20]}
+        assert matrix.getDestsInRange(12) == {b"a": [21],
+                                              b"b": [21],
+                                              b"c": [20]}
 
         assert matrix.getSourcesInRange(8) == {20: [],
-                                               21: ["b"]}
+                                               21: [b"b"]}
 
-        assert matrix.getValuesBySource("a", True) == [(21, 9), (20, 16)]
+        assert matrix.getValuesBySource(b"a", True) == [(21, 9), (20, 16)]
 
-        assert matrix.getValuesBySource("b", False) == [(21, 6), (20, 13)]
+        assert matrix.getValuesBySource(b"b", False) == [(21, 6), (20, 13)]
 
-        assert matrix.getValuesByDest(21, False) == [("a", 9), ("b", 6), ("c", 16)]
+        assert matrix.getValuesByDest(21, False) == [(b"a", 9), (b"b", 6), (b"c", 16)]
 
-        assert matrix.getValuesByDest(20, True) == [("c", 9), ("b", 13), ("a", 16)]
+        assert matrix.getValuesByDest(20, True) == [(b"c", 9), (b"b", 13), (b"a", 16)]
 
-        assert matrix.timeToNearestDest("c") == 9
+        assert matrix.timeToNearestDest(b"c") == 9
 
-        assert matrix.countDestsInRange("a", 10) == 1
+        assert matrix.countDestsInRange(b"a", 10) == 1
 
         filename = self.datapath + 'test_6.tmx'
-        matrix.writeTMX(filename)
+        matrix.writeTMX(filename.encode('utf-8'))
 
         matrix2 = _p2pExtension.pyTransitMatrixSxI()
-        matrix2.readTMX(filename)
+        matrix2.readTMX(filename.encode('utf-8'))
 
-        assert matrix2.getDestsInRange(12) == {"a": [21],
-                                               "b": [21],
-                                               "c": [20]}
+        assert matrix2.getDestsInRange(12) == {b"a": [21],
+                                               b"b": [21],
+                                               b"c": [20]}
 
         assert matrix2.getSourcesInRange(8) == {20: [],
-                                                21: ["b"]}
+                                                21: [b"b"]}
 
-        assert matrix2.getValuesBySource("a", True) == [(21, 9), (20, 16)]
+        assert matrix2.getValuesBySource(b"a", True) == [(21, 9), (20, 16)]
 
-        assert matrix2.getValuesBySource("b", False) == [(21, 6), (20, 13)]
+        assert matrix2.getValuesBySource(b"b", False) == [(21, 6), (20, 13)]
 
-        assert matrix2.getValuesByDest(21, False) == [("a", 9), ("b", 6), ("c", 16)]
+        assert matrix2.getValuesByDest(21, False) == [(b"a", 9), (b"b", 6), (b"c", 16)]
 
-        assert matrix2.getValuesByDest(20, True) == [("c", 9), ("b", 13), ("a", 16)]
+        assert matrix2.getValuesByDest(20, True) == [(b"c", 9), (b"b", 13), (b"a", 16)]
 
-        assert matrix2.timeToNearestDest("c") == 9
+        assert matrix2.timeToNearestDest(b"c") == 9
 
-        assert matrix2.countDestsInRange("a", 10) == 1
+        assert matrix2.countDestsInRange(b"a", 10) == 1

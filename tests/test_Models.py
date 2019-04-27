@@ -42,7 +42,7 @@ class TestClass:
                    [500, 500, 500, 500, 500, 500],
                    [600, 600, 600, 600, 600, 600]]
 
-        transit_matrix.matrix_interface.transit_matrix.setMockDataFrame(dataset, source_ids, dest_ids)
+        transit_matrix.matrix_interface._set_mock_data_frame(dataset, source_ids, dest_ids)
 
         return transit_matrix
 

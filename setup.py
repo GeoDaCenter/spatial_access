@@ -62,7 +62,8 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.Configs',
                    'spatial_access.NetworkInterface',
                    'spatial_access.MatrixInterface',
-                   'spatial_access.SpatialAccessExceptions']
+                   'spatial_access.SpatialAccessExceptions',
+                   'spatial_access._parsers']
 
 
 if 'READTHEDOCS' in os.environ:

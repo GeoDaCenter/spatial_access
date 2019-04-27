@@ -410,7 +410,6 @@ public:
         df.readOTPCSV(infile);
     }
 
-
     void
     writeCSV(const std::string &outfile) const
     {

@@ -11,6 +11,7 @@ install:
 - pip3 install cython
 - pip3 install osmnet
 - pip3 install bumpversion
+- pip3 install jinja2
 - bash cythonize_extension.sh
 - python3 setup.py sdist build_ext
 - python3 setup.py install

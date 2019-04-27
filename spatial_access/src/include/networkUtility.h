@@ -15,7 +15,7 @@ typedef unsigned long int unsigned_long;
 template<class node_id>
 class NetworkUtility {
     public:
-        typedef unsigned long int unsigned_long;
+        typedef unsigned long int ulong;
         typedef std::pair<node_id, node_id> edge_id;
         typedef std::vector<edge_id> edge_array;
         typedef std::vector<node_id> node_array;

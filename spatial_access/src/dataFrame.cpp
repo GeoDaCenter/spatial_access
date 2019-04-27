@@ -54,6 +54,24 @@ void dataFrame<unsigned long int, unsigned long int>::readOTPCSV(const std::stri
 }
 
 template<>
+void dataFrame<std::string, unsigned long int>::readOTPCSV(const std::string& infile)
+{
+    throw std::runtime_error("not implemented");
+}
+
+template<>
+void dataFrame<unsigned long int, std::string>::readOTPCSV(const std::string& infile)
+{
+    throw std::runtime_error("not implemented");
+}
+
+template<>
+void dataFrame<std::string, std::string>::readOTPCSV(const std::string& infile)
+{
+    throw std::runtime_error("not implemented");
+}
+
+template<>
 void dataFrame<unsigned long int, unsigned long int>::writeTMX(const std::string& filename) const
 {
     Serializer s(filename);
