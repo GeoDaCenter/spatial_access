@@ -2,223 +2,246 @@
 #
 # ©2017-2019, Center for Spatial Data Science
 
-
-class UnableToConnectException(Exception):
+class SpatialAccessException(Exception):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("SpatialAccessException:" + errors)
 
 
-class BoundingBoxTooLargeException(Exception):
+class MatrixInterfaceException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("MatrixInterfaceException:" + errors)
 
 
-class ConnectedComponentTrimmingFailed(Exception):
+class NetworkInterfaceException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("NetworkInterfaceException:" + errors)
 
 
-class UnexpectedFileFormatException(Exception):
+class P2PException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("P2PException:" + errors)
 
 
-class UnexpectedShapeException(Exception):
+class BaseModelException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("BaseModelException:" + errors)
 
 
-class InvalidIdTypeException(Exception):
+class ModelException(SpatialAccessException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ModelException:" + errors)
 
 
-class WriteCSVFailedException(Exception):
+class UnableToConnectException(NetworkInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnableToConnectException:" + errors)
 
 
-class WriteTMXFailedException(Exception):
+class BoundingBoxTooLargeException(NetworkInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("BoundingBoxTooLargeException:" + errors)
 
-
-class ReadTMXFailedException(Exception):
+class ConnectedComponentTrimmingFailed(NetworkInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ConnectedComponentTrimmingFailed:" + errors)
 
 
-class ReadCSVFailedException(Exception):
+class UnexpectedFileFormatException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedFileFormatException:" + errors)
 
 
-class ReadOTPCSVFailedException(Exception):
+class UnexpectedShapeException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedShapeException:" + errors)
 
 
-class IndecesNotFoundException(Exception):
+class InvalidIdTypeException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("InvalidIdTypeException:" + errors)
 
 
-class UnableToBuildMatrixException(Exception):
+class WriteCSVFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("WriteCSVFailedException:" + errors)
 
 
-class FileNotFoundException(Exception):
+class WriteTMXFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("WriteTMXFailedException:" + errors)
 
 
-class SourceNotBuiltException(Exception):
+class ReadTMXFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ReadTMXFailedException:" + errors)
 
 
-class PrimaryDataNotFoundException(Exception):
+class ReadCSVFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ReadCSVFailedException:" + errors)
 
 
-class SecondaryDataNotFoundException(Exception):
+class ReadOTPCSVFailedException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ReadOTPCSVFailedException:" + errors)
 
 
-class ImproperIndecesTypeException(Exception):
+class IndecesNotFoundException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("IndecesNotFoundException:" + errors)
 
 
-class UnableToParsePrimaryDataException(Exception):
+class UnableToBuildMatrixException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnableToBuildMatrixException:" + errors)
 
 
-class UnableToParseSecondaryDataException(Exception):
+class FileNotFoundException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("FileNotFoundException:" + errors)
 
 
-class UnknownModeException(Exception):
+class SourceNotBuiltException(MatrixInterfaceException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("SourceNotBuiltException:" + errors)
 
 
-class InsufficientDataException(Exception):
+class PrimaryDataNotFoundException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("PrimaryDataNotFoundException:" + errors)
 
 
-class DuplicateInputException(Exception):
+class SecondaryDataNotFoundException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("SecondaryDataNotFoundException:" + errors)
 
 
-class TransitMatrixNotLoadedException(Exception):
+class UnableToParsePrimaryDataException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnableToParsePrimaryDataException:" + errors)
 
 
-class SourceDataNotFoundException(Exception):
+class UnableToParseSecondaryDataException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnableToParseSecondaryDataException:" + errors)
 
 
-class DestDataNotFoundException(Exception):
+class UnknownModeException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnknownModeException:" + errors)
 
 
-class SourceDataNotParsableException(Exception):
+class InsufficientDataException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("InsufficientDataException:" + errors)
 
 
-class DestDataNotParsableException(Exception):
+class DuplicateInputException(P2PException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("DuplicateInputException:" + errors)
 
 
-class ShapefileNotFoundException(Exception):
+class TransitMatrixNotLoadedException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("TransitMatrixNotLoadedException:" + errors)
 
 
-class TooManyCategoriesToPlotException(Exception):
+class SourceDataNotFoundException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("SourceDataNotFoundException:" + errors)
 
 
-class SpatialIndexNotMatchedException(Exception):
+class DestDataNotFoundException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("DestDataNotFoundException:" + errors)
 
 
-class UnexpectedPlotColumnException(Exception):
+class SourceDataNotParsableException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("SourceDataNotParsableException:" + errors)
 
 
-class UnrecognizedCategoriesException(Exception):
+class DestDataNotParsableException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("DestDataNotParsableException:" + errors)
 
 
-class UnrecognizedDecayFunctionException(Exception):
+class ShapefileNotFoundException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ShapefileNotFoundException:" + errors)
 
 
-class UnrecognizedFileTypeException(Exception):
+class TooManyCategoriesToPlotException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("TooManyCategoriesToPlotException:" + errors)
 
 
-class IncompleteCategoryDictException(Exception):
+class SpatialIndexNotMatchedException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("SpatialIndexNotMatchedException:" + errors)
 
 
-class ModelNotAggregatedException(Exception):
+class UnexpectedPlotColumnException(BaseModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedPlotColumnException:" + errors)
+
+
+class UnrecognizedCategoriesException(ModelException):
+    def __init__(self, errors=''):
+        super().__init__("UnrecognizedCategoriesException:" + errors)
+
+
+class UnrecognizedDecayFunctionException(ModelException):
+    def __init__(self, errors=''):
+        super().__init__("UnrecognizedDecayFunctionException:" + errors)
+
+
+class UnrecognizedFileTypeException(MatrixInterfaceException):
+    def __init__(self, errors=''):
+        super().__init__("UnrecognizedFileTypeException:" + errors)
+
+
+class IncompleteCategoryDictException(ModelException):
+    def __init__(self, errors=''):
+        super().__init__("IncompleteCategoryDictException:" + errors)
+
+
+class ModelNotAggregatedException(ModelException):
+    def __init__(self, errors=''):
+        super().__init__("ModelNotAggregatedException:" + errors)
         
 
-class ModelNotAggregatableException(Exception):
+class ModelNotAggregatableException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ModelNotAggregatableException:" + errors)
 
 
-class ModelNotCalculatedException(Exception):
+class ModelNotCalculatedException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("ModelNotCalculatedException:" + errors)
 
 
-class UnexpectedNormalizeTypeException(Exception):
+class UnexpectedNormalizeTypeException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedNormalizeTypeException:" + errors)
 
 
-class UnexpectedNormalizeColumnsException(Exception):
+class UnexpectedNormalizeColumnsException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedNormalizeColumnsException:" + errors)
 
 
-class UnexpectedEmptyColumnException(Exception):
+class UnexpectedEmptyColumnException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedEmptyColumnException:" + errors)
 
 
-class UnexpectedAggregationTypeException(Exception):
+class UnexpectedAggregationTypeException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedAggregationTypeException:" + errors)
 
 
-class AggregateOutputTypeNotExpectedException(Exception):
+class AggregateOutputTypeNotExpectedException(ModelException):
     def __init__(self, errors=''):
-        super().__init__(errors)
+        super().__init__("UnexpectedAggregationTypeException:" + errors)
 

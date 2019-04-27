@@ -16,9 +16,7 @@ install:
 - pip3 install numpy==1.15.4 --force
 script:
 - pytest tests/
-before_deploy: bumpversion patch
 deploy:
-  skip_cleanup: true
   provider: pypi
   user: lnoel
   password:
