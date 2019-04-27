@@ -79,7 +79,7 @@ See the iPython notebooks in `docs/` for example usage, or https://readthedocs.o
 
 - If updating Cython or C++ code (anything in spatial_access/src/)
 you must install cython
-- To regenerate .pyx files, run: `bash cythonize_extension.sh` (TravisCI will do this automatically on deployment)
+- To regenerate .pyx files, run: `bash cythonize_extension.sh` (travis ci will do this automatically on deployment)
 - To install locally, run: `sudo python3 setup.py install `
 - Unit tests require the `pytest` package. From package root directory, run `python3 -m pytest tests/` to run all unit tests.
 
