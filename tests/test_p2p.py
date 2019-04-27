@@ -7,8 +7,8 @@ from spatial_access.SpatialAccessExceptions import UnableToParseSecondaryDataExc
 from spatial_access.SpatialAccessExceptions import UnknownModeException
 from spatial_access.SpatialAccessExceptions import InsufficientDataException
 from spatial_access.SpatialAccessExceptions import WriteTMXFailedException
-from spatial_access.SpatialAccessExceptions import UnrecognizedFileTypeException
-from spatial_access.SpatialAccessExceptions import ImproperIndecesTypeException
+from spatial_access.SpatialAccessExceptions import UnexpectedFileFormatException
+
 
 class TestClass:
     """
@@ -300,7 +300,7 @@ class TestClass:
 
     def test_25(self):
         """
-        Tests write file with bad filename (symmetric).
+        Tests write tmx with bad filename (symmetric).
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
         transit_matrix_1 = TransitMatrix('walk',
@@ -328,46 +328,3 @@ class TestClass:
         except AssertionError:
             return
 
-    def test_27(self):
-        """
-        Test write_csv/read_file
-        """
-        hints = {'idx': 'name', 'lat': 'y', 'lon': 'x'}
-        transit_matrix_1 = TransitMatrix('walk',
-                                         primary_input='tests/test_data/sources.csv',
-                                         primary_hints=hints)
-
-        transit_matrix_1.process()
-        transit_matrix_1.matrix_interface.print_data_frame()
-        filename = self.datapath + 'test_27_file.csv'
-        transit_matrix_1.write_csv(filename)
-
-        transit_matrix_2 = TransitMatrix('walk', read_from_file=filename)
-        transit_matrix_2.matrix_interface.print_data_frame()
-
-    def test_28(self):
-        """
-        Test ImproperIndecesTypeException is raised
-        when indeces are not strings or ints.
-        """
-        hints = {'idx': 'name', 'lat': 'y', 'lon': 'x'}
-        transit_matrix_1 = TransitMatrix('walk',
-                                         primary_input='tests/test_data/sources_bad_indeces_type.csv',
-                                         primary_hints=hints)
-
-        try:
-            transit_matrix_1.process()
-            assert False
-        except ImproperIndecesTypeException:
-            return
-
-    def test_29(self):
-        """
-        Test UnexpectedFileFormatException is raised
-        when file other than .csv or .tmx is given.
-        """
-        try:
-            transit_matrix_1 = TransitMatrix('walk', read_from_file='tests/test_data/sources.tsv')
-            assert False
-        except UnrecognizedFileTypeException:
-            return

@@ -15,8 +15,6 @@
 
 #include "Serializer.h"
 #include "otpCSV.h"
-#include "csvRowReader.h"
-#include "csvColReader.h"
 
 #define UNDEFINED (USHRT_MAX)
 #define TMX_VERSION (1)
@@ -324,8 +322,6 @@ public:
 
     void readCSV(const std::string& infile)
     {
-        isCompressible = false;
-        isSymmetric = false;
         std::ifstream fileIN;
         fileIN.open(infile);
         if (fileIN.fail())
@@ -336,34 +332,30 @@ public:
         std::string line;
         std::string row_label;
         std::string column_id_line;
+
         std::string value;
-
-        csvColReader<col_label_type> colReader;
-        csvRowReader<row_label_type> rowReader;
-
         getline(fileIN, column_id_line);
-        setColIds(colReader.readLine(column_id_line));
-        std::vector<row_label_type> in_row_labels;
+        this->colIds = readCSVColIds(column_id_line);
         while (getline(fileIN, line))
         {
             this->dataset.emplace_back(std::vector<unsigned short int>());
             std::istringstream stream(line);
 
             getline(stream, row_label,',');
-            in_row_labels.push_back(rowReader.readLine(row_label));
+            this->rowIds.push_back(readCSVRowId(row_label));
             while(getline(stream, value, ','))
             {
-                this->dataset.at(this->dataset.size() - 1).push_back((unsigned short) std::stol(value));
+                this->dataset.at(this->dataset.size() - 1).push_back(std::stol(value));
             }
         }
         fileIN.close();
-        setRowIds(in_row_labels);
-        rows = this->rowIds.size();
-        cols = this->colIds.size();
-        initializeDatatsetSize();
+        // TODO: initialize indeces, dataset size, and test
     }
 
 private:
+
+    const std::vector<col_label_type> readCSVColIds(const std::string& line);
+    const row_label_type readCSVRowId(const std::string& line);
 
     bool
     writeToStream(std::ostream& streamToWrite) const

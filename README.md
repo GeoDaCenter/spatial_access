@@ -89,6 +89,8 @@ The package lives at: `https://pypi.org/project/spatial-access/`
 When a branch is pulled into Master and builds/passes all unit tests,
 Travis CI will automatically deploy the build to PyPi. 
 
+Note: The version number in setup.py must be incremented from the last published
+version on PyPi, or it will be rejected.
 
 To update PyPi access credentials, see .travis.yml and follow the instructions at https://docs.travis-ci.com/user/deployment/pypi/
 to generate a new encrypted password.

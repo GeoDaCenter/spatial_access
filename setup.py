@@ -1,7 +1,6 @@
 import sys, os
 from setuptools.extension import Extension
 from setuptools import setup
-import re
 
 with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
@@ -18,9 +17,7 @@ MATRIX_INTERFACE_SOURCES = ["dataFrame.cpp",
                             "Serializer.cpp",
                             "userDataContainer.cpp",
                             "Graph.cpp",
-                            "threadUtilities.cpp",
-                            "csvRowReader.cpp",
-                            "csvColReader.cpp"]
+                            "threadUtilities.cpp"]
 
 
 def build_extension(extension_name, sources):
@@ -69,23 +66,17 @@ if 'READTHEDOCS' in os.environ:
     REQUIRED_DEPENDENCIES = []
     EXTENSIONS = []
 
-def get_property(prop, project):
-    result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), open(project + '/__init__.py').read())
-    return result.group(1)
-
-PROJECT_NAME='spatial_access'
-
 setup(
-    name=PROJECT_NAME,
-    author=get_property('__author__', PROJECT_NAME),
-    url=get_property('__url__', PROJECT_NAME),
+    name = 'spatial_access',
+    author = 'Logan Noel (lmnoel)',
+    url='https://github.com/GeoDaCenter/spatial_access',
     author_email='lnoel@uchicago.edu',
-    version=get_property('__version__', PROJECT_NAME),
+    version='0.1.7.12',
     ext_modules=EXTENSIONS,
     py_modules=SUBMODULE_NAMES,
     install_requires=REQUIRED_DEPENDENCIES,
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
-    license=get_property('__license__', PROJECT_NAME)
+    license="GPL"
     )
 
