@@ -176,8 +176,9 @@ class TransitMatrix:
             ImproperIndecesTypeException: If the series
             is not one of the expected types.
         """
-        if series.dtype == str:
-            return series.dtype
+
+        if type(series[0]) == str:
+            return str
         elif issubdtype(series.dtype, integer) or issubdtype(series.dtype, signedinteger):
             return integer
         raise ImproperIndecesTypeException(str(series.dtype))
