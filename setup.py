@@ -16,7 +16,6 @@ SRC_PATH = "spatial_access/src/"
 
 MATRIX_INTERFACE_SOURCES = ["dataFrame.cpp",
                             "Serializer.cpp",
-                            "userDataContainer.cpp",
                             "Graph.cpp",
                             "threadUtilities.cpp",
                             "csvRowReader.cpp",

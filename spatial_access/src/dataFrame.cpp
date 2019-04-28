@@ -4,8 +4,10 @@
 
 #include "include/dataFrame.h"
 
-template<>
-void dataFrame<unsigned long int, unsigned long int>::readOTPCSV(const std::string& infile)
+
+// TODO: specialize these methods to deal with value_type template
+
+void dataFrame<unsigned long int, unsigned long int, unsigned short int>::readOTPCSV(const std::string& infile)
 {
 
     isCompressible = false;

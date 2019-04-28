@@ -7,7 +7,6 @@ set(SOURCE_FILES
         dataFrame.cpp
         Serializer.cpp
         Matrix.cpp
-        userDataContainer.cpp
         Graph.cpp
         threadUtilities.cpp
         csvColReader.cpp

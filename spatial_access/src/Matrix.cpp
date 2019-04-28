@@ -8,7 +8,7 @@
 int main()
 {
 //
-    transitMatrix<unsigned long, unsigned long> tm2;
+    transitMatrix<unsigned long, unsigned long, unsigned short int> tm2;
     tm2.readOTPCSV("generated.csv");
     tm2.printDataFrame();
 

@@ -22,7 +22,7 @@
 #define TMX_VERSION (1)
 
 /* a pandas-like dataFrame */
-template <class row_label_type, class col_label_type>
+template <class row_label_type, class col_label_type, class value_type>
 class dataFrame {
 private:
     enum Type {
@@ -35,7 +35,7 @@ private:
 public:
 
     // Public Members
-    std::vector<std::vector<unsigned short int>> dataset;
+    std::vector<std::vector<value_type>> dataset;
     bool isCompressible;
     bool isSymmetric;
     unsigned long int rows;
@@ -62,7 +62,7 @@ public:
         {
             this->cols = rows;
             initializeDatatsetSize();
-            std::vector<unsigned short int> data(dataset_size, UNDEFINED);
+            std::vector<value_type> data(dataset_size, UNDEFINED);
             dataset.push_back(data);
         }
         else
@@ -71,14 +71,14 @@ public:
             initializeDatatsetSize();
             for (unsigned int row_loc = 0; row_loc < rows; row_loc++)
             {
-                std::vector<unsigned short int> data(cols, UNDEFINED);
+                std::vector<value_type> data(cols, UNDEFINED);
                 dataset.push_back(data);
             }
         }
 
     }
 
-    void setMockDataFrame(const std::vector<std::vector<unsigned short int>>& dataset,
+    void setMockDataFrame(const std::vector<std::vector<value_type>>& dataset,
                           const std::vector<row_label_type>& row_ids,
                           const std::vector<col_label_type>& col_ids)
     {
@@ -100,7 +100,7 @@ public:
 
 // Getters/Setters
 
-    unsigned short int
+    value_type
     getValueByLoc(unsigned long int row_loc, unsigned long int col_loc) const
     {
         if (isCompressible)
@@ -119,7 +119,7 @@ public:
     }
 
 
-    unsigned short int
+    value_type
     getValueById(const row_label_type& row_id, const col_label_type& col_id) const
     {
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
@@ -128,7 +128,7 @@ public:
     }
 
     void
-    setValueById(const row_label_type& row_id, const col_label_type& col_id, unsigned short int value)
+    setValueById(const row_label_type& row_id, const col_label_type& col_id, value_type value)
     {
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
         unsigned long int col_loc = colIdsToLoc.at(col_id);
@@ -136,10 +136,10 @@ public:
     }
 
 
-    const std::vector<std::pair<col_label_type, unsigned short int>>
+    const std::vector<std::pair<col_label_type, value_type>>
     getValuesByRowId(const row_label_type& row_id, bool sort) const
     {
-        std::vector<std::pair<col_label_type, unsigned short int>> returnValue;
+        std::vector<std::pair<col_label_type, value_type>> returnValue;
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
         for (unsigned long int col_loc = 0; col_loc < cols; col_loc++)
         {
@@ -147,7 +147,7 @@ public:
         }
         if (sort)
         {
-            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<col_label_type, unsigned short int> &left, std::pair<col_label_type, unsigned short int> &right) {
+            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<col_label_type, value_type> &left, std::pair<col_label_type, value_type> &right) {
                 return left.second < right.second;
             });
         }
@@ -155,10 +155,10 @@ public:
     }
 
 
-    const std::vector<std::pair<row_label_type, unsigned short int>>
+    const std::vector<std::pair<row_label_type, value_type>>
     getValuesByColId(const col_label_type& col_id, bool sort) const
     {
-        std::vector<std::pair<row_label_type, unsigned short int>> returnValue;
+        std::vector<std::pair<row_label_type, value_type>> returnValue;
         unsigned long int col_loc = colIdsToLoc.at(col_id);
         for (unsigned long int row_loc = 0; row_loc < rows; row_loc++)
         {
@@ -166,7 +166,7 @@ public:
         }
         if (sort)
         {
-            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<row_label_type, unsigned short int> &left, std::pair<row_label_type, unsigned short int> &right) {
+            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<row_label_type, value_type> &left, std::pair<row_label_type, value_type> &right) {
                 return left.second < right.second;
             });
         }
@@ -217,7 +217,7 @@ public:
 
 
     void
-    setValueByLoc(unsigned long int row_loc, unsigned long int col_loc, unsigned short int value)
+    setValueByLoc(unsigned long int row_loc, unsigned long int col_loc, value_type value)
     {
         if (isCompressible)
         {
@@ -237,7 +237,7 @@ public:
 
 
     void
-    setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned long int source_loc)
+    setRowByRowLoc(const std::vector<value_type> &row_data, unsigned long int source_loc)
     {
         if (source_loc > rows)
         {
@@ -346,7 +346,7 @@ public:
         std::vector<row_label_type> in_row_labels;
         while (getline(fileIN, line))
         {
-            this->dataset.emplace_back(std::vector<unsigned short int>());
+            this->dataset.emplace_back(std::vector<value_type>());
             std::istringstream stream(line);
 
             getline(stream, row_label,',');
@@ -448,7 +448,6 @@ private:
 
 public:
 // Utilities
-
 
     bool
     isUnderDiagonal(unsigned long int row_loc, unsigned long int col_loc) const
