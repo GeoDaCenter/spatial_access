@@ -1,5 +1,5 @@
 cdef extern from "include/transitMatrix.h":
-    cdef cppclass {{ class_name }} "transitMatrix<{{ row_type_full }}, {{ col_type_full }}>":
+    cdef cppclass {{ class_name }} "transitMatrix<{{ row_type_full }}, {{ col_type_full }},{{ value_type }}>":
 
 
         {{ class_name }}(bool, bool, unsigned int, unsigned int) except +

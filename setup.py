@@ -18,8 +18,8 @@ MATRIX_INTERFACE_SOURCES = ["dataFrame.cpp",
                             "Serializer.cpp",
                             "Graph.cpp",
                             "threadUtilities.cpp",
-                            "csvRowReader.cpp",
-                            "csvColReader.cpp"]
+                            "tmxParser.cpp",
+                            "csvParser.cpp"]
 
 
 def build_extension(extension_name, sources):

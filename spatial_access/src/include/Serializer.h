@@ -13,15 +13,31 @@ class Serializer {
 public:
     Serializer(const std::string &filename);
     ~Serializer();
-    void close();
 
+    template <class T> void writeNumericType(T value)
+    {
+        output.write ( reinterpret_cast<char *>(&value),sizeof(T));
+        checkStreamIsGood();
+    }
+    template <class T> void writeVector(const std::vector<T>& value)
+    {
+        unsigned long int vec_size = value.size();
+        writeNumericType<unsigned long int>(vec_size);
+        output.write((char *) &value[0], vec_size * sizeof(T));
+        checkStreamIsGood();
+    }
+    template <class T> void write2DVector(const std::vector<std::vector<T>>& value)
+    {
+        unsigned long int vec_size = value.size();
+        writeNumericType<unsigned long int>(vec_size);
+        for (const auto &element : value) {
+            writeVector<T>(element);
+        }
+        checkStreamIsGood();
+    }
+    void writeBool(bool value);
+private:
     std::ofstream output;
-    void writeLongInt(unsigned long int value);
-    void writeShortInt(unsigned short int value);
-    void writeVectorLongInt(const std::vector<unsigned long int>& value);
-    void writeVectorShortInt(const std::vector<unsigned short int>& value);
-    void writeVectorString(const std::vector<std::string>& value);
-    void writeVectorVector(const std::vector<std::vector<unsigned short int>>& value);
     void checkStreamIsGood();
 };
 
@@ -29,14 +45,37 @@ class Deserializer {
 public:
     Deserializer(const std::string &filename);
     ~Deserializer();
-    void close();
 
+    template <class T> T readNumericType()
+    {
+        T value;
+        input.read( reinterpret_cast<char *>(&value), sizeof(T));
+        checkStreamIsGood();
+        return value;
+    }
+    template <class T> void readVector(std::vector<T>& value)
+    {
+        auto vec_size = readNumericType<unsigned long>();
+
+        value.assign(vec_size, 0);
+        input.read(reinterpret_cast<char *>(&value[0]), vec_size*sizeof(T));
+        checkStreamIsGood();
+    }
+    template <class T> void read2DVector(std::vector<std::vector<T>>& value)
+    {
+        auto vec_size = readNumericType<unsigned long>();
+        for (unsigned long int i = 0; i < vec_size; i++)
+        {
+
+            std::vector<T> element;
+            readVector<T>(element);
+            value.push_back(element);
+        }
+        checkStreamIsGood();
+    }
+
+    bool readBool();
+private:
     std::ifstream input;
-    unsigned long int readLongInt();
-    unsigned short int readShortInt();
-    void readVectorLongInt( std::vector<unsigned long int>& value);
-    void readVectorShortInt( std::vector<unsigned short int>& value);
-    void readVectorString( std::vector<std::string>& value);
-    void readVectorVector( std::vector<std::vector<unsigned short int>>& value);
     void checkStreamIsGood();
 };

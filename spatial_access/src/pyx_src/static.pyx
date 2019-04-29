@@ -16,10 +16,12 @@ cdef extern from "include/networkUtility.h":
         unordered_set[ulong] getConnectedNetworkNodes() except +
 
 
-cdef extern from "include/TMXUtils.h":
-    cdef cppclass TMXUtils:
-        int getTypeOfTMX(string) except +
-
+# cdef extern from "include/tmxParser.h":
+#     cdef cppclass tmxReader "tmxReader<unsigned int>":
+#         tmxReader(string) except +
+#         ushort readTMXVersion() except +
+#         ushort readIdTypeEnum() except +
+#         ushort readValueTypeEnum() except +
 
 cdef class pyNetworkUtility:
     cdef NetworkUtility *thisptr
@@ -33,15 +35,20 @@ cdef class pyNetworkUtility:
     def getConnectedNetworkNodes(self):
         return self.thisptr.getConnectedNetworkNodes()
 
-cdef class pyTMXUtils:
-    cdef TMXUtils *thisptr
-
-    def __cinit__(self):
-        self.thisptr = new TMXUtils()
-
-    def __dealloc__(self):
-        del self.thisptr
-
-    def getTypeOfTMX(self, filename):
-        cdef string filename_string = str.encode(filename)
-        return self.thisptr.getTypeOfTMX(filename_string)
+# cdef class pyTMXReader:
+#     cdef tmxReader *thisptr
+#
+#     def __cinit__(self, filename):
+#         self.thisptr = new tmxReader(filename)
+#
+#     def __dealloc__(self):
+#         del self.thisptr
+#
+#     def readTMXVersion(self):
+#         return self.thisptr.readTMXVersion()
+#
+#     def readIdTypeEnum(self):
+#         return self.thisptr.readIdTypeEnum()
+#
+#     def readValueTypeEnum(self):
+#         return self.thisptr.readValueTypeEnum()
