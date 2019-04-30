@@ -89,7 +89,8 @@ class TransitMatrix:
         self._network_interface = NetworkInterface(network_type, logger=self.logger,
                                                    disable_area_threshold=self.configs.disable_area_threshold)
 
-        self.matrix_interface = MatrixInterface(logger=self.logger)
+        self.matrix_interface = MatrixInterface(logger=self.logger,
+                                                require_extended_range=self.configs.require_extended_range)
 
         if network_type not in {'drive', 'walk', 'bike', 'otp'}:
             raise UnknownModeException(network_type)
@@ -149,7 +150,7 @@ class TransitMatrix:
         return filename
 
     @staticmethod
-    def _get_type_of_series(self, series):
+    def _get_type_of_series(series):
         """
         Returns: type of the series (int16, int32, int64, int128 or str)
 

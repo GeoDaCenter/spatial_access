@@ -1,5 +1,5 @@
 cdef extern from "include/transitMatrix.h":
-    cdef cppclass {{ class_name }} "transitMatrix<{{ row_type_full }}, {{ col_type_full }},{{ value_type }}>":
+    cdef cppclass {{ class_name }} "transitMatrix<{{ row_type_full }}, {{ col_type_full }},{{ value_type_full }}>":
 
 
         {{ class_name }}(bool, bool, unsigned int, unsigned int) except +
@@ -29,7 +29,7 @@ cdef extern from "include/transitMatrix.h":
         void readOTPCSV(string) except +
         void printDataFrame() except +
 
-cdef class {{ py_class_name }}:
+cdef class  {{ py_class_name }}:
     cdef {{ class_name }} *thisptr
 
     def __cinit__(self, bool isCompressible=False, bool isSymmetric=False, unsigned int rows=0, unsigned int columns=0):

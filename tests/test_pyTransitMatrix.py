@@ -32,7 +32,7 @@ class TestClass:
     int_to_string_map = {10:b"a", 11:b"b", 12:b"c", 20:b"d", 21:b"e"}
 
     def _prepare_transit_matrix(self, use_symmetric_edges, is_compressible, is_symmetric, source_is_string,
-                                dest_is_string):
+                                dest_is_string, is_extended=False):
         # prep input data
         edges = TestClass.symmetric_edges if use_symmetric_edges else TestClass.asymmetric_edges
         source_data = TestClass.source_data_int
@@ -43,31 +43,57 @@ class TestClass:
             dest_data = [(i[0], TestClass.int_to_string_map[i[1]], i[2]) for i in dest_data]
 
         # prep transit matrix
-        if source_is_string and dest_is_string:
-            transit_matrix = _p2pExtension.pyTransitMatrixSxS(isCompressible=is_compressible,
+        if is_extended:
+            if source_is_string and dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixSxSxUI(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
-        elif source_is_string and not dest_is_string:
-            transit_matrix = _p2pExtension.pyTransitMatrixSxI(isCompressible=is_compressible,
+            elif source_is_string and not dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixSxIxUI(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
-        elif not source_is_string and dest_is_string:
-            transit_matrix = _p2pExtension.pyTransitMatrixIxS(isCompressible=is_compressible,
+            elif not source_is_string and dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixIxSxUI(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
-        elif not source_is_string and not dest_is_string:
-            transit_matrix = _p2pExtension.pyTransitMatrixIxI(isCompressible=is_compressible,
+            elif not source_is_string and not dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixIxIxUI(isCompressible=is_compressible,
                                                                      isSymmetric=is_symmetric,
                                                                      rows=len(source_data),
                                                                      columns=len(dest_data))
         else:
-            assert False, "logical error"
+            if source_is_string and dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixSxSxUS(isCompressible=is_compressible,
+                                                                         isSymmetric=is_symmetric,
+                                                                         rows=len(source_data),
+                                                                         columns=len(dest_data))
+            elif source_is_string and not dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixSxIxUS(isCompressible=is_compressible,
+                                                                         isSymmetric=is_symmetric,
+                                                                         rows=len(source_data),
+                                                                         columns=len(dest_data))
+            elif not source_is_string and dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixIxSxUS(isCompressible=is_compressible,
+                                                                         isSymmetric=is_symmetric,
+                                                                         rows=len(source_data),
+                                                                         columns=len(dest_data))
+            elif not source_is_string and not dest_is_string:
+                transit_matrix = _p2pExtension.pyTransitMatrixIxIxUS(isCompressible=is_compressible,
+                                                                         isSymmetric=is_symmetric,
+                                                                         rows=len(source_data),
+                                                                         columns=len(dest_data))
+
 
         transit_matrix.prepareGraphWithVertices(len(edges[0]))
+
+        if is_extended:
+            edges[2] = [item + 100000 for item in edges[2]]
+
         transit_matrix.addEdgesToGraph(edges[0], edges[1], edges[2], edges[3])
+
         for source in source_data:
             transit_matrix.addToUserSourceDataContainer(source[0], source[1], source[2])
         for dest in dest_data:
@@ -111,7 +137,7 @@ class TestClass:
         filename = self.datapath + 'test_1.tmx'
         matrix.writeTMX(filename.encode('utf-8'))
 
-        matrix2 = _p2pExtension.pyTransitMatrixIxI()
+        matrix2 = _p2pExtension.pyTransitMatrixIxIxUS()
         matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(5) == {10: [10, 11],
@@ -168,7 +194,7 @@ class TestClass:
         filename = self.datapath + 'test_2.tmx'
         matrix.writeTMX(filename.encode('utf-8'))
 
-        matrix2 = _p2pExtension.pyTransitMatrixIxI()
+        matrix2 = _p2pExtension.pyTransitMatrixIxIxUS()
         matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(12) == {10: [21],
@@ -226,7 +252,7 @@ class TestClass:
         filename = self.datapath + 'test_2.tmx'
         matrix.writeTMX(filename.encode('utf-8'))
 
-        matrix2 = _p2pExtension.pyTransitMatrixSxS()
+        matrix2 = _p2pExtension.pyTransitMatrixSxSxUS()
         matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(5) == {b"a": [b"a", b"b"],
@@ -283,7 +309,7 @@ class TestClass:
         filename = self.datapath + 'test_4.tmx'
         matrix.writeTMX(filename.encode('utf-8'))
 
-        matrix2 = _p2pExtension.pyTransitMatrixSxS()
+        matrix2 = _p2pExtension.pyTransitMatrixSxSxUS()
         matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(12) == {b"a": [b"e"],
@@ -339,7 +365,7 @@ class TestClass:
         filename = self.datapath + 'test_5.tmx'
         matrix.writeTMX(filename.encode('utf-8'))
 
-        matrix2 = _p2pExtension.pyTransitMatrixIxS()
+        matrix2 = _p2pExtension.pyTransitMatrixIxSxUS()
         matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(12) == {10: [b"e"],
@@ -395,7 +421,7 @@ class TestClass:
         filename = self.datapath + 'test_6.tmx'
         matrix.writeTMX(filename.encode('utf-8'))
 
-        matrix2 = _p2pExtension.pyTransitMatrixSxI()
+        matrix2 = _p2pExtension.pyTransitMatrixSxIxUS()
         matrix2.readTMX(filename.encode('utf-8'))
 
         assert matrix2.getDestsInRange(12) == {b"a": [21],
@@ -416,3 +442,33 @@ class TestClass:
         assert matrix2.timeToNearestDest(b"c") == 9
 
         assert matrix2.countDestsInRange(b"a", 10) == 1
+
+    def test_7(self):
+        """
+        Test extended (unsigned int) value type
+        """
+
+        matrix = self._prepare_transit_matrix(use_symmetric_edges=False,
+                                              is_compressible=False,
+                                              is_symmetric=False,
+                                              source_is_string=True,
+                                              dest_is_string=False,
+                                              is_extended=True)
+        matrix.compute(1)
+
+
+        filename = self.datapath + 'test_7.tmx'
+        filename_csv = self.datapath + 'test_7.csv'
+        matrix.printDataFrame()
+        matrix.writeTMX(filename.encode('utf-8'))
+
+        matrix.writeCSV(filename_csv.encode('utf-8'))
+
+        matrix2 = _p2pExtension.pyTransitMatrixSxIxUI()
+        matrix2.readTMX(filename.encode('utf-8'))
+        matrix2.printDataFrame()
+
+        matrix3 = _p2pExtension.pyTransitMatrixSxIxUI()
+        matrix3.readCSV(filename_csv.encode('utf-8'))
+        matrix3.printDataFrame()
+

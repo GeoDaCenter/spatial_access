@@ -8,14 +8,33 @@
 #include <tuple>
 #include <stdexcept>
 
+typedef unsigned long int network_loc;
+
+template <class value_type>
 class Graph
 {
-private:
-    unsigned long int vertices;
 public:
     Graph()= default;
-    void initializeGraph(unsigned long int vertices);
-    std::vector<std::vector<std::pair<unsigned long int, unsigned short int>>> neighbors;
-    unsigned long int getV() const;
-    void addEdge(unsigned long int src, unsigned long int dest, unsigned short int weight);
+    unsigned long int vertices;
+    std::vector<std::vector<std::pair<network_loc, value_type>>> neighbors;
+    void initializeGraph(unsigned long int vertices)
+    {
+        std::vector<std::pair<network_loc , value_type>> value;
+        this->neighbors.assign(vertices, value);
+        this->vertices = vertices;
+    }
+
+/* Adds an edge to an undirected graph */
+    void addEdge(network_loc src, network_loc dest, value_type weight)
+    {
+        try
+        {
+            this->neighbors.at(src).push_back(std::make_pair(dest, weight));
+        }
+        catch (...)
+        {
+            throw std::runtime_error("edge incompatible with declared graph structure");
+        }
+    }
+
 };

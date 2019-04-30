@@ -30,16 +30,28 @@ class MatrixInterface:
     A wrapper for C++ based transit matrix.
     """
 
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, require_extended_range=False):
         """
         Args:
             logger: optional
+            require_extended_range: Bool. If true, use unsigned integers
+                instead of unsigned shorts for value type to increase
+                max range.
         """
         self.logger = logger
         self.transit_matrix = None
         self.primary_ids_are_string = False
         self.secondary_ids_are_string = False
+        self.is_extended = require_extended_range
         self._parser = None
+        self._map_id_type_enum_to_is_string_boolean = {
+            0: False,
+            1: True
+        }
+        self._map_value_type_enum_to_is_extended_boolean = {
+            0: False,
+            1: True
+        }
 
     def _read_tmx(self, filename):
         """
@@ -51,25 +63,16 @@ class MatrixInterface:
         Raises:
             ReadTMXFailedException: file does not exist or is corrupted.
         """
-
-        utils = _p2pExtension.pyTMXUtils()
         if not os.path.exists(filename):
             raise ReadTMXFailedException("{} does not exist".format(filename))
-        tmxType = utils.getTypeOfTMX(filename)
-        if tmxType == 0:
-            self.primary_ids_are_string = False
-            self.secondary_ids_are_string = False
-        elif tmxType == 1:
-            self.primary_ids_are_string = False
-            self.secondary_ids_are_string = True
-        elif tmxType == 2:
-            self.primary_ids_are_string = True
-            self.secondary_ids_are_string = False
-        elif tmxType == 3:
-            self.primary_ids_are_string = True
-            self.secondary_ids_are_string = True
-        else:
-            raise ReadTMXFailedException("Unrecognized tmx type: {}".format(tmxType))
+        tmx_type_reader = _p2pExtension.pyTMXTypeReader(filename.encode('utf-8'))
+
+        self.primary_ids_are_string = self._map_id_type_enum_to_is_string_boolean[
+            tmx_type_reader.get_row_type_enum()]
+        self.secondary_ids_are_string = self._map_id_type_enum_to_is_string_boolean[
+            tmx_type_reader.get_col_type_enum()]
+        self.is_extended = self._map_value_type_enum_to_is_extended_boolean[
+            tmx_type_reader.get_value_type_enum()]
 
         self._load_parser()
         self._load_extension()
@@ -170,6 +173,22 @@ class MatrixInterface:
         Raises:
             ReadOTPCSVFailedException
         """
+        if not os.path.exists(filename):
+            raise FileNotFoundError(filename)
+
+        with open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            first_line = next(reader)
+
+        try:
+            int(first_line[0])
+        except ValueError:
+            self.primary_ids_are_string = True
+        try:
+            int(first_line[1])
+        except ValueError:
+            self.primary_ids_are_string = True
+
         try:
             self._load_parser()
             self._load_extension()
@@ -250,18 +269,34 @@ class MatrixInterface:
         elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
             self._parser = BaseParser
 
+    def _get_extension(self):
+        """
+        Returns: class of transit matrix.
+        """
+        if self.is_extended:
+            if self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxSxUI
+            elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxIxUI
+            elif not self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixIxSxUI
+            elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return  _p2pExtension.pyTransitMatrixIxIxUI
+        else:
+            if self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxSxUS
+            elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxIxUS
+            elif not self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixIxSxUS
+            elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixIxIxUS
+
     def _load_extension(self):
         """
         Load the relevant variant of extension.
         """
-        if self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
-        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI()
-        elif not self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS()
-        elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
+        self.transit_matrix = self._get_extension()()
 
     def prepare_matrix(self, is_symmetric, is_compressible, rows, columns, network_vertices):
         """
@@ -288,16 +323,8 @@ class MatrixInterface:
 
         self._load_parser()
 
-        if self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS(is_compressible, is_symmetric, rows, columns)
-        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI(is_compressible, is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS(is_compressible, is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI(is_compressible, is_symmetric, rows, columns)
-        else:
-            assert False, "Logic Error"
+        self.transit_matrix = self._get_extension()(is_compressible, is_symmetric, rows, columns)
+
         self.transit_matrix.prepareGraphWithVertices(network_vertices)
 
     def write_csv(self, filename):

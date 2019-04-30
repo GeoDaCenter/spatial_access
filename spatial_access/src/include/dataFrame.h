@@ -23,11 +23,8 @@
 /* a pandas-like dataFrame */
 template <class row_label_type, class col_label_type, class value_type>
 class dataFrame {
-private:
-    static constexpr value_type UNDEFINED = std::numeric_limits<value_type>::max();
 public:
-
-    // Public Members
+    static constexpr value_type UNDEFINED = std::numeric_limits<value_type>::max();
     std::vector<std::vector<value_type>> dataset;
     bool isCompressible;
     bool isSymmetric;
@@ -75,11 +72,8 @@ public:
         auto reader_row_labels = reader.row_labels;
         auto reader_col_labels = reader.col_labels;
 
-        std::unordered_set<unsigned long int> unique_row_labels_set(reader_row_labels.begin(), reader_row_labels.end());
-        std::unordered_set<unsigned long int> unique_col_labels_set(reader_col_labels.begin(), reader_col_labels.end());
-
-        std::vector<unsigned long int> unique_row_labels_vector;
-        std::vector<unsigned long int> unique_col_labels_vector;
+        std::unordered_set<row_label_type> unique_row_labels_set(reader_row_labels.begin(), reader_row_labels.end());
+        std::unordered_set<col_label_type> unique_col_labels_set(reader_col_labels.begin(), reader_col_labels.end());
 
         rowIds.assign(unique_row_labels_set.begin(), unique_row_labels_set.end());
         colIds.assign(unique_col_labels_set.begin(), unique_col_labels_set.end());
@@ -446,9 +440,14 @@ public:
             throw std::runtime_error(error);
         }
 
-        auto row_enum_type = rowReader.readIdTypeEnum();
-        auto col_enum_type = colReader.readIdTypeEnum();
-        auto value_enum_type = dataReader.readValueTypeEnum();
+        // row_enum_type
+        rowReader.readIdTypeEnum();
+
+        // col_enum_type
+        colReader.readIdTypeEnum();
+
+        // value_enum_type
+        dataReader.readValueTypeEnum();
 
         isCompressible = rowReader.readIsCompressible();
         isSymmetric = rowReader.readIsSymmetric();
@@ -486,9 +485,12 @@ private:
             streamToWrite << rowIds.at(row_loc) << ",";
             for (unsigned long int col_loc = 0; col_loc < cols; col_loc++)
             {
-                auto value = this->getValueByLoc(row_loc, col_loc);
-                auto value_to_write = value < UNDEFINED ? value : -1;
-                streamToWrite << value_to_write << ",";
+                value_type value = this->getValueByLoc(row_loc, col_loc);
+                if (value < UNDEFINED) {
+                    streamToWrite << value << ",";
+                } else {
+                    streamToWrite << "-1" << ",";
+                }
             }
             streamToWrite << std::endl;
         }

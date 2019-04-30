@@ -26,6 +26,23 @@ public:
         output.write((char *) &value[0], vec_size * sizeof(T));
         checkStreamIsGood();
     }
+
+    template<>
+    void writeVector(const std::vector<std::string>& value)
+    {
+        typename std::vector<std::string>::size_type size = value.size();
+
+        writeNumericType<unsigned long int>(size);
+
+        for (typename std::vector<std::string>::size_type i = 0; i < size; ++i)
+        {
+            typename std::vector<std::string>::size_type element_size = value[i].size();
+            output.write((char*)&element_size, sizeof(element_size));
+            output.write(&value[i][0], element_size);
+        }
+        checkStreamIsGood();
+    }
+
     template <class T> void write2DVector(const std::vector<std::vector<T>>& value)
     {
         unsigned long int vec_size = value.size();
@@ -61,6 +78,24 @@ public:
         input.read(reinterpret_cast<char *>(&value[0]), vec_size*sizeof(T));
         checkStreamIsGood();
     }
+
+    template<>
+    void readVector(std::vector<std::string>& value)
+    {
+        typename std::vector<std::string>::size_type size = 0;
+        input.read((char*)&size, sizeof(size));
+        value.resize(size);
+        checkStreamIsGood();
+        for (typename std::vector<std::string>::size_type i = 0; i < size; ++i)
+        {
+            typename std::vector<std::string>::size_type element_size = 0;
+            input.read((char*)&element_size, sizeof(element_size));
+            value[i].resize(element_size);
+            input.read(&value[i][0], element_size);
+        }
+        checkStreamIsGood();
+    }
+
     template <class T> void read2DVector(std::vector<std::vector<T>>& value)
     {
         auto vec_size = readNumericType<unsigned long>();

@@ -70,9 +70,7 @@ private:
     Deserializer& sharedDeserializer;
 public:
     tmxReader(Deserializer& sharedDeserializer) : sharedDeserializer(sharedDeserializer) {};
-//    tmxReader(const std::string& filename) {
-//        sharedDeserializer = Deserializer(filename);
-//    }
+
     unsigned short readTMXVersion()
     {
         return sharedDeserializer.readNumericType<unsigned short>();
@@ -117,5 +115,16 @@ public:
         sharedDeserializer.read2DVector(data);
     }
 
+};
+
+class tmxTypeReader{
+private:
+    Deserializer deserializer;
+public:
+    tmxTypeReader(const std::string& filename) : deserializer(filename) {}
+    unsigned short readUshort()
+    {
+        return deserializer.readNumericType<unsigned short>();
+    }
 
 };

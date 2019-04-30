@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-#include <climits>
 #include <queue>
 #include <functional>
 #include <numeric>
@@ -23,6 +22,132 @@ using namespace std;
 typedef unsigned long int network_node;
 
 
+template<class row_label_type, class col_label_type, class value_type>
+constexpr value_type dataFrame<row_label_type, col_label_type, value_type>::UNDEFINED;
+
+template<class row_label_type, class col_label_type, class value_type>
+void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type, value_type> &worker_args)
+{
+    network_node src;
+    bool endNow = false;
+    std::vector<value_type> dist_vector(worker_args.graph.vertices);
+    while (!worker_args.jq.empty()) {
+        src = worker_args.jq.pop(endNow);
+        //exit loop if job queue worker_args is empty
+        if (endNow) {
+            break;
+        }
+        doDijstraFromOneNetworkNode(src, worker_args, dist_vector);
+    }
+}
+
+template<class row_label_type, class col_label_type, class value_type>
+void calculateSingleRowOfDataFrame(const std::vector<value_type> &dist,
+                                   graphWorkerArgs<row_label_type, col_label_type, value_type> &worker_args,
+                                   network_node src) {
+    value_type src_imp, dst_imp, calc_imp, fin_imp;
+    //  iterate through each data point of the current source tract
+    auto sourceTract = worker_args.userSourceData.retrieveTract(src);
+    for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
+    {
+        src_imp = sourceDataPoint.lastMileDistance;
+
+        auto destNodeIds = worker_args.userDestData.retrieveUniqueNetworkNodeIds();
+        // iterate through each dest tract
+        std::vector<value_type> row_data;
+        if (worker_args.df.isCompressible)
+        {
+            row_data.assign(worker_args.df.cols - sourceDataPoint.loc, worker_args.df.UNDEFINED);
+        } else
+        {
+            row_data.assign(worker_args.df.cols, worker_args.df.UNDEFINED);
+        }
+
+        for (network_node destNodeId : destNodeIds)
+        {
+            auto destTract = worker_args.userDestData.retrieveTract(destNodeId);
+            auto destPoints = destTract.retrieveDataPoints();
+            for (auto destDataPoint : destPoints)
+            {
+                if (worker_args.df.isCompressible)
+                {
+                    if (worker_args.df.isUnderDiagonal(sourceDataPoint.loc, destDataPoint.loc))
+                    {
+                        continue;
+                    }
+                }
+                calc_imp = dist.at(destNodeId);
+                if ((worker_args.df.isSymmetric) && (destDataPoint.loc == sourceDataPoint.loc))
+                {
+                    fin_imp = 0;
+                }
+                else
+                {
+                    dst_imp = destDataPoint.lastMileDistance;
+                    if (calc_imp == worker_args.df.UNDEFINED)
+                    {
+                        fin_imp = worker_args.df.UNDEFINED;
+                    }
+                    else
+                    {
+                        fin_imp = dst_imp + src_imp + calc_imp;
+                    }
+
+                }
+                if (worker_args.df.isCompressible)
+                {
+                    row_data.at(destDataPoint.loc - sourceDataPoint.loc) = fin_imp;
+                } else {
+                    row_data.at(destDataPoint.loc) = fin_imp;
+                }
+
+
+            }
+
+        }
+        worker_args.df.setRowByRowLoc(row_data, sourceDataPoint.loc);
+
+
+    }
+
+}
+
+
+template<class row_label_type, class col_label_type, class value_type>
+void doDijstraFromOneNetworkNode(network_node src, graphWorkerArgs<row_label_type, col_label_type, value_type> &worker_args,
+                                 std::vector<value_type>& dist_vector)
+{
+    typedef std::pair<value_type, network_node> queue_pair;
+    network_node V = worker_args.graph.vertices;
+
+    std::fill(dist_vector.begin(), dist_vector.end(), worker_args.df.UNDEFINED);
+    dist_vector.at(src) = 0;
+    std::priority_queue<queue_pair, std::vector<queue_pair>, std::greater<queue_pair>> queue;
+    queue.push(std::make_pair(0, src));
+    std::vector<bool> visited(V, false);
+    while (!queue.empty())
+    {
+        network_node u = queue.top().second;
+        queue.pop();
+        visited.at(u) = true;
+        for (auto neighbor : worker_args.graph.neighbors.at(u))
+        {
+            auto v = std::get<0>(neighbor);
+            auto weight = std::get<1>(neighbor);
+            if ((!visited.at(v)) and (dist_vector.at(v) > dist_vector.at(u) + weight))
+            {
+                dist_vector.at(v) = dist_vector.at(u) + weight;
+                queue.push(std::make_pair(dist_vector.at(v), v));
+            }
+        }
+    }
+
+    //calculate row and add to dataFrame
+    calculateSingleRowOfDataFrame<row_label_type, col_label_type, value_type>(dist_vector, worker_args, src);
+
+}
+
+
 template <class row_label_type, class col_label_type, class value_type>
 class transitMatrix {
 public:
@@ -31,7 +156,7 @@ public:
     dataFrame<row_label_type, col_label_type, value_type> df;
     userDataContainer<value_type> userSourceDataContainer;
     userDataContainer<value_type> userDestDataContainer;
-    Graph graph;
+    Graph<value_type> graph;
 
     // Constructors
     transitMatrix(bool isCompressible, bool isSymmetric,  unsigned long int rows, unsigned long int cols)
@@ -89,7 +214,7 @@ public:
         {
             auto from_loc = from_column.at(i);
             auto to_loc = to_column.at(i);
-            auto edge_weight = edge_weights_column.at(i);
+            value_type edge_weight = edge_weights_column.at(i);
             auto is_bidirectional = is_bidirectional_column.at(i);
             graph.addEdge(from_loc, to_loc, edge_weight);
             if (is_bidirectional)
@@ -123,7 +248,8 @@ public:
             graphWorkerArgs<row_label_type, col_label_type, value_type> worker_args(graph, userSourceDataContainer, userDestDataContainer,
                                                                df);
             worker_args.initialize();
-            workerQueue<row_label_type, col_label_type, value_type> wq(numThreads, this->graphWorkerHandler, worker_args);
+            workerQueue<row_label_type, col_label_type, value_type> wq(numThreads,
+                    graphWorkerHandler<row_label_type, col_label_type, value_type>, worker_args);
             wq.startGraphWorker();
         } catch (...)
         {
@@ -192,7 +318,7 @@ public:
     value_type
     timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const
     {
-        value_type minimum = USHRT_MAX;
+        value_type minimum = df.UNDEFINED;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
         {
             value_type dest_time = this->df.getValueById(source_id, dest_id);
@@ -223,7 +349,7 @@ public:
     value_type
     timeToNearestDest(const row_label_type& source_id) const
     {
-        value_type minimum = USHRT_MAX;
+        value_type minimum = df.UNDEFINED;
         network_node row_loc = df.getRowLocForId(source_id);
         for (network_node col_loc = 0; col_loc < df.cols; col_loc++)
         {
@@ -314,124 +440,5 @@ public:
 private:
     // Private Members
     std::unordered_map<std::string, std::vector<col_label_type>> categoryToDestMap;
-    void calculateSingleRowOfDataFrame(const std::vector<value_type> &dist,
-                                       graphWorkerArgs<row_label_type, col_label_type, value_type> &worker_args,
-                                       network_node src) {
-        value_type src_imp, dst_imp, calc_imp, fin_imp;
-        //  iterate through each data point of the current source tract
-        auto sourceTract = worker_args.userSourceData.retrieveTract(src);
-        for (auto sourceDataPoint : sourceTract.retrieveDataPoints())
-        {
-            src_imp = sourceDataPoint.lastMileDistance;
-
-            auto destNodeIds = worker_args.userDestData.retrieveUniqueNetworkNodeIds();
-            // iterate through each dest tract
-            std::vector<value_type> row_data;
-            if (worker_args.df.isCompressible)
-            {
-                row_data.assign(worker_args.df.cols - sourceDataPoint.loc, USHRT_MAX);
-            } else
-            {
-                row_data.assign(worker_args.df.cols, USHRT_MAX);
-            }
-
-            for (network_node destNodeId : destNodeIds)
-            {
-                auto destTract = worker_args.userDestData.retrieveTract(destNodeId);
-                auto destPoints = destTract.retrieveDataPoints();
-                for (auto destDataPoint : destPoints)
-                {
-                    if (worker_args.df.isCompressible)
-                    {
-                        if (worker_args.df.isUnderDiagonal(sourceDataPoint.loc, destDataPoint.loc))
-                        {
-                            continue;
-                        }
-                    }
-                    calc_imp = dist.at(destNodeId);
-                    if ((worker_args.df.isSymmetric) && (destDataPoint.loc == sourceDataPoint.loc))
-                    {
-                        fin_imp = 0;
-                    }
-                    else
-                    {
-                        dst_imp = destDataPoint.lastMileDistance;
-                        if (calc_imp == USHRT_MAX)
-                        {
-                            fin_imp = USHRT_MAX;
-                        }
-                        else
-                        {
-                            fin_imp = dst_imp + src_imp + calc_imp;
-                        }
-
-                    }
-                    if (worker_args.df.isCompressible)
-                    {
-                        row_data.at(destDataPoint.loc - sourceDataPoint.loc) = fin_imp;
-                    } else {
-                        row_data.at(destDataPoint.loc) = fin_imp;
-                    }
-
-
-                }
-
-            }
-            worker_args.df.setRowByRowLoc(row_data, sourceDataPoint.loc);
-
-
-        }
-
-    }
-
-
-    typedef std::pair<value_type, network_node> queue_pair;
-    
-    void doDijstraFromOneNetworkNode(network_node src, graphWorkerArgs<row_label_type, col_label_type, value_type> &worker_args,
-                                     std::vector<value_type>& dist_vector)
-    {
-        network_node V = worker_args.graph.getV();
-
-        std::fill(dist_vector.begin(), dist_vector.end(), USHRT_MAX);
-        dist_vector.at(src) = 0;
-        std::priority_queue<queue_pair, std::vector<queue_pair>, std::greater<queue_pair>> queue;
-        queue.push(std::make_pair(0, src));
-        std::vector<bool> visited(V, false);
-        while (!queue.empty())
-        {
-            network_node u = queue.top().second;
-            queue.pop();
-            visited.at(u) = true;
-            for (auto neighbor : worker_args.graph.neighbors.at(u))
-            {
-                auto v = std::get<0>(neighbor);
-                auto weight = std::get<1>(neighbor);
-                if ((!visited.at(v)) and (dist_vector.at(v) > dist_vector.at(u) + weight))
-                {
-                    dist_vector.at(v) = dist_vector.at(u) + weight;
-                    queue.push(std::make_pair(dist_vector.at(v), v));
-                }
-            }
-        }
-
-        //calculate row and add to dataFrame
-        calculateSingleRowOfDataFrame(dist_vector, worker_args, src);
-
-    }
-    
-    void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type, value_type> &worker_args)
-    {
-        network_node src;
-        bool endNow = false;
-        std::vector<value_type> dist_vector(worker_args.graph.getV());
-        while (!worker_args.jq.empty()) {
-            src = worker_args.jq.pop(endNow);
-            //exit loop if job queue worker_args is empty
-            if (endNow) {
-                break;
-            }
-            doDijstraFromOneNetworkNode(src, worker_args, dist_vector);
-        }
-    }
 
 };

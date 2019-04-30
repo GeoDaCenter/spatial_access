@@ -14,9 +14,7 @@ if sys.platform == "darwin":
 
 SRC_PATH = "spatial_access/src/"
 
-MATRIX_INTERFACE_SOURCES = ["dataFrame.cpp",
-                            "Serializer.cpp",
-                            "Graph.cpp",
+MATRIX_INTERFACE_SOURCES = ["Serializer.cpp",
                             "threadUtilities.cpp",
                             "tmxParser.cpp",
                             "csvParser.cpp"]

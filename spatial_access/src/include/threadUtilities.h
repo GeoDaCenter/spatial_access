@@ -59,12 +59,12 @@ public:
 template<class row_label_type, class col_label_type, class value_type>
 class graphWorkerArgs {
 public:
-    Graph &graph;
+    Graph<value_type> &graph;
     dataFrame<row_label_type, col_label_type, value_type> &df;
     jobQueue jq;
     userDataContainer<value_type> userSourceData;
     userDataContainer<value_type> userDestData;
-    graphWorkerArgs(Graph &graph, userDataContainer<value_type> &userSourceData,
+    graphWorkerArgs(Graph<value_type> &graph, userDataContainer<value_type> &userSourceData,
                        userDataContainer<value_type> &userDestData,
                        dataFrame<row_label_type, col_label_type, value_type> &df)
     : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData) {}

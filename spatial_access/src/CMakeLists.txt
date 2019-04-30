@@ -6,7 +6,6 @@ include_directories(include)
 set(SOURCE_FILES
         Serializer.cpp
         Matrix.cpp
-        Graph.cpp
         threadUtilities.cpp
         csvParser.cpp
         tmxParser.cpp)

@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 #include <type_traits>
+#include <limits>
 
 template <class T>
 class csvParser {
@@ -22,6 +23,8 @@ public:
 
         getline(sharedFile, line);
         std::istringstream stream(line);
+
+        getline(stream, item, ',');
 
         while (getline(stream, item, ','))
         {
