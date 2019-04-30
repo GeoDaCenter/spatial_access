@@ -27,7 +27,6 @@ public:
         checkStreamIsGood();
     }
 
-    template<>
     void writeVector(const std::vector<std::string>& value)
     {
         typename std::vector<std::string>::size_type size = value.size();
@@ -79,7 +78,6 @@ public:
         checkStreamIsGood();
     }
 
-    template<>
     void readVector(std::vector<std::string>& value)
     {
         typename std::vector<std::string>::size_type size = 0;
