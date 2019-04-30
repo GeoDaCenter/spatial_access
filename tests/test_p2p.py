@@ -1,4 +1,5 @@
 from spatial_access.p2p import TransitMatrix
+from spatial_access.Configs import Configs
 
 from spatial_access.SpatialAccessExceptions import PrimaryDataNotFoundException
 from spatial_access.SpatialAccessExceptions import SecondaryDataNotFoundException
@@ -62,6 +63,7 @@ class TestClass:
         failure and produces the expected result
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
+
         transit_matrix_1 = TransitMatrix('walk',
             primary_input='tests/test_data/sources.csv',
             secondary_input='tests/test_data/dests.csv',
@@ -70,7 +72,7 @@ class TestClass:
         transit_matrix_1._network_interface.load_network(transit_matrix_1.primary_data,
                                                         transit_matrix_1.secondary_data,
                                                         secondary_input=True,
-                                                        epsilon=transit_matrix_1.epsilon)
+                                                         epsilon=transit_matrix_1.configs.epsilon)
 
 
         assert transit_matrix_1._network_interface.number_of_nodes() > 0
@@ -81,11 +83,13 @@ class TestClass:
         Tests the use_meters flag.
         """
         hints = {'idx':'name', 'lat':'y', 'lon':'x'}
+        custom_configs = Configs()
+        custom_configs.use_meters = True
         transit_matrix_1 = TransitMatrix('walk',
             primary_input='tests/test_data/sources.csv',
             secondary_input='tests/test_data/dests.csv',
             primary_hints=hints, secondary_hints=hints,
-            use_meters=True)
+            configs=custom_configs)
         transit_matrix_1.process()
 
     def test_6(self):

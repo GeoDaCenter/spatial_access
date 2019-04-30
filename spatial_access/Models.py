@@ -117,7 +117,7 @@ class DestSum(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None,
-                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+                 categories=None, configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -125,14 +125,14 @@ class DestSum(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
         """
 
         super().__init__(network_type, sources_filename=sources_filename, source_column_names=source_column_names,
                          destinations_filename=destinations_filename, dest_column_names=dest_column_names,
-                         bike_speed=bike_speed, walk_speed=walk_speed, debug=debug)
+                         configs=configs, debug=debug)
 
         self.reload_sources(sources_filename)
         self.reload_dests(destinations_filename)
@@ -191,7 +191,7 @@ class TSFCA(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+                 categories=None, configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -199,8 +199,8 @@ class TSFCA(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
             transit_matrix_filename: string, optional.
         """
@@ -210,8 +210,7 @@ class TSFCA(ModelData):
                          destinations_filename=destinations_filename,
                          source_column_names=source_column_names,
                          dest_column_names=dest_column_names,
-                         walk_speed=walk_speed,
-                         bike_speed=bike_speed,
+                         configs=configs,
                          debug=debug)
 
         self.load_transit_matrix(transit_matrix_filename)
@@ -276,7 +275,7 @@ class AccessTime(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+                 categories=None, configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -284,8 +283,8 @@ class AccessTime(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
             transit_matrix_filename: string, optional.
         """
@@ -295,8 +294,7 @@ class AccessTime(ModelData):
                          destinations_filename=destinations_filename,
                          source_column_names=source_column_names,
                          dest_column_names=dest_column_names,
-                         walk_speed=walk_speed,
-                         bike_speed=bike_speed,
+                         configs=configs,
                          debug=debug)
         self.load_transit_matrix(transit_matrix_filename)
         self.set_focus_categories(categories=categories)
@@ -330,7 +328,7 @@ class AccessCount(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+                 categories=None, configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -338,8 +336,8 @@ class AccessCount(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
             transit_matrix_filename: string, optional.
         """
@@ -349,8 +347,7 @@ class AccessCount(ModelData):
                          destinations_filename=destinations_filename,
                          source_column_names=source_column_names,
                          dest_column_names=dest_column_names,
-                         walk_speed=walk_speed,
-                         bike_speed=bike_speed,
+                         configs=configs,
                          debug=debug)
 
         self.load_transit_matrix(transit_matrix_filename)
@@ -394,7 +391,7 @@ class AccessSum(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 categories=None, bike_speed=None, walk_speed=None, debug=False):
+                 categories=None, configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -402,8 +399,8 @@ class AccessSum(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
             transit_matrix_filename: string, optional.
         """
@@ -413,8 +410,7 @@ class AccessSum(ModelData):
                          destinations_filename=destinations_filename,
                          source_column_names=source_column_names,
                          dest_column_names=dest_column_names,
-                         walk_speed=walk_speed,
-                         bike_speed=bike_speed,
+                         configs=configs,
                          debug=debug)
 
         self.load_transit_matrix(transit_matrix_filename)
@@ -457,7 +453,7 @@ class AccessModel(ModelData):
 
     def __init__(self, network_type, sources_filename=None, source_column_names=None,
                  destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 decay_function='linear', walk_speed=None, bike_speed=None, debug=False):
+                 decay_function='linear', configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -465,8 +461,8 @@ class AccessModel(ModelData):
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
             decay_function: lambda or string
             transit_matrix_filename: string, optional
@@ -478,8 +474,7 @@ class AccessModel(ModelData):
                          destinations_filename=destinations_filename,
                          source_column_names=source_column_names,
                          dest_column_names=dest_column_names,
-                         walk_speed=walk_speed,
-                         bike_speed=bike_speed,
+                         configs=configs,
                          debug=debug)
         self.load_transit_matrix(transit_matrix_filename)
         self._result_column_names = 'score'

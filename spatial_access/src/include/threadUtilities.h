@@ -29,17 +29,17 @@ public:
 
 void do_join(std::thread &t);
 
-template<class row_label_type, class col_label_type> class graphWorkerArgs;
+template<class row_label_type, class col_label_type, class value_type> class graphWorkerArgs;
 
 /* A pool of worker threads to execute a job (f_in), which takes arguments (worker_args)*/
-template<class row_label_type, class col_label_type>
+template<class row_label_type, class col_label_type, class value_type>
 class workerQueue {
 private:
     std::vector<std::thread> threads;
 public:
     workerQueue(unsigned int numThreads,
-            void (*f_in)(graphWorkerArgs<row_label_type, col_label_type>&),
-            graphWorkerArgs<row_label_type, col_label_type> &worker_args)
+            void (*f_in)(graphWorkerArgs<row_label_type, col_label_type, value_type>&),
+            graphWorkerArgs<row_label_type, col_label_type, value_type> &worker_args)
     {
 
         for (unsigned long int i = 0; i < numThreads; i++)
@@ -56,17 +56,17 @@ public:
 };
 
 
-template<class row_label_type, class col_label_type>
+template<class row_label_type, class col_label_type, class value_type>
 class graphWorkerArgs {
 public:
-    Graph &graph;
-    dataFrame<row_label_type, col_label_type> &df;
+    Graph<value_type> &graph;
+    dataFrame<row_label_type, col_label_type, value_type> &df;
     jobQueue jq;
-    userDataContainer userSourceData;
-    userDataContainer userDestData;
-    graphWorkerArgs(Graph &graph, userDataContainer &userSourceData,
-                       userDataContainer &userDestData, 
-                       dataFrame<row_label_type, col_label_type> &df)
+    userDataContainer<value_type> userSourceData;
+    userDataContainer<value_type> userDestData;
+    graphWorkerArgs(Graph<value_type> &graph, userDataContainer<value_type> &userSourceData,
+                       userDataContainer<value_type> &userDestData,
+                       dataFrame<row_label_type, col_label_type, value_type> &df)
     : graph(graph), df(df), jq(), userSourceData(userSourceData), userDestData(userDestData) {}
     void initialize()
     {

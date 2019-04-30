@@ -37,13 +37,8 @@ class TransitMatrix:
             primary_input=None,
             secondary_input=None,
             read_from_file=None,
-            use_meters=False,
             primary_hints=None,
             secondary_hints=None,
-            disable_area_threshold=False,
-            walk_speed=None,
-            bike_speed=None,
-            epsilon=0.05,
             debug=False,
             configs=None):
         """
@@ -53,16 +48,8 @@ class TransitMatrix:
             secondary_input: string, csv filename (omit to calculate an NxN matrix on
                 the primary_input).
             read_from_file: string, tmx or csv filename.
-            use_meters: output will be in meters, not seconds.
             primary_hints: dictionary, map column names to expected values.
             secondary_hints: dictionary, map column names to expected values.
-            disable_area_threshold: boolean, enable if computation fails due to
-                exceeding bounding box area constraint.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
-            epsilon: numeric, factor by which to increase the requested bounding box.
-                Increasing epsilon may result in increased accuracy for points
-                at the edge of the bounding box, but will increase computation times.
             debug: boolean, enable to see more detailed logging output.
             configs: defaults to None, else pass in an instance of Configs to override
                 default values.
@@ -79,12 +66,10 @@ class TransitMatrix:
 
         # arguments
         self.network_type = network_type
-        self.epsilon = epsilon
         self.primary_input = primary_input
         self.secondary_input = secondary_input
         self.primary_hints = primary_hints
         self.secondary_hints = secondary_hints
-        self.use_meters = use_meters
 
         # member variables
         self.primary_data = None
@@ -102,14 +87,10 @@ class TransitMatrix:
             self.configs = Configs()
 
         self._network_interface = NetworkInterface(network_type, logger=self.logger,
-                                                   disable_area_threshold=disable_area_threshold)
+                                                   disable_area_threshold=self.configs.disable_area_threshold)
 
-        self.matrix_interface = MatrixInterface(logger=self.logger)
-
-        if walk_speed is not None:
-            self.configs.walk_speed = walk_speed
-        if bike_speed is not None:
-            self.configs.bike_speed = bike_speed
+        self.matrix_interface = MatrixInterface(logger=self.logger,
+                                                require_extended_range=self.configs.require_extended_range)
 
         if network_type not in {'drive', 'walk', 'bike', 'otp'}:
             raise UnknownModeException(network_type)
@@ -168,7 +149,8 @@ class TransitMatrix:
 
         return filename
 
-    def _get_type_of_series(self, series):
+    @staticmethod
+    def _get_type_of_series(series):
         """
         Returns: type of the series (int16, int32, int64, int128 or str)
 
@@ -310,7 +292,7 @@ class TransitMatrix:
 
         edges = self._network_interface.edges
 
-        if self.use_meters:
+        if self.configs.use_meters:
             edges['edge_weight'] = edges['distance']
         elif self.network_type == 'walk':
             edges['edge_weight'] = edges['distance'] / self.configs._get_walk_speed() \
@@ -370,7 +352,7 @@ class TransitMatrix:
         kd_tree = scipy.spatial.cKDTree(node_array)
 
         unit_cost = 1
-        if self.use_meters:
+        if self.configs.use_meters:
             unit_cost = 1
         elif self.network_type == 'drive':
             unit_cost = self.configs._get_default_drive_speed()
@@ -453,11 +435,12 @@ class TransitMatrix:
         Fetch and cache the osm network.
         """
         self._load_inputs()
-
+        self.logger.debug("Fetching network (%s) with epsilon: %f",
+                          self.network_type, self.configs.epsilon)
         self._network_interface.load_network(self.primary_data,
                                              self.secondary_data,
                                              self.secondary_input is not None,
-                                             self.epsilon)
+                                             self.configs.epsilon)
 
     @staticmethod
     def clear_cache():
@@ -492,9 +475,6 @@ class TransitMatrix:
         """
         assert self.network_type != 'otp', 'no need to call process for an otp matrix'
         start_time = time.time()
-
-        self.logger.debug("Processing network (%s) with epsilon: %f",
-            self.network_type, self.epsilon)
 
         self.prefetch_network()
 

@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "transitMatrix.h"
-#include "TMXUtils.h"
 #include <vector>
 #include <unordered_map>
 #include <cstdlib>
@@ -11,56 +10,33 @@
 
 int main()
 {
-//    auto num_vertices = 3;
-//    auto max_edges_per_vertex = 4;
-//    auto max_edge_weight = 50;
-//    auto num_sources = 4;
-//    auto num_dests = 5;
 //
-//    transitMatrix<unsigned long int, unsigned long int> matrix(false, false, num_sources, num_dests);
-//    matrix.prepareGraphWithVertices(num_vertices);
-//    srand(0);
-//    for (auto i = 0; i < num_vertices; i++)
-//    {
-//        auto num_edges = std::rand() % max_edges_per_vertex;
-//        for (auto t = 0; t < num_edges; t++)
-//        {
-//            unsigned long int adjoining_vertex = std::rand() % num_vertices;
-//            unsigned short int weight = std::rand() % max_edge_weight;
-//            matrix.addSingleEdgeToGraph(i, adjoining_vertex, weight, true);
-//        }
-//    }
-//
-//
-//    auto max_last_mile_impedence = 10;
-//
-//    for (auto i = 0; i < num_sources; i++)
-//    {
-//        unsigned long int associated_network_node = std::rand() % num_vertices;
-//        unsigned short int last_mile_weight = std::rand() % max_last_mile_impedence;
-//        matrix.addToUserSourceDataContainer(associated_network_node, i, last_mile_weight);
-//    }
-//
-//    for (auto i = 0; i < num_dests; i++)
-//    {
-//        unsigned long int associated_network_node = std::rand() % num_vertices;
-//        unsigned short int last_mile_weight = std::rand() % max_last_mile_impedence;
-//        matrix.addToUserDestDataContainer(associated_network_node, i, last_mile_weight);
-//    }
-//    auto start = std::chrono::high_resolution_clock::now();
-//
-//
-//    matrix.compute(5);
-//    auto finish = std::chrono::high_resolution_clock::now();
-//    std::chrono::duration<double> elapsed_secs = finish - start;
-//    std::cout << "elapsed_time" << elapsed_secs.count() << std::endl;
-//    matrix.printDataFrame();
-//    matrix.writeCSV("generated.csv");
+    transitMatrix<unsigned long, unsigned long, unsigned int> matrix(false, true, 3, 3);
 
-    transitMatrix<std::string, std::string> tm2;
-    tm2.readCSV("generated.csv");
-    tm2.printDataFrame();
+    matrix.prepareGraphWithVertices(5);
 
+    std::vector<unsigned long> a = {0, 1, 2, 3, 2, 4};
+    std::vector<unsigned long> b = {1, 2, 3, 4, 4, 0};
+    std::vector<unsigned int> c = {100000, 1, 100000, 100000, 4, 5};
+    std::vector<bool> d = {true, true, true, true, true, true};
+
+    matrix.addEdgesToGraph(a, b, c, d);
+
+    matrix.addToUserSourceDataContainer(1, 10, 1);
+    matrix.addToUserSourceDataContainer(4, 11, 2);
+    matrix.addToUserSourceDataContainer(3, 12, 3);
+
+    matrix.addToUserDestDataContainer(1, 10, 1);
+    matrix.addToUserDestDataContainer(4, 11, 2);
+    matrix.addToUserDestDataContainer(3, 12, 3);
+
+    matrix.compute(10);
+    matrix.printDataFrame();
+    matrix.writeCSV("temp.csv");
+
+    transitMatrix<unsigned long, unsigned long, unsigned int> matrix2;
+    matrix2.readCSV("temp.csv");
+    matrix2.printDataFrame();
 
     return 0;
 };

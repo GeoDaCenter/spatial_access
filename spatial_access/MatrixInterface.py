@@ -17,7 +17,7 @@ from spatial_access.SpatialAccessExceptions import IndecesNotFoundException
 from spatial_access.SpatialAccessExceptions import SourceNotBuiltException
 from spatial_access.SpatialAccessExceptions import UnableToBuildMatrixException
 from spatial_access.SpatialAccessExceptions import UnexpectedShapeException
-
+from spatial_access._parsers import BaseParser, IntStringParser, StringIntParser, StringStringParser
 
 try:
     import _p2pExtension
@@ -30,15 +30,28 @@ class MatrixInterface:
     A wrapper for C++ based transit matrix.
     """
 
-    def __init__(self, logger=None):
+    def __init__(self, logger=None, require_extended_range=False):
         """
         Args:
             logger: optional
+            require_extended_range: Bool. If true, use unsigned integers
+                instead of unsigned shorts for value type to increase
+                max range.
         """
         self.logger = logger
         self.transit_matrix = None
         self.primary_ids_are_string = False
         self.secondary_ids_are_string = False
+        self.is_extended = require_extended_range
+        self._parser = None
+        self._map_id_type_enum_to_is_string_boolean = {
+            0: False,
+            1: True
+        }
+        self._map_value_type_enum_to_is_extended_boolean = {
+            0: False,
+            1: True
+        }
 
     def _read_tmx(self, filename):
         """
@@ -50,23 +63,22 @@ class MatrixInterface:
         Raises:
             ReadTMXFailedException: file does not exist or is corrupted.
         """
-
-        utils = _p2pExtension.pyTMXUtils()
         if not os.path.exists(filename):
             raise ReadTMXFailedException("{} does not exist".format(filename))
-        tmxType = utils.getTypeOfTMX(filename)
-        if tmxType == 0:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
-        elif tmxType == 1:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS()
-        elif tmxType == 2:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI()
-        elif tmxType == 3:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
-        else:
-            raise ReadTMXFailedException("Unrecognized tmx type: {}".format(tmxType))
+        tmx_type_reader = _p2pExtension.pyTMXTypeReader(filename.encode('utf-8'))
+
+        self.primary_ids_are_string = self._map_id_type_enum_to_is_string_boolean[
+            tmx_type_reader.get_row_type_enum()]
+        self.secondary_ids_are_string = self._map_id_type_enum_to_is_string_boolean[
+            tmx_type_reader.get_col_type_enum()]
+        self.is_extended = self._map_value_type_enum_to_is_extended_boolean[
+            tmx_type_reader.get_value_type_enum()]
+
+        self._load_parser()
+        self._load_extension()
+
         try:
-            self.transit_matrix.readTMX(filename)
+            self.transit_matrix.readTMX(self._parser.encode_filename(filename))
         except BaseException:
             raise ReadTMXFailedException("Unable to read tmx from {}".format(filename))
 
@@ -87,31 +99,22 @@ class MatrixInterface:
             header = next(reader)
             first_line = next(reader)
 
-        col_ids_are_int = True
-        row_ids_are_int = True
         try:
             int(header[0])
         except ValueError:
-            col_ids_are_int = False
+            self.secondary_ids_are_string = True
         try:
             int(first_line[0])
         except ValueError:
-            row_ids_are_int = False
-        if row_ids_are_int and col_ids_are_int:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
-        elif row_ids_are_int and not col_ids_are_int:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS()
-        elif not row_ids_are_int and col_ids_are_int:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI()
-        elif not row_ids_are_int and not col_ids_are_int:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS()
-        else:
-            assert False, "Logic Error"
+            self.primary_ids_are_string = True
+
+        self._load_parser()
+        self._load_extension()
 
         try:
-            self.transit_matrix.readCSV(filename)
+            self.transit_matrix.readCSV(self._parser.encode_filename(filename))
         except BaseException:
-            raise ReadCSVFailedException()
+            raise ReadCSVFailedException(filename)
 
     def read_file(self, filename):
         """
@@ -146,9 +149,9 @@ class MatrixInterface:
         """
         start = time.time()
         try:
-            self.transit_matrix.writeTMX(filename)
+            self.transit_matrix.writeTMX(self._parser.encode_filename(filename))
         except BaseException:
-            raise WriteTMXFailedException("Unable to write tmx to {}".format(filename))
+            raise WriteTMXFailedException(filename)
         if self.logger:
             self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
@@ -170,11 +173,28 @@ class MatrixInterface:
         Raises:
             ReadOTPCSVFailedException
         """
+        if not os.path.exists(filename):
+            raise FileNotFoundError(filename)
+
+        with open(filename, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            first_line = next(reader)
+
         try:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI()
-            self.transit_matrix.readOTPCSV(filename)
+            int(first_line[0])
+        except ValueError:
+            self.primary_ids_are_string = True
+        try:
+            int(first_line[1])
+        except ValueError:
+            self.primary_ids_are_string = True
+
+        try:
+            self._load_parser()
+            self._load_extension()
+            self.transit_matrix.readOTPCSV(self._parser.encode_filename(filename))
         except BaseException:
-            raise ReadOTPCSVFailedException()
+            raise ReadOTPCSVFailedException(filename)
 
     def get_values_by_source(self, source_id, sort=False):
         """
@@ -185,7 +205,8 @@ class MatrixInterface:
         Returns:
             Array of (dest_id, value_ pairs)
         """
-        return self.transit_matrix.getValuesBySource(source_id, sort)
+        return self._parser.decode_vector_of_dest_tuples(self.transit_matrix.getValuesBySource(self._parser.encode_source_id(source_id),
+                                                                                               sort))
 
     def get_values_by_dest(self, dest_id, sort=False):
         """
@@ -196,7 +217,8 @@ class MatrixInterface:
         Returns:
             Array of (source_id, value_ pairs)
         """
-        return self.transit_matrix.getValuesByDest(dest_id, sort)
+        return self._parser.decode_vector_of_source_tuples(self.transit_matrix.getValuesByDest(self._parser.encode_dest_id(dest_id),
+                                                                                               sort))
 
     @staticmethod
     def _get_thread_limit():
@@ -214,9 +236,13 @@ class MatrixInterface:
             weight: int, edge weight
             is_also_dest: boolean, true for symmetric matrices
         """
-        self.transit_matrix.addToUserSourceDataContainer(network_id, user_id, weight)
+        self.transit_matrix.addToUserSourceDataContainer(network_id,
+                                                         self._parser.encode_source_id(user_id),
+                                                         weight)
         if is_also_dest:
-            self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
+            self.transit_matrix.addToUserDestDataContainer(network_id,
+                                                           self._parser.encode_dest_id(user_id),
+                                                           weight)
 
     def add_user_dest_data(self, network_id, user_id, weight):
         """
@@ -226,7 +252,51 @@ class MatrixInterface:
             user_id: string or int
             weight: int, edge weight
         """
-        self.transit_matrix.addToUserDestDataContainer(network_id, user_id, weight)
+        self.transit_matrix.addToUserDestDataContainer(network_id,
+                                                       self._parser.encode_dest_id(user_id),
+                                                       weight)
+
+    def _load_parser(self):
+        """
+        Load the relevant variant of parser.
+        """
+        if self.primary_ids_are_string and self.secondary_ids_are_string:
+            self._parser = StringStringParser
+        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+            self._parser = StringIntParser
+        elif not self.primary_ids_are_string and self.secondary_ids_are_string:
+            self._parser = IntStringParser
+        elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
+            self._parser = BaseParser
+
+    def _get_extension(self):
+        """
+        Returns: class of transit matrix.
+        """
+        if self.is_extended:
+            if self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxSxUI
+            elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxIxUI
+            elif not self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixIxSxUI
+            elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return  _p2pExtension.pyTransitMatrixIxIxUI
+        else:
+            if self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxSxUS
+            elif self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixSxIxUS
+            elif not self.primary_ids_are_string and self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixIxSxUS
+            elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
+                return _p2pExtension.pyTransitMatrixIxIxUS
+
+    def _load_extension(self):
+        """
+        Load the relevant variant of extension.
+        """
+        self.transit_matrix = self._get_extension()()
 
     def prepare_matrix(self, is_symmetric, is_compressible, rows, columns, network_vertices):
         """
@@ -250,16 +320,11 @@ class MatrixInterface:
             raise UnexpectedShapeException("If matrix is compressible, it is also symmetric")
         if is_symmetric:
             self.secondary_ids_are_string = self.primary_ids_are_string
-        if self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxS(is_compressible, is_symmetric, rows, columns)
-        elif self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixSxI(is_compressible, is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxS(is_compressible, is_symmetric, rows, columns)
-        elif not self.primary_ids_are_string and not self.secondary_ids_are_string:
-            self.transit_matrix = _p2pExtension.pyTransitMatrixIxI(is_compressible, is_symmetric, rows, columns)
-        else:
-            assert False, "Logic Error"
+
+        self._load_parser()
+
+        self.transit_matrix = self._get_extension()(is_compressible, is_symmetric, rows, columns)
+
         self.transit_matrix.prepareGraphWithVertices(network_vertices)
 
     def write_csv(self, filename):
@@ -272,9 +337,9 @@ class MatrixInterface:
         """
         start = time.time()
         try:
-            self.transit_matrix.writeCSV(filename)
+            self.transit_matrix.writeCSV(self._parser.encode_filename(filename))
         except BaseException:
-            raise WriteCSVFailedException()
+            raise WriteCSVFailedException(filename)
         if self.logger:
             self.logger.info('Wrote to {} in {:,.2f} seconds'.format(filename, time.time() - start))
 
@@ -298,7 +363,7 @@ class MatrixInterface:
         logger_vars = time.time() - start_time
         if self.logger:
             self.logger.debug('Shortest path matrix computed in {:,.2f} seconds'
-                             .format(logger_vars))
+                              .format(logger_vars))
 
     def get_dests_in_range(self, threshold):
         """
@@ -309,7 +374,7 @@ class MatrixInterface:
                 map for dests under threshold distance
                 from source.
         """
-        return self.transit_matrix.getDestsInRange(threshold)
+        return self._parser.decode_source_to_dest_array_dict(self.transit_matrix.getDestsInRange(threshold))
 
     def get_sources_in_range(self, threshold):
         """
@@ -320,16 +385,17 @@ class MatrixInterface:
                 map for sources under threshold distance
                 from dest.
         """
-        return self.transit_matrix.getSourcesInRange(threshold)
+        return self._parser.decode_dest_to_source_array_dict(self.transit_matrix.getSourcesInRange(threshold))
 
-    def _get_value_by_id(self, source, dest):
+    def _get_value_by_id(self, source_id, dest_id):
         """
-        Should not be used in production.
+        Warning: should not be used in production.
         """
         try:
-            return self.transit_matrix.getValueById(source, dest)
+            return self.transit_matrix.getValueById(self._parser.encode_source_id(source_id),
+                                                    self._parser.encode_dest_id(dest_id))
         except BaseException:
-            raise IndecesNotFoundException() 
+            raise IndecesNotFoundException("{},{}".format(source_id, dest_id))
 
     def print_data_frame(self):
         """
@@ -345,7 +411,8 @@ class MatrixInterface:
         Map the dest_id to the category in the
         transit matrix.
         """
-        self.transit_matrix.addToCategoryMap(dest_id, category)
+        self.transit_matrix.addToCategoryMap(self._parser.encode_dest_id(dest_id),
+                                             self._parser.encode_category(category))
 
     def time_to_nearest_dest(self, source_id, category=None):
         """
@@ -354,9 +421,10 @@ class MatrixInterface:
                 category, or of all destinations if category is none.
         """
         if category is None:
-            return self.transit_matrix.timeToNearestDest(source_id)
+            return self.transit_matrix.timeToNearestDest(self._parser.encode_source_id(source_id))
         else:
-            return self.transit_matrix.timeToNearestDestPerCategory(source_id, category)
+            return self.transit_matrix.timeToNearestDestPerCategory(self._parser.encode_source_id(source_id),
+                                                                    self._parser.encode_category(category))
 
     def count_dests_in_range(self, source_id, threshold, category=None):
         """
@@ -365,6 +433,17 @@ class MatrixInterface:
                 category, or of all destinations if category is none.
         """
         if category is None:
-            return self.transit_matrix.countDestsInRange(source_id, threshold)
+            return self.transit_matrix.countDestsInRange(self._parser.encode_source_id(source_id),
+                                                         threshold)
         else:
-            return self.transit_matrix.countDestsInRangePerCategory(source_id, category, threshold)
+            return self.transit_matrix.countDestsInRangePerCategory(self._parser.encode_source_id(source_id),
+                                                                    self._parser.encode_category(category),
+                                                                    threshold)
+
+    def _set_mock_data_frame(self, dataset, source_ids, dest_ids):
+        """
+        Warning: Not for use in production.
+        """
+        self.transit_matrix.setMockDataFrame(dataset,
+                                             self._parser.encode_vector_source_ids(source_ids),
+                                             self._parser.encode_vector_dest_ids(dest_ids))

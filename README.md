@@ -74,25 +74,6 @@ Usage
 ---
 See the iPython notebooks in `docs/` for example usage, or https://readthedocs.org/projects/spatial-acccess/ for technical documentation.
 
-
-### Instructions for building locally (only for developers):
-
-- If updating Cython or C++ code (anything in spatial_access/src/)
-you must install cython
-- To regenerate .pyx files, run: `bash cythonize_extension.sh` (TravisCI will do this automatically on deployment)
-- To install locally, run: `sudo python3 setup.py install `
-- Unit tests require the `pytest` package. From package root directory, run `python3 -m pytest tests/` to run all unit tests.
-
-### PyPi Maintenance
-The package lives at: `https://pypi.org/project/spatial-access/`
-
-When a branch is pulled into Master and builds/passes all unit tests,
-Travis CI will automatically deploy the build to PyPi. 
-
-
-To update PyPi access credentials, see .travis.yml and follow the instructions at https://docs.travis-ci.com/user/deployment/pypi/
-to generate a new encrypted password.
-
 ### Overwriting default configuration values
 p2p provides default configuration values for edge weights and node impedence (see spatial_access/configs.py).
 You can overwrite these as follows:
@@ -104,6 +85,27 @@ custom_config = Configs()
 tm = TransitMatrix(..., configs=custom_config)
 # continue with computation 
 ```
+
+
+Maintainance
+---
+
+### Instructions for building locally (only for developers):
+
+- Additional requirements: `cython` and `jinja2`
+- To regenerate .pyx files, run: `bash cythonize_extension.sh` (TravisCI will do this automatically on deployment)
+- To install locally, run: `sudo python3 setup.py install ` from spatial_access root directory
+- Unit tests require the `pytest` package. From package root directory, run `python3 -m pytest tests/` to run all unit tests.
+
+### PyPi Maintenance
+The package lives at: `https://pypi.org/project/spatial-access/`
+
+When a branch is pulled into Master and builds/passes all unit tests,
+Travis CI will automatically deploy the build to PyPi. 
+
+
+To update PyPi access credentials, see .travis.yml and follow the instructions at https://docs.travis-ci.com/user/deployment/pypi/
+to generate a new encrypted password.
 
 
 ### Installing Ubuntu 18 LTS with dependencies from scratch (recommended for Windows users)

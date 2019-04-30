@@ -11,31 +11,21 @@
 #include <string>
 #include <stdexcept>
 #include <algorithm>
-#include <climits>
+#include <limits>
 
 #include "Serializer.h"
+#include "tmxParser.h"
+#include "csvParser.h"
 #include "otpCSV.h"
-#include "csvRowReader.h"
-#include "csvColReader.h"
 
-#define UNDEFINED (USHRT_MAX)
-#define TMX_VERSION (1)
+#define TMX_VERSION (2)
 
 /* a pandas-like dataFrame */
-template <class row_label_type, class col_label_type>
+template <class row_label_type, class col_label_type, class value_type>
 class dataFrame {
-private:
-    enum Type {
-        IxI,
-        IxS,
-        SxI,
-        SxS
-    };
-
 public:
-
-    // Public Members
-    std::vector<std::vector<unsigned short int>> dataset;
+    static constexpr value_type UNDEFINED = std::numeric_limits<value_type>::max();
+    std::vector<std::vector<value_type>> dataset;
     bool isCompressible;
     bool isSymmetric;
     unsigned long int rows;
@@ -46,10 +36,64 @@ public:
     std::unordered_map<col_label_type, unsigned long int> colIdsToLoc;
     unsigned long int dataset_size;
 
-    // Specialized Methods
-    void writeTMX(const std::string& filename) const;
-    void readTMX(const std::string& filename);
-    void readOTPCSV(const std::string& filename);
+private:
+    void indexRows()
+    {
+        for (unsigned long int row_loc = 0; row_loc < rows; row_loc++)
+        {
+            this->rowIdsToLoc.emplace(std::make_pair(rowIds.at(row_loc), row_loc));
+        }
+    }
+
+    void indexCols()
+    {
+        for (unsigned long int col_loc = 0; col_loc < cols; col_loc++)
+        {
+            this->colIdsToLoc.emplace(std::make_pair(colIds.at(col_loc), col_loc));
+        }
+    }
+
+    void initializeDatatsetSize()
+    {
+        if (isCompressible) {
+            dataset_size = (rows * (rows + 1)) / 2;
+        }
+        else {
+            dataset_size = rows * cols;
+        }
+    }
+
+public:
+    void readOTPCSV(const std::string& filename)
+    {
+        isCompressible = false;
+        isSymmetric = false;
+        otpCSVReader<row_label_type, col_label_type, value_type> reader(filename);
+        auto reader_row_labels = reader.row_labels;
+        auto reader_col_labels = reader.col_labels;
+
+        std::unordered_set<row_label_type> unique_row_labels_set(reader_row_labels.begin(), reader_row_labels.end());
+        std::unordered_set<col_label_type> unique_col_labels_set(reader_col_labels.begin(), reader_col_labels.end());
+
+        rowIds.assign(unique_row_labels_set.begin(), unique_row_labels_set.end());
+        colIds.assign(unique_col_labels_set.begin(), unique_col_labels_set.end());
+        this->rows = rowIds.size();
+        this->cols = colIds.size();
+        indexRows();
+        indexCols();
+        initializeDatatsetSize();
+
+        for (unsigned int row_loc = 0; row_loc < rows; row_loc++)
+        {
+            std::vector<value_type> data(cols, UNDEFINED);
+            dataset.push_back(data);
+        }
+        for (unsigned long int i = 0; i < reader.data.size(); i++)
+        {
+            setValueById(reader_row_labels.at(i), reader_col_labels.at(i), reader.data.at(i));
+        }
+
+    }
 
     // Methods
     dataFrame() = default;
@@ -62,7 +106,7 @@ public:
         {
             this->cols = rows;
             initializeDatatsetSize();
-            std::vector<unsigned short int> data(dataset_size, UNDEFINED);
+            std::vector<value_type> data(dataset_size, UNDEFINED);
             dataset.push_back(data);
         }
         else
@@ -71,14 +115,14 @@ public:
             initializeDatatsetSize();
             for (unsigned int row_loc = 0; row_loc < rows; row_loc++)
             {
-                std::vector<unsigned short int> data(cols, UNDEFINED);
+                std::vector<value_type> data(cols, UNDEFINED);
                 dataset.push_back(data);
             }
         }
 
     }
 
-    void setMockDataFrame(const std::vector<std::vector<unsigned short int>>& dataset,
+    void setMockDataFrame(const std::vector<std::vector<value_type>>& dataset,
                           const std::vector<row_label_type>& row_ids,
                           const std::vector<col_label_type>& col_ids)
     {
@@ -100,7 +144,7 @@ public:
 
 // Getters/Setters
 
-    unsigned short int
+    value_type
     getValueByLoc(unsigned long int row_loc, unsigned long int col_loc) const
     {
         if (isCompressible)
@@ -119,7 +163,7 @@ public:
     }
 
 
-    unsigned short int
+    value_type
     getValueById(const row_label_type& row_id, const col_label_type& col_id) const
     {
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
@@ -128,7 +172,7 @@ public:
     }
 
     void
-    setValueById(const row_label_type& row_id, const col_label_type& col_id, unsigned short int value)
+    setValueById(const row_label_type& row_id, const col_label_type& col_id, value_type value)
     {
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
         unsigned long int col_loc = colIdsToLoc.at(col_id);
@@ -136,10 +180,10 @@ public:
     }
 
 
-    const std::vector<std::pair<col_label_type, unsigned short int>>
+    const std::vector<std::pair<col_label_type, value_type>>
     getValuesByRowId(const row_label_type& row_id, bool sort) const
     {
-        std::vector<std::pair<col_label_type, unsigned short int>> returnValue;
+        std::vector<std::pair<col_label_type, value_type>> returnValue;
         unsigned long int row_loc = rowIdsToLoc.at(row_id);
         for (unsigned long int col_loc = 0; col_loc < cols; col_loc++)
         {
@@ -147,7 +191,7 @@ public:
         }
         if (sort)
         {
-            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<col_label_type, unsigned short int> &left, std::pair<col_label_type, unsigned short int> &right) {
+            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<col_label_type, value_type> &left, std::pair<col_label_type, value_type> &right) {
                 return left.second < right.second;
             });
         }
@@ -155,10 +199,10 @@ public:
     }
 
 
-    const std::vector<std::pair<row_label_type, unsigned short int>>
+    const std::vector<std::pair<row_label_type, value_type>>
     getValuesByColId(const col_label_type& col_id, bool sort) const
     {
-        std::vector<std::pair<row_label_type, unsigned short int>> returnValue;
+        std::vector<std::pair<row_label_type, value_type>> returnValue;
         unsigned long int col_loc = colIdsToLoc.at(col_id);
         for (unsigned long int row_loc = 0; row_loc < rows; row_loc++)
         {
@@ -166,7 +210,7 @@ public:
         }
         if (sort)
         {
-            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<row_label_type, unsigned short int> &left, std::pair<row_label_type, unsigned short int> &right) {
+            std::sort(returnValue.begin(), returnValue.end(), [](std::pair<row_label_type, value_type> &left, std::pair<row_label_type, value_type> &right) {
                 return left.second < right.second;
             });
         }
@@ -217,7 +261,7 @@ public:
 
 
     void
-    setValueByLoc(unsigned long int row_loc, unsigned long int col_loc, unsigned short int value)
+    setValueByLoc(unsigned long int row_loc, unsigned long int col_loc, value_type value)
     {
         if (isCompressible)
         {
@@ -237,7 +281,7 @@ public:
 
 
     void
-    setRowByRowLoc(const std::vector<unsigned short int> &row_data, unsigned long int source_loc)
+    setRowByRowLoc(const std::vector<value_type> &row_data, unsigned long int source_loc)
     {
         if (source_loc > rows)
         {
@@ -257,26 +301,19 @@ public:
         }
     }
 
-
     void
     setRowIds(const std::vector<row_label_type>& row_ids)
     {
-        for (unsigned long int row_loc = 0; row_loc < rows; row_loc++)
-        {
-            this->rowIdsToLoc.emplace(std::make_pair(row_ids.at(row_loc), row_loc));
-        }
         this->rowIds = row_ids;
+        indexRows();
     }
 
 
     void
     setColIds(const std::vector<col_label_type>& col_ids)
     {
-        for (unsigned long int col_loc = 0; col_loc < cols; col_loc++)
-        {
-            this->colIdsToLoc.emplace(std::make_pair(col_ids.at(col_loc), col_loc));
-        }
         this->colIds = col_ids;
+        indexCols();
     }
 
 
@@ -333,34 +370,99 @@ public:
             throw std::runtime_error("unable to read file");
         }
 
+        csvParser<row_label_type> rowReader(fileIN);
+        csvParser<col_label_type> colReader(fileIN);
+        csvParser<value_type> valueReader(fileIN);
+
+        colReader.readLine(colIds);
+        indexCols();
+
         std::string line;
         std::string row_label;
-        std::string column_id_line;
         std::string value;
 
-        csvColReader<col_label_type> colReader;
-        csvRowReader<row_label_type> rowReader;
-
-        getline(fileIN, column_id_line);
-        setColIds(colReader.readLine(column_id_line));
-        std::vector<row_label_type> in_row_labels;
         while (getline(fileIN, line))
         {
-            this->dataset.emplace_back(std::vector<unsigned short int>());
+            this->dataset.emplace_back(std::vector<value_type>());
             std::istringstream stream(line);
 
             getline(stream, row_label,',');
-            in_row_labels.push_back(rowReader.readLine(row_label));
+            rowIds.push_back(rowReader.parse(row_label));
             while(getline(stream, value, ','))
             {
-                this->dataset.at(this->dataset.size() - 1).push_back((unsigned short) std::stol(value));
+                this->dataset.at(this->dataset.size() - 1).push_back(valueReader.parse(value));
             }
         }
         fileIN.close();
-        setRowIds(in_row_labels);
         rows = this->rowIds.size();
         cols = this->colIds.size();
+        indexRows();
         initializeDatatsetSize();
+    }
+
+
+    void writeTMX(const std::string& filename) const
+    {
+        Serializer serializer(filename);
+        tmxWriter<row_label_type> rowWriter(serializer);
+        tmxWriter<col_label_type> colWriter(serializer);
+        tmxWriter<value_type> dataWriter(serializer);
+
+        rowWriter.writeTMXVersion(TMX_VERSION);
+        rowWriter.writeIdTypeEnum();
+        colWriter.writeIdTypeEnum();
+        dataWriter.writeValueTypeEnum();
+
+        rowWriter.writeIsCompressible(isCompressible);
+        rowWriter.writeIsSymmetric(isSymmetric);
+
+        rowWriter.writeNumberOfRows(rows);
+        colWriter.writeNumberOfCols(cols);
+
+        rowWriter.writeIds(rowIds);
+        colWriter.writeIds(colIds);
+        dataWriter.writeData(dataset);
+    }
+
+    void readTMX(const std::string& filename)
+    {
+        Deserializer deserializer(filename);
+
+        tmxReader<row_label_type> rowReader(deserializer);
+        tmxReader<col_label_type> colReader(deserializer);
+        tmxReader<value_type> dataReader(deserializer);
+
+        auto tmx_version = rowReader.readTMXVersion();
+        if (tmx_version != TMX_VERSION)
+        {
+            auto error = std::string("file is an older version of tmx: ") + std::to_string(tmx_version);
+            error += std::string("expected: ") + std::to_string(TMX_VERSION);
+            throw std::runtime_error(error);
+        }
+
+        // row_enum_type
+        rowReader.readIdTypeEnum();
+
+        // col_enum_type
+        colReader.readIdTypeEnum();
+
+        // value_enum_type
+        dataReader.readValueTypeEnum();
+
+        isCompressible = rowReader.readIsCompressible();
+        isSymmetric = rowReader.readIsSymmetric();
+
+        rows = rowReader.readNumberOfRows();
+        cols = colReader.readNumberOfCols();
+
+        rowReader.readIds(rowIds);
+        colReader.readIds(colIds);
+        dataReader.readData(dataset);
+
+        indexRows();
+        indexCols();
+        initializeDatatsetSize();
+
     }
 
 private:
@@ -383,72 +485,21 @@ private:
             streamToWrite << rowIds.at(row_loc) << ",";
             for (unsigned long int col_loc = 0; col_loc < cols; col_loc++)
             {
-                streamToWrite << this->getValueByLoc(row_loc, col_loc) << ",";
+                value_type value = this->getValueByLoc(row_loc, col_loc);
+                if (value < UNDEFINED) {
+                    streamToWrite << value << ",";
+                } else {
+                    streamToWrite << "-1" << ",";
+                }
             }
             streamToWrite << std::endl;
         }
         return true;
     }
 
-    void writeTMXHeader(Serializer& s, Type mode) const
-    {
-
-        s.writeShortInt(TMX_VERSION);
-
-        s.writeShortInt(mode);
-
-        s.writeShortInt(isCompressible);
-
-        s.writeShortInt(isSymmetric);
-
-        s.writeLongInt(rows);
-
-        s.writeLongInt(cols);
-    }
-
-    void readTMXHeader(Deserializer& d, Type expected_mode)
-    {
-        auto tmx_version = d.readShortInt();
-
-        if (tmx_version != TMX_VERSION)
-        {
-            auto error = std::string("file is an older version of tmx: ") + std::to_string(tmx_version);
-            error += std::string("expected: ") + std::to_string(TMX_VERSION);
-            throw std::runtime_error(error);
-        }
-
-        auto mode = (Type) d.readShortInt();
-
-        if (mode != expected_mode) {
-            throw std::runtime_error("Unexpected mode");
-        }
-
-        // isCompressible
-        isCompressible = (bool) d.readShortInt();
-
-        // isSymmetric
-        isSymmetric = (bool) d.readShortInt();
-
-        // rows
-        rows = d.readLongInt();
-
-        // cols
-        cols = d.readLongInt();
-    }
-
-    void initializeDatatsetSize()
-    {
-        if (isCompressible) {
-            dataset_size = (rows * (rows + 1)) / 2;
-        }
-        else {
-            dataset_size = rows * cols;
-        }
-    }
 
 public:
 // Utilities
-
 
     bool
     isUnderDiagonal(unsigned long int row_loc, unsigned long int col_loc) const

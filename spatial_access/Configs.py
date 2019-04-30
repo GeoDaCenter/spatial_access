@@ -54,7 +54,12 @@ class Configs:
                  walk_node_penalty=0,
                  bike_node_penalty=0,
                  drive_node_penalty=4,
-                 speed_limit_dict=None):
+                 speed_limit_dict=None,
+                 use_meters=False,
+                 disable_area_threshold=False,
+                 require_extended_range=False,
+                 epsilon=0.05
+                 ):
         """
         Args:
             walk_speed: numeric (km/hr)
@@ -64,6 +69,14 @@ class Configs:
             bike_node_penalty:  numeric (seconds)
             drive_node_penalty:  numeric (seconds)
             speed_limit_dict: dictionary {edge type (string) : speed in km/hr}
+            use_meters: output will be in meters, not seconds.
+            disable_area_threshold: boolean, enable if computation fails due to
+                exceeding bounding box area constraint.
+            walk_speed: numeric, override default walking speed (km/hr).
+            bike_speed: numeric, override default walking speed (km/hr).
+            epsilon: numeric, factor by which to increase the requested bounding box.
+                Increasing epsilon may result in increased accuracy for points
+                at the edge of the bounding box, but will increase computation times.
         """
         self.ONE_HOUR = 3600  # seconds
         self.ONE_KM = 1000  # meters
@@ -75,6 +88,11 @@ class Configs:
 
         self.bike_speed = bike_speed  # km/hr
         self.bike_node_penalty = bike_node_penalty  # seconds
+
+        self.use_meters = use_meters
+        self.disable_area_threshold = disable_area_threshold
+        self.require_extended_range = require_extended_range
+        self.epsilon = epsilon
 
         if speed_limit_dict is None:
             self.speed_limit_dict = Configs.DEFAULT_SPEED_LIMITS

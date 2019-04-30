@@ -40,7 +40,7 @@ class ModelData:
     def __init__(self, network_type, sources_filename,
                  destinations_filename,
                  source_column_names=None, dest_column_names=None,
-                 walk_speed=None, bike_speed=None, debug=False):
+                 configs=None, debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -48,8 +48,8 @@ class ModelData:
             destinations_filename: string, csv filename.
             source_column_names: dictionary, map column names to expected values.
             dest_column_names: dictionary, map column names to expected values.
-            walk_speed: numeric, override default walking speed (km/hr).
-            bike_speed: numeric, override default walking speed (km/hr).
+            configs: defaults to None, else pass in an instance of Configs to override
+                default values for p2p.
             debug: boolean, enable to see more detailed logging output.
         """
         self.network_type = network_type
@@ -61,8 +61,7 @@ class ModelData:
         self.all_categories = {}
         self.focus_categories = {}
 
-        self.walk_speed = walk_speed
-        self.bike_speed = bike_speed
+        self.configs = configs
 
         self._aggregation_args = {}
         self._is_source = True
@@ -210,8 +209,7 @@ class ModelData:
                                                 secondary_input=self.destinations_filename,
                                                 primary_hints=self.source_column_names,
                                                 secondary_hints=self.dest_column_names,
-                                                walk_speed=self.walk_speed,
-                                                bike_speed=self.bike_speed,
+                                                configs=None,
                                                 debug=self.debug)
             try:
                 self.transit_matrix.process()

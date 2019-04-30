@@ -14,13 +14,10 @@ if sys.platform == "darwin":
 
 SRC_PATH = "spatial_access/src/"
 
-MATRIX_INTERFACE_SOURCES = ["dataFrame.cpp",
-                            "Serializer.cpp",
-                            "userDataContainer.cpp",
-                            "Graph.cpp",
+MATRIX_INTERFACE_SOURCES = ["Serializer.cpp",
                             "threadUtilities.cpp",
-                            "csvRowReader.cpp",
-                            "csvColReader.cpp"]
+                            "tmxParser.cpp",
+                            "csvParser.cpp"]
 
 
 def build_extension(extension_name, sources):
@@ -62,7 +59,8 @@ SUBMODULE_NAMES = ['spatial_access.p2p',
                    'spatial_access.Configs',
                    'spatial_access.NetworkInterface',
                    'spatial_access.MatrixInterface',
-                   'spatial_access.SpatialAccessExceptions']
+                   'spatial_access.SpatialAccessExceptions',
+                   'spatial_access._parsers']
 
 
 if 'READTHEDOCS' in os.environ:

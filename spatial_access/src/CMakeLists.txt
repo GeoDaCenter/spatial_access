@@ -4,13 +4,10 @@ set (CMAKE_CXX_FLAGS "-O3")
 #set(CMAKE_CXX_FLAGS -march=native)
 include_directories(include)
 set(SOURCE_FILES
-        dataFrame.cpp
         Serializer.cpp
         Matrix.cpp
-        userDataContainer.cpp
-        Graph.cpp
         threadUtilities.cpp
-        csvColReader.cpp
-        csvRowReader.cpp)
+        csvParser.cpp
+        tmxParser.cpp)
 project(matrix)
 add_executable(matrix ${SOURCE_FILES})
