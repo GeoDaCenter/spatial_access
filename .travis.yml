@@ -20,7 +20,7 @@ script:
 - pytest tests/
 before_deploy: bumpversion patch
 deploy:
-  skip_cleanup: true
+#  skip_cleanup: true
   provider: pypi
   user: lnoel
   password:
