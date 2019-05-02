@@ -19,8 +19,8 @@ install:
 script:
 - pytest tests/
 before_deploy:
-  bash cythonize_extension.sh
-  bumpversion patch
+- bash cythonize_extension.sh
+- bumpversion patch
 deploy:
   provider: pypi
   user: lnoel
