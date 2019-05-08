@@ -258,6 +258,7 @@ class TSFCA(ModelData):
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        self.model_results['percap_spend_all_categories'] = self.model_results.sum(axis=1)
 
         for column in self.model_results.columns:
             if 'percap_spend' in column:
@@ -317,6 +318,7 @@ class AccessTime(ModelData):
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        self.model_results['time_to_nearest_all_categories'] = self.model_results.min(axis=1)
         return self.model_results
 
 
@@ -377,6 +379,7 @@ class AccessCount(ModelData):
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
 
+        self.model_results['count_in_range_all_categories'] = self.model_results.sum(axis=1)
         for column in self.model_results.columns:
             self._aggregation_args[column] = 'mean'
 
@@ -439,8 +442,10 @@ class AccessSum(ModelData):
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
+        self.model_results['sum_in_range_all_categories'] = self.model_results.sum(axis=1)
         for column in self.model_results.columns:
             self._aggregation_args[column] = 'mean'
+
 
         return self.model_results
 
