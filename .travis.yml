@@ -10,7 +10,6 @@ install:
 - sudo apt-get install libspatialindex-dev
 - pip3 install cython
 - pip3 install osmnet
-- pip3 install bumpversion
 - pip3 install jinja2
 - bash cythonize_extension.sh
 - python3 setup.py sdist build_ext
@@ -21,7 +20,7 @@ script:
 deploy:
   skip_cleanup: true
   provider: pypi
-  script: bash cythonize_extension.sh; bumpversion patch
+  script: bash cythonize_extension.sh
   user: lnoel
   password:
     secure: T7/9KCs0tI2jd1Edqq1GuPvSWyeOa0cTcy93pIJoi+tVi5X/6p9JJXS8UPb73Y908xR/brrkifeF9wtUan9oUgkkAp0GxYK/ZSOEslYmHWwwjZ2fqJeRUOOsD7OvnmllauEtfVqNaETnMXGnJ6rPkfkhKmLq0T2mytTW4ceimSQisIdGiImOoeaObJjwU35oidXov3dbfBK6m+3GCGBTP/sVbKerKs4K1rY4fNtounjb9hwZ8vjpbcb9UQPFNpXkHUAbSisxhKCCwJWbi3wmmFRJLIRJkopljKwVEAVbCmtFmnGBwY4rNIYlTrFWST6BVVKW+EA2BPFWWMY7bA7YSboTQSHbGY9MmnFBmMsAuP3d4SFDwUJZArvu++fiW+nFN1VBXrZUL1VHmAGlXfEM95ZEopPh16X9N1M6WOYK39X9YF40Tl7tBCDIC+TMLD2qECeLv4Nr4k46jiAa01HOyuJpeSW8J1+7i0hJBKbfBIVyoKV6I8mguuu1AsH7iys+rK6en1O95TZEivYCFH8oedLepKmyvBUxJJeLOpiDGMcvHd7/6vpw8ENxlSjhAhdCahduAksL8a/+yp4MuLFcORobW/xi99PbawBTPuiM3rtY8lDv1dm0po6Yarqd4DiPFy3xxHcwm9+gXuRYmEnhfVnvwOoEryox86PSoAPsSpY=
