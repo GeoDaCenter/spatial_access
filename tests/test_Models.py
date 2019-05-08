@@ -313,7 +313,7 @@ class TestClass:
         assert accesscount_model.model_results.loc[7]['count_in_range_A'] == 0
         assert accesscount_model.model_results.loc[8]['count_in_range_A'] == 0
 
-        assert set(accesscount_model.model_results.columns) == {'count_in_range_A'}
+        assert set(accesscount_model.model_results.columns) == {'count_in_range_A', 'count_in_range_all_categories'}
 
     def test_13(self):
         """
@@ -718,7 +718,8 @@ class TestClass:
         except UnexpectedPlotColumnException:
             pass
 
-        assert set(access_sum_model.aggregated_results.columns.values) == {'sum_in_range_A', 'sum_in_range_D'}
+        assert set(access_sum_model.aggregated_results.columns.values) == {'sum_in_range_A', 'sum_in_range_D',
+                                                                           'sum_in_range_all_categories'}
         assert almost_equal(access_sum_model.aggregated_results.loc["HYDE PARK", "sum_in_range_A"], 163)
         assert almost_equal(access_sum_model.aggregated_results.loc["HYDE PARK", "sum_in_range_D"], 7.666)
 
