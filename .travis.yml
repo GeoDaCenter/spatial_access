@@ -19,6 +19,7 @@ install:
 script:
 - pytest tests/
 deploy:
+  skip_cleanup: true
   provider: pypi
   script: bash cythonize_extension.sh; bumpversion patch
   user: lnoel
