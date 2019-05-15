@@ -100,7 +100,7 @@ class MatrixInterface:
             first_line = next(reader)
 
         try:
-            int(header[0])
+            int(header[1])
         except ValueError:
             self.secondary_ids_are_string = True
         try:
