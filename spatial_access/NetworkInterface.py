@@ -41,7 +41,7 @@ class NetworkInterface:
         self.bbox = None
         self.nodes = None
         self.edges = None
-        self.area_threshold = None if disable_area_threshold else 2000  # km
+        self.area_threshold = None if disable_area_threshold else 5000  # km
         assert isinstance(network_type, str)
         self._try_create_cache()
 
@@ -214,12 +214,13 @@ class NetworkInterface:
             if self.logger:
                 self.logger.info('Finished querying osm')
                 self.logger.debug('Cached network to %s', filename)
-        except BaseException:
+        except BaseException as e:
             request_error = """Error trying to download OSM network.
             Did you reverse lat/long?
             Is your network connection functional?
             """
             if self.logger:
+                self.logger.debug(e)
                 self.logger.error(request_error)
             raise UnableToConnectException()
 
