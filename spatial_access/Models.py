@@ -542,14 +542,14 @@ class AccessModel(ModelData):
         self.logger.info("Using weights: {}".format(presented_weight_dict))
 
     def calculate(self, upper_threshold, category_weight_dict=None,
-                  normalize=True, normalize_type='linear'):
+                  normalize=False, normalize_type='z_score'):
         """
         Args:
             category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]} or None
             upper_threshold: time in seconds.
             normalize: boolean. If true, results will be normalized
                 from 0 to 100.
-            normalize_type: 'linear' or 'z_score'.
+            normalize_type: 'z_score'.
         Returns: DataFrame.
         Raises:
             UnexpectedNormalizeColumnsException
@@ -630,16 +630,13 @@ class AccessModel(ModelData):
         Normalize results.
         Args:
             column: which column to normalize.
-            normalize_type: 'linear' or 'z-score'
+            normalize_type: 'z-score'
 
         Raises:
             UnexpectedEmptyColumnException
             UnexpectedNormalizeTypeException
         """
-        if normalize_type == 'linear':
-            max_score = self.model_results[column].max()
-            self.model_results[column] = (self.model_results[column] / max_score) * 100.0
-        elif normalize_type == 'z_score':
+        if normalize_type == 'z_score':
             try:
                 self.model_results[column] = (self.model_results[column]
                                               - self.model_results[column].mean()) / self.model_results[column].std()

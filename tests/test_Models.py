@@ -402,8 +402,8 @@ class TestClass:
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True)
 
-        assert coverage_model.model_results['all_categories_score'].max() == 100
-        assert coverage_model.model_results['all_categories_score'].min() >= 0
+        assert almost_equal(coverage_model.model_results['all_categories_score'].max(), 1.336)
+        assert almost_equal(coverage_model.model_results['all_categories_score'].min(), -1.336)
 
     def test_17(self):
         """
@@ -443,8 +443,8 @@ class TestClass:
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
         coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200, normalize=['A'])
 
-        assert coverage_model.model_results['A_score'].max() == 100
-        assert coverage_model.model_results['A_score'].min() >= 0
+        assert almost_equal(coverage_model.model_results['A_score'].max(), 2.041)
+        assert almost_equal(coverage_model.model_results['A_score'].min(), -0.408)
 
     def test_19(self):
         """
