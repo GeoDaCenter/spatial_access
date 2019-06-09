@@ -542,14 +542,14 @@ class AccessModel(ModelData):
         self.logger.info("Using weights: {}".format(presented_weight_dict))
 
     def calculate(self, upper_threshold, category_weight_dict=None,
-                  normalize=False, normalize_type='z_score'):
+                  normalize=False, normalize_type='minmax'):
         """
         Args:
             category_weight_dict: category_weight_dict: dictionary of {category : [numeric weights]} or None
             upper_threshold: time in seconds.
             normalize: boolean. If true, results will be normalized
                 from 0 to 100.
-            normalize_type: 'z_score'.
+            normalize_type: 'z_score', 'minmax'
         Returns: DataFrame.
         Raises:
             UnexpectedNormalizeColumnsException
@@ -630,7 +630,7 @@ class AccessModel(ModelData):
         Normalize results.
         Args:
             column: which column to normalize.
-            normalize_type: 'z-score'
+            normalize_type: 'z-score', 'minmax'
 
         Raises:
             UnexpectedEmptyColumnException
@@ -642,6 +642,12 @@ class AccessModel(ModelData):
                                               - self.model_results[column].mean()) / self.model_results[column].std()
             except ZeroDivisionError:
                 raise UnexpectedEmptyColumnException(column)
+        elif normalize_type == 'minmax':
+            try:
+                normalize_factor = self.model_results[column].max() - self.model_results[column].min()
+            except ZeroDivisionError:
+                raise RuntimeError("column max == column min ({})".format(self.model_results[column].max()))
+            self.model_results[column] = (self.model_results[column] - self.model_results[column].min()) / normalize_factor
         else:
             raise UnexpectedNormalizeTypeException(normalize_type)
 

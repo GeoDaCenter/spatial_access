@@ -400,7 +400,8 @@ class TestClass:
                                 'D': [4, 3, 1],
                                 'C': [1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True)
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=700, normalize=True,
+                                 normalize_type='z_score')
 
         assert almost_equal(coverage_model.model_results['all_categories_score'].max(), 1.336)
         assert almost_equal(coverage_model.model_results['all_categories_score'].min(), -1.336)
@@ -441,10 +442,19 @@ class TestClass:
         category_weight_dict = {'A': [5, 4, 3, 2, 1],
                                 'D': [4, 3, 1]}
         coverage_model.transit_matrix = self.mock_transit_matrix_values(coverage_model.transit_matrix)
-        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200, normalize=['A'])
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200, normalize=['A'],
+                                 normalize_type='z_score')
 
         assert almost_equal(coverage_model.model_results['A_score'].max(), 2.041)
         assert almost_equal(coverage_model.model_results['A_score'].min(), -0.408)
+
+        coverage_model.calculate(category_weight_dict=category_weight_dict, upper_threshold=200, normalize=True,
+                                 normalize_type='minmax')
+        assert almost_equal(coverage_model.model_results['A_score'].max(), 1.0)
+        assert almost_equal(coverage_model.model_results['A_score'].min(), 0.0)
+        assert almost_equal(coverage_model.model_results['D_score'].max(), 1.0)
+        assert almost_equal(coverage_model.model_results['D_score'].min(), 0.0)
+
 
     def test_19(self):
         """
