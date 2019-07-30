@@ -76,7 +76,7 @@ See the iPython notebooks in `docs/` for example usage, or https://readthedocs.o
 
 Under the **docs** folder, the notebooks run through Hyde Park's amenities simple demo, to make sure you have the setup successfully installed: 
 * [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)  : This notebook shows the installation requirements in order to run the demos.  
-* [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)  : This notebook shows a simple example which runs the walking matrix and metrics for amenities in Hyde Park, Chicago.  
+* [simple_demo.ipynb](./docs/notebooks/simple_demo.ipynb)  : This notebook shows a simple example which runs the walking matrix and metrics for amenities in Hyde Park, Chicago.  
 
 For a more detailed explanation of the spatial_access packages, the estimation of the matrices, and the calculation of the metrics, please check the following notebooks:
 * [0_master.ipynb](./docs/notebooks/0_master.ipynb)  : These notes explain the structure of spatial_access and the logic behind the estination of matrices and metrics.  
