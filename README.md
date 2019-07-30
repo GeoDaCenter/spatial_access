@@ -69,7 +69,7 @@ Installation
 
     `pip3 install spatial_access`
 
-* More detailed instructions for installing in [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)
+**More detailed instructions for installing in [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)**
 
 Usage
 ---
