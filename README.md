@@ -76,14 +76,13 @@ See the iPython notebooks in `docs/` for example usage, or https://readthedocs.o
 
 Under the **docs** folder, the notebooks run through Hyde Park's amenities simple demo, to make sure you have the setup successfully installed: 
 * [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)  : This notebook shows the installation requirements in order to run the demos.  
-* [simple_demo.ipynb](./docs/notebooks/simple_demo.ipynb)  : This notebook shows a simple example which runs the walking matrix and metrics for amenities in Hyde Park, Chicago.  
+* [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)  : This notebook shows a simple example which runs the walking matrix and metrics for amenities in Hyde Park, Chicago.  
 
 For a more detailed explanation of the spatial_access packages, the estimation of the matrices, and the calculation of the metrics, please check the following notebooks:
-* [0_master.ipynb](./docs/notebooks/0_master.ipynb)  : These notes explain the structure of spatial_access and the logic behind the estination of matrices and metrics.
-
-* [1_matrix.ipynb](./docs/notebooks/1_matrix.ipynb)  : This notebook shows how to run the travel time distance matrices.  It uses the [p2p.py](./scripts/p2p.py) script.
-* [2_access_score.ipynb](./docs/notebooks/2_access_score.ipynb)  : This notebook shows how to run the access metrics (origin-based) and the specific parameters that might be tweaked depending on the user's interest.  It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./scripts/Models.py) scripts.
-* [3_coverage_score.ipynb](./docs/notebooks/3_coverage_score.ipynb)  : This notebook shows how to run the coverage metrics (destination-based) and the specific parameters that might be tweaked depending on the user's interest. It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./spatial_access/Models.py) scripts.
+* [0_master.ipynb](./docs/notebooks/0_master.ipynb)  : These notes explain the structure of spatial_access and the logic behind the estination of matrices and metrics.  
+* [1_matrix.ipynb](./docs/notebooks/1_matrix.ipynb)  : This notebook shows how to run the travel time distance matrices.  It uses the [p2p.py](./scripts/p2p.py) script.  
+* [2_access_score.ipynb](./docs/notebooks/2_access_score.ipynb)  : This notebook shows how to run the access metrics (origin-based) and the specific parameters that might be tweaked depending on the user's interest.  It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./scripts/Models.py) scripts.  
+* [3_coverage_score.ipynb](./docs/notebooks/3_coverage_score.ipynb)  : This notebook shows how to run the coverage metrics (destination-based) and the specific parameters that might be tweaked depending on the user's interest. It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./spatial_access/Models.py) scripts. 
 * [4_tsfca.ipynb](./docs/notebooks/4_tsfca.ipynb)  : This notebook shows how to run a two-stage floating catchment area metric access (origin and destination -based) and the specific parameters that might be tweaked depending on the user's interest.  It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./spatial_access/Models.py) scripts.
 
 
