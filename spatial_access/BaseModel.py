@@ -769,11 +769,11 @@ class ModelData:
         results.fillna(value=0, inplace=True)
         return results[columns_to_keep]
 
-    def plot_cdf(self, plot_type=None, xlabel="xlabel", ylabel="ylabel", title="title",
+    def plot_cdf(self, plot_column=None, xlabel="xlabel", ylabel="ylabel", title="title",
                  bins=100, is_density=False, filename=None):
         """
         Args:
-            plot_type: If the model has multiple possibilities to plot, specify which
+            plot_column: If the model has multiple possibilities to plot, specify which
                 one.
             xlabel: xlabel for figure.
             ylabel: ylabel for figure.
@@ -796,12 +796,12 @@ class ModelData:
             cdf_eligible = self.model_results
 
         if isinstance(self._result_column_names, str):
-            if plot_type is not None:
-                raise UnexpectedPlotColumnException(plot_type)
-            plot_type = self._result_column_names
+            if plot_column is not None:
+                raise UnexpectedPlotColumnException(plot_column)
+            plot_column = self._result_column_names
         else:
-            if plot_type is None:
-                raise UnexpectedPlotColumnException(plot_type)
+            if plot_column is None:
+                raise UnexpectedPlotColumnException(plot_column)
 
         # initialize block parameters
         mpl.pyplot.close()
@@ -812,7 +812,7 @@ class ModelData:
         available_colors = ['black', 'magenta', 'lime', 'red', 'black', 'orange', 'grey', 'yellow', 'brown', 'teal']
         color_keys = []
         for column in cdf_eligible.columns:
-            if plot_type not in column:
+            if plot_column not in column:
                 continue
             x = cdf_eligible[column]
             try:

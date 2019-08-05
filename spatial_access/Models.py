@@ -105,7 +105,7 @@ class Coverage(ModelData):
             elif 'percap_spending' in column:
                 self._aggregation_args[column] = 'mean'
 
-        return self.model_results
+        #return self.model_results
 
 
 class DestSum(ModelData):
@@ -158,9 +158,9 @@ class DestSum(ModelData):
         category_col = dests_copy.columns.get_loc('category') + 1
         for row in dests_copy.itertuples():
             dests_copy.loc[row[0], row[category_col]] = row[capacity_col]
-            dests_copy.loc[row[0], 'all_categories'] = row[capacity_col]
+            dests_copy.loc[row[0], 'focus_categories'] = row[capacity_col]
         dest_aggregation_args = {key:'sum' for key in set(dests_copy['category'])}
-        dest_aggregation_args['all_categories'] = 'sum'
+        dest_aggregation_args['focus_categories'] = 'sum'
         dests_copy.fillna(value=0, inplace=True)
 
         self._rejoin_results_with_coordinates(dests_copy, is_source=False)
@@ -179,8 +179,8 @@ class DestSum(ModelData):
 
         for column in aggregated_dests.columns:
             aggregated_dests[column + '_per_capita'] = aggregated_dests[column] / aggregated_sources['population']
-        self.aggregated_results = aggregated_dests
-        return self.aggregated_results
+        self.model_results = aggregated_dests
+        #return self.aggregated_results
 
 
 class TSFCA(ModelData):
@@ -266,7 +266,7 @@ class TSFCA(ModelData):
             elif 'total_spend' in column:
                 self._aggregation_args[column] = 'sum'
 
-        return self.model_results
+        #return self.model_results
 
 
 class AccessTime(ModelData):
@@ -319,7 +319,7 @@ class AccessTime(ModelData):
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
         self.model_results['time_to_nearest_all_categories'] = self.model_results.min(axis=1)
-        return self.model_results
+        #return self.model_results
 
 
 class AccessCount(ModelData):
@@ -383,7 +383,7 @@ class AccessCount(ModelData):
         for column in self.model_results.columns:
             self._aggregation_args[column] = 'mean'
 
-        return self.model_results
+        #return self.model_results
 
 
 class AccessSum(ModelData):
@@ -447,7 +447,7 @@ class AccessSum(ModelData):
             self._aggregation_args[column] = 'mean'
 
 
-        return self.model_results
+        #return self.model_results
 
 
 class AccessModel(ModelData):
@@ -482,6 +482,7 @@ class AccessModel(ModelData):
                          configs=configs,
                          debug=debug)
         self.load_transit_matrix(transit_matrix_filename)
+        self.set_focus_categories(categories=categories)
         self._result_column_names = 'score'
 
     def set_decay_function(self, decay_function):
@@ -623,7 +624,7 @@ class AccessModel(ModelData):
         for column in self.model_results.columns:
             self._aggregation_args[column] = 'mean'
 
-        return self.model_results
+        #return self.model_results
 
     def _normalize(self, column, normalize_type):
         """
