@@ -456,9 +456,17 @@ class AccessModel(ModelData):
     nonprofit services in urban environments.
     """
 
-    def __init__(self, network_type, sources_filename=None, source_column_names=None,
-                 destinations_filename=None, dest_column_names=None, transit_matrix_filename=None,
-                 decay_function='linear', configs=None, debug=False):
+    def __init__(self,
+        network_type,
+        sources_filename=None,
+        source_column_names=None,
+        destinations_filename=None,
+        dest_column_names=None,
+        transit_matrix_filename=None,
+        decay_function='linear', 
+        categories=None,
+        configs=None,
+        debug=False):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
