@@ -215,7 +215,7 @@ class TSFCA(ModelData):
 
         self.load_transit_matrix(transit_matrix_filename)
         self.set_focus_categories(categories=categories)
-        self._result_column_names = {'percap_spend', 'total_spend'}
+        self._result_column_names = {'agg_mean', 'agg_sum'}
 
     def calculate(self, upper_threshold):
         """
@@ -238,7 +238,7 @@ class TSFCA(ModelData):
         column_names = []
 
         for index, category in enumerate(self.focus_categories):
-            column_names.append('percap_spend_' + category)
+            column_names.append('tsfca_' + category)
             column_name_to_index[category] = index
 
         dests_capacity = {}
@@ -258,12 +258,12 @@ class TSFCA(ModelData):
 
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
-        self.model_results['percap_spend_all_categories'] = self.model_results.sum(axis=1)
+        self.model_results['tsfca_all_categories'] = self.model_results.sum(axis=1)
 
         for column in self.model_results.columns:
-            if 'percap_spend' in column:
+            if 'agg_mean' in column:
                 self._aggregation_args[column] = 'mean'
-            elif 'total_spend' in column:
+            elif 'agg_sum' in column:
                 self._aggregation_args[column] = 'sum'
 
         #return self.model_results
