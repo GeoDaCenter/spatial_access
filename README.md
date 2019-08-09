@@ -73,7 +73,7 @@ Installation
 
 Usage
 ---
-See the iPython notebooks in `docs/` for example usage, The first two notebooks contain installation instructions and run through a simple demo to make sure you have the setup successfully installed: 
+See the iPython notebooks in `docs/` for example usage, The first two notebooks contain installation instructions and run through a simple demo to make sure you have the setup successfully installed:
 
 * [0_Reqs_Install.ipynb](./0_Reqs_Install.ipynb): Installation requirements to run the notebook demos  
 * [1_Simple_Test_Demo](.//1_Simple_Test_Demo.ipynb): Simple demo to test your setup installation works   
@@ -138,7 +138,7 @@ to generate a new encrypted password.
 
 ### Questions/Feedback?
 
-lnoel@uchicago.edu or spatial@uchicago.edu
+spatial@uchicago.edu
 
 ### Acknowledgments
 
