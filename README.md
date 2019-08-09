@@ -75,17 +75,17 @@ Usage
 ---
 See the iPython notebooks in `docs/` for example usage, The first two notebooks contain installation instructions and run through a simple demo to make sure you have the setup successfully installed:
 
-* [0_Reqs_Install.ipynb](./0_Reqs_Install.ipynb): Installation requirements to run the notebook demos  
-* [1_Simple_Test_Demo](.//1_Simple_Test_Demo.ipynb): Simple demo to test your setup installation works   
+* [0_Reqs_Install.ipynb](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/0_Reqs_Install.ipynb): Installation requirements to run the notebook demos  
+* [1_Simple_Test_Demo](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/1_Simple_Test_Demo.ipynb): Simple demo to test your setup installation works   
 
 
 The remaining notebooks walk through how to run the travel time matrix and spatial access metrics, including main functions and parameters:  
 
-* [2_Methods](./2_Methods.ipynb): Purpose and structure of the package + methodology for estimating travel time matrices and spatial access metrics  
-* [3_Travel_Time_Matrix.ipynb](./3_Travel_Time_Matrix.ipynb): How to run the travel time matrices using [p2p.py](./scripts/p2p.py)
-* [4_Access_Metrics.ipynb](./4_Access_Metrics.ipynb): How to run the access metrics (origin-based) using  [Models.py](./scripts/Models.py)  
-* [5_Coverage_Metrics.ipynb](./5_Coverage_Metrics.ipynb): How to run the coverage metrics (destination-based) using [Models.py](./spatial_access/Models.py)
-* [6_TSFCA.ipynb](./6_TSFCA.ipynb): How to run a two-stage floating catchment area model (origin-based) using [Models.py](./spatial_access/Models.py)
+* [2_Methods](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/2_Methods.ipynb): Purpose and structure of the package + methodology for estimating travel time matrices and spatial access metrics  
+* [3_Travel_Time_Matrix.ipynb](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/3_Travel_Time_Matrix.ipynb): How to run the travel time matrices using [p2p.py](https://github.com/GeoDaCenter/spatial_access/blob/master/spatial_access/p2p.py)
+* [4_Access_Metrics.ipynb](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/4_Access_Metrics.ipynb): How to run the access metrics (origin-based) using  [Models.py](https://github.com/GeoDaCenter/spatial_access/blob/master/spatial_access/Models.py)  
+* [5_Coverage_Metrics.ipynb](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/5_Coverage_Metrics.ipynb): How to run the coverage metrics (destination-based) using [Models.py](https://github.com/GeoDaCenter/spatial_access/blob/master/spatial_access/Models.py)
+* [6_TSFCA.ipynb](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/6_TSFCA.ipynb): How to run a two-stage floating catchment area model (origin-based) using [Models.py](https://github.com/GeoDaCenter/spatial_access/blob/master/spatial_access/Models.py)
 
 
 The **data** folder contains the input_data needed to estimate the metrics under **sources** (for origins) and **destinations** (for destinations).  
