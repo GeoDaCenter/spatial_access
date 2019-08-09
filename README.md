@@ -1,8 +1,8 @@
 
 
 # spatial_access: Compute travel times and spatial access metrics at scale
-Compute travel times and spatial access measures at scale (millions of origin-destination pairs in minutes). 
-Travel times for three modes: walking, biking, driving. 
+Compute travel times and spatial access measures at scale (millions of origin-destination pairs in minutes).
+Travel times for three modes: walking, biking, driving.
 Spatial access measures: provider-to-people ratio, avg. time to nearest provider, count/attribute sum of nearby providers, weighted access scores and floating catchment areas.
 <table>
 <tr>
@@ -43,17 +43,17 @@ Components of spatial_access :
 spatial_access has two submodules:
 - p2p: Generate many to many matrices with travel times for sets of coordinates. Use `walk` ,`bike` or `drive` network types (import `transit` from other sources), or get the distance in meters.
 - Models: Contains a suite of models for calculating spatial accessibility to amenities.
- 
-To use this service as a ReST API, see: https://github.com/GeoDaCenter/spatial_access_api 
+
+To use this service as a ReST API, see: https://github.com/GeoDaCenter/spatial_access_api
 
 If you are a Windows user, instructions for installing Ubuntu on a virtual machine are at the bottom of the Readme.
 
 
-Installation 
+Installation
 ----
 0. A modern compiler like `gcc` or `clang`.
 
-1. Dependencies 
+1. Dependencies
 
     - MacOS:
 
@@ -62,32 +62,37 @@ Installation
     - Ubuntu:
 
         `sudo apt-get install libspatialindex-dev`
-    
+
         `sudo apt-get install python-tk`
- 
-2. Package 
+
+2. Package
 
     `pip3 install spatial_access`
 
-**More detailed instructions for installing in [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)**
+**More detailed instructions for installing in [0_Reqs_Install.ipynb](./docs/notebooks/0_Reqs_Install.ipynb)**
 
 Usage
 ---
-See the iPython notebooks in `docs/` for example usage, or https://readthedocs.org/projects/spatial-acccess/ for technical documentation.
+See the iPython notebooks in `docs/` for example usage, The first two notebooks contain installation instructions and run through a simple demo to make sure you have the setup successfully installed: 
 
-Under the **docs** folder, the notebooks run through Hyde Park's amenities simple demo, to make sure you have the setup successfully installed: 
-* [reqs_install.ipynb](./docs/notebooks/reqs_install.ipynb)  : This notebook shows the installation requirements in order to run the demos.  
-* [simple_demo.ipynb](./docs/notebooks/simple_demo.ipynb)  : This notebook shows a simple example which runs the walking matrix and metrics for amenities in Hyde Park, Chicago.  
-
-For a more detailed explanation of the spatial_access packages, the estimation of the matrices, and the calculation of the metrics, please check the following notebooks:
-* [0_master.ipynb](./docs/notebooks/0_master.ipynb)  : These notes explain the structure of spatial_access and the logic behind the estination of matrices and metrics.  
-* [1_matrix.ipynb](./docs/notebooks/1_matrix.ipynb)  : This notebook shows how to run the travel time distance matrices.  It uses the [p2p.py](./scripts/p2p.py) script.  
-* [2_access_score.ipynb](./docs/notebooks/2_access_score.ipynb)  : This notebook shows how to run the access metrics (origin-based) and the specific parameters that might be tweaked depending on the user's interest.  It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./scripts/Models.py) scripts.  
-* [3_coverage_score.ipynb](./docs/notebooks/3_coverage_score.ipynb)  : This notebook shows how to run the coverage metrics (destination-based) and the specific parameters that might be tweaked depending on the user's interest. It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./spatial_access/Models.py) scripts. 
-* [4_tsfca.ipynb](./docs/notebooks/4_tsfca.ipynb)  : This notebook shows how to run a two-stage floating catchment area metric access (origin and destination -based) and the specific parameters that might be tweaked depending on the user's interest.  It uses the [BaseModel.py](./spatial_access/BaseModel.py) and [Models.py](./spatial_access/Models.py) scripts.
+* [0_Reqs_Install.ipynb](./0_Reqs_Install.ipynb): Installation requirements to run the notebook demos  
+* [1_Simple_Test_Demo](.//1_Simple_Test_Demo.ipynb): Simple demo to test your setup installation works   
 
 
-The **data** folder contains the [input_data](./data/input_data/) needed for the estimation of the metrics under **sources** (for origins) and **destinations** (for destinations). In [output_data](./data/input_data/), the **matrices** folder contains the estimated symmetric and asymmetric matrices. The **modelss** folder contain the results of the models' analyses. Finally, **figures** contain the results of maps and plots calculated during the process. 
+The remaining notebooks walk through how to run the travel time matrix and spatial access metrics, including main functions and parameters:  
+
+* [2_Methods](./2_Methods.ipynb): Purpose and structure of the package + methodology for estimating travel time matrices and spatial access metrics  
+* [3_Travel_Time_Matrix.ipynb](./3_Travel_Time_Matrix.ipynb): How to run the travel time matrices using [p2p.py](./scripts/p2p.py)
+* [4_Access_Metrics.ipynb](./4_Access_Metrics.ipynb): How to run the access metrics (origin-based) using  [Models.py](./scripts/Models.py)  
+* [5_Coverage_Metrics.ipynb](./5_Coverage_Metrics.ipynb): How to run the coverage metrics (destination-based) using [Models.py](./spatial_access/Models.py)
+* [6_TSFCA.ipynb](./6_TSFCA.ipynb): How to run a two-stage floating catchment area model (origin-based) using [Models.py](./spatial_access/Models.py)
+
+
+The **data** folder contains the input_data needed to estimate the metrics under **sources** (for origins) and **destinations** (for destinations).  
+In output_data, the **matrices** folder stores the estimated symmetric and asymmetric matrices.  
+The **models** folder contains the results of the models' analyses.  
+Finally, **figures** stores the results of maps and plots calculated during the process.
+
 
 
 ### Overwriting default configuration values
@@ -99,7 +104,7 @@ from spatial_access.Configs import Configs
 custom_config = Configs()
 # set fields of custom_cofig
 tm = TransitMatrix(..., configs=custom_config)
-# continue with computation 
+# continue with computation
 ```
 
 Maintainance
@@ -116,7 +121,7 @@ Maintainance
 The package lives at: `https://pypi.org/project/spatial-access/`
 
 When a branch is pulled into Master and builds/passes all unit tests,
-Travis CI will automatically deploy the build to PyPi. 
+Travis CI will automatically deploy the build to PyPi.
 
 
 To update PyPi access credentials, see .travis.yml and follow the instructions at https://docs.travis-ci.com/user/deployment/pypi/
@@ -137,6 +142,4 @@ lnoel@uchicago.edu or spatial@uchicago.edu
 
 ### Acknowledgments
 
-Developed by Logan Noel at the University of Chicago's Center for Spatial Data Science (CSDS) with support from the Public Health National Center for Innovations (PHNCI), the University of Chicago, and CSDS. 
-
-
+Developed by Logan Noel at the University of Chicago's Center for Spatial Data Science (CSDS) with support from the Public Health National Center for Innovations (PHNCI), the University of Chicago, and CSDS.
