@@ -141,7 +141,7 @@
     \def\gt{>}
     \def\lt{<}
     % Document parameters
-    \title{1. matrix}
+    \title{1\_Simple\_Test\_Demo}
     
     
     
@@ -280,225 +280,603 @@
     
 
     
-    \hypertarget{transit-matrix}{%
-\section{Transit Matrix}\label{transit-matrix}}
+    \hypertarget{simple-demo-for-testing}{%
+\section{Simple Demo for Testing}\label{simple-demo-for-testing}}
+
+Authors: \href{https://www.linkedin.com/in/imfarah/}{Irene Farah},
+\href{https://www.linkedin.com/in/julia-koschinsky-657599b1/}{Julia
+Koschinsky}, \href{https://www.linkedin.com/in/lmnoel/}{Logan Noel}.\\
+Contact: \href{mailto:jkoschinsky@uchicago.edu}{Julia Koschinsky}
+
+Research assistance of
+\href{http://simonlab.uchicago.edu/people/ShivAgrawal.html}{Shiv
+Agrawal},
+\href{https://www.linkedin.com/in/caitlyn-tien-0b784b161/}{Caitlyn Tien}
+and \href{https://www.linkedin.com/in/richard-lu-576874155/}{Richard Lu}
+is gratefully acknowledged.
+
+Center for Spatial Data Science\\
+University of Chicago
+
+July 30, 2019
+
+    \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+This notebook lets you test the core spatial access metrics with a toy
+dataset before running your own data. You will input two stored csv
+files:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
+\tightlist
+\item
+  \textbf{hyde\_park\_tracts.csv} contains 12 points of origins (tract
+  centroids for Hyde Park, Chicago + population field)\\
+\item
+  \textbf{hyde\_park\_dests.csv} contains 7 amenities in three
+  categories: museums, restaurants and supermarkets and one target field
+  (this is an attribute of the amenity like number of employees, size or
+  revenue).
+\end{enumerate}
+
+You will first create a matrix of walking times (in seconds) from these
+points of origin to the 7 destinations (the matrix will have 12 rows and
+7 columns).
+
+Then, the demo runs through a basic version of each spatial access and
+coverage metric for illustration purposes. The functionality of each
+spatial access metric is explained in more detail in the following
+notebooks.
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}3}]:} \PY{k+kn}{import} \PY{n+nn}{sys}\PY{o}{,} \PY{n+nn}{os}
-        \PY{n}{os}\PY{o}{.}\PY{n}{chdir}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{contracts/analytics}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        
-        \PY{k+kn}{from} \PY{n+nn}{p2p} \PY{k}{import} \PY{o}{*}
+{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Check to see what version of spatial access you are using}
+        \PY{o}{!} pip3 show spatial\PYZhy{}access
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{cd} \PY{o}{.}\PY{o}{.}\PY{o}{/}\PY{o}{.}\PY{o}{.}
+\end{Verbatim}
+
+
+    \hypertarget{creating-the-travel-time-matrix}{%
+\subsection{Creating the Travel Time
+Matrix}\label{creating-the-travel-time-matrix}}
+
+    This generates a matrix of walking times (in seconds) from the 12
+origins to the 7 destinations (12 rows x 7 columns).
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{k+kn}{from} \PY{n+nn}{spatial\PYZus{}access}\PY{n+nn}{.}\PY{n+nn}{p2p} \PY{k}{import} \PY{o}{*}
 \end{Verbatim}
 
 
     \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-DEMO
-
-    \textbf{View structure of data example: Health Facilities in Chicago.}\\
-Health Facilities Data:
-http://makosak.github.io/chihealthaccess/index.html
+Read in the stored source and destination csv files:
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor}97}]:} \PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/marynia\PYZus{}health.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-         \PY{n}{df}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+{\color{incolor}In [{\color{incolor}4}]:} \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+        \PY{n}{sources\PYZus{}df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+        \PY{n}{dests\PYZus{}df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    View the source data (12 tract centroids):
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}5}]:} \PY{n}{sources\PYZus{}df}
 \end{Verbatim}
 
 
 \begin{Verbatim}[commandchars=\\\{\}]
-{\color{outcolor}Out[{\color{outcolor}97}]:}    agency\_id                                           facility        lat  \textbackslash{}
-         0          1    American Indian Health Service of Chicago, Inc.  41.956676   
-         1          2       Hamdard Center for Health and Human Services  41.997852   
-         2          3                  Infant Welfare Society of Chicago  41.924904   
-         3          4  Mercy Family - Henry Booth House Family Health{\ldots}  41.841694   
-         4          6       Cook County - Dr. Jorge Prieto Health Center  41.847143   
-         
-                  lon  cat\_num  target                category  
-         0 -87.651879        5    1000  Other Health Providers  
-         1 -87.669535        5    2000  Other Health Providers  
-         2 -87.717270        5    1000  Other Health Providers  
-         3 -87.624790        5    3000  Other Health Providers  
-         4 -87.724975        5    1500  Other Health Providers  
+{\color{outcolor}Out[{\color{outcolor}5}]:}         geoid10        lon        lat  Pop2014  Pov14  community
+        0   17031836300 -87.601757  41.801532     6465    234         41
+        1   17031836200 -87.601284  41.790469     1329     47         41
+        2   17031410100 -87.579323  41.801497     1956    551         41
+        3   17031410200 -87.594269  41.801668     1248    362         41
+        4   17031410500 -87.603745  41.797827     2630    717         41
+        5   17031410600 -87.598946  41.797971     2365    703         41
+        6   17031411100 -87.589702  41.790449     2246    154         41
+        7   17031410700 -87.594198  41.798040     1959    453         41
+        8   17031410800 -87.589626  41.797960     3201    741         41
+        9   17031410900 -87.576659  41.797874     2923    607         41
+        10  17031411000 -87.576873  41.790716     3313    465         41
+        11  17031411200 -87.594017  41.790556     1691    289         41
 \end{Verbatim}
             
-    \hypertarget{distance-matrices}{%
-\subsubsection{Distance Matrices}\label{distance-matrices}}
+    View the destination data (7 amenities):
 
- \textbf{Specifications for the symmetric and asymmetric distance
-matrices:}
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}6}]:} \PY{n}{dests\PYZus{}df}
+\end{Verbatim}
 
-\begin{itemize}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}6}]:}                              name        lon        lat     category  target
+        0  Museum of Science and Industry -87.583131  41.790883       Museum     400
+        1                          Medici -87.593738  41.791438   Restaurant      50
+        2                          Valois -87.588328  41.799663   Restaurant      30
+        3                  DuSable Museum -87.607132  41.791985       Museum     100
+        4                     Whole Foods -87.587949  41.801978  Supermarket      50
+        5               Hyde Park Produce -87.595524  41.799942  Supermarket      35
+        6                      Jewel Osco -87.607225  41.784580  Supermarket      70
+\end{Verbatim}
+            
+    Specify travel mode, variable names, and file locations:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{}asymmetric matrix, different source and destination files}
+        \PY{n}{matrix} \PY{o}{=} \PY{n}{TransitMatrix}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                               \PY{n}{primary\PYZus{}hints}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                               \PY{n}{secondary\PYZus{}hints}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                               \PY{n}{primary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                               \PY{n}{secondary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    Get the travel times by querying OpenStreetMap data for the spatial
+extent of your source and destination coordinates:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{matrix}\PY{o}{.}\PY{n}{process}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    Save the travel time matrix in csv and/or tmx format (running access
+metrics with tmx is faster):
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{matrix}\PY{o}{.}\PY{n}{write\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{matrix}\PY{o}{.}\PY{n}{write\PYZus{}tmx}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.tmx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{access-metrics-attributes-of-the-origin-file}{%
+\subsection{Access Metrics (Attributes of the Origin
+File)}\label{access-metrics-attributes-of-the-origin-file}}
+
+    Next, the travel time matrix serves as the input for the calculation of
+several spatial access metrics. We first calculate spatial access
+measures that are attributes of the point of origin (12 tract
+centroids). After that, we calculate so-called coverage metrics that are
+attributes of the destination points (7 amenities).
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}10}]:} \PY{k+kn}{from} \PY{n+nn}{spatial\PYZus{}access}\PY{n+nn}{.}\PY{n+nn}{Models} \PY{k}{import} \PY{o}{*}
+\end{Verbatim}
+
+
+    \hypertarget{access-model}{%
+\subsubsection{Access Model}\label{access-model}}
+
+    The first line of code defines the Access Model using the previously
+generated matrix of travel times from above.\\
+If you specify \textbf{\texttt{transit\_matrix\_filename=None}}, the
+matrix will be estimated on the fly.
+
+The Access Model generates an access score to measure how accessible a
+location is to multiple amenities within a given travel time (e.g.~20
+minutes walking). You can specify three types of weights for this score:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi})}
 \tightlist
 \item
-  network\_type (drive or walk)
+  \textbf{distance decay} where closer amenities have more weight
+  (default = linear)\\
 \item
-  epsilon=0.05 (can change default)\\
+  \textbf{relative importance of an amenity type} (e.g.~with a greater
+  weight for supermarkets than museums)\\
 \item
-  primary\_input\\
-\item
-  secondary\_input\\
-\item
-  output\_type=`csv'\\
-\item
-  n\_best\_matches=4 (for simulations)
-\item
-  read\_from\_file=None\\
-\item
-  write\_to\_file (set as True if user wants to save results)\\
-\item
-  load\_to\_mem=True (True is default but can set it to False if the
-  user is running a computational intensive process
-  \textgreater{}\textgreater{}\textgreater{}.)
-\end{itemize}
+  \textbf{penalty for same types} (where more of the same type of
+  amenity gets less weight).
+\end{enumerate}
 
-\textbf{Please make sure latitude and longitude are correct if using X
-and Y.}
+You can estimate the score with or without normalization.\\
+The AccessModel does not require population or target variables.
 
-\hypertarget{model-1-symmetric-matrix}{%
-\subsection{\#\#\# Model 1: Symmetric
-Matrix}\label{model-1-symmetric-matrix}}
+    \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
 
-The first model creates a symmetric distance travel matrix from block to
-block (46,357 x 46,367 matrix). Then, we snap the destination points to
-the area of analysis (blocks), getting a matrix that calculates the
-distance between the destinations and every block in the dataset. ****
-There are 46,357 blocks in the city of Chicago, but are reduced to
-46,265 so it matches to the community level aggregation.\\
-Nevertheless, we need to obtain the distance matrix first (takes approx.
-15 min):
+Specify travel mode, file names, variable names and the distance decay
+function:
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Specify walking distance matrix (takes \PYZti{}30 min to run) }
-        \PY{n}{w\PYZus{}sym\PYZus{}mat} \PY{o}{=} \PY{n}{TransitMatrix}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                  \PY{n}{primary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/LEHD\PYZus{}blocks.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                  \PY{n}{write\PYZus{}to\PYZus{}file}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,}
-                                  \PY{n}{load\PYZus{}to\PYZus{}mem}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Run process}
-        \PY{n}{w\PYZus{}sym\PYZus{}mat}\PY{o}{.}\PY{n}{process}\PY{p}{(}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Saved as w\PYZus{}sym\PYZus{}mat.csv}
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{access} \PY{o}{=} \PY{n}{AccessModel}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{transit\PYZus{}matrix\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                             \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                             \PY{n}{decay\PYZus{}function} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{linear}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    Specify the weights for relative importance and same types:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}12}]:} \PY{n}{category\PYZus{}dict} \PY{o}{=} \PY{p}{\PYZob{}}
+             \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Museum}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{p}{[}\PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{]}\PY{p}{,}
+             \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Restaurant}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{p}{[}\PY{l+m+mi}{10}\PY{p}{,} \PY{l+m+mi}{10}\PY{p}{]}\PY{p}{,}
+             \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Supermarket}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{p}{[}\PY{l+m+mi}{10}\PY{p}{,} \PY{l+m+mi}{7}\PY{p}{,} \PY{l+m+mi}{5}\PY{p}{]}
+         \PY{p}{\PYZcb{}}
+\end{Verbatim}
+
+
+    Specify the travel time threshold in seconds (e.g.~1,800 seconds = 30
+minutes), whether or not to normalize the score, and the
+importance/variety weights:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{access}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{n}{upper\PYZus{}threshold}\PY{o}{=}\PY{l+m+mi}{1800}\PY{p}{,}
+                         \PY{n}{normalize}\PY{o}{=}\PY{k+kc}{False}\PY{p}{,}
+                         \PY{n}{category\PYZus{}weight\PYZus{}dict}\PY{o}{=}\PY{n}{category\PYZus{}dict}\PY{p}{)}
+\end{Verbatim}
+
+
+    View the first 5 records of the access score results by category:
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}17}]:} \PY{n}{access}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}17}]:}              all\_categories\_score  Museum\_score  Supermarket\_score  \textbackslash{}
+         17031836300             19.318333      2.108333           9.826667   
+         17031836200             22.553333      4.983333           8.342222   
+         17031410100             18.303889      2.011111           8.398333   
+         17031410200             25.826667      1.647222          12.301667   
+         17031410500             21.282778      3.519444           9.713333   
+         
+                      Restaurant\_score  
+         17031836300          7.383333  
+         17031836200          9.227778  
+         17031410100          7.894444  
+         17031410200         11.877778  
+         17031410500          8.050000  
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}18}]:} \PY{n}{access}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/models/simple\PYZus{}demo\PYZus{}accessMod.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{access-time-time-to-closest-destination}{%
+\subsubsection{Access Time: Time to closest
+destination}\label{access-time-time-to-closest-destination}}
+
+    Next, you will calculate the time it takes to reach the closest
+destination for each point of origin.\\
+As before, you define the Access Time model using the sources and
+destinations csv.\\
+AccessTime does not require population or target variables.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessT} \PY{o}{=} \PY{n}{AccessTime}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{transit\PYZus{}matrix\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                             \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+                            \PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Specify driving distance matrix (takes \PYZti{}30 minutes to run) }
-        \PY{n}{d\PYZus{}sym\PYZus{}mat} \PY{o}{=} \PY{n}{TransitMatrix}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{drive}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                  \PY{n}{primary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/LEHD\PYZus{}blocks.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                  \PY{n}{write\PYZus{}to\PYZus{}file}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,}
-                                  \PY{n}{load\PYZus{}to\PYZus{}mem}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Run process. For driving, p2p queries OSM to fetch the street network and then output the shortest path transit matrix}
-        \PY{n}{d\PYZus{}sym\PYZus{}mat}\PY{o}{.}\PY{n}{process}\PY{p}{(}\PY{n}{speed\PYZus{}limit\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/condensed\PYZus{}street\PYZus{}data.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Saved as d\PYZus{}sym\PYZus{}mat.csv}
-\end{Verbatim}
-
-
-    Now, snap the points to the units of analysis. However, snapping the
-destination points is not always so straightforward. Deciding which
-points (laying on the network) are assigned to each area of analysis may
-be arbitrary; therefore, it is important to scrutinize the structure of
-the data before doing any further processing. If the destinations fall
-within the unit of analysis, the best option is to run a within function
-that incorporates the destinations to the unit of analysis and then
-doing a join with the area IDs. The following image shows that in this
-case, we can safely run a function that assigns each point to the area
-of analysis of interest.
-
-    
-
-    \textbf{Spatial join of health facilities and area of analysis}
-
-Finally, in order to get the matrix of origins to destinations, we need
-to join the health facilities by block with the distance matrix
-previously generated. This will generate an asymmetric matrix with all
-the distances from destinations to all the units of analysis in Chicago.
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Read destination files to join with boundaries }
-        \PY{n}{health\PYZus{}gdf} \PY{o}{=} \PY{n}{gpd}\PY{o}{.}\PY{n}{read\PYZus{}file}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/marynia\PYZus{}health.shp}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        \PY{n}{health\PYZus{}gdf}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
-        \PY{c+c1}{\PYZsh{}Use symmetric matrix calculated above or read your previously saved results:}
-        \PY{c+c1}{\PYZsh{}sym\PYZus{}walk=pd.read\PYZus{}csv(\PYZsq{}data/walk\PYZus{}sym.csv\PYZsq{})}
-        
-        \PY{c+c1}{\PYZsh{} Read boundaries files }
-        \PY{n}{boundaries\PYZus{}gdf} \PY{o}{=} \PY{n}{gpd}\PY{o}{.}\PY{n}{read\PYZus{}file}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/blocks\PYZus{}46265.shp}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Rename the ID name in order to match both data frames. }
-        \PY{n}{sym\PYZus{}walk}\PY{o}{=} \PY{n}{sym\PYZus{}walk}\PY{o}{.}\PY{n}{rename}\PY{p}{(}\PY{n}{index}\PY{o}{=}\PY{n+nb}{str}\PY{p}{,} \PY{n}{columns}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Unnamed: 0}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{geoid10}\PY{l+s+s2}{\PYZdq{}}\PY{p}{\PYZcb{}}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Spatial join of amenities within each area of analysis }
-        \PY{n}{s\PYZus{}join} \PY{o}{=} \PY{n}{gpd}\PY{o}{.}\PY{n}{sjoin}\PY{p}{(}\PY{n}{health\PYZus{}gdf}\PY{p}{,} \PY{n}{boundaries\PYZus{}gdf}\PY{p}{,} \PY{n}{how}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{inner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{op}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{within}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Convert geopanda dataframe to non\PYZhy{}spatial dataframe to join }
-        \PY{n}{jb\PYZus{}df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{s\PYZus{}join}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Make sure the id is of the same data type in both data frames.}
-        \PY{c+c1}{\PYZsh{} sym\PYZus{}walk.dtypes}
-        \PY{c+c1}{\PYZsh{} jb\PYZus{}df.dtypes}
-        \PY{n}{jb\PYZus{}df}\PY{o}{.}\PY{n}{geoid10}\PY{o}{=}\PY{n}{jb\PYZus{}df}\PY{o}{.}\PY{n}{geoid10}\PY{o}{.}\PY{n}{astype}\PY{p}{(}\PY{n+nb}{int}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{} Join the symmetric matrix with the spatially joined data (with geoid10 id)}
-        \PY{n}{j\PYZus{}asym}\PY{o}{=}\PY{n}{pd}\PY{o}{.}\PY{n}{merge}\PY{p}{(}\PY{n}{sym\PYZus{}walk}\PY{p}{,} \PY{n}{jb\PYZus{}df}\PY{p}{,} \PY{n}{left\PYZus{}on}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{right\PYZus{}on}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{how}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{inner}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessT}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Check that the spatial join and join ran appropriately }
-        \PY{n}{j\PYZus{}asym}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
-\end{Verbatim}
-
-
-    \hypertarget{model-2-asymmetric-matrix}{%
-\subsection{\#\# Model 2: Asymmetric
-Matrix}\label{model-2-asymmetric-matrix}}
-
-The second model directly creates an asymmetric matrix from destination
-points to the centroids of the area of analysis (also takes
-\textasciitilde{} 20 min). This approach is most effective when you are
-only calculating the distance matrix or a particular distance score
-once.
-
-    \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Calculate asymmetric distance matrix for walking }
-        
-        \PY{n}{w\PYZus{}asym\PYZus{}mat} \PY{o}{=} \PY{n}{TransitMatrix}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{primary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/LEHD\PYZus{}blocks.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{secondary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/marynia\PYZus{}health.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} 
-                                   \PY{n}{write\PYZus{}to\PYZus{}file}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
-        
-        \PY{n}{w\PYZus{}asym\PYZus{}mat}\PY{o}{.}\PY{n}{process}\PY{p}{(}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{}The output is walk\PYZus{}asym\PYZus{}health.csv (used in the calculation of the access scores)}
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessT}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Calculate asymmetric distance matrix for driving }
-        
-        \PY{n}{d\PYZus{}asym\PYZus{}mat} \PY{o}{=} \PY{n}{TransitMatrix}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{drive}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{primary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/LEHD\PYZus{}blocks.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{secondary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/nets\PYZus{}all.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{write\PYZus{}to\PYZus{}file}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
-        
-        \PY{n}{d\PYZus{}asym\PYZus{}mat}\PY{o}{.}\PY{n}{process}\PY{p}{(}\PY{n}{speed\PYZus{}limit\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/condensed\PYZus{}street\PYZus{}data.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{}The output is drive\PYZus{}asym\PYZus{}health.csv (used in the calculation of the access scores)}
+{\color{incolor}In [{\color{incolor}21}]:} \PY{n}{accessT}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data/output\PYZus{}data/models/simple\PYZus{}demo\PYZus{}accessT.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{access-count-number-of-destinations-within-a-catchment-area}{%
+\subsubsection{Access Count: Number of Destinations within a Catchment
+Area}\label{access-count-number-of-destinations-within-a-catchment-area}}
+
+    Access Count measures the number of destinations within a given travel
+time.\\
+In this case, the catchment area is 1,800 seconds (30 minutes) of
+walking from a point of origin.\\
+It does not require population or target variables.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessC} \PY{o}{=} \PY{n}{AccessCount}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{transit\PYZus{}matrix\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                             \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+                             \PY{p}{)}
 \end{Verbatim}
 
 
     \begin{Verbatim}[commandchars=\\\{\}]
-{\color{incolor}In [{\color{incolor} }]:} \PY{c+c1}{\PYZsh{} Calculate asymmetric distance matrix for driving (Currently not working)}
-        
-        \PY{n}{b\PYZus{}asym\PYZus{}mat} \PY{o}{=} \PY{n}{TransitMatrix}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{bike}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{primary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/LEHD\PYZus{}blocks.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{secondary\PYZus{}input}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{resources/marynia\PYZus{}health.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
-                                   \PY{n}{write\PYZus{}to\PYZus{}file}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
-        
-        \PY{n}{b\PYZus{}asym\PYZus{}mat}\PY{o}{.}\PY{n}{process}\PY{p}{(}\PY{p}{)}
-        
-        \PY{c+c1}{\PYZsh{}The output is bike\PYZus{}asym\PYZus{}health.csv (used in the calculation of the access scores)}
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessC}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{n}{upper\PYZus{}threshold}\PY{o}{=}\PY{l+m+mi}{1800}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}34}]:} \PY{n}{accessC}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}34}]:}              count\_in\_range\_Museum  count\_in\_range\_Supermarket  \textbackslash{}
+         17031836300                      1                           3   
+         17031836200                      2                           3   
+         17031410100                      1                           2   
+         17031410200                      2                           2   
+         17031410500                      2                           3   
+         
+                      count\_in\_range\_Restaurant  count\_in\_range\_all\_categories  
+         17031836300                          2                              6  
+         17031836200                          2                              7  
+         17031410100                          2                              5  
+         17031410200                          2                              6  
+         17031410500                          2                              7  
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}25}]:} \PY{n}{accessC}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data/output\PYZus{}data/models/simple\PYZus{}demo\PYZus{}accessC.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{access-sum-the-sum-of-an-attribute-of-a-destination-within-a-given-travel-time}{%
+\subsubsection{Access Sum: The sum of an attribute of a destination
+within a given travel
+time}\label{access-sum-the-sum-of-an-attribute-of-a-destination-within-a-given-travel-time}}
+
+    Access Sum sums an attribute of a destination within a catchment area,
+e.g.~the size of supermarkets within 30 minutes walking time from a
+point of origin. It requires a target variable.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessS} \PY{o}{=} \PY{n}{AccessSum}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{transit\PYZus{}matrix\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                             \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                             \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{target}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+                           \PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{accessS}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{n}{upper\PYZus{}threshold}\PY{o}{=}\PY{l+m+mi}{1800}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}42}]:} \PY{n}{accessS}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}42}]:}              sum\_in\_range\_Museum  sum\_in\_range\_Supermarket  \textbackslash{}
+         17031836300                  100                       155   
+         17031836200                  500                       155   
+         17031410100                  400                        85   
+         17031410200                  500                        85   
+         17031410500                  500                       155   
+         
+                      sum\_in\_range\_Restaurant  sum\_in\_range\_all\_categories  
+         17031836300                       80                          335  
+         17031836200                       80                          735  
+         17031410100                       80                          565  
+         17031410200                       80                          665  
+         17031410500                       80                          735  
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}40}]:} \PY{n}{accessS}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/simple\PYZus{}demo\PYZus{}accessS.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{destination-sum-sum-of-a-provider-charactistic-by-area}{%
+\subsubsection{Destination Sum: Sum of a provider charactistic by
+area}\label{destination-sum-sum-of-a-provider-charactistic-by-area}}
+
+    \textbf{Destination Sum} sums an attribute of a destination within a
+geographic boundary. It also generates this result per capita within
+these boundaries.\\
+This so-called container approach differs from Access Sum in that it
+sums point attributes within areas without relying on travel times. It
+requires population and target variables.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{d\PYZus{}sum} \PY{o}{=} \PY{n}{DestSum}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                        \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{d./ata/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                        \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                        \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{skip}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                        \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{target}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+                       \PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}95}]:} \PY{n}{d\PYZus{}sum}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}95}]:}                  Museum  Supermarket  Restaurant  all\_categories  \textbackslash{}
+         spatial\_index                                                      
+         HYDE PARK         400.0         85.0        80.0           565.0   
+         WASHINGTON PARK   100.0          0.0         0.0           100.0   
+         WOODLAWN            0.0         70.0         0.0            70.0   
+         
+                          Museum\_per\_capita  Supermarket\_per\_capita  \textbackslash{}
+         spatial\_index                                                
+         HYDE PARK                44.444444                9.444444   
+         WASHINGTON PARK                NaN                     NaN   
+         WOODLAWN                       NaN                     NaN   
+         
+                          Restaurant\_per\_capita  all\_categories\_per\_capita  
+         spatial\_index                                                      
+         HYDE PARK                     8.888889                  62.777778  
+         WASHINGTON PARK                    NaN                        NaN  
+         WOODLAWN                           NaN                        NaN  
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}45}]:} \PY{n}{d\PYZus{}sum}\PY{o}{.}\PY{n}{aggregated\PYZus{}results}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}45}]:}                  Museum  Supermarket  Restaurant  all\_categories  \textbackslash{}
+         spatial\_index                                                      
+         HYDE PARK         400.0         85.0        80.0           565.0   
+         WASHINGTON PARK   100.0          0.0         0.0           100.0   
+         WOODLAWN            0.0         70.0         0.0            70.0   
+         
+                          Museum\_per\_capita  Supermarket\_per\_capita  \textbackslash{}
+         spatial\_index                                                
+         HYDE PARK                 0.017291                0.003674   
+         WASHINGTON PARK                NaN                     NaN   
+         WOODLAWN                       NaN                     NaN   
+         
+                          Restaurant\_per\_capita  all\_categories\_per\_capita  
+         spatial\_index                                                      
+         HYDE PARK                     0.003458                   0.024423  
+         WASHINGTON PARK                    NaN                        NaN  
+         WOODLAWN                           NaN                        NaN  
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}37}]:} \PY{n}{d\PYZus{}sum}\PY{o}{.}\PY{n}{aggregated\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/simple\PYZus{}demo\PYZus{}destsum.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{coverage-metrics-attributes-of-destinations}{%
+\subsection{Coverage Metrics (Attributes of
+Destinations)}\label{coverage-metrics-attributes-of-destinations}}
+
+    The metrics above were attributes of the origin points, i.e.~they
+considered spatial access from the perspective of someone accessing
+amenities. In contrast, the following metrics are attributes of the
+destination, i.e.~they consider spatial access from the perspective of
+the service provider. In addition to a capacity field, these metrics
+also require a population variable.
+
+    \hypertarget{coverage}{%
+\subsubsection{Coverage}\label{coverage}}
+
+    Coverage adds two variables to the destination file: The number of
+people within the catchment area of a provider and a provider attribute
+divided by this nearby population count. E.g. you can use this to
+calculate the funding amount a service provider receives per people
+within the catchment area of the provider (such as 30 minutes walking
+time to the provider).
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{cov} \PY{o}{=} \PY{n}{Coverage}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                       \PY{n}{transit\PYZus{}matrix\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                       \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                       \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                       \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Pop2014}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                       \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{target}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+                      \PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}47}]:} \PY{n}{cov}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{n}{upper\PYZus{}threshold}\PY{o}{=}\PY{l+m+mi}{1800}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}47}]:}                                 service\_pop  percap\_spending     category
+         Museum of Science and Industry        24861         0.016089       Museum
+         DuSable Museum                        23134         0.004323       Museum
+         Whole Foods                           31326         0.001596  Supermarket
+         Hyde Park Produce                     31326         0.001117  Supermarket
+         Jewel Osco                            16726         0.004185  Supermarket
+         Medici                                31326         0.001596   Restaurant
+         Valois                                31326         0.000958   Restaurant
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}16}]:} \PY{n}{cov}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/models/simple\PYZus{}demo\PYZus{}cov.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\end{Verbatim}
+
+
+    \hypertarget{two-stage-floating-catchment-area-tsfca}{%
+\subsubsection{Two-Stage Floating Catchment Area
+(TSFCA)}\label{two-stage-floating-catchment-area-tsfca}}
+
+    TSFCA Models are a type of gravity model popularized by Luo and Wang in
+2003 to estimate spatial access gaps to primary care. They are
+calculated in two stages (using the primary care example): In a first
+stage, the ratio of doctors to the nearby population is calculated for
+every provider. In the 2nd stage, these ratios are summed for every
+point of origin (such as a tract centroid) within a travel threshold. In
+other words, the ratio of doctors to people is first calculated for the
+catchment areas of doctors (1st stage) and then summed for the catchment
+areas around a home or work location (2nd stage). The field names below
+are for a case that calculates per capita spending.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor} }]:} \PY{n}{tsfca} \PY{o}{=} \PY{n}{TSFCA}\PY{p}{(}\PY{n}{network\PYZus{}type}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{walk}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                      \PY{n}{transit\PYZus{}matrix\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/matrices/simple\PYZus{}demo\PYZus{}matrix.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                      \PY{n}{sources\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/sources/hyde\PYZus{}park\PYZus{}tracts.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                      \PY{n}{destinations\PYZus{}filename}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/input\PYZus{}data/destinations/hyde\PYZus{}park\PYZus{}dests.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,}
+                      \PY{n}{source\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}} \PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{geoid10}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{population}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Pop2014}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                      \PY{n}{dest\PYZus{}column\PYZus{}names}\PY{o}{=}\PY{p}{\PYZob{}}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{idx}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{name}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{capacity}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{target}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{category}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lat}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{:} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{lon}\PY{l+s+s1}{\PYZsq{}}\PY{p}{\PYZcb{}}
+                     \PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}49}]:} \PY{n}{tsfca}\PY{o}{.}\PY{n}{calculate}\PY{p}{(}\PY{n}{upper\PYZus{}threshold}\PY{o}{=}\PY{l+m+mi}{1800}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}49}]:}              percap\_spend\_Museum  percap\_spend\_Supermarket  \textbackslash{}
+         17031836300             0.004323                  0.006899   
+         17031836200             0.020412                  0.006899   
+         17031410100             0.016089                  0.002713   
+         17031410200             0.020412                  0.002713   
+         17031410500             0.020412                  0.006899   
+         17031410600             0.020412                  0.006899   
+         17031411100             0.020412                  0.006899   
+         17031410700             0.020412                  0.002713   
+         17031410800             0.020412                  0.002713   
+         17031410900             0.016089                  0.002713   
+         17031411000             0.016089                  0.002713   
+         17031411200             0.020412                  0.006899   
+         
+                      percap\_spend\_Restaurant  percap\_spend\_all\_categories  
+         17031836300                 0.002554                     0.013775  
+         17031836200                 0.002554                     0.029864  
+         17031410100                 0.002554                     0.021357  
+         17031410200                 0.002554                     0.025679  
+         17031410500                 0.002554                     0.029864  
+         17031410600                 0.002554                     0.029864  
+         17031411100                 0.002554                     0.029864  
+         17031410700                 0.002554                     0.025679  
+         17031410800                 0.002554                     0.025679  
+         17031410900                 0.002554                     0.021357  
+         17031411000                 0.002554                     0.021357  
+         17031411200                 0.002554                     0.029864  
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}11}]:} \PY{n}{tsfca}\PY{o}{.}\PY{n}{model\PYZus{}results}\PY{o}{.}\PY{n}{to\PYZus{}csv}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{./data/output\PYZus{}data/models/simple\PYZus{}demo\PYZus{}tsfca.csv}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
 \end{Verbatim}
 
 
