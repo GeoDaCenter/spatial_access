@@ -93,10 +93,10 @@ In output_data, the **matrices** folder stores the estimated symmetric and asymm
 The **models** folder contains the results of the models' analyses.  
 Finally, **figures** stores the results of maps and plots calculated during the process.
 
-
+You can also download all of the notebooks in one PDF file [here](https://github.com/GeoDaCenter/spatial_access/tree/master/docs/notebooks/spatial_access_documentation081219.pdf).
 
 ### Overwriting default configuration values
-p2p provides default configuration values for edge weights and node impedence (see spatial_access/configs.py).
+p2p provides default configuration values for edge weights and node impedance (see spatial_access/configs.py).
 You can overwrite these as follows:
 ```
 from spatial_access.p2p import TransitMatrix
