@@ -411,6 +411,18 @@ class TransitMatrix:
             raise WriteCSVFailedException('given filename does not have the correct extension (.csv)')
         self.matrix_interface.write_csv(outfile)
 
+    def getRowIds(self):
+        """
+        Get row ids from transition matrix
+        """
+        return self.matrix_interface.getRowIds()
+
+    def getColIds(self):
+        """
+        Get col ids from transition matrix
+        """
+        return self.matrix_interface.getColIds()
+
     def write_tmx(self, outfile=None):
         """
         Write the transit matrix to tmx.

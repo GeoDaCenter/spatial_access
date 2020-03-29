@@ -390,6 +390,19 @@ public:
 
     // IO
 
+    const std::vector<row_label_type>&
+    getRowIds() const
+    {
+        return this->df.getRowIds();
+    }
+
+
+    const std::vector<col_label_type>&
+    getColIds() const
+    {
+        return this->df.getColIds();
+    }
+
     void
     printDataFrame() const
     {

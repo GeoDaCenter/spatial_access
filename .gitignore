@@ -21,3 +21,4 @@ spatial_access.egg-info/
 __pycache__
 .cache
 spatial_access/matrix.dSYM/
+.vscode/settings.json

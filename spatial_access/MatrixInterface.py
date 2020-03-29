@@ -137,6 +137,18 @@ class MatrixInterface:
         else:
             raise UnrecognizedFileTypeException(extension)
 
+    def getRowIds(self):
+        """
+        Get row ids from transition matrix
+        """
+        return self.transit_matrix.getRowIds()
+        
+    def getColIds(self):
+        """
+        Get col ids from transition matrix
+        """
+        return self.transit_matrix.getColIds()
+
     def write_tmx(self, filename):
         """
         Write the transit matrix to binary format.

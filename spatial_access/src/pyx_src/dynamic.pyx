@@ -22,6 +22,9 @@ cdef extern from "include/transitMatrix.h":
         {{ value_type }} timeToNearestDest({{ row_type }}) except +
         {{ value_type }} countDestsInRange({{ row_type }}, {{ value_type }}) except +
 
+        vector[{{ col_type }}] getColIds() except +
+        vector[{{ row_type }}] getRowIds() except +
+
         void writeCSV(string) except +
         void writeTMX(string) except +
         void readTMX(string) except +
@@ -98,6 +101,12 @@ cdef class  {{ py_class_name }}:
 
     def countDestsInRange(self, source_id, range):
         return self.thisptr.countDestsInRange(source_id, range)
+
+    def getColIds(self):
+        return self.thisptr.getColIds()
+
+    def getRowIds(self):
+        return self.thisptr.getRowIds()
 
     def getSourcesInRange(self, range_):
         return self.thisptr.getSourcesInRange(range_)
