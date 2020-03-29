@@ -90,6 +90,7 @@ class ModelData:
         self.logger = None
         self.set_logging(debug)
 
+
     def write_transit_matrix_to_csv(self, filename=None):
         """
         Args:
@@ -172,6 +173,47 @@ class ModelData:
         which match. If category is all_categories, return all indeces.
         """
         return list(self.dests[self.dests['category'] == category].index)
+
+    def get_transit_source_ids(self):
+        """
+        Returns: all source IDs from transit matrix
+        """
+        return self.transit_matrix.matrix_interface.get_source_ids()
+
+    def get_transit_dest_ids(self):
+        """
+        Returns: all destination IDs from transit matrix
+        """
+        return self.transit_matrix.matrix_interface.get_dest_ids()
+
+    def get_common_source_ids(self):
+        """
+        Get source IDs present in provided source data and transit matrix
+        """
+        return set(self.get_all_source_ids()) & set(self.get_transit_source_ids())
+
+    def get_common_dest_ids(self):
+        """
+        Get destination IDs present in provided destination data and transit matrix
+        """
+        return set(self.get_all_dest_ids()) & set(self.get_transit_dest_ids())
+
+    def _missing_transit_data_warning(self, id_type):
+        """
+        Throws an error to the log if there are source or destination IDs in your data
+        without corresponding time travel data in the transit matrix.
+        """
+        for type in id_type:
+            assert type in ['source', 'destination'], "id_type must be 'source', or 'destination'"
+
+            data_ids     = set(self.get_all_dest_ids())     if type == 'destination' else set(self.get_all_source_ids())
+            transit_ids  = set(self.get_transit_dest_ids()) if type == 'destination' else set(self.get_transit_source_ids())
+
+            no_transit_data = data_ids - transit_ids
+
+            if len(no_transit_data):
+                self.logger.warning('No transit matrix data available for {} {} ID(s). Missing: {}'
+                                .format(len(no_transit_data), type, no_transit_data))
 
     def set_logging(self, debug):
         """
@@ -476,7 +518,7 @@ class ModelData:
         """
         Map all categories-> associated dest_ids.
         """
-        for dest_id in self.get_all_dest_ids():
+        for dest_id in self.get_common_dest_ids():
             associated_category = self.get_category(dest_id)
             self._add_to_category_map(dest_id, associated_category)
 
@@ -732,7 +774,7 @@ class ModelData:
             filename will be automatically generated.
         Raises:
             ModelNotCalculatedException: if model has not been calculated.
-        """ 
+        """
         if self.model_results is None:
             raise ModelNotCalculatedException()
         if filename is None:
@@ -899,4 +941,3 @@ class ModelData:
         mpl.pyplot.savefig(filename, dpi=400)
 
         self.logger.info('Figure was saved to: {}'.format(filename))
-

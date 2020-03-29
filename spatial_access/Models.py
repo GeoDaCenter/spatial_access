@@ -301,6 +301,8 @@ class AccessTime(ModelData):
         self.set_focus_categories(categories=categories)
         self._requires_user_aggregation_type = True
         self._map_categories_to_sp_matrix()
+        self._missing_transit_data_warning(['source','destination'])
+
 
     def calculate(self):
         """
@@ -310,7 +312,7 @@ class AccessTime(ModelData):
         results = {}
         focus_categories_list = list(self.focus_categories)
         column_names = ['time_to_nearest_' + category for category in focus_categories_list]
-        for source_id in self.get_all_source_ids():
+        for source_id in self.get_common_source_ids():
             results[source_id] = []
             for category in focus_categories_list:
                 time_to_nearest_neighbor = self.time_to_nearest_dest(source_id, category)
@@ -319,7 +321,7 @@ class AccessTime(ModelData):
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
         self.model_results['time_to_nearest_all_categories'] = self.model_results.min(axis=1)
-        #return self.model_results
+        return self.model_results
 
 
 class AccessCount(ModelData):
@@ -356,6 +358,7 @@ class AccessCount(ModelData):
         self.set_focus_categories(categories=categories)
         self._map_categories_to_sp_matrix()
         self._result_column_names = 'count_in_range'
+        self._missing_transit_data_warning(['source','destination'])
 
     def calculate(self, upper_threshold):
         """
@@ -420,6 +423,8 @@ class AccessSum(ModelData):
         self.set_focus_categories(categories=categories)
         self._map_categories_to_sp_matrix()
         self._result_column_names = 'sum_in_range'
+        self._missing_transit_data_warning(['source','destination'])
+
 
     def calculate(self, upper_threshold):
         """
@@ -452,7 +457,7 @@ class AccessSum(ModelData):
 
 class AccessModel(ModelData):
     """
-    Build the Access model which captures the accessibility of 
+    Build the Access model which captures the accessibility of
     nonprofit services in urban environments.
     """
 
@@ -463,7 +468,7 @@ class AccessModel(ModelData):
         destinations_filename=None,
         dest_column_names=None,
         transit_matrix_filename=None,
-        decay_function='linear', 
+        decay_function='linear',
         categories=None,
         configs=None,
         debug=False):
@@ -492,6 +497,8 @@ class AccessModel(ModelData):
         self.load_transit_matrix(transit_matrix_filename)
         self.set_focus_categories(categories=categories)
         self._result_column_names = 'score'
+        self._missing_transit_data_warning(['source','destination'])
+
 
     def set_decay_function(self, decay_function):
         """
@@ -592,7 +599,7 @@ class AccessModel(ModelData):
             index += 1
 
         # calculate score for each source_id
-        for source_id in self.get_all_source_ids():
+        for source_id in self.get_common_source_ids():
             category_encounters = {category: 0 for category in self.all_categories}
             for dest_id, time in self.get_values_by_source(source_id, sort=True):
                 decayed_time = self.decay_function(time, upper_threshold)
@@ -632,7 +639,7 @@ class AccessModel(ModelData):
         for column in self.model_results.columns:
             self._aggregation_args[column] = 'mean'
 
-        #return self.model_results
+        # return self.model_results
 
     def _normalize(self, column, normalize_type):
         """
@@ -659,4 +666,3 @@ class AccessModel(ModelData):
             self.model_results[column] = (self.model_results[column] - self.model_results[column].min()) / normalize_factor
         else:
             raise UnexpectedNormalizeTypeException(normalize_type)
-

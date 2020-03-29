@@ -137,15 +137,15 @@ class MatrixInterface:
         else:
             raise UnrecognizedFileTypeException(extension)
 
-    def getRowIds(self):
+    def get_source_ids(self):
         """
-        Get row ids from transition matrix
+        Returns: all source IDs from transit matrix
         """
         return self.transit_matrix.getRowIds()
-        
-    def getColIds(self):
+
+    def get_dest_ids(self):
         """
-        Get col ids from transition matrix
+        Returns: all destination IDs from transit matrix
         """
         return self.transit_matrix.getColIds()
 
