@@ -321,7 +321,7 @@ class AccessTime(ModelData):
         self.model_results = pd.DataFrame.from_dict(results, orient='index',
                                                     columns=column_names)
         self.model_results['time_to_nearest_all_categories'] = self.model_results.min(axis=1)
-        return self.model_results
+        # return self.model_results
 
 
 class AccessCount(ModelData):
@@ -371,7 +371,7 @@ class AccessCount(ModelData):
         focus_categories_list = list(self.focus_categories)
         column_names = ['count_in_range_' + category for category in focus_categories_list]
         self.calculate_dests_in_range(upper_threshold)
-        for source_id in self.get_all_source_ids():
+        for source_id in self.get_common_source_ids():
             results[source_id] = []
             for category in focus_categories_list:
                 count_in_range = self.count_dests_in_range_by_categories(source_id=source_id,
