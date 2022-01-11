@@ -21,4 +21,8 @@ spatial_access.egg-info/
 __pycache__
 .cache
 spatial_access/matrix.dSYM/
+<<<<<<< Updated upstream
 .vscode/settings.json
+=======
+.vscode/
+>>>>>>> Stashed changes

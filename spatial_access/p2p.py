@@ -40,7 +40,9 @@ class TransitMatrix:
             primary_hints=None,
             secondary_hints=None,
             debug=False,
-            configs=None):
+            configs=None,
+            local_nodes=None,
+            local_edges=None):
         """
         Args:
             network_type: string, one of {'walk', 'bike', 'drive', 'otp'}.
@@ -87,7 +89,8 @@ class TransitMatrix:
             self.configs = Configs()
 
         self._network_interface = NetworkInterface(network_type, logger=self.logger,
-                                                   disable_area_threshold=self.configs.disable_area_threshold)
+                                                   disable_area_threshold=self.configs.disable_area_threshold,
+                                                   local_nodes=local_nodes, local_edges=local_edges)
 
         self.matrix_interface = MatrixInterface(logger=self.logger,
                                                 require_extended_range=self.configs.require_extended_range)
