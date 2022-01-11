@@ -21,4 +21,9 @@ spatial_access.egg-info/
 __pycache__
 .cache
 spatial_access/matrix.dSYM/
+<<<<<<< Updated upstream
 .vscode/settings.json
+=======
+.vscode/
+>>>>>>> Stashed changes
+_p2pExtension.cpython-39-darwin.so

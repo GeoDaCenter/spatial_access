@@ -1,6 +1,7 @@
 import sys, os
 from setuptools.extension import Extension
 from setuptools import setup
+from setuptools.command.build_py import build_py as _build_py
 import re
 
 with open("README.md", "r") as fh:
@@ -24,7 +25,7 @@ def build_extension(extension_name, sources):
     full_path_sources = [SRC_PATH + src for src in sources]
     return Extension(name=extension_name, language='c++',
                      sources=full_path_sources,
-                     extra_compile_args=['--std=c++11', '-Ofast', '-fomit-frame-pointer', "-g0"] + ouff_mac,
+                     extra_compile_args=['--std=c++11', '-O2', '-fomit-frame-pointer', "-g0"] + ouff_mac,
                      undef_macros=["NDEBUG"],
                      extra_link_args=ouff_mac)
 
@@ -40,9 +41,9 @@ REQUIRED_DEPENDENCIES = ['fiona>=1.7.12',
                          'geopandas>=0.3.0',
                          'psutil>=5.4.3',
                          'pandas>=0.19.2',
-                         'numpy==1.15.4',
+                         'numpy>=1.15.4',
                          'osmnet>=0.1.5',
-                         'scipy>=0.18.1',
+                         'scipy>=1.7.2',
                          'geopy>=1.11.0',
                          'shapely',
                          'tables>=3.4.2',
@@ -68,7 +69,7 @@ if 'READTHEDOCS' in os.environ:
     EXTENSIONS = []
 
 def get_property(prop, project):
-    result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), open(project + '/__init__.py').read())
+    result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), open('spatial_access/__init__.py').read())
     return result.group(1)
 
 PROJECT_NAME='spatial_access'

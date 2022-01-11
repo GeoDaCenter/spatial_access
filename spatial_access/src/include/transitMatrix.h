@@ -11,6 +11,7 @@
 #include <functional>
 #include <numeric>
 #include <mutex>
+#include <iostream>
 
 #include "threadUtilities.h"
 #include "dataFrame.h"
@@ -37,7 +38,9 @@ void graphWorkerHandler(graphWorkerArgs<row_label_type,col_label_type, value_typ
         if (endNow) {
             break;
         }
-        doDijstraFromOneNetworkNode(src, worker_args, dist_vector);
+        if (src > 0) {
+            doDijstraFromOneNetworkNode(src, worker_args, dist_vector);
+        }
     }
 }
 
@@ -106,8 +109,6 @@ void calculateSingleRowOfDataFrame(const std::vector<value_type> &dist,
 
         }
         worker_args.df.setRowByRowLoc(row_data, sourceDataPoint.loc);
-
-
     }
 
 }
@@ -318,6 +319,9 @@ public:
     value_type
     timeToNearestDestPerCategory(const row_label_type& source_id, const std::string& category) const
     {
+        if (categoryToDestMap.find(category) == categoryToDestMap.end()) {
+            return 0;
+        }
         value_type minimum = df.UNDEFINED;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
         {
@@ -334,6 +338,9 @@ public:
     value_type
     countDestsInRangePerCategory(const row_label_type& source_id, const std::string& category, value_type range) const
     {
+        if (categoryToDestMap.find(category) == categoryToDestMap.end()) {
+            return 0;
+        }
         value_type count = 0;
         for (const col_label_type dest_id : categoryToDestMap.at(category))
         {

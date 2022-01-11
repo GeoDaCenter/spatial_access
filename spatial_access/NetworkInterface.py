@@ -27,7 +27,7 @@ class NetworkInterface:
     Manages OSM network retrieval for p2p.TransitMatrix.
     """
 
-    def __init__(self, network_type, logger=None, disable_area_threshold=False):
+    def __init__(self, network_type, logger=None, disable_area_threshold=False, local_nodes=None, local_edges=None):
         """
 
         Args:
@@ -35,12 +35,15 @@ class NetworkInterface:
             logger: optional, logger.
             disable_area_threshold: boolean, enable if computation fails due to
             exceeding bounding box area constraint.
+            local_nodes: optional, preprocessed nodes dataframe in pandana format
+            local_edges: optional, preprocessed edges dataframe in pandana format
+            see: https://pyrosm.readthedocs.io/en/latest/basics.html#export-to-pandana
         """
         self.logger = logger
         self.network_type = network_type
         self.bbox = None
-        self.nodes = None
-        self.edges = None
+        self.nodes = local_nodes
+        self.edges = local_edges
         self.area_threshold = None if disable_area_threshold else 5000  # km
         assert isinstance(network_type, str)
         self._try_create_cache()
@@ -150,6 +153,13 @@ class NetworkInterface:
         """
         return os.path.exists(self._get_filename())
 
+    def set_network(self, local_nodes, local_edges):
+        if self.logger:
+            self.logger.info('Set network using local nodes and edges.') 
+        self.nodes = local_nodes
+        self.edges = local_edges
+        self._remove_disconnected_components()
+
     def load_network(self, primary_data, secondary_data,
                      secondary_input, epsilon):
         """
@@ -172,19 +182,21 @@ class NetworkInterface:
         assert isinstance(secondary_data, pd.DataFrame) or secondary_data is None
         assert isinstance(secondary_input, bool)
         assert isinstance(epsilon, float) or isinstance(epsilon, int)
-
         self._try_create_cache()
         self._get_bbox(primary_data, secondary_data,
                        secondary_input, epsilon)
-        if self._network_exists():
-            filename = self._get_filename()
-            self.nodes = pd.read_hdf(filename, 'nodes')
-            self.edges = pd.read_hdf(filename, 'edges')
-            if self.logger:
-                self.logger.debug('Read network from cache: %s', filename)
-        else:
-            self._request_network()
-        self._remove_disconnected_components()
+
+        if self.nodes is None and self.edges is None:
+            if self._network_exists():
+                filename = self._get_filename()
+                self.nodes = pd.read_hdf(filename, 'nodes')
+                self.edges = pd.read_hdf(filename, 'edges')
+                if self.logger:
+                    self.logger.debug('Read network from cache: %s', filename)
+            else:
+                self._request_network()
+                
+        # self._remove_disconnected_components()
 
     def _request_network(self):
         """
@@ -205,9 +217,13 @@ class NetworkInterface:
                     lat_max=self.bbox[2], lng_max=self.bbox[3],
                     network_type=self.network_type)
                 if self.network_type == 'drive':
-                    self.edges.drop(['access', 'hgv', 'lanes', 'maxspeed', 'tunnel'], inplace=True, axis=1)
+                    self.edges.drop(['access', 'hgv', 'lanes', 'maxspeed'], inplace=True, axis=1)
+                    if 'tunnel' in self.edges.columns:
+                        self.edges.drop(['tunnel'], inplace=True, axis=1)
                 else:
-                    self.edges.drop(['access', 'bridge', 'lanes', 'service', 'tunnel'], inplace=True, axis=1)
+                    self.edges.drop(['access', 'bridge', 'lanes', 'service'], inplace=True, axis=1)
+                    if 'tunnel' in self.edges.columns:
+                        self.edges.drop(['tunnel'], inplace=True, axis=1)
             filename = self._get_filename()
             self.nodes.to_hdf(filename, 'nodes', complevel=5)
             self.edges.to_hdf(filename, 'edges', complevel=5)
